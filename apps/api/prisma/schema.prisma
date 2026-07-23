@@ -1,0 +1,89 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum ProviderStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+model AdminUser {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email          String    @unique @db.VarChar(255)
+  passwordHash   String    @map("password_hash") @db.VarChar(255)
+  failedAttempts Int       @default(0) @map("failed_attempts")
+  lockedUntil    DateTime? @map("locked_until") @db.Timestamptz
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("admin_users")
+}
+
+model Customer {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firebaseUid  String?        @unique @map("firebase_uid") @db.VarChar(128)
+  mobileNumber String         @unique @map("mobile_number") @db.VarChar(20)
+  displayName  String?        @map("display_name") @db.VarChar(150)
+  isSuspended  Boolean        @default(false) @map("is_suspended")
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("customers")
+}
+
+model Provider {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firebaseUid  String?        @unique @map("firebase_uid") @db.VarChar(128)
+  mobileNumber String         @unique @map("mobile_number") @db.VarChar(20)
+  displayName  String         @map("display_name") @db.VarChar(150)
+  status       ProviderStatus @default(PENDING_REVIEW)
+  serviceArea  String         @map("service_area") @db.VarChar(100)
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([status, mobileNumber], map: "idx_providers_status_mobile")
+  @@map("providers")
+}
+
+model RefreshToken {
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String         @map("user_id") @db.Uuid
+  userRole         String         @map("user_role") @db.VarChar(50)
+  tokenHash        String         @unique @map("token_hash") @db.VarChar(64)
+  tokenFamilyId    String         @map("token_family_id") @db.Uuid
+  parentId         String?        @map("parent_id") @db.Uuid
+  isRevoked        Boolean        @default(false) @map("is_revoked")
+  revocationReason String?        @map("revocation_reason") @db.VarChar(100)
+  expiresAt        DateTime       @map("expires_at") @db.Timestamptz
+  lastActivity     DateTime       @default(now()) @map("last_activity") @db.Timestamptz
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  
+  parent           RefreshToken?  @relation("TokenHistory", fields: [parentId], references: [id], onDelete: SetNull)
+  children         RefreshToken[] @relation("TokenHistory")
+
+  @@index([tokenFamilyId], map: "idx_refresh_tokens_family")
+  @@index([userId, userRole], map: "idx_refresh_tokens_user")
+  @@map("refresh_tokens")
+}
+
+model AuditLog {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorId    String   @map("actor_id") @db.Uuid
+  actorRole  String   @map("actor_role") @db.VarChar(50)
+  action     String   @db.VarChar(100)
+  entityType String   @map("entity_type") @db.VarChar(100)
+  entityId   String?  @map("entity_id") @db.Uuid
+  oldState   Json?    @map("old_state")
+  newState   Json?    @map("new_state")
+  requestId  String?  @map("request_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([entityType, entityId], map: "idx_audit_entity")
+  @@map("audit_logs")
+}
