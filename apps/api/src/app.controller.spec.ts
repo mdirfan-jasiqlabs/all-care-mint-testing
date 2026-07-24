@@ -15,8 +15,8 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return "Hello from All Care Mint API!"', () => {
+      expect(appController.getHello()).toBe('Hello from All Care Mint API!');
     });
   });
 });
