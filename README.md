@@ -39,6 +39,13 @@ Set up your environment variables by copying default configs:
   PORT=3000
   ```
 
+* **Web Frontend (`apps/frontend/.env`)**:
+  ```env
+  BACKEND_API_URL=http://localhost:3000
+  APP_URL=http://localhost:3001
+  PORT=3001
+  ```
+
 ### 3. Database Schema Migration
 Initialize your Postgres database schema using Prisma:
 ```bash
@@ -69,14 +76,20 @@ pnpm --filter provider-mobile run web
 ```
 Starts the Expo development server on port `8082` (or matches next free port).
 
-### Run Web Frontend (Vite)
+### Run Web Frontend (Next.js)
 ```bash
 pnpm --filter frontend run dev
 ```
+Starts the Next.js frontend web development server at `http://localhost:3001`.
 
 ---
 
 ## 🧪 Testing and Verification Flows
+
+### Testing Web Frontend E2E (Desktop Viewport)
+1. **Start Services**: Run the NestJS API server (`pnpm --filter api run start:dev`) and Next.js frontend (`pnpm --filter frontend run dev`).
+2. **Access Web App**: Open a web browser to `http://localhost:3001`.
+3. **Desktop Validation**: Perform customer or provider registrations, schedule requests, or administrative dashboard testing on standard desktop viewport configurations.
 
 ### Testing Customer Mobile E2E (via Browser Viewport)
 1. **Start Services**: Run the NestJS API server and Expo Web server.
