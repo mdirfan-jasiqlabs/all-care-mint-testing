@@ -77,6 +77,7 @@ export async function POST(request: Request) {
       data: {
         user,
         csrfToken,
+        accessToken,
       },
     });
   } catch (error: any) {

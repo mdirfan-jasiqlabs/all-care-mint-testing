@@ -33,10 +33,12 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // Store CSRF token locally for subsequent mutating requests
+      // Store CSRF and Access tokens locally for subsequent mutating requests
       const csrfToken = body.data.csrfToken;
+      const accessToken = body.data.accessToken;
       if (typeof window !== 'undefined') {
         localStorage.setItem('csrf_token', csrfToken);
+        localStorage.setItem('access_token', accessToken);
       }
 
       // Redirect to admin dashboard

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getBaseUrl } from '../utils/api';
 
 export interface Category {
   id: string;
@@ -37,7 +38,8 @@ export const useCatalogStore = create<CatalogState>((set) => ({
   fetchCategories: async (token: string) => {
     set({ isLoading: true, error: null });
     try {
-      const res = await fetch('http://localhost:3000/api/v1/catalog/categories', {
+      const baseUrl = getBaseUrl();
+      const res = await fetch(`${baseUrl}/api/v1/catalog/categories`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -59,7 +61,8 @@ export const useCatalogStore = create<CatalogState>((set) => ({
   fetchServices: async (categoryId: string, token: string) => {
     set({ isLoading: true, error: null });
     try {
-      const res = await fetch(`http://localhost:3000/api/v1/catalog/categories/${categoryId}/services`, {
+      const baseUrl = getBaseUrl();
+      const res = await fetch(`${baseUrl}/api/v1/catalog/categories/${categoryId}/services`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

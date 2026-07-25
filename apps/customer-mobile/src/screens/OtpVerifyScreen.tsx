@@ -13,6 +13,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/root.types';
 import * as storage from '../utils/storage';
+import { getBaseUrl } from '../utils/api';
 
 type OtpVerifyScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -49,7 +50,7 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
     setLoading(true);
 
     try {
-      const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : (Platform.OS === 'web' ? 'http://192.168.1.7:3000' : 'http://localhost:3000');
+      const baseUrl = getBaseUrl();
       // Bypass token trigger or actual token send:
       const firebaseToken = `mock-token-customer-${otp}`;
       

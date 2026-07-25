@@ -12,6 +12,7 @@ import {
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/root.types';
 import * as storage from '../utils/storage';
+import { getBaseUrl } from '../utils/api';
 
 type CustomerProfileScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -41,7 +42,7 @@ export default function CustomerProfileScreen({ navigation }: Props) {
     }
 
     try {
-      const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : (Platform.OS === 'web' ? 'http://192.168.1.7:3000' : 'http://localhost:3000');
+      const baseUrl = getBaseUrl();
       const response = await fetch(`${baseUrl}/api/v1/customers/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -98,7 +99,7 @@ export default function CustomerProfileScreen({ navigation }: Props) {
     setSaving(true);
 
     try {
-      const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : (Platform.OS === 'web' ? 'http://192.168.1.7:3000' : 'http://localhost:3000');
+      const baseUrl = getBaseUrl();
       const response = await fetch(`${baseUrl}/api/v1/customers/me`, {
         method: 'PATCH',
         headers: {
@@ -130,7 +131,7 @@ export default function CustomerProfileScreen({ navigation }: Props) {
     // Call logout API asynchronously
     if (token) {
       try {
-        const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : (Platform.OS === 'web' ? 'http://192.168.1.7:3000' : 'http://localhost:3000');
+        const baseUrl = getBaseUrl();
         await fetch(`${baseUrl}/api/v1/auth/logout`, {
           method: 'POST',
           headers: {

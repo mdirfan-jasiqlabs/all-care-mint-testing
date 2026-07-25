@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useCatalogStore, Category } from '../stores/catalogStore';
+import * as storage from '../utils/storage';
 
 export const CatalogBrowseScreen = ({ navigation, route }: any) => {
-  const token = route?.params?.token || '';
+  const token = route?.params?.token || storage.getAccessToken() || '';
   const { categories, isLoading, error, fetchCategories } = useCatalogStore();
 
   useEffect(() => {
