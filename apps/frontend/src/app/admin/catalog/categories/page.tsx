@@ -249,6 +249,7 @@ export default function CategoryManagerPage() {
                   <label className="form-label">Category Name *</label>
                   <input
                     type="text"
+                    name="name"
                     className="form-input"
                     placeholder="e.g. Home Cleaning"
                     value={formData.name}
@@ -261,6 +262,7 @@ export default function CategoryManagerPage() {
                 <div className="form-group">
                   <label className="form-label">Description</label>
                   <textarea
+                    name="description"
                     className="form-input"
                     style={{ height: '80px', paddingTop: '10px' }}
                     placeholder="Brief details about services in this category"
@@ -274,6 +276,7 @@ export default function CategoryManagerPage() {
                   <label className="form-label">Icon URL</label>
                   <input
                     type="url"
+                    name="iconUrl"
                     className="form-input"
                     placeholder="https://cdn.allcaremint.com/icons/cleaning.png"
                     value={formData.iconUrl}
@@ -285,6 +288,7 @@ export default function CategoryManagerPage() {
                   <label className="form-label">Display Order</label>
                   <input
                     type="number"
+                    name="displayOrder"
                     className="form-input"
                     value={formData.displayOrder}
                     onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value, 10) || 0 })}
