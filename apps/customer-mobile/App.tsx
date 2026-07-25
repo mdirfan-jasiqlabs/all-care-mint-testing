@@ -80,7 +80,7 @@ export default function App() {
         <Stack.Screen
           name="CatalogBrowse"
           component={CatalogBrowseScreen}
-          options={{ title: 'Browse Services' }}
+          options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>
