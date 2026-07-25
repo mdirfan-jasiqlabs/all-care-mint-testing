@@ -9,6 +9,10 @@ import OtpVerifyScreen from './src/screens/OtpVerifyScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import CustomerProfileScreen from './src/screens/CustomerProfileScreen';
 import { CatalogBrowseScreen } from './src/screens/CatalogBrowseScreen';
+import AddressSelectionScreen from './src/screens/AddressSelectionScreen';
+import SlotSelectionScreen from './src/screens/SlotSelectionScreen';
+import BookingSummaryScreen from './src/screens/BookingSummaryScreen';
+import BookingConfirmationScreen from './src/screens/BookingConfirmationScreen';
 import * as storage from './src/utils/storage';
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -81,6 +85,26 @@ export default function App() {
           name="CatalogBrowse"
           component={CatalogBrowseScreen}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AddressSelection"
+          component={AddressSelectionScreen}
+          options={{ title: 'Select Address' }}
+        />
+        <Stack.Screen
+          name="SlotSelection"
+          component={SlotSelectionScreen}
+          options={{ title: 'Select Time Slot' }}
+        />
+        <Stack.Screen
+          name="BookingSummary"
+          component={BookingSummaryScreen}
+          options={{ title: 'Booking Summary' }}
+        />
+        <Stack.Screen
+          name="BookingConfirmation"
+          component={BookingConfirmationScreen}
+          options={{ title: 'Booking Confirmed', headerLeft: () => null }}
         />
       </Stack.Navigator>
     </NavigationContainer>

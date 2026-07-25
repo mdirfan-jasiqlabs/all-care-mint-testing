@@ -89,11 +89,8 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
   };
 
   const handleCheckout = () => {
-    Alert.alert(
-      "Success",
-      `Redirecting Customer to Bookings Lifecycle View (/booking/checkout) with total price ₹${getCartTotal()}`,
-      [{ text: "OK", onPress: () => setCart([]) }]
-    );
+    if (cart.length === 0) return;
+    navigation.navigate('AddressSelection', { serviceId: cart[0].id });
   };
 
   const renderServiceCard = ({ item }: { item: Service }) => {

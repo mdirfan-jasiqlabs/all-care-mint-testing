@@ -1,0 +1,596 @@
+// ─── MOD-002 Booking Service ───
+// Source: DLD Section 4.1 — coordinates locking, creation, status history, cancellations
+
+import { Inject, Injectable, BadRequestException } from '@nestjs/common';
+import { createHash } from 'crypto';
+import { IBookingRepository } from '../ports/booking.repository.port';
+import { IAddressRepository } from '../ports/address.repository.port';
+import { StateEngineService } from './state-engine.service';
+import { EligibilityService } from './eligibility.service';
+import {
+  BookingEntity,
+  BookingStatusEnum,
+  ActorRoleEnum,
+  PaymentMethodEnum,
+  BookingStatusHistoryEntity,
+  SlotLock,
+  TimeSlotEntity,
+  AddressSnapshot,
+} from '../types/booking.types';
+import { CreateBookingDto, LockSlotDto, BookingListQueryDto } from '../dto/booking.dto';
+import {
+  BookingNotFoundException,
+  SlotUnavailableException,
+  SlotLockExpiredException,
+  IdempotencyConflictException,
+  SlotDateInPastException,
+  SameDaySlotTooSoonException,
+} from '../errors/booking.exceptions';
+import { PrismaService } from '../../../prisma/prisma.service';
+
+@Injectable()
+export class BookingService {
+  constructor(
+    @Inject('IBookingRepository')
+    private readonly bookingRepo: IBookingRepository,
+    @Inject('IAddressRepository')
+    private readonly addressRepo: IAddressRepository,
+    private readonly stateEngine: StateEngineService,
+    private readonly eligibilityService: EligibilityService,
+    private readonly prisma: PrismaService,
+  ) {}
+
+  // ─── Slot Availability ───
+
+  async getAvailableSlots(
+    serviceId: string,
+    date: string,
+  ): Promise<{ id: string; label: string; isAvailable: boolean }[]> {
+    this.validateSlotDate(date);
+
+    const allSlots = await this.bookingRepo.findActiveTimeSlots();
+    const slotDate = new Date(date);
+
+    const results = await Promise.all(
+      allSlots.map(async (slot) => {
+        const lock = await this.bookingRepo.findSlotLock(slot.id, slotDate);
+        const isLocked = lock !== null && lock.expiresAt > new Date();
+        return {
+          id: slot.id,
+          label: slot.label,
+          isAvailable: !isLocked,
+        };
+      }),
+    );
+
+    return results;
+  }
+
+  // ─── Slot Locking ───
+
+  async lockSlot(
+    customerId: string,
+    dto: LockSlotDto,
+  ): Promise<{ lockId: string; expiresAt: Date }> {
+    const slotDate = new Date(dto.date);
+    this.validateSlotDate(dto.date);
+
+    // Check slot exists and is active
+    const slot = await this.bookingRepo.findTimeSlotById(dto.slotId);
+    if (!slot || !slot.isActive) {
+      throw new SlotUnavailableException();
+    }
+
+    // Validate same-day slot timing (2-hour buffer)
+    this.validateSameDaySlot(dto.date, slot);
+
+    // Check if slot is already locked or booked
+    const existingLock = await this.bookingRepo.findSlotLock(dto.slotId, slotDate);
+    if (existingLock && existingLock.expiresAt > new Date()) {
+      throw new SlotUnavailableException();
+    }
+
+    // If there's an expired lock, delete it first
+    if (existingLock) {
+      await this.bookingRepo.deleteSlotLock(existingLock.id);
+    }
+
+    // Create 10-minute lock
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    const lock = await this.bookingRepo.saveSlotLock({
+      slotId: dto.slotId,
+      slotDate,
+      customerId,
+      expiresAt,
+    });
+
+    return { lockId: lock.id, expiresAt: lock.expiresAt };
+  }
+
+  // ─── Booking Creation ───
+
+  async createBooking(
+    customerId: string,
+    dto: CreateBookingDto,
+    idempotencyKey: string,
+  ): Promise<BookingEntity> {
+    // 1. Check idempotency
+    const requestHash = this.computeRequestHash(dto);
+    const existingRecord = await this.bookingRepo.findIdempotencyRecord(
+      customerId,
+      idempotencyKey,
+    );
+
+    if (existingRecord) {
+      if (existingRecord.requestHash !== requestHash) {
+        throw new IdempotencyConflictException();
+      }
+      // Return cached response
+      const cachedBooking = await this.bookingRepo.findBookingById(
+        existingRecord.responseBody.bookingId,
+      );
+      if (cachedBooking) return cachedBooking;
+    }
+
+    // 2. Validate slot date
+    this.validateSlotDate(dto.slotDate);
+    const slotDate = new Date(dto.slotDate);
+
+    // 3. Verify slot lock
+    const lock = await this.bookingRepo.findSlotLockForCustomer(
+      dto.slotId,
+      slotDate,
+      customerId,
+    );
+    if (!lock || lock.expiresAt <= new Date() || lock.bookingId !== null) {
+      throw new SlotLockExpiredException();
+    }
+
+    // 4. Fetch service snapshot from catalog
+    const service = await this.prisma.service.findUnique({
+      where: { id: dto.serviceId },
+    });
+    if (!service || !service.isActive) {
+      throw new BadRequestException({
+        success: false,
+        error: { code: 'ERR_SERVICE_NOT_FOUND', message: 'Service not found or inactive.' },
+      });
+    }
+
+    // 5. Fetch address snapshot
+    const address = await this.addressRepo.findAddressById(dto.addressId);
+    if (!address || address.customerId !== customerId) {
+      throw new BadRequestException({
+        success: false,
+        error: { code: 'ERR_ADDRESS_NOT_FOUND', message: 'Address not found.' },
+      });
+    }
+
+    // 6. Fetch slot info for label snapshot
+    const slot = await this.bookingRepo.findTimeSlotById(dto.slotId);
+    if (!slot) {
+      throw new SlotUnavailableException();
+    }
+
+    // 7. Reject direct ONLINE booking creation (DLD Section 6.2.3 rule)
+    if (dto.paymentMethod === PaymentMethodEnum.ONLINE) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'ERR_ONLINE_BOOKING_DIRECT_CREATION_DISALLOWED',
+          message: 'Online bookings must be created through the payment webhook.',
+        },
+      });
+    }
+
+    // 8. Generate booking reference: ACM-YYYYMMDD-XXXX
+    const dateStr = dto.slotDate.replace(/-/g, '');
+    const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const bookingReference = `ACM-${dateStr}-${randomSuffix}`;
+
+    const addressSnapshot: AddressSnapshot = {
+      label: address.label,
+      addressLine1: address.addressLine1,
+      addressLine2: address.addressLine2,
+      city: address.city,
+      pincode: address.pincode,
+    };
+
+    // 9. Create booking
+    const booking = await this.bookingRepo.createBooking({
+      bookingReference,
+      customerId,
+      serviceId: dto.serviceId,
+      serviceNameSnapshot: service.name,
+      servicePriceSnapshot: service.fixedPrice.toString(),
+      addressId: dto.addressId,
+      addressSnapshot,
+      slotDate,
+      slotId: dto.slotId,
+      slotLabelSnapshot: slot.label,
+      paymentMethod: dto.paymentMethod,
+      idempotencyKey,
+    });
+
+    // 10. Link slot lock to booking
+    await this.bookingRepo.updateSlotLockBookingId(lock.id, booking.id);
+
+    // 11. Create initial status history
+    await this.bookingRepo.createStatusHistory({
+      bookingId: booking.id,
+      status: BookingStatusEnum.PENDING,
+      actorId: customerId,
+      actorRole: ActorRoleEnum.CUSTOMER,
+      note: 'Booking created',
+    });
+
+    // 12. Save idempotency record
+    await this.bookingRepo.saveIdempotencyRecord({
+      customerId,
+      idempotencyKey,
+      requestHash,
+      responseCode: 201,
+      responseBody: { bookingId: booking.id },
+    });
+
+    return booking;
+  }
+
+  // ─── Customer Booking Queries ───
+
+  async getCustomerBookings(
+    customerId: string,
+    filter: 'current' | 'history' = 'current',
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{ data: BookingEntity[]; total: number }> {
+    return this.bookingRepo.findBookingsByCustomer(customerId, filter, page, limit);
+  }
+
+  async getBookingDetail(
+    bookingId: string,
+    customerId: string,
+  ): Promise<BookingEntity> {
+    const booking = await this.bookingRepo.findBookingById(bookingId);
+    if (!booking || booking.customerId !== customerId) {
+      throw new BookingNotFoundException(bookingId);
+    }
+    return booking;
+  }
+
+  async getBookingHistory(
+    bookingId: string,
+    customerId: string,
+  ): Promise<BookingStatusHistoryEntity[]> {
+    const booking = await this.bookingRepo.findBookingById(bookingId);
+    if (!booking || booking.customerId !== customerId) {
+      throw new BookingNotFoundException(bookingId);
+    }
+    return this.bookingRepo.findStatusHistory(bookingId);
+  }
+
+  // ─── Cancellation ───
+
+  async cancelBooking(
+    bookingId: string,
+    actorId: string,
+    actorRole: ActorRoleEnum,
+    reason?: string,
+  ): Promise<BookingEntity> {
+    const booking = await this.bookingRepo.findBookingById(bookingId);
+    if (!booking) {
+      throw new BookingNotFoundException(bookingId);
+    }
+
+    this.stateEngine.validateTransition(
+      booking.status,
+      BookingStatusEnum.CANCELLED,
+      actorRole,
+    );
+
+    const updatedBooking = await this.bookingRepo.updateBookingStatus(
+      bookingId,
+      BookingStatusEnum.CANCELLED,
+      { cancelledAt: new Date() },
+    );
+
+    await this.bookingRepo.createStatusHistory({
+      bookingId,
+      status: BookingStatusEnum.CANCELLED,
+      actorId,
+      actorRole,
+      note: reason || 'Booking cancelled',
+    });
+
+    return updatedBooking;
+  }
+
+  // ─── Admin Operations ───
+
+  async getAdminBookings(
+    query: BookingListQueryDto,
+  ): Promise<{ data: BookingEntity[]; total: number }> {
+    return this.bookingRepo.findBookingsAdmin({
+      status: query.status,
+      date: query.date,
+      customerId: query.customerId,
+      providerId: query.providerId,
+      page: query.page ?? 1,
+      limit: query.limit ?? 20,
+    });
+  }
+
+  async getAdminBookingDetail(bookingId: string): Promise<BookingEntity> {
+    const booking = await this.bookingRepo.findBookingById(bookingId);
+    if (!booking) {
+      throw new BookingNotFoundException(bookingId);
+    }
+    return booking;
+  }
+
+  async getAdminBookingHistory(bookingId: string): Promise<BookingStatusHistoryEntity[]> {
+    const booking = await this.bookingRepo.findBookingById(bookingId);
+    if (!booking) {
+      throw new BookingNotFoundException(bookingId);
+    }
+    return this.bookingRepo.findStatusHistory(bookingId);
+  }
+
+  async assignProvider(
+    bookingId: string,
+    providerId: string,
+    adminId: string,
+  ): Promise<BookingEntity> {
+    const booking = await this.bookingRepo.findBookingById(bookingId);
+    if (!booking) {
+      throw new BookingNotFoundException(bookingId);
+    }
+
+    this.stateEngine.validateTransition(
+      booking.status,
+      BookingStatusEnum.ASSIGNED,
+      ActorRoleEnum.ADMIN,
+    );
+
+    await this.eligibilityService.verifyProviderEligibility(
+      providerId,
+      booking.serviceId,
+    );
+
+    const updatedBooking = await this.bookingRepo.assignProvider(bookingId, providerId);
+    await this.bookingRepo.updateBookingStatus(bookingId, BookingStatusEnum.ASSIGNED);
+
+    await this.bookingRepo.createStatusHistory({
+      bookingId,
+      status: BookingStatusEnum.ASSIGNED,
+      actorId: adminId,
+      actorRole: ActorRoleEnum.ADMIN,
+      note: `Provider ${providerId} assigned`,
+    });
+
+    return updatedBooking;
+  }
+
+  async reassignProvider(
+    bookingId: string,
+    newProviderId: string,
+    adminId: string,
+  ): Promise<BookingEntity> {
+    const booking = await this.bookingRepo.findBookingById(bookingId);
+    if (!booking) {
+      throw new BookingNotFoundException(bookingId);
+    }
+
+    // Reassignment resets to PENDING then assigns
+    if (booking.status !== BookingStatusEnum.ASSIGNED) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'ERR_INVALID_REASSIGN',
+          message: 'Can only reassign from ASSIGNED status.',
+        },
+      });
+    }
+
+    await this.eligibilityService.verifyProviderEligibility(
+      newProviderId,
+      booking.serviceId,
+    );
+
+    const updatedBooking = await this.bookingRepo.assignProvider(bookingId, newProviderId);
+
+    await this.bookingRepo.createStatusHistory({
+      bookingId,
+      status: BookingStatusEnum.ASSIGNED,
+      actorId: adminId,
+      actorRole: ActorRoleEnum.ADMIN,
+      note: `Provider reassigned from ${booking.providerId} to ${newProviderId}`,
+    });
+
+    return updatedBooking;
+  }
+
+  // ─── Provider Operations ───
+
+  async getProviderBookings(
+    providerId: string,
+    filter: 'active' | 'history' = 'active',
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{ data: BookingEntity[]; total: number }> {
+    if (filter === 'history') {
+      return this.bookingRepo.findProviderHistoryBookings(providerId, page, limit);
+    }
+    return this.bookingRepo.findBookingsByProvider(providerId, filter, page, limit);
+  }
+
+  async getProviderBookingDetail(
+    bookingId: string,
+    providerId: string,
+  ): Promise<BookingEntity> {
+    const booking = await this.bookingRepo.findBookingById(bookingId);
+    if (!booking || booking.providerId !== providerId) {
+      throw new BookingNotFoundException(bookingId);
+    }
+    return booking;
+  }
+
+  async providerAcceptBooking(
+    bookingId: string,
+    providerId: string,
+  ): Promise<BookingEntity> {
+    const booking = await this.bookingRepo.findBookingById(bookingId);
+    if (!booking || booking.providerId !== providerId) {
+      throw new BookingNotFoundException(bookingId);
+    }
+
+    this.stateEngine.validateTransition(
+      booking.status,
+      BookingStatusEnum.ACCEPTED,
+      ActorRoleEnum.PROVIDER,
+    );
+
+    const updatedBooking = await this.bookingRepo.updateBookingStatus(
+      bookingId,
+      BookingStatusEnum.ACCEPTED,
+    );
+
+    await this.bookingRepo.createStatusHistory({
+      bookingId,
+      status: BookingStatusEnum.ACCEPTED,
+      actorId: providerId,
+      actorRole: ActorRoleEnum.PROVIDER,
+    });
+
+    return updatedBooking;
+  }
+
+  async providerRejectBooking(
+    bookingId: string,
+    providerId: string,
+    reason: string,
+  ): Promise<BookingEntity> {
+    const booking = await this.bookingRepo.findBookingById(bookingId);
+    if (!booking || booking.providerId !== providerId) {
+      throw new BookingNotFoundException(bookingId);
+    }
+
+    this.stateEngine.validateTransition(
+      booking.status,
+      BookingStatusEnum.REJECTED,
+      ActorRoleEnum.PROVIDER,
+    );
+
+    // Record REJECTED in history, but reset booking status to PENDING
+    await this.bookingRepo.createStatusHistory({
+      bookingId,
+      status: BookingStatusEnum.REJECTED,
+      actorId: providerId,
+      actorRole: ActorRoleEnum.PROVIDER,
+      note: reason,
+    });
+
+    // Clear provider and reset to PENDING per DLD Section 6.4.5
+    const updatedBooking = await this.bookingRepo.updateBookingStatus(
+      bookingId,
+      BookingStatusEnum.PENDING,
+      { providerId: null } as any,
+    );
+
+    return updatedBooking;
+  }
+
+  async providerUpdateStatus(
+    bookingId: string,
+    providerId: string,
+    targetStatus: BookingStatusEnum,
+  ): Promise<BookingEntity> {
+    const booking = await this.bookingRepo.findBookingById(bookingId);
+    if (!booking || booking.providerId !== providerId) {
+      throw new BookingNotFoundException(bookingId);
+    }
+
+    this.stateEngine.validateTransition(
+      booking.status,
+      targetStatus,
+      ActorRoleEnum.PROVIDER,
+    );
+
+    const additionalFields: Partial<BookingEntity> = {};
+    if (targetStatus === BookingStatusEnum.COMPLETED) {
+      additionalFields.completedAt = new Date();
+    }
+
+    const updatedBooking = await this.bookingRepo.updateBookingStatus(
+      bookingId,
+      targetStatus,
+      additionalFields,
+    );
+
+    await this.bookingRepo.createStatusHistory({
+      bookingId,
+      status: targetStatus,
+      actorId: providerId,
+      actorRole: ActorRoleEnum.PROVIDER,
+    });
+
+    return updatedBooking;
+  }
+
+  async getApprovedProviders(): Promise<any[]> {
+    return this.prisma.provider.findMany({
+      where: { status: 'APPROVED' },
+      select: {
+        id: true,
+        displayName: true,
+        mobileNumber: true,
+        serviceArea: true,
+      },
+    });
+  }
+
+  // ─── Private Helpers ───
+
+  private computeRequestHash(dto: CreateBookingDto): string {
+    const payload = JSON.stringify({
+      serviceId: dto.serviceId,
+      slotId: dto.slotId,
+      slotDate: dto.slotDate,
+      addressId: dto.addressId,
+      paymentMethod: dto.paymentMethod,
+    });
+    return createHash('sha256').update(payload).digest('hex');
+  }
+
+  private validateSlotDate(dateStr: string): void {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const slotDate = new Date(dateStr);
+    slotDate.setHours(0, 0, 0, 0);
+
+    if (slotDate < today) {
+      throw new SlotDateInPastException();
+    }
+  }
+
+  private validateSameDaySlot(dateStr: string, slot: TimeSlotEntity): void {
+    const now = new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const slotDate = new Date(dateStr);
+    slotDate.setHours(0, 0, 0, 0);
+
+    if (slotDate.getTime() === today.getTime()) {
+      // Same-day booking — check 2-hour buffer
+      const slotStartTime = new Date(slot.startTime);
+      const bufferTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+      // Compare only hours and minutes
+      const slotMinutes = slotStartTime.getHours() * 60 + slotStartTime.getMinutes();
+      const bufferMinutes = bufferTime.getHours() * 60 + bufferTime.getMinutes();
+
+      if (slotMinutes < bufferMinutes) {
+        throw new SameDaySlotTooSoonException();
+      }
+    }
+  }
+}

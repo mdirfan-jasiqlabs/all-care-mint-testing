@@ -34,6 +34,11 @@ model Customer {
   createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz
   updatedAt    DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
+  addresses       CustomerAddress[]
+  bookings        Booking[]
+  idempotencyKeys IdempotencyKey[]
+  slotLocks       BookingSlotLock[]
+
   @@map("customers")
 }
 
@@ -46,6 +51,8 @@ model Provider {
   serviceArea  String         @map("service_area") @db.VarChar(100)
   createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz
   updatedAt    DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  bookings     Booking[]
 
   @@index([status, mobileNumber], map: "idx_providers_status_mobile")
   @@map("providers")
@@ -113,6 +120,7 @@ model Service {
   createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz
 
   category          ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  bookings          Booking[]
 
   @@unique([categoryId, name], map: "uq_service_name_category")
   @@index([categoryId], map: "idx_services_category_id")
@@ -125,5 +133,138 @@ model CatalogVersion {
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   @@map("catalog_versions")
+}
+
+enum BookingStatus {
+  PENDING
+  ASSIGNED
+  ACCEPTED
+  ON_THE_WAY
+  STARTED
+  COMPLETED
+  CANCELLED
+  REJECTED
+}
+
+enum PaymentMethod {
+  CASH_ON_SERVICE
+  ONLINE
+}
+
+model CustomerAddress {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId   String    @map("customer_id") @db.Uuid
+  label        String    @db.VarChar(50)
+  addressLine1 String    @map("address_line_1") @db.Text
+  addressLine2 String?   @map("address_line_2") @db.Text
+  city         String    @db.VarChar(100)
+  pincode      String    @db.VarChar(20)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  customer     Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  bookings     Booking[]
+
+  @@index([customerId], map: "idx_addresses_customer_id")
+  @@map("customer_addresses")
+}
+
+model BookingTimeSlot {
+  id           String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  label        String            @db.VarChar(100)
+  startTime    DateTime          @map("start_time") @db.Time
+  endTime      DateTime          @map("end_time") @db.Time
+  isActive     Boolean           @default(true) @map("is_active")
+  displayOrder Int               @default(0) @map("display_order")
+  createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  locks        BookingSlotLock[]
+  bookings     Booking[]
+
+  @@map("booking_time_slots")
+}
+
+model Booking {
+  id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bookingReference     String                 @unique @map("booking_reference") @db.VarChar(30)
+  customerId           String                 @map("customer_id") @db.Uuid
+  providerId           String?                @map("provider_id") @db.Uuid
+  serviceId            String                 @map("service_id") @db.Uuid
+  serviceNameSnapshot  String                 @map("service_name_snapshot") @db.VarChar(150)
+  servicePriceSnapshot Decimal                @map("service_price_snapshot") @db.Decimal(12, 2)
+  addressId            String?                @map("address_id") @db.Uuid
+  addressSnapshot      Json                   @map("address_snapshot")
+  slotDate             DateTime               @map("slot_date") @db.Date
+  slotId               String?                @map("slot_id") @db.Uuid
+  slotLabelSnapshot    String                 @map("slot_label_snapshot") @db.VarChar(100)
+  paymentMethod        PaymentMethod          @map("payment_method")
+  status               BookingStatus          @default(PENDING)
+  idempotencyKey       String                 @map("idempotency_key") @db.Uuid
+  rejectionReason      String?                @map("rejection_reason") @db.Text
+  cancelledAt          DateTime?              @map("cancelled_at") @db.Timestamptz
+  completedAt          DateTime?              @map("completed_at") @db.Timestamptz
+  createdAt            DateTime               @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime               @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  customer             Customer               @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  provider             Provider?              @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  service              Service                @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  address              CustomerAddress?       @relation(fields: [addressId], references: [id], onDelete: SetNull)
+  slot                 BookingTimeSlot?       @relation(fields: [slotId], references: [id], onDelete: Restrict)
+  statusHistory        BookingStatusHistory[]
+  locks                BookingSlotLock[]
+
+  @@index([customerId, status], map: "idx_bookings_customer_status")
+  @@index([providerId, status], map: "idx_bookings_provider_status")
+  @@index([status, slotDate], map: "idx_bookings_status_slot_date")
+  @@index([slotDate], map: "idx_bookings_slot_date")
+  @@map("bookings")
+}
+
+model IdempotencyKey {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId     String   @map("customer_id") @db.Uuid
+  idempotencyKey String   @map("idempotency_key") @db.VarChar(255)
+  requestHash    String   @map("request_hash") @db.VarChar(64)
+  responseCode   Int      @map("response_code")
+  responseBody   Json     @map("response_body")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, idempotencyKey], map: "uq_customer_idempotency")
+  @@map("idempotency_keys")
+}
+
+model BookingStatusHistory {
+  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bookingId String        @map("booking_id") @db.Uuid
+  status    BookingStatus
+  actorId   String        @map("actor_id") @db.Uuid
+  actorRole String        @map("actor_role") @db.VarChar(50)
+  note      String?       @db.Text
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  booking   Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId], map: "idx_bsh_booking_id")
+  @@map("booking_status_history")
+}
+
+model BookingSlotLock {
+  id         String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slotId     String          @map("slot_id") @db.Uuid
+  slotDate   DateTime        @map("slot_date") @db.Date
+  customerId String          @map("customer_id") @db.Uuid
+  expiresAt  DateTime        @map("expires_at") @db.Timestamptz
+  bookingId  String?         @map("booking_id") @db.Uuid
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz
+
+  slot       BookingTimeSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  customer   Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  booking    Booking?        @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@unique([slotDate, slotId], map: "uq_slot_lock_date_slot")
+  @@map("booking_slot_locks")
 }
 
