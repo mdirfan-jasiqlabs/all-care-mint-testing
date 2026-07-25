@@ -33,10 +33,10 @@ async function main() {
 
   // 2. Seed Sample Categories
   const categories = [
-    { name: 'Home Cleaning', description: 'Professional home cleaning and deep cleaning services', displayOrder: 1, iconUrl: 'https://img.icons8.com/fluency/48/broom.png' },
-    { name: 'Plumbing', description: 'Expert plumbing repairs and installation services', displayOrder: 2, iconUrl: 'https://img.icons8.com/fluency/48/plumbing.png' },
-    { name: 'Electrical', description: 'Licensed electrician services for your home', displayOrder: 3, iconUrl: 'https://img.icons8.com/fluency/48/electrical.png' },
-    { name: 'Beauty & Spa', description: 'At-home beauty, grooming and spa services', displayOrder: 4, iconUrl: 'https://img.icons8.com/fluency/48/spa-flower.png' },
+    { name: 'Cleaning', description: 'Professional home cleaning and deep cleaning services', displayOrder: 1, iconUrl: 'https://img.icons8.com/fluency/48/broom.png' },
+    { name: 'AC Repair', description: 'Professional AC repair and service', displayOrder: 2, iconUrl: 'https://img.icons8.com/fluency/48/air-conditioner.png' },
+    { name: 'Plumbing', description: 'Expert plumbing repairs and installation services', displayOrder: 3, iconUrl: 'https://img.icons8.com/fluency/48/plumbing.png' },
+    { name: 'Painting', description: 'Professional home wall painting services', displayOrder: 4, iconUrl: 'https://img.icons8.com/fluency/48/paint-brush.png' },
   ];
 
   const categoryMap: Record<string, string> = {};
@@ -53,15 +53,13 @@ async function main() {
 
   // 3. Seed sample services
   const serviceData = [
-    { categoryName: 'Home Cleaning', name: 'Regular Cleaning', description: '2-hour standard home cleaning session', fixedPrice: 499.00, estimatedDuration: '120 min' },
-    { categoryName: 'Home Cleaning', name: 'Deep Cleaning', description: 'Thorough deep cleaning of entire home', fixedPrice: 1499.00, estimatedDuration: '240 min' },
-    { categoryName: 'Home Cleaning', name: 'Kitchen Cleaning', description: 'Professional kitchen deep clean', fixedPrice: 799.00, estimatedDuration: '150 min' },
-    { categoryName: 'Plumbing', name: 'Tap Repair', description: 'Fix leaking or broken taps', fixedPrice: 299.00, estimatedDuration: '60 min' },
-    { categoryName: 'Plumbing', name: 'Drain Cleaning', description: 'Unclog and clean drain pipes', fixedPrice: 599.00, estimatedDuration: '90 min' },
-    { categoryName: 'Electrical', name: 'Wiring Repair', description: 'Fix faulty wiring and connections', fixedPrice: 399.00, estimatedDuration: '90 min' },
-    { categoryName: 'Electrical', name: 'Fan Installation', description: 'Ceiling/wall fan installation', fixedPrice: 349.00, estimatedDuration: '60 min' },
-    { categoryName: 'Beauty & Spa', name: 'Classic Facial', description: 'Deep cleansing facial treatment', fixedPrice: 699.00, estimatedDuration: '60 min' },
-    { categoryName: 'Beauty & Spa', name: 'Hair Spa', description: 'Professional hair spa therapy', fixedPrice: 899.00, estimatedDuration: '75 min' },
+    { categoryName: 'Cleaning', name: 'Regular Cleaning', description: '2-hour standard home cleaning session', fixedPrice: 499.00, estimatedDuration: '120 min' },
+    { categoryName: 'Cleaning', name: 'Deep Cleaning', description: 'Thorough deep cleaning of entire home', fixedPrice: 4500.00, estimatedDuration: '240 min' },
+    { categoryName: 'Cleaning', name: 'Sofa Cleaning', description: 'Multi-seat fabric shampooing and sanitizing', fixedPrice: 1500.00, estimatedDuration: '150 min' },
+    { categoryName: 'Cleaning', name: 'Kitchen Cleaning', description: 'Professional kitchen deep clean', fixedPrice: 1200.00, estimatedDuration: '150 min' },
+    { categoryName: 'AC Repair', name: 'AC General Service', description: 'Filter cleaning & gas charge check', fixedPrice: 1200.00, estimatedDuration: '60 min' },
+    { categoryName: 'Plumbing', name: 'Leak Repair', description: 'Fix kitchen/bathroom tap or pipe leaks', fixedPrice: 600.00, estimatedDuration: '60 min' },
+    { categoryName: 'Painting', name: 'Wall Painting', description: 'Professional home painting service per room', fixedPrice: 8000.00, estimatedDuration: '480 min' },
   ];
 
   for (const svc of serviceData) {

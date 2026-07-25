@@ -5,6 +5,26 @@ import { TokenService } from './token.service';
 import { PrismaAuthRepository } from '../adapters/prisma-auth.repository';
 import * as bcrypt from 'bcrypt';
 
+jest.mock('firebase-admin/app', () => ({
+  initializeApp: jest.fn(),
+  getApps: jest.fn(() => []),
+  cert: jest.fn(),
+}));
+
+jest.mock('firebase-admin/auth', () => ({
+  getAuth: jest.fn(() => ({
+    verifyIdToken: jest.fn((token) => {
+      if (token === 'mock-token-customer') {
+        return Promise.resolve({ phone_number: '+919876543210', uid: 'mock-uid-customer' });
+      }
+      if (token === 'mock-token-provider') {
+        return Promise.resolve({ phone_number: '+919876543211', uid: 'mock-uid-provider' });
+      }
+      throw new Error('Invalid token');
+    }),
+  })),
+}));
+
 describe('AuthService', () => {
   let authService: AuthService;
   let authRepository: jest.Mocked<PrismaAuthRepository>;

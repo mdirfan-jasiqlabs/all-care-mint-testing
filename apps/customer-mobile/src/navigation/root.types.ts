@@ -3,4 +3,5 @@ export type RootStackParamList = {
   OtpVerify: { mobileNumber: string };
   Home: undefined;
   Profile: undefined;
+  CatalogBrowse: { token?: string } | undefined;
 };

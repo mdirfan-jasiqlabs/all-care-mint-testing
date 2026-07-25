@@ -8,6 +8,7 @@ import PhoneInputScreen from './src/screens/PhoneInputScreen';
 import OtpVerifyScreen from './src/screens/OtpVerifyScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import CustomerProfileScreen from './src/screens/CustomerProfileScreen';
+import { CatalogBrowseScreen } from './src/screens/CatalogBrowseScreen';
 import * as storage from './src/utils/storage';
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -75,6 +76,11 @@ export default function App() {
           name="Profile"
           component={CustomerProfileScreen}
           options={{ title: 'My Profile' }}
+        />
+        <Stack.Screen
+          name="CatalogBrowse"
+          component={CatalogBrowseScreen}
+          options={{ title: 'Browse Services' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

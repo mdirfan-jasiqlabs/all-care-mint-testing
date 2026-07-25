@@ -23,6 +23,13 @@ export default function HomeScreen({ navigation }: Props) {
           >
             <Text style={styles.buttonText}>Go to Profile</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, { marginTop: 12 }]}
+            onPress={() => navigation.navigate('CatalogBrowse')}
+          >
+            <Text style={styles.buttonText}>Browse Services</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>

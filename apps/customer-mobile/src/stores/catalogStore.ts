@@ -29,7 +29,7 @@ interface CatalogState {
   fetchServices: (categoryId: string, token: string) => Promise<void>;
 }
 
-export const useCatalogStore = create<CatalogState>((set) => ({
+export const useCatalogStore = create<CatalogState>((set: any) => ({
   categories: [],
   servicesByCategory: {},
   isLoading: false,
@@ -74,7 +74,7 @@ export const useCatalogStore = create<CatalogState>((set) => ({
 
       const data = await res.json();
       if (data.success) {
-        set((state) => ({
+        set((state: any) => ({
           servicesByCategory: {
             ...state.servicesByCategory,
             [categoryId]: data.data,

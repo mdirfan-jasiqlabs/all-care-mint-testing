@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CustomerProfileController } from './customer-profile.controller';
 import { CustomerProfileService } from '../services/customer-profile.service';
+import { TokenService } from '../services/token.service';
 
 describe('CustomerProfileController', () => {
   let controller: CustomerProfileController;
@@ -23,6 +24,7 @@ describe('CustomerProfileController', () => {
       controllers: [CustomerProfileController],
       providers: [
         { provide: CustomerProfileService, useValue: mockProfileSvc },
+        { provide: TokenService, useValue: { verifyAccessToken: jest.fn() } },
       ],
     }).compile();
 
