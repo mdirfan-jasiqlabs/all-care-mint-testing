@@ -24,6 +24,7 @@ export default function PricingManagerPage() {
   const [loading, setLoading] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -102,7 +103,14 @@ export default function PricingManagerPage() {
 
   const handleCreateService = async (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationError(null);
     if (!formData.name || !formData.fixedPrice) return;
+
+    const priceVal = parseFloat(formData.fixedPrice);
+    if (isNaN(priceVal) || priceVal <= 0 || !Number.isInteger(priceVal)) {
+      setValidationError("Price must be a positive integer in INR");
+      return;
+    }
 
     try {
       setSubmitting(true);
@@ -148,7 +156,10 @@ export default function PricingManagerPage() {
         <button
           className="btn-primary"
           style={{ width: 'auto', padding: '0 24px' }}
-          onClick={() => setIsDrawerOpen(true)}
+          onClick={() => {
+            setValidationError(null);
+            setIsDrawerOpen(true);
+          }}
         >
           + Add Service Item
         </button>
@@ -317,13 +328,22 @@ export default function PricingManagerPage() {
                   <label className="form-label">Fixed Price ($) *</label>
                   <input
                     type="number"
-                    step="0.01"
+                    step="1"
                     className="form-input"
-                    placeholder="e.g. 1499.00"
+                    style={{ borderColor: validationError ? 'var(--error)' : undefined }}
+                    placeholder="e.g. 1499"
                     value={formData.fixedPrice}
-                    onChange={(e) => setFormData({ ...formData, fixedPrice: e.target.value })}
+                    onChange={(e) => {
+                      setFormData({ ...formData, fixedPrice: e.target.value });
+                      setValidationError(null);
+                    }}
                     required
                   />
+                  {validationError && (
+                    <div id="price-validation-error" style={{ color: 'var(--error)', fontSize: '13px', marginTop: '6px' }}>
+                      {validationError}
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-group">

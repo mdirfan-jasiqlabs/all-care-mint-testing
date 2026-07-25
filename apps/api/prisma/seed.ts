@@ -19,6 +19,18 @@ async function main() {
   });
   console.log(`✅ Admin user seeded: ${admin.email} (id: ${admin.id})`);
 
+  // Seed Student E2E User
+  const passwordHashStudent = await bcrypt.hash('StudentPass@2026', 12);
+  const student = await prisma.adminUser.upsert({
+    where: { email: 'student.e2e@cogniquiz.com' },
+    update: { passwordHash: passwordHashStudent },
+    create: {
+      email: 'student.e2e@cogniquiz.com',
+      passwordHash: passwordHashStudent,
+    },
+  });
+  console.log(`✅ Student E2E user seeded: ${student.email} (id: ${student.id})`);
+
   // 2. Seed Sample Categories
   const categories = [
     { name: 'Home Cleaning', description: 'Professional home cleaning and deep cleaning services', displayOrder: 1, iconUrl: 'https://img.icons8.com/fluency/48/broom.png' },
