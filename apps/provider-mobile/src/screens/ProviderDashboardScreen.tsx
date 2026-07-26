@@ -170,6 +170,7 @@ export default function ProviderDashboardScreen({ navigation }: any) {
           <ActivityIndicator size="large" color="#10b981" style={{ marginTop: 48 }} />
         ) : (
           <FlatList
+            style={styles.scrollContainer}
             data={jobs}
             keyExtractor={(item) => item.id}
             renderItem={renderJobItem}
@@ -193,6 +194,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    ...Platform.select({
+      web: {
+        position: 'absolute' as any,
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: '100%' as any,
+        overflow: 'hidden' as any,
+      }
+    })
+  },
+  scrollContainer: {
+    flex: 1,
+    ...Platform.select({
+      web: {
+        overflowY: 'auto' as any,
+      }
+    })
   },
   header: {
     flexDirection: 'row',

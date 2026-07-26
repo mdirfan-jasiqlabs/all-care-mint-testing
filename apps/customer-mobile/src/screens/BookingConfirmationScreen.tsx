@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  ScrollView,
+  Platform,
 } from 'react-native';
 import * as storage from '../utils/storage';
 import { getBaseUrl } from '../utils/api';
@@ -82,7 +84,8 @@ export default function BookingConfirmationScreen({ navigation, route }: any) {
   const isCancellable = booking && ['PENDING', 'ASSIGNED'].includes(booking.status);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.outerContainer}>
+      <ScrollView contentContainerStyle={styles.container} style={styles.scrollContainer}>
       <View style={styles.successIconContainer}>
         {booking?.status === 'CANCELLED' ? (
           <View style={[styles.circle, styles.circleCancelled]}>
@@ -143,14 +146,36 @@ export default function BookingConfirmationScreen({ navigation, route }: any) {
           {submitting ? <ActivityIndicator size="small" color="#f87171" /> : <Text style={styles.cancelBtnText}>Cancel Booking</Text>}
         </TouchableOpacity>
       )}
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  outerContainer: {
     flex: 1,
     backgroundColor: 'hsl(224, 71%, 4%)',
+    ...Platform.select({
+      web: {
+        position: 'absolute' as any,
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: '100%' as any,
+        overflow: 'hidden' as any,
+      }
+    })
+  },
+  scrollContainer: {
+    flex: 1,
+    ...Platform.select({
+      web: {
+        overflowY: 'auto' as any,
+      }
+    })
+  },
+  container: {
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',

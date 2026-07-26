@@ -1,4 +1,5 @@
 export type RootStackParamList = {
+  Gateway: undefined;
   PhoneInput: undefined;
   OtpVerify: { mobileNumber: string };
   Home: undefined;

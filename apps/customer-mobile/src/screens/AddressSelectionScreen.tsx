@@ -12,6 +12,7 @@ import {
   TextInput,
   ScrollView,
   Alert,
+  Platform,
 } from 'react-native';
 import * as storage from '../utils/storage';
 import { getBaseUrl } from '../utils/api';
@@ -190,6 +191,7 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
       ) : (
         <>
           <FlatList
+            style={styles.scrollContainer}
             data={addresses}
             keyExtractor={(item) => item.id}
             renderItem={renderAddressItem}
@@ -215,6 +217,25 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'hsl(224, 71%, 4%)',
     padding: 16,
+    ...Platform.select({
+      web: {
+        position: 'absolute' as any,
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: '100%' as any,
+        overflow: 'hidden' as any,
+      }
+    })
+  },
+  scrollContainer: {
+    flex: 1,
+    ...Platform.select({
+      web: {
+        overflowY: 'auto' as any,
+      }
+    })
   },
   header: {
     marginBottom: 24,
@@ -293,6 +314,11 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 20,
     padding: 20,
+    ...Platform.select({
+      web: {
+        overflowY: 'auto' as any,
+      }
+    })
   },
   formTitle: {
     fontSize: 18,

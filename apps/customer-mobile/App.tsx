@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { RootStackParamList } from './src/navigation/root.types';
+import GatewayScreen from './src/screens/GatewayScreen';
 import PhoneInputScreen from './src/screens/PhoneInputScreen';
 import OtpVerifyScreen from './src/screens/OtpVerifyScreen';
 import HomeScreen from './src/screens/HomeScreen';
@@ -27,7 +28,7 @@ export default function App() {
       if (token) {
         setInitialRoute('Home');
       } else {
-        setInitialRoute('PhoneInput');
+        setInitialRoute('Gateway');
       }
     };
     checkAuth();
@@ -61,6 +62,11 @@ export default function App() {
           },
         }}
       >
+        <Stack.Screen
+          name="Gateway"
+          component={GatewayScreen}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="PhoneInput"
           component={PhoneInputScreen}

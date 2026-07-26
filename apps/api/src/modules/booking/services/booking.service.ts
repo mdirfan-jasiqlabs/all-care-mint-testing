@@ -54,11 +54,19 @@ export class BookingService {
     const results = await Promise.all(
       allSlots.map(async (slot) => {
         const lock = await this.bookingRepo.findSlotLock(slot.id, slotDate);
-        const isLocked = lock !== null && lock.expiresAt > new Date();
+        const isLocked = lock !== null && (lock.expiresAt > new Date() || lock.bookingId !== null);
+        
+        let isPastSameDay = false;
+        try {
+          this.validateSameDaySlot(date, slot);
+        } catch (e) {
+          isPastSameDay = true;
+        }
+
         return {
           id: slot.id,
           label: slot.label,
-          isAvailable: !isLocked,
+          isAvailable: !isLocked && !isPastSameDay,
         };
       }),
     );

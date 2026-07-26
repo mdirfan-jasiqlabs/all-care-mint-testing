@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { RootStackParamList } from './src/navigation/root.types';
+import GatewayScreen from './src/screens/GatewayScreen';
 import ProviderLoginScreen from './src/screens/ProviderLoginScreen';
 import ProviderOtpScreen from './src/screens/ProviderOtpScreen';
 import ProviderDashboardScreen from './src/screens/ProviderDashboardScreen';
@@ -22,7 +23,7 @@ export default function App() {
       if (token) {
         setInitialRoute('ProviderDashboard');
       } else {
-        setInitialRoute('ProviderLogin');
+        setInitialRoute('Gateway');
       }
     };
     checkAuth();
@@ -56,6 +57,11 @@ export default function App() {
           },
         }}
       >
+        <Stack.Screen
+          name="Gateway"
+          component={GatewayScreen}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="ProviderLogin"
           component={ProviderLoginScreen}

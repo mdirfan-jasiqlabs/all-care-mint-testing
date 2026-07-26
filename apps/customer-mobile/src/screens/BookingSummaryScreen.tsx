@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
+  Platform,
 } from 'react-native';
 import * as storage from '../utils/storage';
 import { getBaseUrl } from '../utils/api';
@@ -173,7 +174,8 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.outerContainer}>
+      <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Confirm Booking</Text>
         <Text style={styles.subtitle}>Review your service details before placing booking</Text>
@@ -241,15 +243,35 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
           <Text style={styles.confirmBtnText}>Confirm Booking</Text>
         )}
       </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  outerContainer: {
     flex: 1,
     backgroundColor: 'hsl(224, 71%, 4%)',
+    ...Platform.select({
+      web: {
+        position: 'absolute' as any,
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: '100%' as any,
+        overflow: 'hidden' as any,
+      }
+    })
+  },
+  container: {
+    flex: 1,
     padding: 16,
+    ...Platform.select({
+      web: {
+        overflowY: 'auto' as any,
+      }
+    })
   },
   loadingContainer: {
     flex: 1,
