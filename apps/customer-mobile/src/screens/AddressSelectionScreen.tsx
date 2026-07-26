@@ -33,6 +33,7 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
   const [city, setCity] = useState('');
   const [pincode, setPincode] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const fetchAddresses = async () => {
     try {
@@ -56,13 +57,14 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
   }, []);
 
   const handleAddAddress = async () => {
+    setErrorMsg('');
     if (!label.trim() || !addressLine1.trim() || !city.trim() || !pincode.trim()) {
-      Alert.alert('Validation Error', 'Please fill in all required fields.');
+      setErrorMsg('Please fill in all required fields.');
       return;
     }
 
     if (!/^[1-9][0-9]{5}$/.test(pincode)) {
-      Alert.alert('Validation Error', 'Please enter a valid 6-digit Indian PIN code.');
+      setErrorMsg('Please enter a valid 6-digit Indian PIN code.');
       return;
     }
 
@@ -93,21 +95,41 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
       setAddressLine2('');
       setCity('');
       setPincode('');
+      setErrorMsg('');
       setIsAdding(false);
       fetchAddresses();
     } catch (err: any) {
-      Alert.alert('Error', err.message);
+      setErrorMsg(err.message);
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleDeleteAddress = async (id: string) => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${baseUrl}/api/v1/addresses/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error?.message || 'Failed to delete address.');
+      }
+      fetchAddresses();
+    } catch (err: any) {
+      Alert.alert('Error', err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderAddressItem = ({ item }: { item: any }) => (
-    <TouchableOpacity
-      style={styles.addressCard}
-      onPress={() => navigation.navigate('SlotSelection', { serviceId, addressId: item.id })}
-    >
-      <View style={{ flex: 1 }}>
+    <View style={styles.addressCard}>
+      <TouchableOpacity
+        style={{ flex: 1 }}
+        onPress={() => navigation.navigate('SlotSelection', { serviceId, addressId: item.id })}
+      >
         <Text style={styles.addressLabel}>{item.label}</Text>
         <Text style={styles.addressDetails}>
           {item.addressLine1}
@@ -116,9 +138,21 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
         <Text style={styles.addressCity}>
           {item.city} - {item.pincode}
         </Text>
+      </TouchableOpacity>
+      <View style={{ gap: 8, alignItems: 'flex-end', justifyContent: 'center' }}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('SlotSelection', { serviceId, addressId: item.id })}
+        >
+          <Text style={styles.selectText}>Select →</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handleDeleteAddress(item.id)}
+          style={{ marginTop: 8 }}
+        >
+          <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 13 }}>Delete</Text>
+        </TouchableOpacity>
       </View>
-      <Text style={styles.selectText}>Select →</Text>
-    </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -133,6 +167,8 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
       ) : isAdding ? (
         <ScrollView style={styles.formContainer} keyboardShouldPersistTaps="handled">
           <Text style={styles.formTitle}>Add New Address</Text>
+
+          {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
           <TextInput
             placeholder="Label (e.g. Home, Office) *"
@@ -307,6 +343,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 40,
     fontSize: 14,
+  },
+  errorText: {
+    color: '#ef4444',
+    fontSize: 13,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
   },
   formContainer: {
     backgroundColor: 'rgba(17, 24, 39, 0.45)',
