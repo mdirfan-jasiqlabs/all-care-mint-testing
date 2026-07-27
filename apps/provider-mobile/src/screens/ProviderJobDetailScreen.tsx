@@ -29,7 +29,7 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
   const fetchJobDetails = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${baseUrl}/api/v1/provider/bookings/${bookingId}`, {
+      const res = await fetch(`${baseUrl}/api/v1/providers/me/bookings/${bookingId}`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       const data = await res.json();
@@ -50,12 +50,13 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
   const handleAcceptJob = async () => {
     try {
       setSubmitting(true);
-      const res = await fetch(`${baseUrl}/api/v1/provider/bookings/${bookingId}/accept`, {
+      const res = await fetch(`${baseUrl}/api/v1/providers/me/bookings/${bookingId}/accept`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
+        body: JSON.stringify({}),
       });
 
       const data = await res.json();
@@ -80,7 +81,7 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
 
     try {
       setSubmitting(true);
-      const res = await fetch(`${baseUrl}/api/v1/provider/bookings/${bookingId}/reject`, {
+      const res = await fetch(`${baseUrl}/api/v1/providers/me/bookings/${bookingId}/reject`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -336,7 +337,7 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     flex: 1,
-    height: 50,
+    height: 56,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
@@ -362,7 +363,7 @@ const styles = StyleSheet.create({
   btnUpdateStatus: {
     backgroundColor: '#10b981',
     width: '100%',
-    height: 52,
+    height: 56,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -375,7 +376,7 @@ const styles = StyleSheet.create({
   },
   backBtn: {
     width: '100%',
-    height: 52,
+    height: 56,
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: 'rgba(255,255,255,0.08)',

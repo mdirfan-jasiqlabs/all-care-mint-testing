@@ -70,3 +70,46 @@ export const clearRefreshToken = async () => {
     storageInstance.delete('auth.refreshToken');
   }
 };
+
+export interface OfflineStatusUpdate {
+  bookingId: string;
+  status: string;
+  timestamp: number;
+  retryCount: number;
+  clientOpId: string;
+}
+
+const OFFLINE_QUEUE_KEY = 'offline_status_updates';
+
+export const getOfflineQueue = (): OfflineStatusUpdate[] => {
+  try {
+    const data = storageInstance.getString(OFFLINE_QUEUE_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    return [];
+  }
+};
+
+export const saveOfflineQueue = (queue: OfflineStatusUpdate[]): void => {
+  try {
+    storageInstance.set(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+  } catch (e) {
+    console.error('Failed to save offline queue:', e);
+  }
+};
+
+export const enqueueOfflineUpdate = (bookingId: string, status: string): void => {
+  const queue = getOfflineQueue();
+  if (!queue.some(item => item.bookingId === bookingId && item.status === status)) {
+    const newUpdate: OfflineStatusUpdate = {
+      bookingId,
+      status,
+      timestamp: Date.now(),
+      retryCount: 0,
+      clientOpId: `op-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
+    };
+    queue.push(newUpdate);
+    saveOfflineQueue(queue);
+  }
+};
+

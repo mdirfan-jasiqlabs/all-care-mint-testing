@@ -10,6 +10,7 @@ import { AddressService } from './services/address.service';
 import { StateEngineService } from './services/state-engine.service';
 import { EligibilityService } from './services/eligibility.service';
 import { SlotLockExpiryService } from './services/slot-lock-expiry.service';
+import { NotificationService } from './services/notification.service';
 import { PrismaBookingRepository } from './adapters/prisma-booking.repository';
 import { PrismaAddressRepository } from './adapters/prisma-address.repository';
 
@@ -27,6 +28,7 @@ import { PrismaAddressRepository } from './adapters/prisma-address.repository';
     StateEngineService,
     EligibilityService,
     SlotLockExpiryService,
+    NotificationService,
     {
       provide: 'IBookingRepository',
       useClass: PrismaBookingRepository,
@@ -43,6 +45,7 @@ import { PrismaAddressRepository } from './adapters/prisma-address.repository';
   exports: [
     BookingService,
     AddressService,
+    NotificationService,
     'IBookingRepository',
     'IAddressRepository',
     'IBookingPublicFacade',

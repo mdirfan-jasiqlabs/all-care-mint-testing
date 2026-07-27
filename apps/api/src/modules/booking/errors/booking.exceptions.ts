@@ -33,7 +33,7 @@ export class AddressNotFoundException extends NotFoundException {
   }
 }
 
-export class InvalidTransitionException extends BadRequestException {
+export class InvalidTransitionException extends ConflictException {
   constructor(from: string, to: string) {
     super({
       success: false,

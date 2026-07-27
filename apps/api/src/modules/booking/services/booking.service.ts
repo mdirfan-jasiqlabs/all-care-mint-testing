@@ -13,6 +13,7 @@ import { IBookingRepository } from '../ports/booking.repository.port';
 import { IAddressRepository } from '../ports/address.repository.port';
 import { StateEngineService } from './state-engine.service';
 import { EligibilityService } from './eligibility.service';
+import { NotificationService } from './notification.service';
 import {
   BookingEntity,
   BookingStatusEnum,
@@ -48,6 +49,7 @@ export class BookingService {
     private readonly stateEngine: StateEngineService,
     private readonly eligibilityService: EligibilityService,
     private readonly prisma: PrismaService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   // ─── Slot Availability ───
@@ -505,7 +507,17 @@ export class BookingService {
     filter: 'active' | 'history' = 'active',
     page: number = 1,
     limit: number = 10,
+    status?: BookingStatusEnum,
   ): Promise<{ data: BookingEntity[]; total: number }> {
+    if (status) {
+      return this.bookingRepo.findBookingsByProvider(
+        providerId,
+        filter,
+        page,
+        limit,
+        status,
+      );
+    }
     if (filter === 'history') {
       return this.bookingRepo.findProviderHistoryBookings(
         providerId,
@@ -526,8 +538,17 @@ export class BookingService {
     providerId: string,
   ): Promise<BookingEntity> {
     const booking = await this.bookingRepo.findBookingById(bookingId);
-    if (!booking || booking.providerId !== providerId) {
+    if (!booking) {
       throw new BookingNotFoundException(bookingId);
+    }
+    if (booking.providerId !== providerId) {
+      throw new ForbiddenException({
+        success: false,
+        error: {
+          code: 'ERR_BOOKING_FORBIDDEN',
+          message: 'You do not have permission to access this booking.',
+        },
+      });
     }
     return booking;
   }
@@ -537,8 +558,21 @@ export class BookingService {
     providerId: string,
   ): Promise<BookingEntity> {
     const booking = await this.bookingRepo.findBookingById(bookingId);
-    if (!booking || booking.providerId !== providerId) {
+    if (!booking) {
       throw new BookingNotFoundException(bookingId);
+    }
+    if (booking.providerId !== providerId) {
+      throw new ForbiddenException({
+        success: false,
+        error: {
+          code: 'ERR_BOOKING_FORBIDDEN',
+          message: 'You do not have permission to access this booking.',
+        },
+      });
+    }
+
+    if (booking.status === BookingStatusEnum.ACCEPTED) {
+      return booking;
     }
 
     this.stateEngine.validateTransition(
@@ -568,8 +602,17 @@ export class BookingService {
     reason: string,
   ): Promise<BookingEntity> {
     const booking = await this.bookingRepo.findBookingById(bookingId);
-    if (!booking || booking.providerId !== providerId) {
+    if (!booking) {
       throw new BookingNotFoundException(bookingId);
+    }
+    if (booking.providerId !== providerId) {
+      throw new ForbiddenException({
+        success: false,
+        error: {
+          code: 'ERR_BOOKING_FORBIDDEN',
+          message: 'You do not have permission to access this booking.',
+        },
+      });
     }
 
     this.stateEngine.validateTransition(
@@ -603,8 +646,21 @@ export class BookingService {
     targetStatus: BookingStatusEnum,
   ): Promise<BookingEntity> {
     const booking = await this.bookingRepo.findBookingById(bookingId);
-    if (!booking || booking.providerId !== providerId) {
+    if (!booking) {
       throw new BookingNotFoundException(bookingId);
+    }
+    if (booking.providerId !== providerId) {
+      throw new ForbiddenException({
+        success: false,
+        error: {
+          code: 'ERR_BOOKING_FORBIDDEN',
+          message: 'You do not have permission to access this booking.',
+        },
+      });
+    }
+
+    if (booking.status === targetStatus) {
+      return booking;
     }
 
     this.stateEngine.validateTransition(
@@ -630,6 +686,14 @@ export class BookingService {
       actorId: providerId,
       actorRole: ActorRoleEnum.PROVIDER,
     });
+
+    if (targetStatus === BookingStatusEnum.COMPLETED) {
+      try {
+        await this.notificationService.sendCompletedNotification(updatedBooking);
+      } catch (err) {
+        console.error(`[Notification Error] Failed to dispatch COMPLETED notification for booking ${bookingId}:`, err);
+      }
+    }
 
     return updatedBooking;
   }

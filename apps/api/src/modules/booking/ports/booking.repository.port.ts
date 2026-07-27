@@ -28,6 +28,7 @@ export interface IBookingRepository {
     filter: 'active' | 'history',
     page: number,
     limit: number,
+    status?: BookingStatusEnum,
   ): Promise<{ data: BookingEntity[]; total: number }>;
   findBookingsAdmin(query: {
     status?: BookingStatusEnum;

@@ -229,14 +229,14 @@ async function run() {
     console.log('\n--- 6. Provider Job Status Lifecycle Transitions ---');
 
     // Accept Job
-    const acceptRes = await fetchJson(`/api/v1/provider/bookings/${bookingId}/accept`, {
+    const acceptRes = await fetchJson(`/api/v1/providers/me/bookings/${bookingId}/accept`, {
       method: 'PATCH',
       headers: authHeader(providerToken)
     });
     console.log(`✅ Transition: ASSIGNED -> ${acceptRes.data.status}`);
 
     // On The Way
-    const otwRes = await fetchJson(`/api/v1/provider/bookings/${bookingId}/status`, {
+    const otwRes = await fetchJson(`/api/v1/providers/me/bookings/${bookingId}/status`, {
       method: 'PATCH',
       headers: authHeader(providerToken),
       body: { status: 'ON_THE_WAY' }
@@ -244,7 +244,7 @@ async function run() {
     console.log(`✅ Transition: ACCEPTED -> ${otwRes.data.status}`);
 
     // Started
-    const startRes = await fetchJson(`/api/v1/provider/bookings/${bookingId}/status`, {
+    const startRes = await fetchJson(`/api/v1/providers/me/bookings/${bookingId}/status`, {
       method: 'PATCH',
       headers: authHeader(providerToken),
       body: { status: 'STARTED' }
@@ -252,7 +252,7 @@ async function run() {
     console.log(`✅ Transition: ON_THE_WAY -> ${startRes.data.status}`);
 
     // Completed
-    const completeRes = await fetchJson(`/api/v1/provider/bookings/${bookingId}/status`, {
+    const completeRes = await fetchJson(`/api/v1/providers/me/bookings/${bookingId}/status`, {
       method: 'PATCH',
       headers: authHeader(providerToken),
       body: { status: 'COMPLETED' }
@@ -299,7 +299,7 @@ async function run() {
     });
 
     // Provider rejects
-    const rejectRes = await fetchJson(`/api/v1/provider/bookings/${bookingId2}/reject`, {
+    const rejectRes = await fetchJson(`/api/v1/providers/me/bookings/${bookingId2}/reject`, {
       method: 'PATCH',
       headers: authHeader(providerToken),
       body: { reason: 'Schedule conflict' }

@@ -74,6 +74,7 @@ export class PrismaBookingRepository implements IBookingRepository {
     filter: 'active' | 'history',
     page: number,
     limit: number,
+    status?: BookingStatusEnum,
   ): Promise<{ data: BookingEntity[]; total: number }> {
     const activeStatuses = [
       BookingStatusEnum.ASSIGNED,
@@ -82,15 +83,16 @@ export class PrismaBookingRepository implements IBookingRepository {
       BookingStatusEnum.STARTED,
     ];
 
-    const where =
-      filter === 'active'
-        ? { providerId, status: { in: activeStatuses } }
-        : {
-            providerId,
-            status: {
-              in: [BookingStatusEnum.COMPLETED, BookingStatusEnum.CANCELLED],
-            },
-          };
+    const where: any = { providerId };
+    if (status) {
+      where.status = status;
+    } else if (filter === 'active') {
+      where.status = { in: activeStatuses };
+    } else {
+      where.status = {
+        in: [BookingStatusEnum.COMPLETED, BookingStatusEnum.CANCELLED],
+      };
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.booking.findMany({

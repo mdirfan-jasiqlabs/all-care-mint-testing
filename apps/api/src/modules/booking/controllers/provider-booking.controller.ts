@@ -16,17 +16,19 @@ import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { BookingService } from '../services/booking.service';
 import { RejectBookingDto, UpdateBookingStatusDto } from '../dto/booking.dto';
+import { BookingStatusEnum } from '../types/booking.types';
 
-@Controller('api/v1/provider/bookings')
+@Controller('api/v1/providers/me/bookings')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('PROVIDER')
 export class ProviderBookingController {
   constructor(private readonly bookingService: BookingService) {}
 
-  /** 6.4.1 GET /api/v1/provider/bookings */
+  /** 6.4.1 GET /api/v1/providers/me/bookings */
   @Get()
   async listActiveBookings(
     @Req() req: any,
+    @Query('status') status?: BookingStatusEnum,
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
   ) {
@@ -35,6 +37,7 @@ export class ProviderBookingController {
       'active',
       parseInt(page, 10),
       parseInt(limit, 10),
+      status,
     );
     return { success: true, data: result.data, total: result.total };
   }

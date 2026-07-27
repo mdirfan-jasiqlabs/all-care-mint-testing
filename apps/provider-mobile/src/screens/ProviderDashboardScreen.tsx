@@ -27,8 +27,8 @@ export default function ProviderDashboardScreen({ navigation }: any) {
     try {
       setLoading(true);
       const url = activeTab === 'active' 
-        ? `${baseUrl}/api/v1/provider/bookings?page=1&limit=20`
-        : `${baseUrl}/api/v1/provider/bookings/history?page=1&limit=20`;
+        ? `${baseUrl}/api/v1/providers/me/bookings?page=1&limit=20`
+        : `${baseUrl}/api/v1/providers/me/bookings/history?page=1&limit=20`;
 
       const res = await fetch(url, {
         headers: { 'Authorization': `Bearer ${token}` },
