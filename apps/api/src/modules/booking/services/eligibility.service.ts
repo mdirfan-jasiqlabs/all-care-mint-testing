@@ -24,9 +24,7 @@ export class EligibilityService {
     });
 
     if (!provider) {
-      throw new ProviderIneligibleException(
-        'Provider not found.',
-      );
+      throw new ProviderIneligibleException('Provider not found.');
     }
 
     if (provider.status !== 'APPROVED') {
@@ -42,9 +40,7 @@ export class EligibilityService {
     });
 
     if (!service) {
-      throw new ProviderIneligibleException(
-        'Service not found.',
-      );
+      throw new ProviderIneligibleException('Service not found.');
     }
 
     // NOTE: Category-based eligibility filtering is a future enhancement.

@@ -12,4 +12,3 @@ import { BookingModule } from './modules/booking/booking.module';
   providers: [AppService],
 })
 export class AppModule {}
-

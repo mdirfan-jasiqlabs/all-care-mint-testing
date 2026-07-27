@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { TokenService } from '../services/token.service';
 
 @Injectable()
@@ -25,7 +30,7 @@ export class JwtAuthGuard implements CanActivate {
       if (!decoded) {
         throw new UnauthorizedException();
       }
-      
+
       // Attach the user context to request
       request.user = {
         id: decoded.sub,

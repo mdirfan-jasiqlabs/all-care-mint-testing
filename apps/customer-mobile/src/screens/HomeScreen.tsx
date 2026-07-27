@@ -30,6 +30,13 @@ export default function HomeScreen({ navigation }: Props) {
           >
             <Text style={styles.buttonText}>Browse Services</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, { marginTop: 12 }]}
+            onPress={() => navigation.navigate('MyBookings')}
+          >
+            <Text style={styles.buttonText}>My Bookings</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>

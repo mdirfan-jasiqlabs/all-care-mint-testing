@@ -29,7 +29,10 @@ describe('TokenService', () => {
 
   describe('generateTokenPair', () => {
     it('should generate valid JWT access token and refresh token', async () => {
-      const result = await tokenService.generateTokenPair('user-123', 'CUSTOMER');
+      const result = await tokenService.generateTokenPair(
+        'user-123',
+        'CUSTOMER',
+      );
 
       expect(result).toHaveProperty('accessToken');
       expect(result).toHaveProperty('refreshToken');
@@ -50,10 +53,14 @@ describe('TokenService', () => {
         isRevoked: false,
       });
 
-      const result = await tokenService.rotateRefreshTokens('raw-refresh-token');
+      const result =
+        await tokenService.rotateRefreshTokens('raw-refresh-token');
 
       expect(result).toHaveProperty('accessToken');
-      expect(authRepository.revokeToken).toHaveBeenCalledWith('token-uuid-1', 'ROTATED');
+      expect(authRepository.revokeToken).toHaveBeenCalledWith(
+        'token-uuid-1',
+        'ROTATED',
+      );
       expect(authRepository.saveRefreshToken).toHaveBeenCalled();
     });
 
@@ -68,8 +75,13 @@ describe('TokenService', () => {
         isRevoked: true, // Already revoked!
       });
 
-      await expect(tokenService.rotateRefreshTokens('stolen-token')).rejects.toThrow(UnauthorizedException);
-      expect(authRepository.revokeTokenFamily).toHaveBeenCalledWith('family-123', 'REUSE_REPLAY_ATTACK');
+      await expect(
+        tokenService.rotateRefreshTokens('stolen-token'),
+      ).rejects.toThrow(UnauthorizedException);
+      expect(authRepository.revokeTokenFamily).toHaveBeenCalledWith(
+        'family-123',
+        'REUSE_REPLAY_ATTACK',
+      );
     });
 
     it('should throw UnauthorizedException for expired token', async () => {
@@ -83,7 +95,9 @@ describe('TokenService', () => {
         isRevoked: false,
       });
 
-      await expect(tokenService.rotateRefreshTokens('expired-token')).rejects.toThrow(UnauthorizedException);
+      await expect(
+        tokenService.rotateRefreshTokens('expired-token'),
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 });

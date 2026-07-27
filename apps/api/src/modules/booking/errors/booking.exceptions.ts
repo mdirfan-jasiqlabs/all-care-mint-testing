@@ -1,6 +1,13 @@
 // ─── MOD-002 Custom Exception Classes ───
 
-import { HttpException, HttpStatus, NotFoundException, ConflictException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 
 export class BookingNotFoundException extends NotFoundException {
   constructor(id?: string) {
@@ -80,7 +87,8 @@ export class IdempotencyConflictException extends ConflictException {
       success: false,
       error: {
         code: 'ERR_IDEMPOTENCY_CONFLICT',
-        message: 'Request payload does not match the original request for this idempotency key.',
+        message:
+          'Request payload does not match the original request for this idempotency key.',
       },
     });
   }
@@ -116,7 +124,8 @@ export class SameDaySlotTooSoonException extends BadRequestException {
       success: false,
       error: {
         code: 'ERR_SLOT_TOO_SOON',
-        message: 'Same-day bookings require at least 2 hours before the slot start time.',
+        message:
+          'Same-day bookings require at least 2 hours before the slot start time.',
       },
     });
   }

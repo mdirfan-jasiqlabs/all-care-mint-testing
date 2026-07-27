@@ -51,7 +51,8 @@ export class PrismaBookingRepository implements IBookingRepository {
       BookingStatusEnum.CANCELLED,
     ];
 
-    const statusFilter = filter === 'current' ? currentStatuses : historyStatuses;
+    const statusFilter =
+      filter === 'current' ? currentStatuses : historyStatuses;
 
     const [data, total] = await Promise.all([
       this.prisma.booking.findMany({
@@ -226,8 +227,10 @@ export class PrismaBookingRepository implements IBookingRepository {
     additionalFields?: Partial<BookingEntity>,
   ): Promise<BookingEntity> {
     const data: any = { status, updatedAt: new Date() };
-    if (additionalFields?.cancelledAt) data.cancelledAt = additionalFields.cancelledAt;
-    if (additionalFields?.completedAt) data.completedAt = additionalFields.completedAt;
+    if (additionalFields?.cancelledAt)
+      data.cancelledAt = additionalFields.cancelledAt;
+    if (additionalFields?.completedAt)
+      data.completedAt = additionalFields.completedAt;
     if ((additionalFields as any)?.providerId !== undefined) {
       data.providerId = (additionalFields as any).providerId;
     }
@@ -245,7 +248,11 @@ export class PrismaBookingRepository implements IBookingRepository {
   ): Promise<BookingEntity> {
     const updated = await this.prisma.booking.update({
       where: { id: bookingId },
-      data: { providerId, status: BookingStatusEnum.ASSIGNED, updatedAt: new Date() },
+      data: {
+        providerId,
+        status: BookingStatusEnum.ASSIGNED,
+        updatedAt: new Date(),
+      },
     });
     return this.mapBooking(updated);
   }

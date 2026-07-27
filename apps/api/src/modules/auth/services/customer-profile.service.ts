@@ -32,7 +32,7 @@ export class CustomerProfileService {
         },
       });
     }
-    
+
     // We can call a custom repository method or write inline using PrismaClient
     // Let's implement this update in PrismaAuthRepository
     return this.authRepository.updateCustomerDisplayName(userId, name);

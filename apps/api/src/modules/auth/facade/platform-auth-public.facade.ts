@@ -4,9 +4,15 @@ import { AuthService } from '../services/auth.service';
 import { TokenService } from '../services/token.service';
 
 export interface IPlatformAuthPublicFacade {
-  verifyFirebaseToken(dto: { firebaseToken: string; role: 'CUSTOMER' | 'PROVIDER' }): Promise<JwtTokenPair>;
+  verifyFirebaseToken(dto: {
+    firebaseToken: string;
+    role: 'CUSTOMER' | 'PROVIDER';
+  }): Promise<JwtTokenPair>;
   rotateRefreshTokens(refreshToken: string): Promise<JwtTokenPair>;
-  verifyAdminCredentials(dto: { email: string; password: string }): Promise<JwtTokenPair>;
+  verifyAdminCredentials(dto: {
+    email: string;
+    password: string;
+  }): Promise<JwtTokenPair>;
   getUserContext(userId: string, role: string): Promise<UserContext>;
 }
 
@@ -17,7 +23,10 @@ export class PlatformAuthPublicFacade implements IPlatformAuthPublicFacade {
     private readonly tokenService: TokenService,
   ) {}
 
-  async verifyFirebaseToken(dto: { firebaseToken: string; role: 'CUSTOMER' | 'PROVIDER' }): Promise<JwtTokenPair> {
+  async verifyFirebaseToken(dto: {
+    firebaseToken: string;
+    role: 'CUSTOMER' | 'PROVIDER';
+  }): Promise<JwtTokenPair> {
     return this.authService.verifyFirebaseToken(dto);
   }
 
@@ -25,11 +34,17 @@ export class PlatformAuthPublicFacade implements IPlatformAuthPublicFacade {
     return this.tokenService.rotateRefreshTokens(refreshToken);
   }
 
-  async verifyAdminCredentials(dto: { email: string; password: string }): Promise<JwtTokenPair> {
+  async verifyAdminCredentials(dto: {
+    email: string;
+    password: string;
+  }): Promise<JwtTokenPair> {
     return this.authService.verifyAdminCredentials(dto);
   }
 
-  async getUserContext(userId: string, role: 'CUSTOMER' | 'PROVIDER' | 'ADMIN'): Promise<UserContext> {
+  async getUserContext(
+    userId: string,
+    role: 'CUSTOMER' | 'PROVIDER' | 'ADMIN',
+  ): Promise<UserContext> {
     return this.authService.getUserContext(userId, role);
   }
 }

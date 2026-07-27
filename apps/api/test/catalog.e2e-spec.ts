@@ -17,7 +17,8 @@ describe('Catalog Module (e2e)', () => {
     const mockTokenService = {
       verifyAccessToken: jest.fn().mockImplementation((token: string) => {
         if (token === 'admin-token') return { sub: 'admin-1', role: 'ADMIN' };
-        if (token === 'customer-token') return { sub: 'cust-1', role: 'CUSTOMER' };
+        if (token === 'customer-token')
+          return { sub: 'cust-1', role: 'CUSTOMER' };
         return null;
       }),
     };

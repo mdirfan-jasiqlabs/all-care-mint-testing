@@ -22,6 +22,10 @@ import { PrismaCatalogRepository } from './adapters/prisma-catalog.repository';
       useExisting: CatalogService,
     },
   ],
-  exports: [CatalogService, 'ICatalogRepository', 'IPlatformCatalogPublicFacade'],
+  exports: [
+    CatalogService,
+    'ICatalogRepository',
+    'IPlatformCatalogPublicFacade',
+  ],
 })
 export class CatalogModule {}

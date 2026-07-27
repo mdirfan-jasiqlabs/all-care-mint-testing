@@ -51,16 +51,17 @@ export class PrismaAddressRepository implements IAddressRepository {
     return this.mapToEntity(created);
   }
 
-  async updateAddress(
-    id: string,
-    address: Partial<Address>,
-  ): Promise<Address> {
+  async updateAddress(id: string, address: Partial<Address>): Promise<Address> {
     const updated = await this.prisma.customerAddress.update({
       where: { id },
       data: {
         ...(address.label !== undefined && { label: address.label }),
-        ...(address.addressLine1 !== undefined && { addressLine1: address.addressLine1 }),
-        ...(address.addressLine2 !== undefined && { addressLine2: address.addressLine2 }),
+        ...(address.addressLine1 !== undefined && {
+          addressLine1: address.addressLine1,
+        }),
+        ...(address.addressLine2 !== undefined && {
+          addressLine2: address.addressLine2,
+        }),
         ...(address.city !== undefined && { city: address.city }),
         ...(address.pincode !== undefined && { pincode: address.pincode }),
         updatedAt: new Date(),

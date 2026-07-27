@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Res, UseGuards, Req, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  UseGuards,
+  Req,
+  HttpCode,
+} from '@nestjs/common';
 import * as crypto from 'crypto';
 import { AuthService } from '../services/auth.service';
 import { TokenService } from '../services/token.service';
@@ -22,9 +30,10 @@ export class AuthController {
       firebaseToken: dto.firebaseToken,
       role: 'CUSTOMER',
     });
-    
+
     // Identity check matches output from Section 6.1
-    const customer = await this.authRepository.findCustomerByMobile('+919876543210'); // fallback/lookup matching verified mobile
+    const customer =
+      await this.authRepository.findCustomerByMobile('+919876543210'); // fallback/lookup matching verified mobile
     return {
       success: true,
       data: {
@@ -51,7 +60,8 @@ export class AuthController {
       role: 'PROVIDER',
     });
 
-    const provider = await this.authRepository.findProviderByMobile('+919876543211'); // lookup
+    const provider =
+      await this.authRepository.findProviderByMobile('+919876543211'); // lookup
     return {
       success: true,
       data: {
@@ -72,7 +82,10 @@ export class AuthController {
 
   @Post('admin/login')
   @HttpCode(200)
-  async adminLogin(@Body() dto: AdminLoginDto, @Res({ passthrough: true }) response: any) {
+  async adminLogin(
+    @Body() dto: AdminLoginDto,
+    @Res({ passthrough: true }) response: any,
+  ) {
     const tokens = await this.authService.verifyAdminCredentials(dto);
 
     // BFF Web client Cookie Contract alignment (Section 6.3)
@@ -100,7 +113,9 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(200)
   async refresh(@Body() body: { refreshToken: string }) {
-    const tokens = await this.tokenService.rotateRefreshTokens(body.refreshToken);
+    const tokens = await this.tokenService.rotateRefreshTokens(
+      body.refreshToken,
+    );
     return {
       success: true,
       data: tokens,

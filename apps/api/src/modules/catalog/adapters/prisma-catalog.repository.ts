@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { ICatalogRepository, ServiceCategoryEntity, ServiceItemEntity } from '../ports/catalog-repository.interface';
+import {
+  ICatalogRepository,
+  ServiceCategoryEntity,
+  ServiceItemEntity,
+} from '../ports/catalog-repository.interface';
 import { createHash } from 'crypto';
 
 @Injectable()
@@ -25,7 +29,9 @@ export class PrismaCatalogRepository implements ICatalogRepository {
     };
   }
 
-  async findCategoryByName(name: string): Promise<ServiceCategoryEntity | null> {
+  async findCategoryByName(
+    name: string,
+  ): Promise<ServiceCategoryEntity | null> {
     const category = await this.prisma.serviceCategory.findUnique({
       where: { name },
     });
@@ -43,14 +49,13 @@ export class PrismaCatalogRepository implements ICatalogRepository {
     };
   }
 
-  async findAllCategories(includeInactive: boolean): Promise<ServiceCategoryEntity[]> {
+  async findAllCategories(
+    includeInactive: boolean,
+  ): Promise<ServiceCategoryEntity[]> {
     const whereCondition = includeInactive ? {} : { isActive: true };
     const categories = await this.prisma.serviceCategory.findMany({
       where: whereCondition,
-      orderBy: [
-        { displayOrder: 'asc' },
-        { name: 'asc' },
-      ],
+      orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
     });
 
     return categories.map((c) => ({
@@ -64,7 +69,9 @@ export class PrismaCatalogRepository implements ICatalogRepository {
     }));
   }
 
-  async saveCategory(category: Partial<ServiceCategoryEntity>): Promise<ServiceCategoryEntity> {
+  async saveCategory(
+    category: Partial<ServiceCategoryEntity>,
+  ): Promise<ServiceCategoryEntity> {
     const created = await this.prisma.serviceCategory.create({
       data: {
         name: category.name!,
@@ -86,14 +93,21 @@ export class PrismaCatalogRepository implements ICatalogRepository {
     };
   }
 
-  async updateCategory(id: string, category: Partial<ServiceCategoryEntity>): Promise<ServiceCategoryEntity> {
+  async updateCategory(
+    id: string,
+    category: Partial<ServiceCategoryEntity>,
+  ): Promise<ServiceCategoryEntity> {
     const updated = await this.prisma.serviceCategory.update({
       where: { id },
       data: {
         ...(category.name !== undefined && { name: category.name }),
-        ...(category.description !== undefined && { description: category.description }),
+        ...(category.description !== undefined && {
+          description: category.description,
+        }),
         ...(category.iconUrl !== undefined && { iconUrl: category.iconUrl }),
-        ...(category.displayOrder !== undefined && { displayOrder: category.displayOrder }),
+        ...(category.displayOrder !== undefined && {
+          displayOrder: category.displayOrder,
+        }),
         ...(category.isActive !== undefined && { isActive: category.isActive }),
       },
     });
@@ -109,7 +123,10 @@ export class PrismaCatalogRepository implements ICatalogRepository {
     };
   }
 
-  async findServicesByCategory(categoryId: string, includeInactive: boolean): Promise<ServiceItemEntity[]> {
+  async findServicesByCategory(
+    categoryId: string,
+    includeInactive: boolean,
+  ): Promise<ServiceItemEntity[]> {
     const whereCondition: any = { categoryId };
     if (!includeInactive) {
       whereCondition.isActive = true;
@@ -152,7 +169,10 @@ export class PrismaCatalogRepository implements ICatalogRepository {
     };
   }
 
-  async findServiceByNameInCategory(categoryId: string, name: string): Promise<ServiceItemEntity | null> {
+  async findServiceByNameInCategory(
+    categoryId: string,
+    name: string,
+  ): Promise<ServiceItemEntity | null> {
     const service = await this.prisma.service.findUnique({
       where: {
         categoryId_name: { categoryId, name },
@@ -173,7 +193,9 @@ export class PrismaCatalogRepository implements ICatalogRepository {
     };
   }
 
-  async saveService(service: Partial<ServiceItemEntity>): Promise<ServiceItemEntity> {
+  async saveService(
+    service: Partial<ServiceItemEntity>,
+  ): Promise<ServiceItemEntity> {
     const created = await this.prisma.service.create({
       data: {
         categoryId: service.categoryId!,
@@ -197,14 +219,23 @@ export class PrismaCatalogRepository implements ICatalogRepository {
     };
   }
 
-  async updateService(id: string, service: Partial<ServiceItemEntity>): Promise<ServiceItemEntity> {
+  async updateService(
+    id: string,
+    service: Partial<ServiceItemEntity>,
+  ): Promise<ServiceItemEntity> {
     const updated = await this.prisma.service.update({
       where: { id },
       data: {
         ...(service.name !== undefined && { name: service.name }),
-        ...(service.description !== undefined && { description: service.description }),
-        ...(service.fixedPrice !== undefined && { fixedPrice: service.fixedPrice }),
-        ...(service.estimatedDuration !== undefined && { estimatedDuration: service.estimatedDuration }),
+        ...(service.description !== undefined && {
+          description: service.description,
+        }),
+        ...(service.fixedPrice !== undefined && {
+          fixedPrice: service.fixedPrice,
+        }),
+        ...(service.estimatedDuration !== undefined && {
+          estimatedDuration: service.estimatedDuration,
+        }),
         ...(service.isActive !== undefined && { isActive: service.isActive }),
       },
     });
@@ -231,7 +262,9 @@ export class PrismaCatalogRepository implements ICatalogRepository {
     }
 
     // Default initial version
-    const initialHash = createHash('sha256').update(`initial-${Date.now()}`).digest('hex');
+    const initialHash = createHash('sha256')
+      .update(`initial-${Date.now()}`)
+      .digest('hex');
     await this.prisma.catalogVersion.create({
       data: { versionHash: initialHash },
     });
@@ -240,7 +273,9 @@ export class PrismaCatalogRepository implements ICatalogRepository {
   }
 
   async incrementVersion(): Promise<string> {
-    const newHash = createHash('sha256').update(`v-${Date.now()}-${Math.random()}`).digest('hex');
+    const newHash = createHash('sha256')
+      .update(`v-${Date.now()}-${Math.random()}`)
+      .digest('hex');
     await this.prisma.catalogVersion.create({
       data: { versionHash: newHash },
     });

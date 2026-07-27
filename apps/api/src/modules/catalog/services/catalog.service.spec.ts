@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CatalogService } from './catalog.service';
-import { CategoryNotFoundException, ServiceNotFoundException } from '../errors/catalog.errors';
+import {
+  CategoryNotFoundException,
+  ServiceNotFoundException,
+} from '../errors/catalog.errors';
 
 describe('CatalogService', () => {
   let service: CatalogService;
@@ -40,12 +43,21 @@ describe('CatalogService', () => {
       ];
 
       mockCatalogRepo.findAllCategories.mockResolvedValue(categories);
-      mockCatalogRepo.findServicesByCategory.mockImplementation((catId: string) => {
-        if (catId === 'cat-1') {
-          return Promise.resolve([{ id: 'srv-1', name: 'Deep Clean', fixedPrice: '100.00', isActive: true }]);
-        }
-        return Promise.resolve([]);
-      });
+      mockCatalogRepo.findServicesByCategory.mockImplementation(
+        (catId: string) => {
+          if (catId === 'cat-1') {
+            return Promise.resolve([
+              {
+                id: 'srv-1',
+                name: 'Deep Clean',
+                fixedPrice: '100.00',
+                isActive: true,
+              },
+            ]);
+          }
+          return Promise.resolve([]);
+        },
+      );
 
       const result = await service.getActiveCategories();
       expect(result).toHaveLength(1);
@@ -55,7 +67,10 @@ describe('CatalogService', () => {
 
   describe('getServicesByCategory', () => {
     it('should return services for active category', async () => {
-      mockCatalogRepo.findCategoryById.mockResolvedValue({ id: 'cat-1', isActive: true });
+      mockCatalogRepo.findCategoryById.mockResolvedValue({
+        id: 'cat-1',
+        isActive: true,
+      });
       mockCatalogRepo.findServicesByCategory.mockResolvedValue([
         { id: 'srv-1', name: 'Deep Clean', fixedPrice: '100.00' },
       ]);
@@ -67,14 +82,23 @@ describe('CatalogService', () => {
 
     it('should throw CategoryNotFoundException if category is inactive or missing', async () => {
       mockCatalogRepo.findCategoryById.mockResolvedValue(null);
-      await expect(service.getServicesByCategory('missing')).rejects.toThrow(CategoryNotFoundException);
+      await expect(service.getServicesByCategory('missing')).rejects.toThrow(
+        CategoryNotFoundException,
+      );
     });
   });
 
   describe('getServiceById', () => {
     it('should return service details if service and parent category are active', async () => {
-      mockCatalogRepo.findServiceById.mockResolvedValue({ id: 'srv-1', categoryId: 'cat-1', isActive: true });
-      mockCatalogRepo.findCategoryById.mockResolvedValue({ id: 'cat-1', isActive: true });
+      mockCatalogRepo.findServiceById.mockResolvedValue({
+        id: 'srv-1',
+        categoryId: 'cat-1',
+        isActive: true,
+      });
+      mockCatalogRepo.findCategoryById.mockResolvedValue({
+        id: 'cat-1',
+        isActive: true,
+      });
 
       const result = await service.getServiceById('srv-1');
       expect(result.id).toBe('srv-1');
@@ -82,7 +106,9 @@ describe('CatalogService', () => {
 
     it('should throw ServiceNotFoundException if service does not exist', async () => {
       mockCatalogRepo.findServiceById.mockResolvedValue(null);
-      await expect(service.getServiceById('missing')).rejects.toThrow(ServiceNotFoundException);
+      await expect(service.getServiceById('missing')).rejects.toThrow(
+        ServiceNotFoundException,
+      );
     });
   });
 });

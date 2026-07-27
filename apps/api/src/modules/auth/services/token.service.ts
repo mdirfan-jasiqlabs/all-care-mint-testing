@@ -13,6 +13,11 @@ export class TokenService {
     // Replace literal escape sequences with actual newlines
     this.privateKey = (process.env.JWT_PRIVATE_KEY || '').replace(/\\n/g, '\n');
     this.publicKey = (process.env.JWT_PUBLIC_KEY || '').replace(/\\n/g, '\n');
+    if (!this.privateKey || !this.publicKey) {
+      throw new Error(
+        'JWT cryptographic keys are not configured. Failing closed.',
+      );
+    }
   }
 
   async generateTokenPair(
@@ -22,9 +27,11 @@ export class TokenService {
     parentId?: string,
   ): Promise<JwtTokenPair> {
     const accessPayload = { sub: userId, role };
-    
-    // Fallback keys for testing if environment variables are not set
-    const pKey = this.privateKey || crypto.generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey;
+
+    const pKey = this.privateKey;
+    if (!pKey) {
+      throw new Error('JWT private key is missing. Failing closed.');
+    }
 
     const accessToken = jwt.sign(accessPayload, pKey, {
       algorithm: 'RS256',
@@ -32,12 +39,22 @@ export class TokenService {
     });
 
     const rawRefreshToken = crypto.randomBytes(32).toString('hex');
-    const refreshHash = crypto.createHash('sha256').update(rawRefreshToken).digest('hex');
+    const refreshHash = crypto
+      .createHash('sha256')
+      .update(rawRefreshToken)
+      .digest('hex');
 
     const familyId = tokenFamilyId || crypto.randomUUID();
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-    await this.authRepository.saveRefreshToken(userId, role, refreshHash, expiresAt, familyId, parentId);
+    await this.authRepository.saveRefreshToken(
+      userId,
+      role,
+      refreshHash,
+      expiresAt,
+      familyId,
+      parentId,
+    );
 
     return {
       accessToken,
@@ -47,7 +64,10 @@ export class TokenService {
   }
 
   async rotateRefreshTokens(rawRefreshToken: string): Promise<JwtTokenPair> {
-    const refreshHash = crypto.createHash('sha256').update(rawRefreshToken).digest('hex');
+    const refreshHash = crypto
+      .createHash('sha256')
+      .update(rawRefreshToken)
+      .digest('hex');
     const tokenRecord = await this.authRepository.findRefreshToken(refreshHash);
 
     if (!tokenRecord) {
@@ -60,17 +80,29 @@ export class TokenService {
       });
     }
 
-    const { id, userId, userRole, tokenFamilyId, expiresAt, lastActivity, isRevoked } = tokenRecord;
+    const {
+      id,
+      userId,
+      userRole,
+      tokenFamilyId,
+      expiresAt,
+      lastActivity,
+      isRevoked,
+    } = tokenRecord;
 
     // 1. Theft / Reuse Detection
     if (isRevoked) {
       // Replay attack: revoke entire family immediately
-      await this.authRepository.revokeTokenFamily(tokenFamilyId, 'REUSE_REPLAY_ATTACK');
+      await this.authRepository.revokeTokenFamily(
+        tokenFamilyId,
+        'REUSE_REPLAY_ATTACK',
+      );
       throw new UnauthorizedException({
         success: false,
         error: {
           code: 'ERR_AUTH_INVALID',
-          message: 'Refresh token reuse detected. Access revoked for the entire session.',
+          message:
+            'Refresh token reuse detected. Access revoked for the entire session.',
         },
       });
     }
@@ -109,8 +141,7 @@ export class TokenService {
   verifyAccessToken(token: string): any {
     const pubKey = this.publicKey;
     if (!pubKey) {
-      // In testing environments when no keys are provided, we can inspect payload without verification or fallback
-      return jwt.decode(token);
+      throw new Error('JWT public key is missing. Failing closed.');
     }
     return jwt.verify(token, pubKey, { algorithms: ['RS256'] });
   }

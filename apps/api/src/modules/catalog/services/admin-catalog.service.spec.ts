@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AdminCatalogService } from './admin-catalog.service';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { CategoryDuplicateException, InvalidPriceException } from '../errors/catalog.errors';
+import {
+  CategoryDuplicateException,
+  InvalidPriceException,
+} from '../errors/catalog.errors';
 
 describe('AdminCatalogService', () => {
   let service: AdminCatalogService;
@@ -76,7 +79,10 @@ describe('AdminCatalogService', () => {
     });
 
     it('should throw CategoryDuplicateException if category name already exists (TC-INT-001-003)', async () => {
-      mockCatalogRepo.findCategoryByName.mockResolvedValue({ id: 'cat-1', name: 'Plumbing' });
+      mockCatalogRepo.findCategoryByName.mockResolvedValue({
+        id: 'cat-1',
+        name: 'Plumbing',
+      });
 
       await expect(
         service.createCategory({ name: 'Plumbing' }, 'admin-123', 'ADMIN'),
@@ -86,7 +92,10 @@ describe('AdminCatalogService', () => {
 
   describe('createService (TC-API-001-004)', () => {
     it('should throw InvalidPriceException if price is 0 or negative', async () => {
-      mockCatalogRepo.findCategoryById.mockResolvedValue({ id: 'cat-1', name: 'Plumbing' });
+      mockCatalogRepo.findCategoryById.mockResolvedValue({
+        id: 'cat-1',
+        name: 'Plumbing',
+      });
 
       await expect(
         service.createService(

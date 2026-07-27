@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Patch, Body, Param, UseGuards, Req, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+  HttpCode,
+} from '@nestjs/common';
 import { AdminCatalogService } from '../services/admin-catalog.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
@@ -29,10 +39,7 @@ export class AdminCatalogController {
 
   @Post('categories')
   @HttpCode(201)
-  async createCategory(
-    @Body() dto: CreateCategoryDto,
-    @Req() req: any,
-  ) {
+  async createCategory(@Body() dto: CreateCategoryDto, @Req() req: any) {
     const actorId = req.user?.id || 'admin-system';
     const actorRole = req.user?.role || 'ADMIN';
     const category = await this.adminCatalogService.createCategory(
@@ -77,10 +84,9 @@ export class AdminCatalogController {
   }
 
   @Get('categories/:id/services')
-  async getCategoryServices(
-    @Param('id') id: string,
-  ) {
-    const services = await this.adminCatalogService.getAllServicesForCategoryAdmin(id);
+  async getCategoryServices(@Param('id') id: string) {
+    const services =
+      await this.adminCatalogService.getAllServicesForCategoryAdmin(id);
 
     return {
       success: true,
@@ -94,10 +100,7 @@ export class AdminCatalogController {
 
   @Post('services')
   @HttpCode(201)
-  async createService(
-    @Body() dto: CreateServiceDto,
-    @Req() req: any,
-  ) {
+  async createService(@Body() dto: CreateServiceDto, @Req() req: any) {
     const actorId = req.user?.id || 'admin-system';
     const actorRole = req.user?.role || 'ADMIN';
     const service = await this.adminCatalogService.createService(

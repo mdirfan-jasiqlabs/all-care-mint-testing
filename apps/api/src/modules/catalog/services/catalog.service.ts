@@ -1,7 +1,14 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { ICatalogRepository, ServiceCategoryEntity, ServiceItemEntity } from '../ports/catalog-repository.interface';
+import {
+  ICatalogRepository,
+  ServiceCategoryEntity,
+  ServiceItemEntity,
+} from '../ports/catalog-repository.interface';
 import { IPlatformCatalogPublicFacade } from '../facade/platform-catalog-public-facade.interface';
-import { CategoryNotFoundException, ServiceNotFoundException } from '../errors/catalog.errors';
+import {
+  CategoryNotFoundException,
+  ServiceNotFoundException,
+} from '../errors/catalog.errors';
 
 @Injectable()
 export class CatalogService implements IPlatformCatalogPublicFacade {
@@ -16,7 +23,10 @@ export class CatalogService implements IPlatformCatalogPublicFacade {
     // Filter out empty categories (categories containing zero active services)
     const activeCategories: ServiceCategoryEntity[] = [];
     for (const cat of categories) {
-      const services = await this.catalogRepo.findServicesByCategory(cat.id, false);
+      const services = await this.catalogRepo.findServicesByCategory(
+        cat.id,
+        false,
+      );
       if (services.length > 0) {
         activeCategories.push(cat);
       }
@@ -25,7 +35,9 @@ export class CatalogService implements IPlatformCatalogPublicFacade {
     return activeCategories;
   }
 
-  async getServicesByCategory(categoryId: string): Promise<ServiceItemEntity[]> {
+  async getServicesByCategory(
+    categoryId: string,
+  ): Promise<ServiceItemEntity[]> {
     const category = await this.catalogRepo.findCategoryById(categoryId);
     if (!category || !category.isActive) {
       throw new CategoryNotFoundException(categoryId);
@@ -41,7 +53,9 @@ export class CatalogService implements IPlatformCatalogPublicFacade {
     }
 
     // Ensure parent category is active
-    const category = await this.catalogRepo.findCategoryById(service.categoryId);
+    const category = await this.catalogRepo.findCategoryById(
+      service.categoryId,
+    );
     if (!category || !category.isActive) {
       throw new ServiceNotFoundException(serviceId);
     }
@@ -49,7 +63,10 @@ export class CatalogService implements IPlatformCatalogPublicFacade {
     return service;
   }
 
-  async validateFixedPrice(serviceId: string, clientPrice: string): Promise<boolean> {
+  async validateFixedPrice(
+    serviceId: string,
+    clientPrice: string,
+  ): Promise<boolean> {
     try {
       const service = await this.getServiceById(serviceId);
       const parsedClient = parseFloat(clientPrice);

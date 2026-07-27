@@ -27,7 +27,10 @@ export class PrismaAuthRepository implements IAuthRepository {
     });
   }
 
-  async createCustomer(mobileNumber: string, firebaseUid: string): Promise<any> {
+  async createCustomer(
+    mobileNumber: string,
+    firebaseUid: string,
+  ): Promise<any> {
     return this.prisma.customer.create({
       data: {
         mobileNumber,
@@ -131,7 +134,10 @@ export class PrismaAuthRepository implements IAuthRepository {
     });
   }
 
-  async revokeTokenFamily(tokenFamilyId: string, reason: string): Promise<void> {
+  async revokeTokenFamily(
+    tokenFamilyId: string,
+    reason: string,
+  ): Promise<void> {
     await this.prisma.refreshToken.updateMany({
       where: { tokenFamilyId },
       data: {

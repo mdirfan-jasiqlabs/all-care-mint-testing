@@ -14,6 +14,8 @@ import AddressSelectionScreen from './src/screens/AddressSelectionScreen';
 import SlotSelectionScreen from './src/screens/SlotSelectionScreen';
 import BookingSummaryScreen from './src/screens/BookingSummaryScreen';
 import BookingConfirmationScreen from './src/screens/BookingConfirmationScreen';
+import MyBookingsScreen from './src/screens/MyBookingsScreen';
+import BookingDetailScreen from './src/screens/BookingDetailScreen';
 import * as storage from './src/utils/storage';
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -111,6 +113,16 @@ export default function App() {
           name="BookingConfirmation"
           component={BookingConfirmationScreen}
           options={{ title: 'Booking Confirmed', headerLeft: () => null }}
+        />
+        <Stack.Screen
+          name="MyBookings"
+          component={MyBookingsScreen}
+          options={{ title: 'My Bookings' }}
+        />
+        <Stack.Screen
+          name="BookingDetail"
+          component={BookingDetailScreen}
+          options={{ title: 'Booking Details' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

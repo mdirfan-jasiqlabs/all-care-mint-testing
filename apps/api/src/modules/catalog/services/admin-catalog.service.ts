@@ -1,6 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { ICatalogRepository, ServiceCategoryEntity, ServiceItemEntity } from '../ports/catalog-repository.interface';
+import {
+  ICatalogRepository,
+  ServiceCategoryEntity,
+  ServiceItemEntity,
+} from '../ports/catalog-repository.interface';
 import { CreateCategoryDto, UpdateCategoryDto } from '../dto/category.dto';
 import { CreateServiceDto, UpdateServiceDto } from '../dto/service.dto';
 import {
@@ -22,7 +26,9 @@ export class AdminCatalogService {
     return this.catalogRepo.findAllCategories(true);
   }
 
-  async getAllServicesForCategoryAdmin(categoryId: string): Promise<ServiceItemEntity[]> {
+  async getAllServicesForCategoryAdmin(
+    categoryId: string,
+  ): Promise<ServiceItemEntity[]> {
     const category = await this.catalogRepo.findCategoryById(categoryId);
     if (!category) {
       throw new CategoryNotFoundException(categoryId);
@@ -30,7 +36,11 @@ export class AdminCatalogService {
     return this.catalogRepo.findServicesByCategory(categoryId, true);
   }
 
-  async createCategory(dto: CreateCategoryDto, actorId: string, actorRole: string): Promise<ServiceCategoryEntity> {
+  async createCategory(
+    dto: CreateCategoryDto,
+    actorId: string,
+    actorRole: string,
+  ): Promise<ServiceCategoryEntity> {
     const existing = await this.catalogRepo.findCategoryByName(dto.name);
     if (existing) {
       throw new CategoryDuplicateException(dto.name);
@@ -60,7 +70,12 @@ export class AdminCatalogService {
     return category;
   }
 
-  async updateCategory(id: string, dto: UpdateCategoryDto, actorId: string, actorRole: string): Promise<ServiceCategoryEntity> {
+  async updateCategory(
+    id: string,
+    dto: UpdateCategoryDto,
+    actorId: string,
+    actorRole: string,
+  ): Promise<ServiceCategoryEntity> {
     const existing = await this.catalogRepo.findCategoryById(id);
     if (!existing) {
       throw new CategoryNotFoundException(id);
@@ -92,7 +107,11 @@ export class AdminCatalogService {
     return updated;
   }
 
-  async createService(dto: CreateServiceDto, actorId: string, actorRole: string): Promise<ServiceItemEntity> {
+  async createService(
+    dto: CreateServiceDto,
+    actorId: string,
+    actorRole: string,
+  ): Promise<ServiceItemEntity> {
     const category = await this.catalogRepo.findCategoryById(dto.categoryId);
     if (!category) {
       throw new CategoryNotFoundException(dto.categoryId);
@@ -103,9 +122,14 @@ export class AdminCatalogService {
       throw new InvalidPriceException('Fixed price must be greater than 0.');
     }
 
-    const duplicate = await this.catalogRepo.findServiceByNameInCategory(dto.categoryId, dto.name);
+    const duplicate = await this.catalogRepo.findServiceByNameInCategory(
+      dto.categoryId,
+      dto.name,
+    );
     if (duplicate) {
-      throw new CategoryDuplicateException(`Service '${dto.name}' already exists in this category.`);
+      throw new CategoryDuplicateException(
+        `Service '${dto.name}' already exists in this category.`,
+      );
     }
 
     const service = await this.catalogRepo.saveService({
@@ -133,7 +157,12 @@ export class AdminCatalogService {
     return service;
   }
 
-  async updateService(id: string, dto: UpdateServiceDto, actorId: string, actorRole: string): Promise<ServiceItemEntity> {
+  async updateService(
+    id: string,
+    dto: UpdateServiceDto,
+    actorId: string,
+    actorRole: string,
+  ): Promise<ServiceItemEntity> {
     const existing = await this.catalogRepo.findServiceById(id);
     if (!existing) {
       throw new ServiceNotFoundException(id);
@@ -149,8 +178,12 @@ export class AdminCatalogService {
     const updatePayload: Partial<ServiceItemEntity> = {
       ...(dto.name !== undefined && { name: dto.name }),
       ...(dto.description !== undefined && { description: dto.description }),
-      ...(dto.fixedPrice !== undefined && { fixedPrice: parseFloat(dto.fixedPrice).toFixed(2) }),
-      ...(dto.estimatedDuration !== undefined && { estimatedDuration: dto.estimatedDuration }),
+      ...(dto.fixedPrice !== undefined && {
+        fixedPrice: parseFloat(dto.fixedPrice).toFixed(2),
+      }),
+      ...(dto.estimatedDuration !== undefined && {
+        estimatedDuration: dto.estimatedDuration,
+      }),
       ...(dto.isActive !== undefined && { isActive: dto.isActive }),
     };
 

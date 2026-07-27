@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import * as bcrypt from 'bcrypt';
@@ -18,7 +22,10 @@ export class AuthService {
   private initializeFirebase() {
     const projectId = process.env.FIREBASE_PROJECT_ID;
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n');
+    const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '').replace(
+      /\\n/g,
+      '\n',
+    );
 
     if (projectId && clientEmail && privateKey && !getApps().length) {
       initializeApp({
@@ -31,7 +38,10 @@ export class AuthService {
     }
   }
 
-  async verifyFirebaseToken(dto: { firebaseToken: string; role: 'CUSTOMER' | 'PROVIDER' }): Promise<JwtTokenPair> {
+  async verifyFirebaseToken(dto: {
+    firebaseToken: string;
+    role: 'CUSTOMER' | 'PROVIDER';
+  }): Promise<JwtTokenPair> {
     let mobileNumber = '';
     let firebaseUid = '';
 
@@ -47,7 +57,8 @@ export class AuthService {
           success: false,
           error: {
             code: 'ERR_SERVICE_UNAVAILABLE',
-            message: 'Firebase Authentication is not configured on this server.',
+            message:
+              'Firebase Authentication is not configured on this server.',
           },
         });
       }
@@ -77,9 +88,13 @@ export class AuthService {
     }
 
     if (dto.role === 'CUSTOMER') {
-      let customer = await this.authRepository.findCustomerByMobile(mobileNumber);
+      let customer =
+        await this.authRepository.findCustomerByMobile(mobileNumber);
       if (!customer) {
-        customer = await this.authRepository.createCustomer(mobileNumber, firebaseUid);
+        customer = await this.authRepository.createCustomer(
+          mobileNumber,
+          firebaseUid,
+        );
       }
       if (customer.isSuspended) {
         throw new ForbiddenException({
@@ -93,7 +108,8 @@ export class AuthService {
       return this.tokenService.generateTokenPair(customer.id, 'CUSTOMER');
     } else {
       // PROVIDER role
-      const provider = await this.authRepository.findProviderByMobile(mobileNumber);
+      const provider =
+        await this.authRepository.findProviderByMobile(mobileNumber);
       if (!provider) {
         throw new ForbiddenException({
           success: false,
@@ -116,7 +132,10 @@ export class AuthService {
     }
   }
 
-  async verifyAdminCredentials(dto: { email: string; password: string }): Promise<JwtTokenPair> {
+  async verifyAdminCredentials(dto: {
+    email: string;
+    password: string;
+  }): Promise<JwtTokenPair> {
     const adminUser = await this.authRepository.findAdminByEmail(dto.email);
     if (!adminUser) {
       throw new UnauthorizedException({
@@ -146,7 +165,8 @@ export class AuthService {
       return this.tokenService.generateTokenPair(adminUser.id, 'ADMIN');
     } else {
       // Increment failed attempts and lock if >= 5
-      const failedCount = await this.authRepository.incrementAdminFailedAttempts(adminUser.id);
+      const failedCount =
+        await this.authRepository.incrementAdminFailedAttempts(adminUser.id);
       if (failedCount >= 5) {
         const lockedUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
         await this.authRepository.lockAdminAccount(adminUser.id, lockedUntil);
@@ -154,7 +174,8 @@ export class AuthService {
           success: false,
           error: {
             code: 'ERR_AUTH_LOCKOUT',
-            message: 'Too many failed login attempts. Account locked for 15 minutes.',
+            message:
+              'Too many failed login attempts. Account locked for 15 minutes.',
           },
         });
       }

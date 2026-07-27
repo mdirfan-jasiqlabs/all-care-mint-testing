@@ -1,7 +1,13 @@
 // ─── MOD-002 Booking Service ───
 // Source: DLD Section 4.1 — coordinates locking, creation, status history, cancellations
 
-import { Inject, Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  BadRequestException,
+  ForbiddenException,
+  ConflictException,
+} from '@nestjs/common';
 import { createHash } from 'crypto';
 import { IBookingRepository } from '../ports/booking.repository.port';
 import { IAddressRepository } from '../ports/address.repository.port';
@@ -17,7 +23,11 @@ import {
   TimeSlotEntity,
   AddressSnapshot,
 } from '../types/booking.types';
-import { CreateBookingDto, LockSlotDto, BookingListQueryDto } from '../dto/booking.dto';
+import {
+  CreateBookingDto,
+  LockSlotDto,
+  BookingListQueryDto,
+} from '../dto/booking.dto';
 import {
   BookingNotFoundException,
   SlotUnavailableException,
@@ -54,8 +64,10 @@ export class BookingService {
     const results = await Promise.all(
       allSlots.map(async (slot) => {
         const lock = await this.bookingRepo.findSlotLock(slot.id, slotDate);
-        const isLocked = lock !== null && (lock.expiresAt > new Date() || lock.bookingId !== null);
-        
+        const isLocked =
+          lock !== null &&
+          (lock.expiresAt > new Date() || lock.bookingId !== null);
+
         let isPastSameDay = false;
         try {
           this.validateSameDaySlot(date, slot);
@@ -93,7 +105,10 @@ export class BookingService {
     this.validateSameDaySlot(dto.date, slot);
 
     // Check if slot is already locked or booked
-    const existingLock = await this.bookingRepo.findSlotLock(dto.slotId, slotDate);
+    const existingLock = await this.bookingRepo.findSlotLock(
+      dto.slotId,
+      slotDate,
+    );
     if (existingLock && existingLock.expiresAt > new Date()) {
       throw new SlotUnavailableException();
     }
@@ -161,7 +176,10 @@ export class BookingService {
     if (!service || !service.isActive) {
       throw new BadRequestException({
         success: false,
-        error: { code: 'ERR_SERVICE_NOT_FOUND', message: 'Service not found or inactive.' },
+        error: {
+          code: 'ERR_SERVICE_NOT_FOUND',
+          message: 'Service not found or inactive.',
+        },
       });
     }
 
@@ -186,14 +204,18 @@ export class BookingService {
         success: false,
         error: {
           code: 'ERR_ONLINE_BOOKING_DIRECT_CREATION_DISALLOWED',
-          message: 'Online bookings must be created through the payment webhook.',
+          message:
+            'Online bookings must be created through the payment webhook.',
         },
       });
     }
 
     // 8. Generate booking reference: ACM-YYYYMMDD-XXXX
     const dateStr = dto.slotDate.replace(/-/g, '');
-    const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const randomSuffix = Math.random()
+      .toString(36)
+      .substring(2, 6)
+      .toUpperCase();
     const bookingReference = `ACM-${dateStr}-${randomSuffix}`;
 
     const addressSnapshot: AddressSnapshot = {
@@ -252,7 +274,12 @@ export class BookingService {
     page: number = 1,
     limit: number = 10,
   ): Promise<{ data: BookingEntity[]; total: number }> {
-    return this.bookingRepo.findBookingsByCustomer(customerId, filter, page, limit);
+    return this.bookingRepo.findBookingsByCustomer(
+      customerId,
+      filter,
+      page,
+      limit,
+    );
   }
 
   async getBookingDetail(
@@ -290,6 +317,34 @@ export class BookingService {
       throw new BookingNotFoundException(bookingId);
     }
 
+    // 1) Customer ownership validation
+    if (
+      actorRole === ActorRoleEnum.CUSTOMER &&
+      booking.customerId !== actorId
+    ) {
+      throw new ForbiddenException({
+        success: false,
+        error: {
+          code: 'ERR_BOOKING_FORBIDDEN',
+          message: 'You do not have permission to cancel this booking.',
+        },
+      });
+    }
+
+    // 5) Return HTTP 409 for cancellation attempts from non-cancellable states
+    if (
+      booking.status !== BookingStatusEnum.PENDING &&
+      booking.status !== BookingStatusEnum.ASSIGNED
+    ) {
+      throw new ConflictException({
+        success: false,
+        error: {
+          code: 'ERR_BOOKING_NOT_CANCELLABLE',
+          message: `Cannot cancel booking from ${booking.status} status.`,
+        },
+      });
+    }
+
     this.stateEngine.validateTransition(
       booking.status,
       BookingStatusEnum.CANCELLED,
@@ -301,6 +356,11 @@ export class BookingService {
       BookingStatusEnum.CANCELLED,
       { cancelledAt: new Date() },
     );
+
+    // 3) Release or remove the associated booking slot lock
+    await this.prisma.bookingSlotLock.deleteMany({
+      where: { bookingId },
+    });
 
     await this.bookingRepo.createStatusHistory({
       bookingId,
@@ -336,7 +396,9 @@ export class BookingService {
     return booking;
   }
 
-  async getAdminBookingHistory(bookingId: string): Promise<BookingStatusHistoryEntity[]> {
+  async getAdminBookingHistory(
+    bookingId: string,
+  ): Promise<BookingStatusHistoryEntity[]> {
     const booking = await this.bookingRepo.findBookingById(bookingId);
     if (!booking) {
       throw new BookingNotFoundException(bookingId);
@@ -365,8 +427,14 @@ export class BookingService {
       booking.serviceId,
     );
 
-    const updatedBooking = await this.bookingRepo.assignProvider(bookingId, providerId);
-    await this.bookingRepo.updateBookingStatus(bookingId, BookingStatusEnum.ASSIGNED);
+    const updatedBooking = await this.bookingRepo.assignProvider(
+      bookingId,
+      providerId,
+    );
+    await this.bookingRepo.updateBookingStatus(
+      bookingId,
+      BookingStatusEnum.ASSIGNED,
+    );
 
     await this.bookingRepo.createStatusHistory({
       bookingId,
@@ -405,7 +473,10 @@ export class BookingService {
       booking.serviceId,
     );
 
-    const updatedBooking = await this.bookingRepo.assignProvider(bookingId, newProviderId);
+    const updatedBooking = await this.bookingRepo.assignProvider(
+      bookingId,
+      newProviderId,
+    );
 
     await this.bookingRepo.createStatusHistory({
       bookingId,
@@ -427,9 +498,18 @@ export class BookingService {
     limit: number = 10,
   ): Promise<{ data: BookingEntity[]; total: number }> {
     if (filter === 'history') {
-      return this.bookingRepo.findProviderHistoryBookings(providerId, page, limit);
+      return this.bookingRepo.findProviderHistoryBookings(
+        providerId,
+        page,
+        limit,
+      );
     }
-    return this.bookingRepo.findBookingsByProvider(providerId, filter, page, limit);
+    return this.bookingRepo.findBookingsByProvider(
+      providerId,
+      filter,
+      page,
+      limit,
+    );
   }
 
   async getProviderBookingDetail(
@@ -502,7 +582,7 @@ export class BookingService {
     const updatedBooking = await this.bookingRepo.updateBookingStatus(
       bookingId,
       BookingStatusEnum.PENDING,
-      { providerId: null } as any,
+      { providerId: null },
     );
 
     return updatedBooking;
@@ -593,8 +673,10 @@ export class BookingService {
       const slotStartTime = new Date(slot.startTime);
       const bufferTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
       // Compare only hours and minutes
-      const slotMinutes = slotStartTime.getHours() * 60 + slotStartTime.getMinutes();
-      const bufferMinutes = bufferTime.getHours() * 60 + bufferTime.getMinutes();
+      const slotMinutes =
+        slotStartTime.getHours() * 60 + slotStartTime.getMinutes();
+      const bufferMinutes =
+        bufferTime.getHours() * 60 + bufferTime.getMinutes();
 
       if (slotMinutes < bufferMinutes) {
         throw new SameDaySlotTooSoonException();

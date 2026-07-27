@@ -1,0 +1,272 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  SafeAreaView,
+  Platform,
+} from 'react-native';
+import * as storage from '../utils/storage';
+import { getBaseUrl } from '../utils/api';
+
+export default function BookingDetailScreen({ navigation, route }: any) {
+  const { bookingId } = route.params;
+  const token = storage.getAccessToken() || '';
+  const baseUrl = getBaseUrl();
+
+  const [booking, setBooking] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  const fetchBookingDetails = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${baseUrl}/api/v1/bookings/${bookingId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBooking(data.data);
+      }
+    } catch (err) {
+      Alert.alert('Error', 'Failed to retrieve booking details.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookingDetails();
+  }, [bookingId]);
+
+  const performCancellation = async () => {
+    try {
+      setSubmitting(true);
+      const res = await fetch(`${baseUrl}/api/v1/bookings/me/${bookingId}/cancel`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ reason: 'Cancelled by customer from details screen' }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error?.message || 'Failed to cancel booking.');
+      }
+
+      // Navigate back to MyBookingsScreen and show the toast
+      navigation.navigate('MyBookings', { toastMessage: 'Booking cancelled.' });
+    } catch (err: any) {
+      Alert.alert('Error', err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCancelBooking = () => {
+    const confirmMessage = 'Cancel this booking? This action cannot be undone.';
+    
+    if (Platform.OS === 'web') {
+      if (window.confirm(confirmMessage)) {
+        performCancellation();
+      }
+    } else {
+      Alert.alert(
+        'Cancel Booking',
+        confirmMessage,
+        [
+          { text: 'No', style: 'cancel' },
+          { text: 'Yes', onPress: performCancellation },
+        ]
+      );
+    }
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="hsl(150, 84%, 40%)" />
+      </SafeAreaView>
+    );
+  }
+
+  if (!booking) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <Text style={styles.errorText}>Booking details not found.</Text>
+      </SafeAreaView>
+    );
+  }
+
+  const isCancellable = ['PENDING', 'ASSIGNED'].includes(booking.status);
+  const formattedDate = new Date(booking.slotDate).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Booking Reference</Text>
+          <Text style={styles.referenceText}>{booking.bookingReference}</Text>
+
+          <View style={styles.divider} />
+
+          <Text style={styles.sectionTitle}>Status</Text>
+          <Text
+            style={[
+              styles.statusText,
+              booking.status === 'CANCELLED'
+                ? styles.textGrey
+                : booking.status === 'COMPLETED'
+                ? styles.textGreen
+                : styles.textYellow,
+            ]}
+          >
+            {booking.status}
+          </Text>
+
+          <View style={styles.divider} />
+
+          <Text style={styles.sectionTitle}>Service Details</Text>
+          <Text style={styles.valueText}>{booking.serviceNameSnapshot}</Text>
+          <Text style={styles.priceText}>
+            Price: ₹{parseFloat(booking.servicePriceSnapshot).toLocaleString('en-IN')}
+          </Text>
+
+          <View style={styles.divider} />
+
+          <Text style={styles.sectionTitle}>Schedule</Text>
+          <Text style={styles.valueText}>
+            {formattedDate} • {booking.slotLabelSnapshot}
+          </Text>
+
+          <View style={styles.divider} />
+
+          <Text style={styles.sectionTitle}>Address</Text>
+          <Text style={styles.valueText}>{booking.addressSnapshot?.label}</Text>
+          <Text style={styles.subValueText}>{booking.addressSnapshot?.addressLine1}</Text>
+          <Text style={styles.subValueText}>
+            {booking.addressSnapshot?.city} - {booking.addressSnapshot?.pincode}
+          </Text>
+        </View>
+
+        {isCancellable && (
+          <TouchableOpacity
+            style={[styles.cancelBtn, submitting && styles.cancelBtnDisabled]}
+            onPress={handleCancelBooking}
+            disabled={submitting}
+          >
+            {submitting ? (
+              <ActivityIndicator size="small" color="hsl(350, 80%, 60%)" />
+            ) : (
+              <Text style={styles.cancelBtnText}>Cancel Booking</Text>
+            )}
+          </TouchableOpacity>
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: 'hsl(224, 71%, 4%)',
+  },
+  container: {
+    padding: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: 'hsl(224, 71%, 4%)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: 'hsl(215, 20%, 65%)',
+    fontSize: 16,
+  },
+  card: {
+    backgroundColor: 'hsl(222, 47%, 11%)',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'hsl(217, 32%, 17%)',
+  },
+  sectionTitle: {
+    fontSize: 11,
+    color: 'hsl(215, 20%, 65%)',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  referenceText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'hsl(210, 40%, 98%)',
+    marginTop: 4,
+  },
+  statusText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 4,
+  },
+  valueText: {
+    fontSize: 15,
+    color: 'hsl(210, 40%, 98%)',
+    marginTop: 4,
+    fontWeight: '500',
+  },
+  subValueText: {
+    fontSize: 14,
+    color: 'hsl(215, 20%, 65%)',
+    marginTop: 2,
+  },
+  priceText: {
+    fontSize: 14,
+    color: 'hsl(150, 84%, 45%)',
+    marginTop: 2,
+    fontWeight: 'bold',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'hsl(217, 32%, 17%)',
+    marginVertical: 16,
+  },
+  textYellow: {
+    color: '#fbbf24',
+  },
+  textGreen: {
+    color: '#34d399',
+  },
+  textGrey: {
+    color: '#9ca3af',
+  },
+  cancelBtn: {
+    backgroundColor: 'transparent',
+    borderColor: 'hsl(350, 80%, 60%)',
+    borderWidth: 1.5,
+    height: 52,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cancelBtnDisabled: {
+    opacity: 0.5,
+  },
+  cancelBtnText: {
+    color: 'hsl(350, 80%, 60%)',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});

@@ -17,7 +17,9 @@ describe('CustomerProfileController', () => {
   beforeEach(async () => {
     const mockProfileSvc = {
       getCustomerProfile: jest.fn().mockResolvedValue(mockCustomer),
-      updateCustomerProfile: jest.fn().mockResolvedValue({ ...mockCustomer, displayName: 'Updated Name' }),
+      updateCustomerProfile: jest
+        .fn()
+        .mockResolvedValue({ ...mockCustomer, displayName: 'Updated Name' }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -28,7 +30,9 @@ describe('CustomerProfileController', () => {
       ],
     }).compile();
 
-    controller = module.get<CustomerProfileController>(CustomerProfileController);
+    controller = module.get<CustomerProfileController>(
+      CustomerProfileController,
+    );
     profileService = module.get(CustomerProfileService);
   });
 
@@ -43,10 +47,15 @@ describe('CustomerProfileController', () => {
 
   it('updateProfile should update customer name (TC-API-000-007)', async () => {
     const req = { user: { id: 'cust-123' } };
-    const response = await controller.updateProfile(req, { name: 'Updated Name' });
+    const response = await controller.updateProfile(req, {
+      name: 'Updated Name',
+    });
 
     expect(response.success).toBe(true);
     expect(response.data.displayName).toBe('Updated Name');
-    expect(profileService.updateCustomerProfile).toHaveBeenCalledWith('cust-123', 'Updated Name');
+    expect(profileService.updateCustomerProfile).toHaveBeenCalledWith(
+      'cust-123',
+      'Updated Name',
+    );
   });
 });

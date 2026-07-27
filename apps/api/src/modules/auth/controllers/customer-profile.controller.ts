@@ -1,4 +1,12 @@
-import { Controller, Get, Patch, Body, UseGuards, Req, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Patch,
+  Body,
+  UseGuards,
+  Req,
+  HttpCode,
+} from '@nestjs/common';
 import * as crypto from 'crypto';
 import { CustomerProfileService } from '../services/customer-profile.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
@@ -34,7 +42,10 @@ export class CustomerProfileController {
   @Roles('CUSTOMER')
   @HttpCode(200)
   async updateProfile(@Req() req: any, @Body() dto: UpdateCustomerProfileDto) {
-    const customer = await this.profileService.updateCustomerProfile(req.user.id, dto.name);
+    const customer = await this.profileService.updateCustomerProfile(
+      req.user.id,
+      dto.name,
+    );
     return {
       success: true,
       data: {

@@ -1,4 +1,7 @@
-import { ServiceCategoryEntity, ServiceItemEntity } from '../ports/catalog-repository.interface';
+import {
+  ServiceCategoryEntity,
+  ServiceItemEntity,
+} from '../ports/catalog-repository.interface';
 
 export interface IPlatformCatalogPublicFacade {
   getActiveCategories(): Promise<ServiceCategoryEntity[]>;

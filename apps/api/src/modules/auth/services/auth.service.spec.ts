@@ -15,10 +15,16 @@ jest.mock('firebase-admin/auth', () => ({
   getAuth: jest.fn(() => ({
     verifyIdToken: jest.fn((token) => {
       if (token === 'mock-token-customer') {
-        return Promise.resolve({ phone_number: '+919876543210', uid: 'mock-uid-customer' });
+        return Promise.resolve({
+          phone_number: '+919876543210',
+          uid: 'mock-uid-customer',
+        });
       }
       if (token === 'mock-token-provider') {
-        return Promise.resolve({ phone_number: '+919876543211', uid: 'mock-uid-provider' });
+        return Promise.resolve({
+          phone_number: '+919876543211',
+          uid: 'mock-uid-provider',
+        });
       }
       throw new Error('Invalid token');
     }),
@@ -83,7 +89,10 @@ describe('AuthService', () => {
       });
 
       expect(result).toEqual(mockTokenPair);
-      expect(tokenService.generateTokenPair).toHaveBeenCalledWith('cust-123', 'CUSTOMER');
+      expect(tokenService.generateTokenPair).toHaveBeenCalledWith(
+        'cust-123',
+        'CUSTOMER',
+      );
     });
 
     it('should create customer if customer mobile does not exist', async () => {
@@ -99,7 +108,10 @@ describe('AuthService', () => {
         role: 'CUSTOMER',
       });
 
-      expect(authRepository.createCustomer).toHaveBeenCalledWith('+919876543210', 'mock-uid-customer');
+      expect(authRepository.createCustomer).toHaveBeenCalledWith(
+        '+919876543210',
+        'mock-uid-customer',
+      );
       expect(result).toEqual(mockTokenPair);
     });
 
@@ -151,7 +163,9 @@ describe('AuthService', () => {
       });
 
       expect(result).toEqual(mockTokenPair);
-      expect(authRepository.resetAdminFailedAttempts).toHaveBeenCalledWith('admin-1');
+      expect(authRepository.resetAdminFailedAttempts).toHaveBeenCalledWith(
+        'admin-1',
+      );
     });
 
     it('should throw UnauthorizedException on invalid email', async () => {
@@ -184,7 +198,10 @@ describe('AuthService', () => {
         }),
       ).rejects.toThrow(ForbiddenException);
 
-      expect(authRepository.lockAdminAccount).toHaveBeenCalledWith('admin-1', expect.any(Date));
+      expect(authRepository.lockAdminAccount).toHaveBeenCalledWith(
+        'admin-1',
+        expect.any(Date),
+      );
     });
   });
 });

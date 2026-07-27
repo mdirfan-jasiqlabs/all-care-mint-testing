@@ -1,4 +1,12 @@
-import { Controller, Get, Param, UseGuards, Req, Res, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  UseGuards,
+  Req,
+  Res,
+  HttpStatus,
+} from '@nestjs/common';
 import { CatalogService } from '../services/catalog.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { randomUUID } from 'crypto';
@@ -9,10 +17,7 @@ export class CatalogController {
 
   @UseGuards(JwtAuthGuard)
   @Get('api/v1/catalog/categories')
-  async getCategories(
-    @Req() req: any,
-    @Res({ passthrough: true }) res: any,
-  ) {
+  async getCategories(@Req() req: any, @Res({ passthrough: true }) res: any) {
     const versionHash = await this.catalogService.getCurrentVersionHash();
     const ifNoneMatch = req.headers ? req.headers['if-none-match'] : null;
 
@@ -43,9 +48,7 @@ export class CatalogController {
 
   @UseGuards(JwtAuthGuard)
   @Get('api/v1/catalog/categories/:id/services')
-  async getServicesByCategory(
-    @Param('id') id: string,
-  ) {
+  async getServicesByCategory(@Param('id') id: string) {
     const services = await this.catalogService.getServicesByCategory(id);
 
     return {
@@ -60,9 +63,7 @@ export class CatalogController {
 
   @UseGuards(JwtAuthGuard)
   @Get('api/v1/catalog/services/:id')
-  async getServiceById(
-    @Param('id') id: string,
-  ) {
+  async getServiceById(@Param('id') id: string) {
     const service = await this.catalogService.getServiceById(id);
 
     return {
@@ -76,9 +77,7 @@ export class CatalogController {
   }
 
   @Get('api/v1/public/categories')
-  async getPublicCategories(
-    @Res({ passthrough: true }) res: any,
-  ) {
+  async getPublicCategories(@Res({ passthrough: true }) res: any) {
     const categories = await this.catalogService.getActiveCategories();
 
     if (res.header) {

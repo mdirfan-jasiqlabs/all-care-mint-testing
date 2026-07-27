@@ -18,7 +18,11 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { BookingService } from '../services/booking.service';
-import { CreateBookingDto, LockSlotDto, CancelBookingDto } from '../dto/booking.dto';
+import {
+  CreateBookingDto,
+  LockSlotDto,
+  CancelBookingDto,
+} from '../dto/booking.dto';
 import { ActorRoleEnum } from '../types/booking.types';
 
 @Controller('api/v1/bookings')
@@ -120,7 +124,17 @@ export class CustomerBookingController {
     return { success: true, data };
   }
 
-  /** 6.2.7 PATCH /api/v1/bookings/:id/cancel */
+  /** 6.2.7 PATCH /api/v1/bookings/me/:id/cancel */
+  @Patch('me/:id/cancel')
+  async cancelBookingMe(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() dto: CancelBookingDto,
+  ) {
+    return this.cancelBooking(req, id, dto);
+  }
+
+  /** PATCH /api/v1/bookings/:id/cancel (Legacy route) */
   @Patch(':id/cancel')
   async cancelBooking(
     @Req() req: any,
@@ -139,6 +153,7 @@ export class CustomerBookingController {
         id: data.id,
         status: data.status,
         cancelledAt: data.cancelledAt,
+        deleted_at: null,
       },
     };
   }

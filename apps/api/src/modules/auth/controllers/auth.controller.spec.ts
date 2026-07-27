@@ -14,10 +14,16 @@ jest.mock('firebase-admin/auth', () => ({
   getAuth: jest.fn(() => ({
     verifyIdToken: jest.fn((token) => {
       if (token === 'mock-token-customer') {
-        return Promise.resolve({ phone_number: '+919876543210', uid: 'mock-uid-customer' });
+        return Promise.resolve({
+          phone_number: '+919876543210',
+          uid: 'mock-uid-customer',
+        });
       }
       if (token === 'mock-token-provider') {
-        return Promise.resolve({ phone_number: '+919876543211', uid: 'mock-uid-provider' });
+        return Promise.resolve({
+          phone_number: '+919876543211',
+          uid: 'mock-uid-provider',
+        });
       }
       throw new Error('Invalid token');
     }),
@@ -50,8 +56,12 @@ describe('AuthController', () => {
     };
 
     const mockRepo = {
-      findCustomerByMobile: jest.fn().mockResolvedValue({ id: 'cust-1', mobileNumber: '+919876543210' }),
-      findProviderByMobile: jest.fn().mockResolvedValue({ id: 'prov-1', mobileNumber: '+919876543211' }),
+      findCustomerByMobile: jest
+        .fn()
+        .mockResolvedValue({ id: 'cust-1', mobileNumber: '+919876543210' }),
+      findProviderByMobile: jest
+        .fn()
+        .mockResolvedValue({ id: 'prov-1', mobileNumber: '+919876543211' }),
       findRefreshToken: jest.fn().mockResolvedValue({ id: 'ref-1' }),
       revokeToken: jest.fn().mockResolvedValue(undefined),
     };
@@ -72,7 +82,10 @@ describe('AuthController', () => {
   });
 
   it('verifyCustomerOtp should verify token and return formatted payload', async () => {
-    const response = await controller.verifyCustomerOtp({ firebaseToken: 'mock-token-customer', role: 'CUSTOMER' });
+    const response = await controller.verifyCustomerOtp({
+      firebaseToken: 'mock-token-customer',
+      role: 'CUSTOMER',
+    });
 
     expect(response.success).toBe(true);
     expect(response.data.accessToken).toBe('access-123');
@@ -80,7 +93,10 @@ describe('AuthController', () => {
   });
 
   it('verifyProviderOtp should verify token and return formatted provider payload', async () => {
-    const response = await controller.verifyProviderOtp({ firebaseToken: 'mock-token-provider', role: 'PROVIDER' });
+    const response = await controller.verifyProviderOtp({
+      firebaseToken: 'mock-token-provider',
+      role: 'PROVIDER',
+    });
 
     expect(response.success).toBe(true);
     expect(response.data.accessToken).toBe('access-123');
@@ -92,21 +108,31 @@ describe('AuthController', () => {
       header: jest.fn(),
     };
 
-    const response = await controller.adminLogin({ email: 'admin@allcaremint.com', password: 'password123' }, mockRes as any);
+    const response = await controller.adminLogin(
+      { email: 'admin@allcaremint.com', password: 'password123' },
+      mockRes as any,
+    );
 
     expect(response.success).toBe(true);
-    expect(mockRes.header).toHaveBeenCalledWith('Set-Cookie', expect.stringContaining('admin_refresh_token=refresh-123'));
+    expect(mockRes.header).toHaveBeenCalledWith(
+      'Set-Cookie',
+      expect.stringContaining('admin_refresh_token=refresh-123'),
+    );
   });
 
   it('refresh should rotate refresh tokens (TC-API-000-005)', async () => {
-    const response = await controller.refresh({ refreshToken: 'valid-refresh-token' });
+    const response = await controller.refresh({
+      refreshToken: 'valid-refresh-token',
+    });
 
     expect(response.success).toBe(true);
     expect(response.data).toEqual(mockTokens);
   });
 
   it('logout should revoke active refresh token', async () => {
-    const response = await controller.logout({ refreshToken: 'valid-refresh-token' });
+    const response = await controller.logout({
+      refreshToken: 'valid-refresh-token',
+    });
 
     expect(response.success).toBe(true);
     expect(authRepository.revokeToken).toHaveBeenCalledWith('ref-1', 'LOGOUT');

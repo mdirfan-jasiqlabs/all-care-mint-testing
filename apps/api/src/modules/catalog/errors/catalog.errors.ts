@@ -1,4 +1,8 @@
-import { NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 
 export const CATALOG_ERROR_CODES = {
   CATEGORY_NOT_FOUND: 'ERR_CATALOG_CATEGORY_NOT_FOUND',
@@ -12,7 +16,9 @@ export class CategoryNotFoundException extends NotFoundException {
     super({
       statusCode: 404,
       error: 'Not Found',
-      message: categoryId ? `Category with ID '${categoryId}' was not found.` : 'Category not found.',
+      message: categoryId
+        ? `Category with ID '${categoryId}' was not found.`
+        : 'Category not found.',
       code: CATALOG_ERROR_CODES.CATEGORY_NOT_FOUND,
     });
   }
@@ -23,7 +29,9 @@ export class ServiceNotFoundException extends NotFoundException {
     super({
       statusCode: 404,
       error: 'Not Found',
-      message: serviceId ? `Service with ID '${serviceId}' was not found.` : 'Service not found.',
+      message: serviceId
+        ? `Service with ID '${serviceId}' was not found.`
+        : 'Service not found.',
       code: CATALOG_ERROR_CODES.SERVICE_NOT_FOUND,
     });
   }
