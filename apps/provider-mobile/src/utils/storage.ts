@@ -9,7 +9,13 @@ let storageInstance: {
 
 try {
   const { MMKV } = require('react-native-mmkv');
-  storageInstance = new MMKV({ id: 'provider-auth-storage' });
+  const tempInstance = new MMKV({ id: 'provider-auth-storage' });
+  // Verify that MMKV actually works and the JSI bindings are loaded.
+  // In Expo Go or testing environments, JSI bindings are missing and
+  // calling any method on the instance will throw a TypeError.
+  tempInstance.set('__test__', '1');
+  tempInstance.delete('__test__');
+  storageInstance = tempInstance;
 } catch (e) {
   // Web fallback memory storage for responsive manual browser QA testing
   const memStore: Record<string, string> = {};

@@ -233,13 +233,13 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
             renderItem={renderAddressItem}
             contentContainerStyle={styles.listContent}
             ListEmptyComponent={
-              <Text style={styles.emptyText}>No saved addresses found. Please add one below.</Text>
+              <Text style={styles.emptyText}>You need to add an address first</Text>
             }
           />
 
           {addresses.length < 5 && (
             <TouchableOpacity style={styles.addBtn} onPress={() => setIsAdding(true)}>
-              <Text style={styles.addBtnText}>+ Add New Address</Text>
+              <Text style={styles.addBtnText}>Add Address</Text>
             </TouchableOpacity>
           )}
         </>

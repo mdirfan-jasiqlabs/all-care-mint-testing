@@ -68,7 +68,7 @@ export class SlotLockExpiredException extends ConflictException {
       success: false,
       error: {
         code: 'ERR_SLOT_LOCK_EXPIRED',
-        message: 'Slot lock has expired or does not exist. Please re-lock the slot.',
+        message: 'Slot no longer available. Please select another slot.',
       },
     });
   }

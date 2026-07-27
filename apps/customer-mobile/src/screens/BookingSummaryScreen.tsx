@@ -117,10 +117,14 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
 
   const handleConfirmBooking = async () => {
     if (lockExpired) {
-      Alert.alert(
-        'Lock Expired',
-        'Your temporary slot lock has expired. Please go back and select the slot again.',
-      );
+      if (Platform.OS === 'web') {
+        alert('Lock Expired: Your temporary slot lock has expired. Please go back and select the slot again.');
+      } else {
+        Alert.alert(
+          'Lock Expired',
+          'Your temporary slot lock has expired. Please go back and select the slot again.',
+        );
+      }
       return;
     }
 
@@ -153,7 +157,14 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
         status: data.data.status,
       });
     } catch (err: any) {
-      Alert.alert('Checkout Failure', err.message);
+      if (Platform.OS === 'web') {
+        alert(`Checkout Failure: ${err.message}`);
+      } else {
+        Alert.alert('Checkout Failure', err.message);
+      }
+      if (err.message.includes('Slot no longer available') || err.message.includes('expired') || err.message.includes('re-lock')) {
+        navigation.navigate('SlotSelection', { serviceId, date });
+      }
     } finally {
       setSubmitting(false);
     }
