@@ -221,7 +221,7 @@ async function run() {
       headers: authHeader(adminToken),
       body: { providerId }
     });
-    console.log(`✅ Success: Provider assigned. Booking status updated to ${assignRes.data.status}`);
+    console.log(`✅ Success: Provider assigned. Booking status updated to ${assignRes.status}`);
 
     // ----------------------------------------------------
     // 6. Provider Job Status Lifecycle Transitions

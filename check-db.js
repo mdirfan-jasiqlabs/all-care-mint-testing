@@ -35,15 +35,40 @@ async function main() {
 
   if (providersCount === 0) {
     console.log('No providers found. Seeding APPROVED provider...');
+    const cleaningCat = await prisma.serviceCategory.findUnique({ where: { name: 'Cleaning' } });
+    const acCat = await prisma.serviceCategory.findUnique({ where: { name: 'AC Repair' } });
+    const categoriesToConnect = [];
+    if (cleaningCat) categoriesToConnect.push({ id: cleaningCat.id });
+    if (acCat) categoriesToConnect.push({ id: acCat.id });
+
     await prisma.provider.create({
       data: {
         mobileNumber: '+919876543211',
         displayName: 'Irfan Provider',
         status: 'APPROVED',
-        serviceArea: 'Bengaluru'
+        serviceArea: 'Bengaluru',
+        lastActiveAt: new Date(),
+        categories: {
+          connect: categoriesToConnect
+        }
       }
     });
     console.log('Provider seeded!');
+  } else {
+    // Ensure existing Irfan Provider is connected to Cleaning and has a lastActiveAt date
+    const cleaningCat = await prisma.serviceCategory.findUnique({ where: { name: 'Cleaning' } });
+    const provider = await prisma.provider.findFirst({ where: { displayName: 'Irfan Provider' } });
+    if (provider && cleaningCat) {
+      await prisma.provider.update({
+        where: { id: provider.id },
+        data: {
+          lastActiveAt: provider.lastActiveAt || new Date(),
+          categories: {
+            connect: { id: cleaningCat.id }
+          }
+        }
+      });
+    }
   }
 
   if (customersCount === 0) {
@@ -60,3 +85,4 @@ async function main() {
 }
 
 main().catch(console.error).finally(() => prisma.$disconnect());
+

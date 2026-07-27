@@ -36,8 +36,8 @@ export class AdminBookingController {
   }
 
   @Get('providers')
-  async listApprovedProviders() {
-    const data = await this.bookingService.getApprovedProviders();
+  async listApprovedProviders(@Query('service_category_id') serviceCategoryId?: string) {
+    const data = await this.bookingService.getApprovedProviders(serviceCategoryId);
     return { success: true, data };
   }
 
@@ -61,12 +61,17 @@ export class AdminBookingController {
     @Param('id') id: string,
     @Body() dto: ReassignProviderDto,
   ) {
-    const data = await this.bookingService.assignProvider(
+    await this.bookingService.assignProvider(
       id,
       dto.providerId,
       req.user.id,
     );
-    return { success: true, data };
+    const provider = await this.bookingService.getProviderDetails(dto.providerId);
+    return {
+      status: 'ASSIGNED',
+      provider_id: dto.providerId,
+      provider_name: provider ? provider.displayName : '',
+    };
   }
 
   /** 6.3.4 PATCH /api/v1/admin/bookings/:id/reassign */
@@ -76,12 +81,17 @@ export class AdminBookingController {
     @Param('id') id: string,
     @Body() dto: ReassignProviderDto,
   ) {
-    const data = await this.bookingService.reassignProvider(
+    await this.bookingService.reassignProvider(
       id,
       dto.providerId,
       req.user.id,
     );
-    return { success: true, data };
+    const provider = await this.bookingService.getProviderDetails(dto.providerId);
+    return {
+      status: 'ASSIGNED',
+      provider_id: dto.providerId,
+      provider_name: provider ? provider.displayName : '',
+    };
   }
 
   /** 6.3.5 PATCH /api/v1/admin/bookings/:id/cancel */

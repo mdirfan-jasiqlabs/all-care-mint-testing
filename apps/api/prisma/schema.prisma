@@ -49,10 +49,12 @@ model Provider {
   displayName  String         @map("display_name") @db.VarChar(150)
   status       ProviderStatus @default(PENDING_REVIEW)
   serviceArea  String         @map("service_area") @db.VarChar(100)
+  lastActiveAt DateTime?      @map("last_active_at") @db.Timestamptz
   createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz
   updatedAt    DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   bookings     Booking[]
+  categories   ServiceCategory[]
 
   @@index([status, mobileNumber], map: "idx_providers_status_mobile")
   @@map("providers")
@@ -105,6 +107,7 @@ model ServiceCategory {
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   services     Service[]
+  providers    Provider[]
 
   @@map("service_categories")
 }

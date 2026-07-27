@@ -43,7 +43,22 @@ export class EligibilityService {
       throw new ProviderIneligibleException('Service not found.');
     }
 
-    // NOTE: Category-based eligibility filtering is a future enhancement.
-    // Currently all APPROVED providers are eligible for any service category.
+    // Check category mapping
+    const isMapped = await this.prisma.provider.findFirst({
+      where: {
+        id: providerId,
+        categories: {
+          some: {
+            id: service.categoryId,
+          },
+        },
+      },
+    });
+
+    if (!isMapped) {
+      throw new ProviderIneligibleException(
+        'Provider is not mapped to the booking service category.',
+      );
+    }
   }
 }

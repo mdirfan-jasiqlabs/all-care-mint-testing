@@ -19,7 +19,8 @@ export default function GatewayScreen({ navigation }: any) {
     if (Platform.OS === 'web') {
       window.location.href = 'http://localhost:8082';
     } else {
-      Linking.openURL('http://localhost:8082').catch(() => {
+      const targetUrl = Platform.OS === 'android' ? 'http://10.0.2.2:8082' : 'http://localhost:8082';
+      Linking.openURL(targetUrl).catch(() => {
         // Fallback for native devices
       });
     }

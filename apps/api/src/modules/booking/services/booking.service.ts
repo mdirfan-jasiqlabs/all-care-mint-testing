@@ -388,12 +388,21 @@ export class BookingService {
     });
   }
 
-  async getAdminBookingDetail(bookingId: string): Promise<BookingEntity> {
+  async getAdminBookingDetail(bookingId: string): Promise<any> {
     const booking = await this.bookingRepo.findBookingById(bookingId);
     if (!booking) {
       throw new BookingNotFoundException(bookingId);
     }
-    return booking;
+    const service = await this.prisma.service.findUnique({
+      where: { id: booking.serviceId },
+      select: { categoryId: true },
+    });
+    return {
+      ...booking,
+      service: {
+        categoryId: service?.categoryId || '',
+      },
+    };
   }
 
   async getAdminBookingHistory(
@@ -625,17 +634,43 @@ export class BookingService {
     return updatedBooking;
   }
 
-  async getApprovedProviders(): Promise<any[]> {
+  async getApprovedProviders(serviceCategoryId?: string): Promise<any[]> {
+    const where: any = { status: 'APPROVED' };
+    if (serviceCategoryId) {
+      where.categories = {
+        some: {
+          id: serviceCategoryId,
+        },
+      };
+    }
     return this.prisma.provider.findMany({
-      where: { status: 'APPROVED' },
+      where,
       select: {
         id: true,
         displayName: true,
         mobileNumber: true,
         serviceArea: true,
+        lastActiveAt: true,
+        categories: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
   }
+
+  async getProviderDetails(providerId: string) {
+    return this.prisma.provider.findUnique({
+      where: { id: providerId },
+      select: { displayName: true },
+    });
+  }
+
+  // ─── Private Helpers ───
+  // ... rest of private helpers
+
 
   // ─── Private Helpers ───
 

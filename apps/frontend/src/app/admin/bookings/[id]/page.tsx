@@ -56,6 +56,19 @@ export default function AdminBookingDetailPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [toast, setToast] = useState<{ message: string; visible: boolean; type: 'success' | 'error' }>({
+    message: '',
+    visible: false,
+    type: 'success',
+  });
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, visible: true, type });
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, visible: false }));
+    }, 4000);
+  };
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -70,8 +83,10 @@ export default function AdminBookingDetailPage() {
         throw new Error('Failed to load booking details.');
       }
       const bookingData = await bookingRes.json();
+      let categoryId = '';
       if (bookingData.success) {
         setBooking(bookingData.data);
+        categoryId = bookingData.data.service?.categoryId || '';
       }
 
       // Fetch history
@@ -85,8 +100,8 @@ export default function AdminBookingDetailPage() {
         }
       }
 
-      // Fetch approved providers
-      const providersRes = await fetch('http://localhost:3000/api/v1/admin/bookings/providers', {
+      // Fetch approved providers matching booking category
+      const providersRes = await fetch(`http://localhost:3000/api/v1/admin/bookings/providers?service_category_id=${categoryId}`, {
         headers: { 'Authorization': `Bearer ${token || ''}` },
       });
       if (providersRes.ok) {
@@ -127,14 +142,16 @@ export default function AdminBookingDetailPage() {
       });
 
       const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (!res.ok) {
         throw new Error(data.error?.message || `Failed to ${method} provider.`);
       }
 
-      alert(`Provider successfully ${method === 'assign' ? 'assigned' : 'reassigned'}.`);
+      const assignedProv = providers.find(p => p.id === selectedProvider);
+      const providerName = assignedProv ? assignedProv.displayName : 'Provider';
+      showToast(`Provider ${providerName} assigned. Booking is now ASSIGNED.`, 'success');
       fetchData();
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -160,10 +177,10 @@ export default function AdminBookingDetailPage() {
         throw new Error(data.error?.message || 'Failed to cancel booking');
       }
 
-      alert('Booking cancelled successfully.');
+      showToast('Booking cancelled successfully.', 'success');
       fetchData();
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -390,13 +407,40 @@ export default function AdminBookingDetailPage() {
                       required
                     >
                       <option value="">-- Choose Provider --</option>
-                      {providers.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.displayName} ({p.serviceArea})
-                        </option>
-                      ))}
+                      {providers.map((p) => {
+                        const categoriesStr = p.categories?.map(c => c.name).join(', ') || 'None';
+                        const lastActiveStr = p.lastActiveAt ? new Date(p.lastActiveAt).toLocaleDateString('en-IN') : 'Never';
+                        return (
+                          <option key={p.id} value={p.id}>
+                            {p.displayName} ({p.serviceArea}) - Badges: {categoriesStr} - Active: {lastActiveStr}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
+
+                  {selectedProvider && (() => {
+                    const prov = providers.find(p => p.id === selectedProvider);
+                    if (!prov) return null;
+                    return (
+                      <div style={{ marginTop: '16px', marginBottom: '16px', padding: '16px', background: 'rgba(255, 255, 255, 0.04)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                        <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '8px' }}>Selected Provider Details</div>
+                        <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Name: {prov.displayName}</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', marginBottom: '8px' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Category Badges:</span>
+                          {prov.categories?.map(c => (
+                            <span key={c.id} style={{ fontSize: '11px', background: 'var(--primary)', color: '#000', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
+                              {c.name}
+                            </span>
+                          ))}
+                        </div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                          Last Active Date: {prov.lastActiveAt ? new Date(prov.lastActiveAt).toLocaleDateString('en-IN') : 'Never'}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   <button
                     type="submit"
                     className="btn-primary"
@@ -417,7 +461,7 @@ export default function AdminBookingDetailPage() {
                   Assignment locked. Booking status is in progress or resolved.
                 </div>
               )}
-
+ 
               {/* Cancel Button */}
               {['PENDING', 'ASSIGNED'].includes(booking.status) && (
                 <button
@@ -444,9 +488,35 @@ export default function AdminBookingDetailPage() {
               )}
             </div>
           </div>
-
+ 
         </div>
       </main>
+
+      {/* Accessible Non-Blocking Toast */}
+      <div
+        id="toast-notification"
+        role="status"
+        aria-live="polite"
+        style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          background: toast.type === 'success' ? '#10b981' : '#ef4444',
+          color: '#fff',
+          padding: '16px 24px',
+          borderRadius: '12px',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+          zIndex: 1000,
+          display: toast.visible ? 'block' : 'none',
+          transform: toast.visible ? 'translateY(0)' : 'translateY(100px)',
+          opacity: toast.visible ? 1 : 0,
+          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+          pointerEvents: toast.visible ? 'auto' : 'none',
+          fontWeight: 600,
+        }}
+      >
+        {toast.message}
+      </div>
     </div>
   );
 }
