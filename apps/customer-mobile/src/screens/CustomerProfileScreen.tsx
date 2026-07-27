@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   SafeAreaView,
+  ScrollView,
   Platform,
 } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -165,7 +166,12 @@ export default function CustomerProfileScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.card}>
           <Text style={styles.title}>My Profile</Text>
 
@@ -223,7 +229,7 @@ export default function CustomerProfileScreen({ navigation }: Props) {
             <Text style={styles.signOutButtonText}>Sign Out</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -242,10 +248,12 @@ const styles = StyleSheet.create({
     color: 'hsl(215, 20%, 65%)',
     marginTop: 12,
   },
-  container: {
+  scrollView: {
     flex: 1,
-    justifyContent: 'center',
+  },
+  container: {
     paddingHorizontal: 20,
+    paddingVertical: 24,
   },
   card: {
     backgroundColor: 'hsl(222, 47%, 11%)',

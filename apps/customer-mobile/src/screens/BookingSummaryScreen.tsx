@@ -263,26 +263,10 @@ const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
     backgroundColor: 'hsl(224, 71%, 4%)',
-    ...Platform.select({
-      web: {
-        position: 'absolute' as any,
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: '100%' as any,
-        overflow: 'hidden' as any,
-      }
-    })
   },
   container: {
     flex: 1,
     padding: 16,
-    ...Platform.select({
-      web: {
-        overflowY: 'auto' as any,
-      }
-    })
   },
   loadingContainer: {
     flex: 1,
