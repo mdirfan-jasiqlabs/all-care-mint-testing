@@ -12,6 +12,7 @@ import {
   FlatList,
   ActivityIndicator,
   Alert,
+  BackHandler,
 } from 'react-native';
 import * as storage from '../utils/storage';
 
@@ -64,6 +65,18 @@ export default function ProviderDashboardScreen({ navigation }: any) {
     });
     return unsubscribe;
   }, [activeTab]);
+
+  useEffect(() => {
+    const backAction = () => {
+      // Return true to prevent default back action (popping stack)
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+    return () => backHandler.remove();
+  }, []);
 
   const handleLogout = async () => {
     const tokenVal = storage.getAccessToken();

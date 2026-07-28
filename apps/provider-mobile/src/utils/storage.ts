@@ -35,16 +35,29 @@ try {
   };
 }
 
+export const initStorageFallback = async () => {
+  try {
+    const token = await SecureStore.getItemAsync('auth.accessToken');
+    if (token) {
+      storageInstance.set('auth.accessToken', token);
+    }
+  } catch (e) {
+    // Ignore
+  }
+};
+
 export const getAccessToken = (): string | undefined => {
   return storageInstance.getString('auth.accessToken');
 };
 
 export const setAccessToken = (token: string) => {
   storageInstance.set('auth.accessToken', token);
+  SecureStore.setItemAsync('auth.accessToken', token).catch(() => {});
 };
 
 export const clearAccessToken = () => {
   storageInstance.delete('auth.accessToken');
+  SecureStore.deleteItemAsync('auth.accessToken').catch(() => {});
 };
 
 export const getRefreshToken = async (): Promise<string | null> => {

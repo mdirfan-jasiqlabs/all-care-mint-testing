@@ -19,6 +19,7 @@ export default function App() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      await storage.initStorageFallback();
       const token = storage.getAccessToken();
       if (token) {
         setInitialRoute('ProviderDashboard');
