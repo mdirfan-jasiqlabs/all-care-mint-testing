@@ -23,20 +23,32 @@ try {
     getString: (key: string) => memStore[key],
     set: (key: string, value: string) => {
       memStore[key] = value;
-      console.log(`[STORAGE SET] ${key} = ${value}`);
     },
     delete: (key: string) => {
       delete memStore[key];
-      console.log(`[STORAGE DELETE] ${key}`);
     },
     clearAll: () => {
       for (const k in memStore) {
         delete memStore[k];
       }
-      console.log(`[STORAGE CLEAR]`);
     },
   };
 }
+
+export const initStorageFallback = async () => {
+  try {
+    const token = await SecureStore.getItemAsync('auth.accessToken');
+    if (token) {
+      storageInstance.set('auth.accessToken', token);
+    }
+    const username = await SecureStore.getItemAsync('auth.user_name');
+    if (username) {
+      storageInstance.set('auth.user_name', username);
+    }
+  } catch (e) {
+    // Ignore
+  }
+};
 
 export const getAccessToken = (): string | undefined => {
   return storageInstance.getString('auth.accessToken');
@@ -44,10 +56,12 @@ export const getAccessToken = (): string | undefined => {
 
 export const setAccessToken = (token: string) => {
   storageInstance.set('auth.accessToken', token);
+  SecureStore.setItemAsync('auth.accessToken', token).catch(() => {});
 };
 
 export const clearAccessToken = () => {
   storageInstance.delete('auth.accessToken');
+  SecureStore.deleteItemAsync('auth.accessToken').catch(() => {});
 };
 
 export const getRefreshToken = async (): Promise<string | null> => {
@@ -75,17 +89,15 @@ export const clearRefreshToken = async () => {
 };
 
 export const getUserName = (): string | undefined => {
-  const value = storageInstance.getString('auth.user_name');
-  console.log(`[STORAGE GET] auth.user_name = ${value}`);
-  return value;
+  return storageInstance.getString('auth.user_name');
 };
 
 export const setUserName = (name: string) => {
-  console.log(`[STORAGE SET] auth.user_name = ${name}`);
   storageInstance.set('auth.user_name', name);
+  SecureStore.setItemAsync('auth.user_name', name).catch(() => {});
 };
 
 export const clearUserName = () => {
-  console.log(`[STORAGE DELETE] auth.user_name`);
   storageInstance.delete('auth.user_name');
+  SecureStore.deleteItemAsync('auth.user_name').catch(() => {});
 };

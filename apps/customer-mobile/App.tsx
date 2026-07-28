@@ -26,7 +26,9 @@ export default function App() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      // Check if access token is stored in MMKV
+      // Load fallback credentials from SecureStore if MMKV is in-memory
+      await storage.initStorageFallback();
+      // Check if access token is stored
       const token = storage.getAccessToken();
       if (token) {
         setInitialRoute('Home');

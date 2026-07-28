@@ -78,8 +78,11 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
       if (finalRefresh) await storage.setRefreshToken(finalRefresh);
 
       setLoading(false);
-      // Navigate to Home screen
-      navigation.replace('Home');
+      // Reset stack and navigate to Home screen
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
     } catch (err: any) {
       setLoading(false);
       setError(err.message || 'Verification server error. Please try again.');
