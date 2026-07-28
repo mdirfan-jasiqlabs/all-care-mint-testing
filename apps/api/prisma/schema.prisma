@@ -271,3 +271,18 @@ model BookingSlotLock {
   @@map("booking_slot_locks")
 }
 
+model OtpAttempt {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mobileNumber   String    @map("mobile_number") @db.VarChar(20)
+  role           String    @default("CUSTOMER") @db.VarChar(50)
+  otpHash        String    @map("otp_hash") @db.VarChar(255)
+  expiresAt      DateTime  @map("expires_at") @db.Timestamptz
+  usedAt         DateTime? @map("used_at") @db.Timestamptz
+  failedAttempts Int       @default(0) @map("failed_attempts")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([mobileNumber, role], map: "idx_otp_attempts_mobile_role")
+  @@map("otp_attempts")
+}
+
+
