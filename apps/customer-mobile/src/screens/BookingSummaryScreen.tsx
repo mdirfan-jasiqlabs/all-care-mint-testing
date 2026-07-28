@@ -1,5 +1,5 @@
 // ─── apps/customer-mobile/src/screens/BookingSummaryScreen.tsx ───
-// Source: DLD Section 8.1 & 6.2.3 — Booking Summary & Confirmation Screen
+// Approved Wireframe Specification — Customer Checkout & Placement Screen (SCR-MOD-002-MOB-001)
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -10,13 +10,15 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
+  TextInput,
+  Modal,
   Platform,
 } from 'react-native';
 import * as storage from '../utils/storage';
 import { getBaseUrl } from '../utils/api';
 
 const generateUUID = (): string => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0;
     const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
@@ -24,53 +26,92 @@ const generateUUID = (): string => {
 };
 
 export default function BookingSummaryScreen({ navigation, route }: any) {
-  const { serviceId, addressId, slotId, date } = route.params;
+  const { serviceId, addressId: initialAddressId, slotId: initialSlotId, date: initialDate } = route.params || {};
   const token = storage.getAccessToken() || '';
   const baseUrl = getBaseUrl();
 
+  // Data states
   const [service, setService] = useState<any>(null);
-  const [address, setAddress] = useState<any>(null);
-  const [timeSlot, setTimeSlot] = useState<any>(null);
+  const [addresses, setAddresses] = useState<any[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>(initialAddressId || '');
+  
+  // Date & Slot states
+  const [dates, setDates] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string>(initialDate || '');
+  const [slots, setSlots] = useState<any[]>([]);
+  const [selectedSlotId, setSelectedSlotId] = useState<string>(initialSlotId || '');
+  const [selectedSlotLabel, setSelectedSlotLabel] = useState<string>('');
+
+  // Payment state
+  const [paymentMethod, setPaymentMethod] = useState<'CASH_ON_SERVICE' | 'ONLINE'>('CASH_ON_SERVICE');
+
+  // Loading & Submission states
   const [loading, setLoading] = useState(true);
+  const [loadingSlots, setLoadingSlots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'CASH_ON_SERVICE'>('CASH_ON_SERVICE');
+  const [lockingSlot, setLockingSlot] = useState(false);
   const [idempotencyKey, setIdempotencyKey] = useState<string>('');
 
-  // 10-minute countdown (600 seconds)
-  const [timeLeft, setTimeLeft] = useState(600);
-  const [lockExpired, setLockExpired] = useState(false);
+  // Modal Add Address states
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [newLabel, setNewLabel] = useState('Home');
+  const [newAddressLine1, setNewAddressLine1] = useState('');
+  const [newCity, setNewCity] = useState('');
+  const [newPincode, setNewPincode] = useState('');
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [addressFormError, setAddressFormError] = useState('');
 
+  // Dropdown open toggle for web compatibility
+  const [showAddressDropdown, setShowAddressDropdown] = useState(false);
+
+  // Validation error state
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  // 1. Generate next 7 days for horizontal date carousel
   useEffect(() => {
     setIdempotencyKey(generateUUID());
+    const datesList: string[] = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      const dateString = d.toISOString().split('T')[0];
+      datesList.push(dateString);
+    }
+    setDates(datesList);
+    if (!selectedDate) {
+      setSelectedDate(datesList[0]);
+    }
+  }, []);
 
-    const loadData = async () => {
+  // 2. Fetch Service Details & Saved Addresses
+  useEffect(() => {
+    const loadInitialData = async () => {
       try {
         setLoading(true);
-        // We can fetch category list first or query services directly.
-        // Let's fetch details from API
+        // Fetch addresses
         const addrRes = await fetch(`${baseUrl}/api/v1/addresses`, {
-          headers: { 'Authorization': `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
         const addrData = await addrRes.json();
         if (addrData.success) {
-          const selectedAddr = addrData.data.find((a: any) => a.id === addressId);
-          setAddress(selectedAddr);
+          setAddresses(addrData.data);
+          if (addrData.data.length > 0 && !selectedAddressId) {
+            setSelectedAddressId(addrData.data[0].id);
+          }
         }
 
-        // Fetch service directly from DB using custom or public endpoint,
-        // or query categories/services list to find the details.
-        // Let's call the public category service list to find details
+        // Fetch Service details
         const catRes = await fetch(`${baseUrl}/api/v1/catalog/categories`, {
-          headers: { 'Authorization': `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
         const catData = await catRes.json();
         if (catData.success) {
           let foundService = null;
           for (const cat of catData.data) {
-            const svcRes = await fetch(
-              `${baseUrl}/api/v1/catalog/categories/${cat.id}/services`,
-              { headers: { 'Authorization': `Bearer ${token}` } },
-            );
+            const svcRes = await fetch(`${baseUrl}/api/v1/catalog/categories/${cat.id}/services`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
             const svcData = await svcRes.json();
             if (svcData.success) {
               const matched = svcData.data.find((s: any) => s.id === serviceId);
@@ -82,49 +123,139 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
           }
           setService(foundService);
         }
-
-        // Fetch slots to get slot label
-        const slotRes = await fetch(
-          `${baseUrl}/api/v1/bookings/slots?service_id=${serviceId}&date=${date}`,
-          { headers: { 'Authorization': `Bearer ${token}` } },
-        );
-        const slotData = await slotRes.json();
-        if (slotData.success) {
-          const selectedSlot = slotData.data.find((s: any) => s.id === slotId);
-          setTimeSlot(selectedSlot);
-        }
       } catch (err) {
-        Alert.alert('Error', 'Failed to load summary data.');
+        console.error('Error loading checkout initial data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    loadData();
-  }, []);
+    if (serviceId) {
+      loadInitialData();
+    }
+  }, [serviceId]);
 
-  // Timer countdown hook
+  // 3. Fetch Time Slots whenever selected date changes
+  const fetchSlotsForDate = async (dateStr: string) => {
+    if (!serviceId || !dateStr) return;
+    try {
+      setLoadingSlots(true);
+      const slotRes = await fetch(
+        `${baseUrl}/api/v1/bookings/slots?service_id=${serviceId}&date=${dateStr}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      const slotData = await slotRes.json();
+      if (slotData.success) {
+        setSlots(slotData.data);
+        // Auto-select first available slot if none selected or if date changed
+        const avail = slotData.data.find((s: any) => s.isAvailable);
+        if (avail && !selectedSlotId) {
+          setSelectedSlotId(avail.id);
+          setSelectedSlotLabel(avail.label);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching time slots:', err);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
   useEffect(() => {
-    if (timeLeft <= 0) {
-      setLockExpired(true);
+    if (selectedDate) {
+      fetchSlotsForDate(selectedDate);
+    }
+  }, [selectedDate]);
+
+  // 4. Lock Slot Action
+  const handleSelectSlot = async (slot: any) => {
+    if (!slot.isAvailable || lockingSlot) return;
+    try {
+      setLockingSlot(true);
+      setSelectedSlotId(slot.id);
+      setSelectedSlotLabel(slot.label);
+      setValidationError(null);
+
+      const res = await fetch(`${baseUrl}/api/v1/bookings/slots/lock`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ slotId: slot.id, date: selectedDate }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error?.message || data.message || 'Slot locking failed.');
+      }
+    } catch (err: any) {
+      const msg = err.message || 'Slot no longer available.';
+      if (Platform.OS === 'web') alert(msg);
+      else Alert.alert('Slot Unavailable', msg);
+      fetchSlotsForDate(selectedDate);
+    } finally {
+      setLockingSlot(false);
+    }
+  };
+
+  // 5. Add New Address Modal Submit
+  const handleSaveNewAddress = async () => {
+    setAddressFormError('');
+    if (!newLabel.trim() || !newAddressLine1.trim() || !newCity.trim() || !newPincode.trim()) {
+      setAddressFormError('Please fill in all required address fields.');
       return;
     }
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [timeLeft]);
+    if (!/^[1-9][0-9]{5}$/.test(newPincode)) {
+      setAddressFormError('Please enter a valid 6-digit Indian PIN code.');
+      return;
+    }
 
-  const handleConfirmBooking = async () => {
-    if (lockExpired) {
-      if (Platform.OS === 'web') {
-        alert('Lock Expired: Your temporary slot lock has expired. Please go back and select the slot again.');
-      } else {
-        Alert.alert(
-          'Lock Expired',
-          'Your temporary slot lock has expired. Please go back and select the slot again.',
-        );
+    try {
+      setSavingAddress(true);
+      const res = await fetch(`${baseUrl}/api/v1/addresses`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          label: newLabel,
+          addressLine1: newAddressLine1,
+          city: newCity,
+          pincode: newPincode,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error?.message || 'Failed to save address.');
       }
+
+      const created = data.data;
+      setAddresses((prev) => [...prev, created]);
+      setSelectedAddressId(created.id);
+      setShowAddressModal(false);
+      setNewAddressLine1('');
+      setNewCity('');
+      setNewPincode('');
+    } catch (err: any) {
+      setAddressFormError(err.message);
+    } finally {
+      setSavingAddress(false);
+    }
+  };
+
+  // 6. Confirm Booking Submit Action
+  const handlePlaceBooking = async () => {
+    setValidationError(null);
+
+    if (!selectedAddressId) {
+      setValidationError('Address field is required. Please select or add an address.');
+      return;
+    }
+    if (!selectedSlotId) {
+      setValidationError('Time Slot Schedule field is required. Please select a time slot.');
       return;
     }
 
@@ -134,14 +265,14 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'x-idempotency-key': idempotencyKey,
         },
         body: JSON.stringify({
           serviceId,
-          slotId,
-          slotDate: date,
-          addressId,
+          slotId: selectedSlotId,
+          slotDate: selectedDate,
+          addressId: selectedAddressId,
           paymentMethod,
         }),
       });
@@ -151,110 +282,347 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
         throw new Error(data.error?.message || 'Failed to place booking.');
       }
 
-      // Success! Navigate to confirmation page
       navigation.replace('BookingConfirmation', {
         bookingId: data.data.bookingId,
         status: data.data.status,
       });
     } catch (err: any) {
-      if (Platform.OS === 'web') {
-        alert(`Checkout Failure: ${err.message}`);
-      } else {
-        Alert.alert('Checkout Failure', err.message);
-      }
-      if (err.message.includes('Slot no longer available') || err.message.includes('expired') || err.message.includes('re-lock')) {
-        navigation.navigate('SlotSelection', { serviceId, date });
-      }
+      const msg = err.message || 'Checkout failed.';
+      if (Platform.OS === 'web') alert(`Checkout Failure: ${msg}`);
+      else Alert.alert('Checkout Failure', msg);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
+  const selectedAddressObj = addresses.find((a) => a.id === selectedAddressId);
+  const totalPrice = service ? parseFloat(service.fixedPrice || '0') : 0;
 
+  // Skeleton Loader Component
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#10b981" />
+      <View style={styles.skeletonContainer}>
+        <View style={styles.skeletonHeader} />
+        <View style={styles.skeletonCard} />
+        <View style={styles.skeletonCard} />
+        <View style={styles.skeletonCard} />
       </View>
     );
   }
 
   return (
     <View style={styles.outerContainer}>
-      <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Confirm Booking</Text>
-        <Text style={styles.subtitle}>Review your service details before placing booking</Text>
-      </View>
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
+        
+        {/* HEADER & STATUS BAR */}
+        <View style={styles.screenHeader}>
+          <Text style={styles.screenTitle}>Checkout Review</Text>
+          <View style={styles.onlineBadge}>
+            <Text style={styles.onlineBadgeText}>Online</Text>
+          </View>
+        </View>
 
-      {/* Countdown Banner */}
-      <View style={[styles.timerBanner, lockExpired ? styles.timerExpired : styles.timerActive]}>
-        <Text style={styles.timerText}>
-          {lockExpired
-            ? 'Lock Expired. Please restart checkout.'
-            : `Holding slot for ${formatTime(timeLeft)} minutes`}
-        </Text>
-      </View>
+        {/* Validation Error Alert Banner */}
+        {validationError && (
+          <View style={styles.validationErrorBanner}>
+            <Text style={styles.validationErrorText}>{validationError}</Text>
+          </View>
+        )}
 
-      {/* Summary Card */}
-      <View style={styles.card}>
-        <Text style={styles.cardSectionTitle}>Service</Text>
-        <Text style={styles.serviceName}>{service?.name || 'Loading Service...'}</Text>
-        <Text style={styles.servicePrice}>₹{parseFloat(service?.fixedPrice || '0').toFixed(2)}</Text>
+        {/* 1. REVIEW SELECTED ITEMS */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>1. REVIEW SELECTED ITEMS</Text>
+            <Text style={styles.sectionHeaderPrice}>₹{totalPrice.toFixed(2)}</Text>
+          </View>
+          <View style={styles.itemDetailRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.serviceNameText}>{service?.name || 'Selected Service'}</Text>
+              {service?.description && <Text style={styles.serviceDescText}>{service.description}</Text>}
+              {service?.estimatedDuration && (
+                <Text style={styles.serviceDurationText}>Duration: {service.estimatedDuration}</Text>
+              )}
+            </View>
+            <Text style={styles.itemPriceText}>₹{totalPrice.toFixed(2)}</Text>
+          </View>
+        </View>
 
-        <View style={styles.divider} />
+        {/* 2. LOCATION ADDRESS (DROPDOWN + ADD NEW) */}
+        <View style={[styles.sectionCard, !selectedAddressId && validationError ? styles.cardErrorBorder : null]}>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>2. LOCATION ADDRESS</Text>
+            <TouchableOpacity onPress={() => setShowAddressModal(true)}>
+              <Text style={styles.addNewText}>+ Add New</Text>
+            </TouchableOpacity>
+          </View>
 
-        <Text style={styles.cardSectionTitle}>Scheduled Date & Time</Text>
-        <Text style={styles.detailText}>
-          {new Date(date).toLocaleDateString('en-IN', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          })}
-        </Text>
-        <Text style={styles.detailSubText}>{timeSlot?.label || 'Loading Time...'}</Text>
+          {/* In-page Address Dropdown Selector */}
+          <TouchableOpacity
+            style={styles.dropdownSelector}
+            onPress={() => setShowAddressDropdown(!showAddressDropdown)}
+          >
+            <Text style={styles.dropdownSelectorText}>
+              {selectedAddressObj
+                ? `${selectedAddressObj.label} — ${selectedAddressObj.addressLine1}, ${selectedAddressObj.city}`
+                : addresses.length === 0
+                ? 'No saved addresses. Tap + Add New'
+                : 'Select an address...'}
+            </Text>
 
-        <View style={styles.divider} />
+            <Text style={styles.dropdownArrow}>{showAddressDropdown ? '▲' : '▼'}</Text>
+          </TouchableOpacity>
 
-        <Text style={styles.cardSectionTitle}>Delivery Address</Text>
-        <Text style={styles.detailText}>
-          {address ? `${address.label} — ${address.addressLine1}` : 'Loading address...'}
-        </Text>
-        {address?.addressLine2 && <Text style={styles.detailSubText}>{address.addressLine2}</Text>}
-        <Text style={styles.detailSubText}>
-          {address?.city} - {address?.pincode}
-        </Text>
+          {/* Dropdown Options List */}
+          {showAddressDropdown && (
+            <View style={styles.dropdownListContainer}>
+              {addresses.length === 0 ? (
+                <View style={styles.emptyAddressContainer}>
+                  <Text style={styles.emptyAddressText}>
+                    No saved addresses. Please add one to checkout.
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.emptyAddBtn}
+                    onPress={() => {
+                      setShowAddressDropdown(false);
+                      setShowAddressModal(true);
+                    }}
+                  >
+                    <Text style={styles.emptyAddBtnText}>+ Add Address</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                addresses.map((addr) => (
+                  <TouchableOpacity
+                    key={addr.id}
+                    style={[
+                      styles.dropdownOptionItem,
+                      addr.id === selectedAddressId && styles.dropdownOptionItemActive,
+                    ]}
+                    onPress={() => {
+                      setSelectedAddressId(addr.id);
+                      setShowAddressDropdown(false);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.dropdownOptionText,
+                        addr.id === selectedAddressId && styles.dropdownOptionTextActive,
+                      ]}
+                    >
+                      {addr.label} — {addr.addressLine1}, {addr.city} ({addr.pincode})
+                    </Text>
+                  </TouchableOpacity>
+                ))
+              )}
+            </View>
+          )}
+        </View>
 
-        <View style={styles.divider} />
+        {/* 3. TIME SLOT SCHEDULE (HORIZONTAL DAYS CAROUSEL + 2-COLUMN GRID) */}
+        <View style={[styles.sectionCard, !selectedSlotId && validationError ? styles.cardErrorBorder : null]}>
+          <Text style={styles.sectionTitle}>3. TIME SLOT SCHEDULE</Text>
 
-        <Text style={styles.cardSectionTitle}>Payment Mode</Text>
+          {/* Days Carousel */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.daysCarouselContent}
+            style={styles.daysCarouselScroll}
+          >
+            {dates.map((dStr) => {
+              const dObj = new Date(dStr);
+              const dayName = dObj.toLocaleDateString('en-US', { weekday: 'short' });
+              const dayNum = dObj.getDate();
+              const isSelected = dStr === selectedDate;
+
+              return (
+                <TouchableOpacity
+                  key={dStr}
+                  style={[styles.dateCard, isSelected ? styles.dateCardActive : styles.dateCardInactive]}
+                  onPress={() => {
+                    setSelectedDate(dStr);
+                    setSelectedSlotId('');
+                    setSelectedSlotLabel('');
+                  }}
+                >
+                  <Text style={[styles.dayNameText, isSelected ? styles.dayTextActive : styles.dayTextInactive]}>
+                    {dayName}
+                  </Text>
+                  <Text style={[styles.dayNumText, isSelected ? styles.dayTextActive : styles.dayTextInactive]}>
+                    {dayNum}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+
+          {/* Time Slot Grid Selector (2 Columns) */}
+          <Text style={styles.gridHeaderSub}>Select Time Slot:</Text>
+          {loadingSlots ? (
+            <ActivityIndicator size="small" color="#10b981" style={{ marginVertical: 16 }} />
+          ) : slots.length === 0 ? (
+            <Text style={styles.noSlotsText}>No available time slots for this day.</Text>
+          ) : (
+            <View style={styles.slotGridContainer}>
+              {slots.map((slot) => {
+                const isSelected = slot.id === selectedSlotId;
+                const isAvail = slot.isAvailable;
+
+                return (
+                  <TouchableOpacity
+                    key={slot.id}
+                    disabled={!isAvail || lockingSlot}
+                    style={[
+                      styles.slotPill,
+                      !isAvail && styles.slotPillDisabled,
+                      isSelected && styles.slotPillSelected,
+                    ]}
+                    onPress={() => handleSelectSlot(slot)}
+                  >
+                    <Text
+                      style={[
+                        styles.slotPillText,
+                        !isAvail && styles.slotPillTextDisabled,
+                        isSelected && styles.slotPillTextSelected,
+                      ]}
+                    >
+                      {slot.label} {!isAvail ? '(Locked)' : ''}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
+        </View>
+
+        {/* 4. PAYMENT METHOD DROPDOWN */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>4. PAYMENT METHOD</Text>
+
+          <View style={styles.paymentOptionsRow}>
+            <TouchableOpacity
+              style={[
+                styles.paymentChoiceBtn,
+                paymentMethod === 'CASH_ON_SERVICE' && styles.paymentChoiceBtnActive,
+              ]}
+              onPress={() => setPaymentMethod('CASH_ON_SERVICE')}
+            >
+              <Text
+                style={[
+                  styles.paymentChoiceText,
+                  paymentMethod === 'CASH_ON_SERVICE' && styles.paymentChoiceTextActive,
+                ]}
+              >
+                Cash on Delivery (COD) / Cash
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.paymentChoiceBtn,
+                styles.paymentChoiceDisabled,
+                paymentMethod === 'ONLINE' && styles.paymentChoiceBtnActive,
+              ]}
+              disabled={true}
+            >
+              <Text style={styles.paymentChoiceTextDisabled}>
+                UPI / Credit Card (Disabled in MVP)
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* STICKY BOTTOM CHECKOUT SUMMARY */}
+      <View style={styles.stickyFooter}>
+        <View style={styles.footerPriceRow}>
+          <Text style={styles.footerTotalLabel}>Checkout Total:</Text>
+          <Text style={styles.footerTotalVal}>₹{totalPrice.toFixed(2)}</Text>
+        </View>
+
         <TouchableOpacity
-          style={[styles.paymentOption, styles.paymentOptionActive]}
-          disabled={true}
+          style={[styles.bookNowBtn, (submitting || lockingSlot) && styles.bookNowBtnDisabled]}
+          disabled={submitting || lockingSlot}
+          onPress={handlePlaceBooking}
         >
-          <Text style={styles.paymentText}>Cash on Service</Text>
-          <Text style={styles.paymentSubtext}>Pay directly to the provider on completion</Text>
+          {submitting ? (
+            <ActivityIndicator size="small" color="#020617" />
+          ) : (
+            <Text style={styles.bookNowBtnText}>Book Now (Schedule Slot)</Text>
+          )}
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
-        style={[styles.confirmBtn, (lockExpired || submitting) && styles.confirmBtnDisabled]}
-        disabled={lockExpired || submitting}
-        onPress={handleConfirmBooking}
-      >
-        {submitting ? (
-          <ActivityIndicator size="small" color="#020617" />
-        ) : (
-          <Text style={styles.confirmBtnText}>Confirm Booking</Text>
-        )}
-      </TouchableOpacity>
-      </ScrollView>
+      {/* ADD NEW ADDRESS MODAL OVERLAY */}
+      {showAddressModal && (
+        <Modal visible={showAddressModal} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalCard}>
+              <Text style={styles.modalTitle}>Add New Delivery Address</Text>
+
+              {addressFormError ? <Text style={styles.modalErrorText}>{addressFormError}</Text> : null}
+
+              <TextInput
+                placeholder="Label (e.g. Home, Office) *"
+                placeholderTextColor="#64748b"
+                style={styles.modalInput}
+                value={newLabel}
+                onChangeText={setNewLabel}
+              />
+
+              <TextInput
+                placeholder="Flat Name, Street Address *"
+                placeholderTextColor="#64748b"
+                style={styles.modalInput}
+                value={newAddressLine1}
+                onChangeText={setNewAddressLine1}
+              />
+
+              <TextInput
+                placeholder="City *"
+                placeholderTextColor="#64748b"
+                style={styles.modalInput}
+                value={newCity}
+                onChangeText={setNewCity}
+              />
+
+              <TextInput
+                placeholder="Zip / PIN Code (6 digits) *"
+                placeholderTextColor="#64748b"
+                keyboardType="number-pad"
+                maxLength={6}
+                style={styles.modalInput}
+                value={newPincode}
+                onChangeText={setNewPincode}
+              />
+
+              <View style={styles.modalBtnRow}>
+                <TouchableOpacity
+                  style={styles.modalCancelBtn}
+                  onPress={() => {
+                    setShowAddressModal(false);
+                    setAddressFormError('');
+                  }}
+                >
+                  <Text style={styles.modalCancelBtnText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.modalSaveBtn}
+                  disabled={savingAddress}
+                  onPress={handleSaveNewAddress}
+                >
+                  {savingAddress ? (
+                    <ActivityIndicator size="small" color="#020617" />
+                  ) : (
+                    <Text style={styles.modalSaveBtnText}>Save</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 }
@@ -264,128 +632,427 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'hsl(224, 71%, 4%)',
   },
-  container: {
+  scrollContainer: {
     flex: 1,
+  },
+  scrollContent: {
     padding: 16,
+    paddingBottom: 140,
   },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
-    justifyContent: 'center',
+  screenHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 16,
+    marginTop: 4,
   },
-  header: {
-    marginBottom: 20,
-    marginTop: 8,
-  },
-  title: {
+  screenTitle: {
     fontSize: 22,
     fontWeight: 'bold',
     color: '#ffffff',
   },
-  subtitle: {
-    fontSize: 14,
-    color: '#94a3b8',
-    marginTop: 4,
+  onlineBadge: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
   },
-  timerBanner: {
+  onlineBadgeText: {
+    color: '#10b981',
+    fontSize: 10,
+    fontWeight: 'bold',
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+  },
+  validationErrorBanner: {
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderWidth: 1,
+    borderColor: 'hsl(350, 84%, 55%)',
     borderRadius: 12,
     padding: 12,
-    alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
-  timerActive: {
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.2)',
-  },
-  timerExpired: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.2)',
-  },
-  timerText: {
-    fontSize: 14,
+  validationErrorText: {
+    color: '#f87171',
+    fontSize: 13,
     fontWeight: 'bold',
-    color: '#ffffff',
+    textAlign: 'center',
   },
-  card: {
-    backgroundColor: 'rgba(17, 24, 39, 0.45)',
+  sectionCard: {
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 24,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
   },
-  cardSectionTitle: {
-    fontSize: 12,
+  cardErrorBorder: {
+    borderColor: 'hsl(350, 84%, 55%)',
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 11,
     fontWeight: 'bold',
     color: '#94a3b8',
+    letterSpacing: 0.8,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 6,
   },
-  serviceName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  servicePrice: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#10b981',
-    marginTop: 4,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    marginVertical: 18,
-  },
-  detailText: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  detailSubText: {
-    fontSize: 13,
-    color: '#94a3b8',
-    marginTop: 2,
-  },
-  paymentOption: {
-    borderRadius: 12,
-    padding: 14,
-    marginTop: 8,
-  },
-  paymentOptionActive: {
-    backgroundColor: 'rgba(16, 185, 129, 0.05)',
-    borderWidth: 1.5,
-    borderColor: '#10b981',
-  },
-  paymentText: {
+  sectionHeaderPrice: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#10b981',
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
   },
-  paymentSubtext: {
-    fontSize: 11,
+  addNewText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#10b981',
+  },
+  itemDetailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingTop: 4,
+  },
+  serviceNameText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  serviceDescText: {
+    fontSize: 12,
     color: '#94a3b8',
     marginTop: 2,
+    lineHeight: 16,
   },
-  confirmBtn: {
-    backgroundColor: '#10b981',
+  serviceDurationText: {
+    fontSize: 11,
+    color: '#64748b',
+    marginTop: 4,
+  },
+  itemPriceText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#10b981',
+    marginLeft: 8,
+  },
+  dropdownSelector: {
+    backgroundColor: '#0f172a',
+    borderWidth: 1,
+    borderColor: '#1e293b',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  dropdownSelectorText: {
+    fontSize: 13,
+    color: '#ffffff',
+    flex: 1,
+  },
+  dropdownArrow: {
+    fontSize: 10,
+    color: '#94a3b8',
+    marginLeft: 8,
+  },
+  dropdownListContainer: {
+    backgroundColor: '#0f172a',
+    borderWidth: 1,
+    borderColor: '#1e293b',
+    borderRadius: 10,
+    marginTop: 6,
+    overflow: 'hidden',
+  },
+  dropdownOptionItem: {
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  dropdownOptionItemActive: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+  },
+  dropdownOptionText: {
+    fontSize: 13,
+    color: '#cbd5e1',
+  },
+  dropdownOptionTextActive: {
+    color: '#10b981',
+    fontWeight: 'bold',
+  },
+  emptyAddressContainer: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  emptyAddressText: {
+    fontSize: 12,
+    color: '#94a3b8',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  emptyAddBtn: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  emptyAddBtnText: {
+    color: '#10b981',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  daysCarouselScroll: {
+    marginTop: 8,
+    marginBottom: 12,
+  },
+  daysCarouselContent: {
+    gap: 8,
+  },
+  dateCard: {
+    width: 56,
+    height: 64,
     borderRadius: 12,
-    height: 52,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 48,
   },
-  confirmBtnDisabled: {
+  dateCardActive: {
+    backgroundColor: '#10b981',
+  },
+  dateCardInactive: {
+    backgroundColor: '#0f172a',
+    borderWidth: 1,
+    borderColor: '#1e293b',
+  },
+  dayNameText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+  },
+  dayNumText: {
+    fontSize: 16,
+    fontWeight: 'extrabold',
+    marginTop: 2,
+  },
+  dayTextActive: {
+    color: '#090b11',
+  },
+  dayTextInactive: {
+    color: '#94a3b8',
+  },
+  gridHeaderSub: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#64748b',
+    marginBottom: 8,
+  },
+  slotGridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  slotPill: {
+    width: '48%',
+    backgroundColor: '#0f172a',
+    borderWidth: 1,
+    borderColor: '#1e293b',
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  slotPillSelected: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderColor: '#10b981',
+    borderWidth: 1.5,
+  },
+  slotPillDisabled: {
+    backgroundColor: '#090d16',
+    borderColor: 'rgba(255, 255, 255, 0.03)',
+    opacity: 0.5,
+  },
+  slotPillText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#cbd5e1',
+  },
+  slotPillTextSelected: {
+    color: '#10b981',
+  },
+  slotPillTextDisabled: {
+    color: '#475569',
+  },
+  noSlotsText: {
+    fontSize: 12,
+    color: '#94a3b8',
+    textAlign: 'center',
+    marginVertical: 12,
+  },
+  paymentOptionsRow: {
+    gap: 8,
+    marginTop: 8,
+  },
+  paymentChoiceBtn: {
+    backgroundColor: '#0f172a',
+    borderWidth: 1,
+    borderColor: '#1e293b',
+    borderRadius: 10,
+    padding: 12,
+  },
+  paymentChoiceBtnActive: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    borderColor: '#10b981',
+    borderWidth: 1.5,
+  },
+  paymentChoiceDisabled: {
+    opacity: 0.5,
+  },
+  paymentChoiceText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  paymentChoiceTextActive: {
+    color: '#10b981',
+  },
+  paymentChoiceTextDisabled: {
+    fontSize: 13,
+    color: '#64748b',
+  },
+  stickyFooter: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#090b11',
+    borderTopWidth: 1,
+    borderTopColor: '#1e293b',
+    padding: 16,
+    gap: 10,
+  },
+  footerPriceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  footerTotalLabel: {
+    fontSize: 13,
+    color: '#94a3b8',
+    fontWeight: '500',
+  },
+  footerTotalVal: {
+    fontSize: 18,
+    fontWeight: 'extrabold',
+    color: '#ffffff',
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+  },
+  bookNowBtn: {
+    backgroundColor: '#10b981',
+    borderRadius: 12,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bookNowBtnDisabled: {
     backgroundColor: '#334155',
     opacity: 0.6,
   },
-  confirmBtnText: {
+  bookNowBtnText: {
     color: '#020617',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(2, 6, 23, 0.85)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    backgroundColor: '#0f172a',
+    borderWidth: 1,
+    borderColor: '#1e293b',
+    borderRadius: 20,
+    padding: 20,
+  },
+  modalTitle: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: 16,
+  },
+  modalErrorText: {
+    fontSize: 12,
+    color: '#ef4444',
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  modalInput: {
+    backgroundColor: '#020617',
+    borderWidth: 1,
+    borderColor: '#1e293b',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    color: '#ffffff',
+    fontSize: 13,
+    marginBottom: 12,
+  },
+  modalBtnRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 8,
+  },
+  modalCancelBtn: {
+    flex: 1,
+    height: 42,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#334155',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCancelBtnText: {
+    color: '#94a3b8',
+    fontWeight: 'bold',
+    fontSize: 13,
+  },
+  modalSaveBtn: {
+    flex: 1,
+    height: 42,
+    backgroundColor: '#10b981',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalSaveBtnText: {
+    color: '#020617',
+    fontWeight: 'bold',
+    fontSize: 13,
+  },
+  skeletonContainer: {
+    flex: 1,
+    backgroundColor: 'hsl(224, 71%, 4%)',
+    padding: 16,
+    gap: 16,
+  },
+  skeletonHeader: {
+    height: 32,
+    backgroundColor: '#0f172a',
+    borderRadius: 8,
+    width: '50%',
+  },
+  skeletonCard: {
+    height: 120,
+    backgroundColor: '#0f172a',
+    borderRadius: 16,
   },
 });

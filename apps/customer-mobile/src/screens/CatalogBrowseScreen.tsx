@@ -90,7 +90,7 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
 
   const handleCheckout = () => {
     if (cart.length === 0) return;
-    navigation.navigate('AddressSelection', { serviceId: cart[0].id });
+    navigation.navigate('BookingSummary', { serviceId: cart[0].id });
   };
 
   const renderServiceCard = ({ item }: { item: Service }) => {
