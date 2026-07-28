@@ -5,42 +5,22 @@ import {
   Inject,
   Injectable,
   Logger,
-  OnApplicationBootstrap,
-  OnApplicationShutdown,
 } from '@nestjs/common';
 import { IBookingRepository } from '../ports/booking.repository.port';
+import { PrismaService } from '../../../prisma/prisma.service';
+import Redis from 'ioredis';
 
 @Injectable()
-export class SlotLockExpiryService
-  implements OnApplicationBootstrap, OnApplicationShutdown
-{
+export class SlotLockExpiryService {
   private readonly logger = new Logger(SlotLockExpiryService.name);
-  private cleanupInterval: NodeJS.Timeout | null = null;
 
   constructor(
     @Inject('IBookingRepository')
     private readonly bookingRepo: IBookingRepository,
+    private readonly prisma: PrismaService,
+    @Inject('REDIS_CLIENT')
+    private readonly redisClient: Redis,
   ) {}
-
-  onApplicationBootstrap() {
-    this.logger.log('🌱 Starting Slot Lock Expiry Background Worker...');
-    // Run immediately on boot
-    this.runCleanup();
-    // Schedule to run every 2 minutes (120,000 ms)
-    this.cleanupInterval = setInterval(
-      () => {
-        this.runCleanup();
-      },
-      2 * 60 * 1000,
-    );
-  }
-
-  onApplicationShutdown() {
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval);
-      this.logger.log('🛑 Stopped Slot Lock Expiry Background Worker.');
-    }
-  }
 
   async runCleanup(): Promise<void> {
     try {
@@ -51,11 +31,43 @@ export class SlotLockExpiryService
         this.logger.log(
           `🧹 Found ${expiredLocks.length} expired slot locks. Cleaning up...`,
         );
+
         for (const lock of expiredLocks) {
-          await this.bookingRepo.deleteSlotLock(lock.id);
-          this.logger.debug(
-            `🗑️ Released expired lock: ${lock.id} for slot ${lock.slotId} on ${lock.slotDate.toISOString().split('T')[0]}`,
-          );
+          try {
+            // Make slot availability update and expired lock deletion atomic using Prisma transaction
+            await this.prisma.$transaction(async (tx) => {
+              // Delete the lock record. Double check booking_id IS NULL to preserve confirmed locks.
+              await tx.bookingSlotLock.delete({
+                where: {
+                  id: lock.id,
+                  bookingId: null,
+                },
+              });
+            });
+
+            // Post-transaction: Delete Redis lock key to update slot availability
+            const dateStr = lock.slotDate.toISOString().split('T')[0];
+            const redisKey = `lock:slot:${lock.slotId}:date:${dateStr}`;
+            try {
+              await this.redisClient.del(redisKey);
+            } catch (err) {
+              this.logger.warn(
+                `[Redis Lock Fallback] Failed to delete Redis lock for key ${redisKey}: ${err.message}`,
+              );
+            }
+
+            // Emit structured INFO log event slot.lock.released
+            this.logger.log(
+              `slot.lock.released: ${JSON.stringify({
+                slot_id: lock.slotId,
+                customer_id: lock.customerId,
+              })}`,
+            );
+          } catch (txError) {
+            this.logger.error(
+              `❌ Failed to release lock ${lock.id} atomically: ${txError.message}`,
+            );
+          }
         }
         this.logger.log('✅ Expired slot locks cleanup completed.');
       }

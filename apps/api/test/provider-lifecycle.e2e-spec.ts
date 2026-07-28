@@ -42,6 +42,14 @@ describe('Provider Booking Lifecycle (e2e)', () => {
           provide: 'IAddressRepository',
           useClass: PrismaAddressRepository,
         },
+        {
+          provide: 'REDIS_CLIENT',
+          useValue: {
+            set: jest.fn().mockResolvedValue('OK'),
+            del: jest.fn().mockResolvedValue(1),
+            quit: jest.fn().mockResolvedValue('OK'),
+          },
+        },
       ],
     })
       .overrideGuard(JwtAuthGuard)

@@ -7,6 +7,7 @@ import {
   BadRequestException,
   ForbiddenException,
   ConflictException,
+  OnApplicationShutdown,
 } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { IBookingRepository } from '../ports/booking.repository.port';
@@ -38,9 +39,10 @@ import {
   SameDaySlotTooSoonException,
 } from '../errors/booking.exceptions';
 import { PrismaService } from '../../../prisma/prisma.service';
+import Redis from 'ioredis';
 
 @Injectable()
-export class BookingService {
+export class BookingService implements OnApplicationShutdown {
   constructor(
     @Inject('IBookingRepository')
     private readonly bookingRepo: IBookingRepository,
@@ -50,7 +52,13 @@ export class BookingService {
     private readonly eligibilityService: EligibilityService,
     private readonly prisma: PrismaService,
     private readonly notificationService: NotificationService,
+    @Inject('REDIS_CLIENT')
+    private readonly redisClient: Redis,
   ) {}
+
+  async onApplicationShutdown() {
+    await this.redisClient.quit();
+  }
 
   // ─── Slot Availability ───
 
@@ -128,6 +136,18 @@ export class BookingService {
       customerId,
       expiresAt,
     });
+
+    // Try to acquire Redis lock
+    const dateStr = dto.date; // YYYY-MM-DD format
+    const redisKey = `lock:slot:${dto.slotId}:date:${dateStr}`;
+    try {
+      await this.redisClient.set(redisKey, customerId, 'EX', 600, 'NX');
+    } catch (err) {
+      // Redis Unavailable Fallback: Log a warning, ignore the failure, and continue
+      console.warn(
+        `[Redis Lock Fallback] Failed to set Redis lock for key ${redisKey}: ${err.message}`,
+      );
+    }
 
     return { lockId: lock.id, expiresAt: lock.expiresAt };
   }
@@ -360,6 +380,27 @@ export class BookingService {
     );
 
     // 3) Release or remove the associated booking slot lock
+    try {
+      const locks = await this.prisma.bookingSlotLock.findMany({
+        where: { bookingId },
+      });
+      for (const lock of locks) {
+        const dateStr = lock.slotDate.toISOString().split('T')[0];
+        const redisKey = `lock:slot:${lock.slotId}:date:${dateStr}`;
+        try {
+          await this.redisClient.del(redisKey);
+        } catch (err) {
+          console.warn(
+            `[Redis Lock Fallback] Failed to delete Redis lock for key ${redisKey}: ${err.message}`,
+          );
+        }
+      }
+    } catch (err) {
+      console.warn(
+        `[Redis Lock Fallback] Failed to find locks for redis deletion: ${err.message}`,
+      );
+    }
+
     await this.prisma.bookingSlotLock.deleteMany({
       where: { bookingId },
     });
