@@ -6,6 +6,7 @@ import {
   UseGuards,
   Req,
   HttpCode,
+  BadRequestException,
 } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { CustomerProfileService } from '../services/customer-profile.service';
@@ -42,9 +43,18 @@ export class CustomerProfileController {
   @Roles('CUSTOMER')
   @HttpCode(200)
   async updateProfile(@Req() req: any, @Body() dto: UpdateCustomerProfileDto) {
+    const trimmedName = dto.name.trim();
+    if (!trimmedName) {
+      throw new BadRequestException({
+        success: false,
+        error: 'Name cannot be blank',
+        message: 'Name cannot be blank',
+      });
+    }
+
     const customer = await this.profileService.updateCustomerProfile(
       req.user.id,
-      dto.name,
+      trimmedName,
     );
     return {
       success: true,

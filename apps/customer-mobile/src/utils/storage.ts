@@ -23,14 +23,17 @@ try {
     getString: (key: string) => memStore[key],
     set: (key: string, value: string) => {
       memStore[key] = value;
+      console.log(`[STORAGE SET] ${key} = ${value}`);
     },
     delete: (key: string) => {
       delete memStore[key];
+      console.log(`[STORAGE DELETE] ${key}`);
     },
     clearAll: () => {
       for (const k in memStore) {
         delete memStore[k];
       }
+      console.log(`[STORAGE CLEAR]`);
     },
   };
 }
@@ -69,4 +72,20 @@ export const clearRefreshToken = async () => {
   } catch (e) {
     storageInstance.delete('auth.refreshToken');
   }
+};
+
+export const getUserName = (): string | undefined => {
+  const value = storageInstance.getString('auth.user_name');
+  console.log(`[STORAGE GET] auth.user_name = ${value}`);
+  return value;
+};
+
+export const setUserName = (name: string) => {
+  console.log(`[STORAGE SET] auth.user_name = ${name}`);
+  storageInstance.set('auth.user_name', name);
+};
+
+export const clearUserName = () => {
+  console.log(`[STORAGE DELETE] auth.user_name`);
+  storageInstance.delete('auth.user_name');
 };

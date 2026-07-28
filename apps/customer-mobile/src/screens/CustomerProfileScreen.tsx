@@ -65,6 +65,7 @@ export default function CustomerProfileScreen({ navigation }: Props) {
       setName(displayName || '');
       setInitialName(displayName || '');
       setMobileNumber(mob || '');
+      storage.setUserName(displayName || '');
       
       const formattedDate = new Date(created).toLocaleDateString(undefined, {
         year: 'numeric',
@@ -116,6 +117,7 @@ export default function CustomerProfileScreen({ navigation }: Props) {
         throw new Error(result.error?.message || 'Failed to save changes.');
       }
 
+      storage.setUserName(name);
       setInitialName(name);
       setSuccessMsg('Profile updated.');
       setSaving(false);
@@ -148,6 +150,7 @@ export default function CustomerProfileScreen({ navigation }: Props) {
 
     storage.clearAccessToken();
     await storage.clearRefreshToken();
+    storage.clearUserName();
     navigation.replace('PhoneInput');
   };
 
