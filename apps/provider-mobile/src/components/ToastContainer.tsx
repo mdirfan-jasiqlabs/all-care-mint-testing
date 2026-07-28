@@ -19,47 +19,56 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({ toastQueue, onDi
   const translateY = useRef(new Animated.Value(-40)).current;
   const opacity = useRef(new Animated.Value(0)).current;
 
+  // 1. Process toast queue when no active toast is displayed
   useEffect(() => {
     if (!activeToast && toastQueue.length > 0) {
       const nextToast = toastQueue[0];
       setActiveToast(nextToast);
+    }
+  }, [activeToast, toastQueue]);
 
-      // Slide down & Fade in
+  // 2. Animate entry and auto-dismiss active toast after exactly 3 seconds
+  useEffect(() => {
+    if (!activeToast) return;
+
+    translateY.setValue(-40);
+    opacity.setValue(0);
+
+    // Slide down & Fade in
+    Animated.parallel([
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Auto-dismiss after 3 seconds (3000ms)
+    const timer = setTimeout(() => {
       Animated.parallel([
         Animated.timing(translateY, {
-          toValue: 0,
+          toValue: -40,
           duration: 300,
           useNativeDriver: true,
         }),
         Animated.timing(opacity, {
-          toValue: 1,
+          toValue: 0,
           duration: 300,
           useNativeDriver: true,
         }),
-      ]).start();
+      ]).start(() => {
+        onDismiss(activeToast.id);
+        setActiveToast(null);
+      });
+    }, 3000);
 
-      // Dismiss after 3s
-      const timer = setTimeout(() => {
-        Animated.parallel([
-          Animated.timing(translateY, {
-            toValue: -40,
-            duration: 300,
-            useNativeDriver: true,
-          }),
-          Animated.timing(opacity, {
-            toValue: 0,
-            duration: 300,
-            useNativeDriver: true,
-          }),
-        ]).start(() => {
-          onDismiss(nextToast.id);
-          setActiveToast(null);
-        });
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [activeToast, toastQueue]);
+    return () => clearTimeout(timer);
+  }, [activeToast]);
 
   if (!activeToast) return null;
 
