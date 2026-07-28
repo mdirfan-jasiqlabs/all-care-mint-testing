@@ -23,7 +23,7 @@ export default function CatalogCategoriesPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const token = localStorage.getItem('access_token');
+        const token = sessionStorage.getItem('access_token');
         const res = await fetch('http://localhost:3000/api/v1/catalog/categories', {
           headers: {
             'Authorization': `Bearer ${token || ''}`,

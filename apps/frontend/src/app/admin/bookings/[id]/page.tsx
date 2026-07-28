@@ -104,7 +104,7 @@ export default function AdminBookingDetailPage() {
     try {
       setLoading(true);
       setError(null);
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
 
       // Fetch booking details
       const bookingRes = await fetch(`http://localhost:3000/api/v1/admin/bookings/${id}`, {
@@ -161,7 +161,7 @@ export default function AdminBookingDetailPage() {
     const method = booking?.status === 'PENDING' ? 'assign' : 'reassign';
     try {
       setSubmitting(true);
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
       
       const res = await fetch(`http://localhost:3000/api/v1/admin/bookings/${id}/${method}`, {
         method: 'PATCH',
@@ -199,7 +199,7 @@ export default function AdminBookingDetailPage() {
 
     try {
       setSubmitting(true);
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
       const res = await fetch(`http://localhost:3000/api/v1/admin/bookings/${id}/cancel`, {
         method: 'PATCH',
         headers: {
@@ -270,7 +270,7 @@ export default function AdminBookingDetailPage() {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: 'var(--primary)', boxShadow: '0 0 10px var(--primary)' }}></span>
-            <h1 className="title-brand" style={{ fontSize: '20px', letterSpacing: '-0.5px', cursor: 'pointer' }} onClick={() => router.push('/admin/dashboard')}>
+            <h1 className="title-brand" style={{ fontSize: '20px', letterSpacing: '-0.5px', cursor: 'pointer' }} onClick={() => router.push('/dashboard/admin')}>
               All Care Mint
             </h1>
           </div>

@@ -38,7 +38,7 @@ export default function PricingManagerPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const token = localStorage.getItem('access_token');
+        const token = sessionStorage.getItem('access_token');
         const res = await fetch('http://localhost:3000/api/v1/admin/catalog/categories', {
           headers: { 'Authorization': `Bearer ${token || ''}` },
         });
@@ -59,7 +59,7 @@ export default function PricingManagerPage() {
     if (!catId) return;
     try {
       setLoading(true);
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
       const res = await fetch(`http://localhost:3000/api/v1/admin/catalog/categories/${catId}/services`, {
         headers: { 'Authorization': `Bearer ${token || ''}` },
       });
@@ -82,7 +82,7 @@ export default function PricingManagerPage() {
 
   const handleToggleServiceActive = async (service: ServiceItem) => {
     try {
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
       const res = await fetch(`http://localhost:3000/api/v1/admin/catalog/services/${service.id}`, {
         method: 'PATCH',
         headers: {
@@ -114,7 +114,7 @@ export default function PricingManagerPage() {
 
     try {
       setSubmitting(true);
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
       const res = await fetch('http://localhost:3000/api/v1/admin/catalog/services', {
         method: 'POST',
         headers: {

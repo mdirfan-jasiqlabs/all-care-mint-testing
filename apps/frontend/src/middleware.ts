@@ -28,21 +28,57 @@ function isTokenExpired(token: string): boolean {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Intercept requests to /admin/* pages
-  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
-    const accessToken = request.cookies.get('admin_access_token')?.value;
+  // 1. Backward Compatibility Redirects
+  if (pathname === '/admin/login') {
+    const loginUrl = new URL('/login/admin', request.url);
+    return NextResponse.redirect(loginUrl);
+  }
+  if (pathname === '/admin/dashboard') {
+    const dashboardUrl = new URL('/dashboard/admin', request.url);
+    return NextResponse.redirect(dashboardUrl);
+  }
 
-    if (!accessToken || isTokenExpired(accessToken)) {
-      // Redirect to admin login screen
-      const loginUrl = new URL('/admin/login', request.url);
+  // 2. Feature Flag Check for Admin Login UI
+  const isLoginRoute = pathname === '/login/admin';
+  const isFeatureFlagDisabled =
+    process.env.FF_ADMIN_LOGIN_UI_ENABLED === 'false' ||
+    process.env.ff_admin_login_ui_enabled === 'false';
+
+  if (isLoginRoute && isFeatureFlagDisabled) {
+    return new NextResponse(
+      'Service Unavailable: Admin console login is temporarily disabled.',
+      {
+        status: 503,
+        headers: { 'Content-Type': 'text/plain' },
+      },
+    );
+  }
+
+  // 3. Routing Interceptor Gating
+  const isAdminPage = pathname.startsWith('/admin') || pathname.startsWith('/dashboard');
+  const isExcluded = pathname === '/login/admin' || pathname === '/admin/login';
+
+  const accessToken = request.cookies.get('admin_access_token')?.value;
+  const isAuthenticated = accessToken && !isTokenExpired(accessToken);
+
+  if (isAdminPage && !isExcluded) {
+    if (!isAuthenticated) {
+      // Redirect unauthenticated users to the approved login ingress
+      const loginUrl = new URL('/login/admin', request.url);
       return NextResponse.redirect(loginUrl);
     }
+  }
+
+  // 4. Redirect Authenticated Users Away From Login
+  if (isExcluded && isAuthenticated) {
+    const dashboardUrl = new URL('/dashboard/admin', request.url);
+    return NextResponse.redirect(dashboardUrl);
   }
 
   return NextResponse.next();
 }
 
-// Scoped matcher config
+// Scoped matcher config matching both /admin, /dashboard and /login/admin
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/dashboard/:path*', '/login/admin'],
 };

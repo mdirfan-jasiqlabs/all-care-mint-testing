@@ -39,8 +39,10 @@ export default function AdminLoginPage() {
       const csrfToken = body.data.csrfToken;
       const accessToken = body.data.accessToken;
       if (typeof window !== 'undefined') {
-        localStorage.setItem('csrf_token', csrfToken);
-        localStorage.setItem('access_token', accessToken);
+        sessionStorage.setItem('csrf_token', csrfToken);
+        sessionStorage.setItem('access_token', accessToken);
+        localStorage.removeItem('csrf_token');
+        localStorage.removeItem('access_token');
       }
 
       // Display the green success banner dynamically
@@ -56,7 +58,7 @@ export default function AdminLoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Redirect to admin dashboard
-      router.push('/admin/dashboard');
+      router.push('/dashboard/admin');
     } catch (err: any) {
       setError(err.message || 'An error occurred. Please try again.');
       setLoading(false);

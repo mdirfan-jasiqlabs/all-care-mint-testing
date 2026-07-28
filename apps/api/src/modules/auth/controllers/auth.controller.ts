@@ -6,6 +6,7 @@ import {
   UseGuards,
   Req,
   HttpCode,
+  Headers,
 } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { AuthService } from '../services/auth.service';
@@ -118,9 +119,10 @@ export class AuthController {
   @HttpCode(200)
   async adminLogin(
     @Body() dto: AdminLoginDto,
+    @Headers('user-agent') userAgent: string,
     @Res({ passthrough: true }) response: any,
   ) {
-    const tokens = await this.authService.verifyAdminCredentials(dto);
+    const tokens = await this.authService.verifyAdminCredentials(dto, userAgent);
 
     // BFF Web client Cookie Contract alignment (Section 6.3)
     response.header(

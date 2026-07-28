@@ -119,6 +119,7 @@ describe('AuthController', () => {
 
     const response = await controller.adminLogin(
       { email: 'admin@allcaremint.com', password: 'password123' },
+      'mock-user-agent',
       mockRes as any,
     );
 

@@ -31,7 +31,7 @@ export default function CategoryManagerPage() {
     try {
       setLoading(true);
       setError(null);
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
       const res = await fetch('http://localhost:3000/api/v1/admin/catalog/categories', {
         headers: {
           'Authorization': `Bearer ${token || ''}`,
@@ -59,7 +59,7 @@ export default function CategoryManagerPage() {
 
   const handleToggleActive = async (category: ServiceCategory) => {
     try {
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
       const res = await fetch(`http://localhost:3000/api/v1/admin/catalog/categories/${category.id}`, {
         method: 'PATCH',
         headers: {
@@ -87,7 +87,7 @@ export default function CategoryManagerPage() {
 
     try {
       setSubmitting(true);
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
       const res = await fetch('http://localhost:3000/api/v1/admin/catalog/categories', {
         method: 'POST',
         headers: {

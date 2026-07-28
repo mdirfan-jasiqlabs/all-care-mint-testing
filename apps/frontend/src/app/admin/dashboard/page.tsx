@@ -10,7 +10,7 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('csrf_token') || '';
+      const token = sessionStorage.getItem('csrf_token') || localStorage.getItem('csrf_token') || '';
       setCsrfToken(token);
     }
   }, []);
@@ -26,9 +26,12 @@ export default function AdminDashboardPage() {
         },
       });
       if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('csrf_token');
+        sessionStorage.removeItem('access_token');
         localStorage.removeItem('csrf_token');
+        localStorage.removeItem('access_token');
       }
-      router.push('/admin/login');
+      router.push('/login/admin');
     } catch (err) {
       console.error('Logout error:', err);
       setLoggingOut(false);

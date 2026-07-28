@@ -138,12 +138,19 @@ export class AuthService {
     }
   }
 
-  async verifyAdminCredentials(dto: {
-    email: string;
-    password: string;
-  }): Promise<JwtTokenPair> {
+  async verifyAdminCredentials(
+    dto: { email: string; password: string },
+    userAgent?: string,
+  ): Promise<JwtTokenPair> {
+    this.logger.log(
+      `Admin login attempt: email=${dto.email} userAgent=${userAgent || 'unknown'}`,
+    );
+
     const adminUser = await this.authRepository.findAdminByEmail(dto.email);
     if (!adminUser) {
+      this.logger.warn(
+        `Admin login attempt failed (unknown user): email=${dto.email} userAgent=${userAgent || 'unknown'}`,
+      );
       throw new UnauthorizedException({
         success: false,
         error: {
@@ -155,6 +162,9 @@ export class AuthService {
 
     // Check account lockout status
     if (adminUser.lockedUntil && new Date() < new Date(adminUser.lockedUntil)) {
+      this.logger.warn(
+        `Admin login attempt failed (locked account): email=${dto.email} userAgent=${userAgent || 'unknown'}`,
+      );
       throw new ForbiddenException({
         success: false,
         error: {
@@ -171,15 +181,22 @@ export class AuthService {
 
       // Check admin account suspension status
       if (adminUser.isSuspended) {
+        this.logger.warn(
+          `Admin login attempt failed (suspended account): email=${dto.email} userAgent=${userAgent || 'unknown'}`,
+        );
         throw new ForbiddenException({
           success: false,
           error: {
             code: 'ERR_AUTH_ADMIN_SUSPENDED',
-            message: 'Your account has been suspended. Contact the platform operator.',
+            message:
+              'Your account has been suspended. Contact the platform operator.',
           },
         });
       }
 
+      this.logger.log(
+        `Admin login attempt succeeded: email=${dto.email} userAgent=${userAgent || 'unknown'}`,
+      );
       return this.tokenService.generateTokenPair(adminUser.id, 'ADMIN');
     } else {
       // Increment failed attempts and lock if >= 5
@@ -188,6 +205,9 @@ export class AuthService {
       if (failedCount >= 5) {
         const lockedUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
         await this.authRepository.lockAdminAccount(adminUser.id, lockedUntil);
+        this.logger.warn(
+          `Admin login attempt failed (account lockout triggered): email=${dto.email} userAgent=${userAgent || 'unknown'}`,
+        );
         throw new ForbiddenException({
           success: false,
           error: {
@@ -197,6 +217,9 @@ export class AuthService {
           },
         });
       }
+      this.logger.warn(
+        `Admin login attempt failed (invalid password): email=${dto.email} userAgent=${userAgent || 'unknown'}`,
+      );
       throw new UnauthorizedException({
         success: false,
         error: {

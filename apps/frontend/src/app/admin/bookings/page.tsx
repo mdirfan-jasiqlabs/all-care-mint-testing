@@ -83,7 +83,7 @@ export default function AdminBookingsPage() {
     try {
       setLoading(true);
       setError(null);
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
 
       let statusQuery = activeTab === 'ALL' ? '' : activeTab;
       let url = `http://localhost:3000/api/v1/admin/bookings?page=${page}&limit=${limit}`;
@@ -98,7 +98,7 @@ export default function AdminBookingsPage() {
 
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
-          router.push('/admin/login');
+          router.push('/login/admin');
           return;
         }
         throw new Error(`Failed to load bookings (${res.status})`);
@@ -128,7 +128,7 @@ export default function AdminBookingsPage() {
     setDrawerLoading(true);
 
     try {
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
 
       // 1. Fetch complete details
       const detailRes = await fetch(`http://localhost:3000/api/v1/admin/bookings/${booking.id}`, {
@@ -229,7 +229,7 @@ export default function AdminBookingsPage() {
 
     try {
       setActionSubmitting(true);
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
       const method = drawerBooking.status === 'PENDING' ? 'assign' : 'reassign';
 
       const res = await fetch(`http://localhost:3000/api/v1/admin/bookings/${drawerBooking.id}/${method}`, {
@@ -275,7 +275,7 @@ export default function AdminBookingsPage() {
 
     try {
       setActionSubmitting(true);
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
       const res = await fetch(`http://localhost:3000/api/v1/admin/bookings/${drawerBooking.id}/cancel`, {
         method: 'PATCH',
         headers: {
@@ -387,7 +387,7 @@ export default function AdminBookingsPage() {
             </div>
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <button
-                onClick={() => router.push('/admin/dashboard')}
+                onClick={() => router.push('/dashboard/admin')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
