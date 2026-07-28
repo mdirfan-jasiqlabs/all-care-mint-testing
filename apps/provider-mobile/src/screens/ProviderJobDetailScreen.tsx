@@ -1,6 +1,3 @@
-// ─── apps/provider-mobile/src/screens/ProviderJobDetailScreen.tsx ───
-// Source: DLD Section 8.1 & 6.4 — Provider Job Detail Screen
-
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -8,12 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   ScrollView,
   TextInput,
   Platform,
 } from 'react-native';
 import * as storage from '../utils/storage';
+import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
 
 export default function ProviderJobDetailScreen({ navigation, route }: any) {
   const { bookingId } = route.params;
@@ -26,6 +23,15 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
   const [rejectionReason, setRejectionReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  // Toast Queue state
+  const [toastQueue, setToastQueue] = useState<ToastItem[]>([]);
+  const showToast = (message: string, type: ToastType = 'success') => {
+    setToastQueue((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, message, type }]);
+  };
+  const dismissToast = (id: string) => {
+    setToastQueue((prev) => prev.filter((t) => t.id !== id));
+  };
+
   const fetchJobDetails = async () => {
     try {
       setLoading(true);
@@ -37,7 +43,7 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
         setBooking(data.data);
       }
     } catch (err) {
-      Alert.alert('Error', 'Failed to retrieve job details.');
+      showToast('Failed to retrieve job details.', 'error');
     } finally {
       setLoading(false);
     }
@@ -64,10 +70,10 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
         throw new Error(data.error?.message || 'Failed to accept job.');
       }
 
-      Alert.alert('Success', 'You have accepted the job.');
+      showToast('You have accepted the job.', 'success');
       fetchJobDetails();
     } catch (err: any) {
-      Alert.alert('Error', err.message);
+      showToast(err.message || 'Failed to accept job.', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -75,7 +81,7 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
 
   const handleRejectJob = async () => {
     if (!rejectionReason.trim()) {
-      Alert.alert('Validation Error', 'Please provide a reason for rejecting the job.');
+      showToast('Please provide a reason for rejecting the job.', 'warning');
       return;
     }
 
@@ -95,10 +101,10 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
         throw new Error(data.error?.message || 'Failed to reject job.');
       }
 
-      Alert.alert('Success', 'You have rejected this job assignment.');
-      navigation.goBack();
+      showToast('You have rejected this job assignment.', 'success');
+      setTimeout(() => navigation.goBack(), 1000);
     } catch (err: any) {
-      Alert.alert('Error', err.message);
+      showToast(err.message || 'Failed to reject job.', 'error');
     } finally {
       setSubmitting(false);
       setRejecting(false);
@@ -236,6 +242,7 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
         <Text style={styles.backBtnText}>Back to Dashboard</Text>
       </TouchableOpacity>
       </ScrollView>
+      <ToastContainer toastQueue={toastQueue} onDismiss={dismissToast} />
     </View>
   );
 }

@@ -11,10 +11,10 @@ import {
   ActivityIndicator,
   TextInput,
   ScrollView,
-  Alert,
 } from 'react-native';
 import * as storage from '../utils/storage';
 import { getBaseUrl } from '../utils/api';
+import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
 
 export default function AddressSelectionScreen({ navigation, route }: any) {
   const { serviceId } = route.params;
@@ -24,6 +24,15 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
   const [addresses, setAddresses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
+
+  // Toast state
+  const [toastQueue, setToastQueue] = useState<ToastItem[]>([]);
+  const showToast = (message: string, type: ToastType = 'success') => {
+    setToastQueue((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, message, type }]);
+  };
+  const dismissToast = (id: string) => {
+    setToastQueue((prev) => prev.filter((t) => t.id !== id));
+  };
 
   // Form state
   const [label, setLabel] = useState('');
@@ -45,7 +54,7 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
         setAddresses(data.data);
       }
     } catch (err: any) {
-      Alert.alert('Error', 'Failed to load addresses.');
+      showToast('Failed to load addresses.', 'error');
     } finally {
       setLoading(false);
     }
@@ -89,6 +98,7 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
         throw new Error(data.error?.message || 'Failed to add address.');
       }
 
+      showToast('Address added successfully.', 'success');
       setLabel('');
       setAddressLine1('');
       setAddressLine2('');
@@ -99,6 +109,7 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
       fetchAddresses();
     } catch (err: any) {
       setErrorMsg(err.message);
+      showToast(err.message, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -115,9 +126,10 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
       if (!res.ok || !data.success) {
         throw new Error(data.error?.message || 'Failed to delete address.');
       }
+      showToast('Address deleted successfully.', 'success');
       fetchAddresses();
     } catch (err: any) {
-      Alert.alert('Error', err.message);
+      showToast(err.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -243,6 +255,7 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
           )}
         </>
       )}
+      <ToastContainer toastQueue={toastQueue} onDismiss={dismissToast} />
     </View>
   );
 }

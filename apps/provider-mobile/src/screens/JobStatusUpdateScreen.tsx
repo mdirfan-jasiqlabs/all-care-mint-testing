@@ -8,10 +8,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   Platform,
 } from 'react-native';
 import * as storage from '../utils/storage';
+import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
 
 export default function JobStatusUpdateScreen({ navigation, route }: any) {
   const { bookingId } = route.params;
@@ -22,6 +22,15 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [syncState, setSyncState] = useState<'idle' | 'pending' | 'syncing' | 'synced' | 'failed'>('idle');
+
+  // Toast Queue state
+  const [toastQueue, setToastQueue] = useState<ToastItem[]>([]);
+  const showToast = (message: string, type: ToastType = 'success') => {
+    setToastQueue((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, message, type }]);
+  };
+  const dismissToast = (id: string) => {
+    setToastQueue((prev) => prev.filter((t) => t.id !== id));
+  };
 
   const fetchJobDetails = async () => {
     try {
@@ -34,7 +43,7 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
         setBooking(data.data);
       }
     } catch (err) {
-      Alert.alert('Error', 'Failed to retrieve job details.');
+      showToast('Failed to retrieve job details.', 'error');
     } finally {
       setLoading(false);
     }
@@ -48,56 +57,30 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
     let updatedQueue = [...queue];
     updatedQueue.sort((a, b) => a.timestamp - b.timestamp);
 
-    for (const item of queue) {
+    for (const item of updatedQueue) {
       try {
         const res = await fetch(`${baseUrl}/api/v1/providers/me/bookings/${item.bookingId}/status`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
-            'x-client-op-id': item.clientOpId,
           },
           body: JSON.stringify({ status: item.status }),
         });
-
-        const data = await res.json();
         if (res.ok || res.status === 409) {
-          updatedQueue = updatedQueue.filter(q => q.clientOpId !== item.clientOpId);
-          storage.saveOfflineQueue(updatedQueue);
-          if (item.bookingId === bookingId) {
-            setBooking((prev: any) => prev ? { ...prev, status: item.status } : null);
-          }
-        } else {
-          item.retryCount += 1;
-          storage.saveOfflineQueue(updatedQueue);
+          storage.removeOfflineUpdate(item.id);
         }
-      } catch (error) {
-        item.retryCount += 1;
-        storage.saveOfflineQueue(updatedQueue);
+      } catch (err) {
+        console.error('Failed to sync offline item:', item.id, err);
       }
     }
-
-    const remaining = storage.getOfflineQueue();
-    if (remaining.length === 0) {
-      setSyncState('synced');
-    } else {
-      setSyncState('failed');
-    }
+    setSyncState('synced');
+    fetchJobDetails();
   };
 
   useEffect(() => {
     fetchJobDetails();
     syncOfflineQueue();
-
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      const handleOnline = () => {
-        syncOfflineQueue();
-      };
-      window.addEventListener('online', handleOnline);
-      return () => {
-        window.removeEventListener('online', handleOnline);
-      };
-    }
   }, [bookingId]);
 
   const handleUpdateStatus = async (targetStatus: string) => {
@@ -117,16 +100,16 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
       if (!res.ok || !data.success) {
         if (res.status === 409) {
           setSyncState('synced');
-          Alert.alert('Success', `Job status is already ${targetStatus}.`);
-          navigation.goBack();
+          showToast(`Job status is already ${targetStatus}.`, 'info');
+          setTimeout(() => navigation.goBack(), 1000);
           return;
         }
         throw new Error(data.error?.message || 'Failed to update job status.');
       }
 
       setSyncState('synced');
-      Alert.alert('Success', `Job status updated to ${targetStatus}.`);
-      navigation.goBack();
+      showToast(`Job status updated to ${targetStatus}.`, 'success');
+      setTimeout(() => navigation.goBack(), 1000);
     } catch (err: any) {
       const isNetworkError = err.message === 'Network request failed' ||
                              err.message?.includes('Network') ||
@@ -136,10 +119,10 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
       if (isNetworkError) {
         setSyncState('pending');
         storage.enqueueOfflineUpdate(bookingId, targetStatus);
-        Alert.alert('Offline', 'You are currently offline. This update has been queued and will sync automatically when network is restored.');
+        showToast('You are currently offline. This update has been queued and will sync automatically.', 'warning');
       } else {
         setSyncState('failed');
-        Alert.alert('Error', err.message);
+        showToast(err.message || 'Failed to update status.', 'error');
       }
     } finally {
       setSubmitting(false);
@@ -233,6 +216,7 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
       >
         <Text style={styles.cancelBtnText}>Back to Details</Text>
       </TouchableOpacity>
+      <ToastContainer toastQueue={toastQueue} onDismiss={dismissToast} />
     </View>
   );
 }

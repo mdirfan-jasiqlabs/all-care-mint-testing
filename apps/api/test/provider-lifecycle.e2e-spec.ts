@@ -18,12 +18,12 @@ import { RolesGuard } from '../src/modules/auth/guards/roles.guard';
 describe('Provider Booking Lifecycle (e2e)', () => {
   let app: INestApplication<App>;
   let prisma: PrismaService;
-  let provider1Id = '4f1ea001-c812-42ea-a417-000000000001';
-  let provider2Id = '4f1ea001-c812-42ea-a417-000000000002';
-  let customerId = '7b6f380c-7b1f-4fbf-93f5-000000000001';
-  let addressId = '2a3c7e3f-6789-411a-88cb-000000000001';
-  let timeSlotId = '9b6f380c-7b1f-4fbf-93f5-000000000001';
-  let serviceId = '0c7b380c-7b1f-4fbf-93f5-000000000001';
+  const provider1Id = '4f1ea001-c812-42ea-a417-000000000001';
+  const provider2Id = '4f1ea001-c812-42ea-a417-000000000002';
+  const customerId = '7b6f380c-7b1f-4fbf-93f5-000000000001';
+  const addressId = '2a3c7e3f-6789-411a-88cb-000000000001';
+  const timeSlotId = '9b6f380c-7b1f-4fbf-93f5-000000000001';
+  const serviceId = '0c7b380c-7b1f-4fbf-93f5-000000000001';
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -59,7 +59,7 @@ describe('Provider Booking Lifecycle (e2e)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    
+
     // Inject mock user middleware
     app.use((req: any, res: any, next: any) => {
       const authHeader = req.headers.authorization;
@@ -97,7 +97,7 @@ describe('Provider Booking Lifecycle (e2e)', () => {
     let catId = categories[0]?.id;
     if (!catId) {
       const newCat = await prisma.serviceCategory.create({
-        data: { name: 'Lifecycle Cat', displayOrder: 1 }
+        data: { name: 'Lifecycle Cat', displayOrder: 1 },
       });
       catId = newCat.id;
     }
@@ -121,12 +121,16 @@ describe('Provider Booking Lifecycle (e2e)', () => {
   });
 
   describe('PATCH /api/v1/providers/me/bookings/:id/status & accept/reject', () => {
-    let bookingId = '8f3ca001-c812-42ea-a417-000000000001';
+    const bookingId = '8f3ca001-c812-42ea-a417-000000000001';
 
     beforeEach(async () => {
       // Clean up previous booking
-      await prisma.$executeRawUnsafe(`DELETE FROM booking_status_history WHERE booking_id = '${bookingId}'`);
-      await prisma.$executeRawUnsafe(`DELETE FROM bookings WHERE id = '${bookingId}'`);
+      await prisma.$executeRawUnsafe(
+        `DELETE FROM booking_status_history WHERE booking_id = '${bookingId}'`,
+      );
+      await prisma.$executeRawUnsafe(
+        `DELETE FROM bookings WHERE id = '${bookingId}'`,
+      );
 
       // Create booking in ASSIGNED state for provider 1
       await prisma.booking.create({
@@ -137,14 +141,14 @@ describe('Provider Booking Lifecycle (e2e)', () => {
           providerId: provider1Id,
           serviceId,
           serviceNameSnapshot: 'Lifecycle Service',
-          servicePriceSnapshot: 500.00,
+          servicePriceSnapshot: 500.0,
           addressSnapshot: { label: 'Test' },
           slotDate: new Date(),
           slotLabelSnapshot: '09:00 AM - 10:00 AM',
           paymentMethod: 'CASH_ON_SERVICE',
           status: BookingStatusEnum.ASSIGNED,
           idempotencyKey: '00000000-0000-0000-0000-000000000001',
-        }
+        },
       });
     });
 
@@ -158,11 +162,15 @@ describe('Provider Booking Lifecycle (e2e)', () => {
       expect(res.body.data.status).toBe(BookingStatusEnum.ACCEPTED);
 
       // Verify DB status
-      const dbBooking = await prisma.booking.findUnique({ where: { id: bookingId } });
+      const dbBooking = await prisma.booking.findUnique({
+        where: { id: bookingId },
+      });
       expect(dbBooking?.status).toBe(BookingStatusEnum.ACCEPTED);
 
       // Verify Status History count is 1
-      const history = await prisma.bookingStatusHistory.findMany({ where: { bookingId } });
+      const history = await prisma.bookingStatusHistory.findMany({
+        where: { bookingId },
+      });
       expect(history.length).toBe(1);
       expect(history[0].status).toBe(BookingStatusEnum.ACCEPTED);
     });

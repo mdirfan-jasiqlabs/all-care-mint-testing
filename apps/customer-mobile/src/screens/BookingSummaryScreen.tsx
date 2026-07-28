@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import * as storage from '../utils/storage';
 import { getBaseUrl } from '../utils/api';
+import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
 
 const generateUUID = (): string => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -29,6 +30,15 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
   const { serviceId, addressId: initialAddressId, slotId: initialSlotId, date: initialDate } = route.params || {};
   const token = storage.getAccessToken() || '';
   const baseUrl = getBaseUrl();
+
+  // Toast Queue state
+  const [toastQueue, setToastQueue] = useState<ToastItem[]>([]);
+  const showToast = (message: string, type: ToastType = 'success') => {
+    setToastQueue((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, message, type }]);
+  };
+  const dismissToast = (id: string) => {
+    setToastQueue((prev) => prev.filter((t) => t.id !== id));
+  };
 
   // Data states
   const [service, setService] = useState<any>(null);
@@ -191,8 +201,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
       }
     } catch (err: any) {
       const msg = err.message || 'Slot no longer available.';
-      if (Platform.OS === 'web') alert(msg);
-      else Alert.alert('Slot Unavailable', msg);
+      showToast(msg, 'warning');
       fetchSlotsForDate(selectedDate);
     } finally {
       setLockingSlot(false);
@@ -288,8 +297,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
       });
     } catch (err: any) {
       const msg = err.message || 'Checkout failed.';
-      if (Platform.OS === 'web') alert(`Checkout Failure: ${msg}`);
-      else Alert.alert('Checkout Failure', msg);
+      showToast(`Checkout Failure: ${msg}`, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -623,6 +631,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
           </View>
         </Modal>
       )}
+      <ToastContainer toastQueue={toastQueue} onDismiss={dismissToast} />
     </View>
   );
 }

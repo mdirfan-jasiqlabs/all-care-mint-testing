@@ -1,11 +1,7 @@
 // ─── MOD-002 Slot Lock Expiry Background Service ───
 // Source: DLD Section 7.2 & 15.1 — Deletes expired locks every 2 minutes
 
-import {
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { IBookingRepository } from '../ports/booking.repository.port';
 import { PrismaService } from '../../../prisma/prisma.service';
 import Redis from 'ioredis';

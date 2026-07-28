@@ -36,8 +36,11 @@ export class AdminBookingController {
   }
 
   @Get('providers')
-  async listApprovedProviders(@Query('service_category_id') serviceCategoryId?: string) {
-    const data = await this.bookingService.getApprovedProviders(serviceCategoryId);
+  async listApprovedProviders(
+    @Query('service_category_id') serviceCategoryId?: string,
+  ) {
+    const data =
+      await this.bookingService.getApprovedProviders(serviceCategoryId);
     return { success: true, data };
   }
 
@@ -61,12 +64,10 @@ export class AdminBookingController {
     @Param('id') id: string,
     @Body() dto: ReassignProviderDto,
   ) {
-    await this.bookingService.assignProvider(
-      id,
+    await this.bookingService.assignProvider(id, dto.providerId, req.user.id);
+    const provider = await this.bookingService.getProviderDetails(
       dto.providerId,
-      req.user.id,
     );
-    const provider = await this.bookingService.getProviderDetails(dto.providerId);
     return {
       status: 'ASSIGNED',
       provider_id: dto.providerId,
@@ -81,12 +82,10 @@ export class AdminBookingController {
     @Param('id') id: string,
     @Body() dto: ReassignProviderDto,
   ) {
-    await this.bookingService.reassignProvider(
-      id,
+    await this.bookingService.reassignProvider(id, dto.providerId, req.user.id);
+    const provider = await this.bookingService.getProviderDetails(
       dto.providerId,
-      req.user.id,
     );
-    const provider = await this.bookingService.getProviderDetails(dto.providerId);
     return {
       status: 'ASSIGNED',
       provider_id: dto.providerId,

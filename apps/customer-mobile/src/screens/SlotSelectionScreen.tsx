@@ -1,6 +1,3 @@
-// ─── apps/customer-mobile/src/screens/SlotSelectionScreen.tsx ───
-// Source: DLD Section 8.1 & 6.2 — Slot Selection Screen
-
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -9,10 +6,10 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import * as storage from '../utils/storage';
 import { getBaseUrl } from '../utils/api';
+import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
 
 export default function SlotSelectionScreen({ navigation, route }: any) {
   const { serviceId, addressId } = route.params;
@@ -24,6 +21,15 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
   const [slots, setSlots] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Toast Queue state
+  const [toastQueue, setToastQueue] = useState<ToastItem[]>([]);
+  const showToast = (message: string, type: ToastType = 'success') => {
+    setToastQueue((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, message, type }]);
+  };
+  const dismissToast = (id: string) => {
+    setToastQueue((prev) => prev.filter((t) => t.id !== id));
+  };
 
   // Generate next 7 days for the date picker slider
   useEffect(() => {
@@ -53,7 +59,7 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
         setSlots(data.data);
       }
     } catch (err) {
-      Alert.alert('Error', 'Failed to load time slots.');
+      showToast('Failed to load time slots.', 'error');
     } finally {
       setLoading(false);
     }
@@ -94,7 +100,7 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
         date: selectedDate,
       });
     } catch (err: any) {
-      Alert.alert('Slot Unavailable', err.message);
+      showToast(err.message || 'Slot Unavailable', 'warning');
       // Reload slots to show updated availability
       fetchSlots(selectedDate);
     } finally {
@@ -179,6 +185,7 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
           }
         />
       )}
+      <ToastContainer toastQueue={toastQueue} onDismiss={dismissToast} />
     </View>
   );
 }

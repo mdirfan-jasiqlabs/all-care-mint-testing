@@ -33,6 +33,8 @@ interface Provider {
   displayName: string;
   mobileNumber: string;
   serviceArea: string;
+  categories?: { id: string; name: string }[];
+  lastActiveAt?: string | null;
 }
 
 interface StatusHistory {
@@ -56,18 +58,47 @@ export default function AdminBookingDetailPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [toast, setToast] = useState<{ message: string; visible: boolean; type: 'success' | 'error' }>({
-    message: '',
-    visible: false,
-    type: 'success',
-  });
+  // Top-Center Notification Queue State
+  interface ToastMessage {
+    id: string;
+    message: string;
+    type: 'success' | 'error' | 'warning' | 'info';
+  }
 
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, visible: true, type });
-    setTimeout(() => {
-      setToast(prev => ({ ...prev, visible: false }));
-    }, 4000);
+  const [toastQueue, setToastQueue] = useState<ToastMessage[]>([]);
+  const [activeToast, setActiveToast] = useState<ToastMessage | null>(null);
+  const [toastExiting, setToastExiting] = useState(false);
+
+  const showToast = (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'success') => {
+    const newItem: ToastMessage = { id: `${Date.now()}-${Math.random()}`, message, type };
+    setToastQueue((prev) => [...prev, newItem]);
   };
+
+  // 1. Process toast queue when no active toast is displayed
+  useEffect(() => {
+    if (!activeToast && toastQueue.length > 0) {
+      const nextToast = toastQueue[0];
+      setToastQueue((prev) => prev.slice(1));
+      setActiveToast(nextToast);
+      setToastExiting(false);
+    }
+  }, [activeToast, toastQueue]);
+
+  // 2. Auto-dismiss active toast after exactly 3 seconds
+  useEffect(() => {
+    if (!activeToast) return;
+
+    const timer = setTimeout(() => {
+      setToastExiting(true);
+      const exitTimer = setTimeout(() => {
+        setActiveToast(null);
+        setToastExiting(false);
+      }, 300);
+      return () => clearTimeout(exitTimer);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [activeToast]);
 
   const fetchData = async () => {
     try {
@@ -125,12 +156,12 @@ export default function AdminBookingDetailPage() {
 
   const handleAssignProvider = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedProvider) return;
+    if (!selectedProvider || submitting) return;
 
+    const method = booking?.status === 'PENDING' ? 'assign' : 'reassign';
     try {
       setSubmitting(true);
       const token = localStorage.getItem('access_token');
-      const method = booking?.status === 'PENDING' ? 'assign' : 'reassign';
       
       const res = await fetch(`http://localhost:3000/api/v1/admin/bookings/${id}/${method}`, {
         method: 'PATCH',
@@ -143,15 +174,21 @@ export default function AdminBookingDetailPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error?.message || `Failed to ${method} provider.`);
+        throw new Error(data.error?.message || data.message || `Failed to ${method} provider.`);
       }
 
       const assignedProv = providers.find(p => p.id === selectedProvider);
       const providerName = assignedProv ? assignedProv.displayName : 'Provider';
       showToast(`Provider ${providerName} assigned. Booking is now ASSIGNED.`, 'success');
-      fetchData();
+
+      try {
+        await fetchData();
+      } catch (refetchErr) {
+        console.error('Failed to refetch details after assignment:', refetchErr);
+        showToast('Provider assigned, but page refresh failed.', 'warning');
+      }
     } catch (err: any) {
-      showToast(err.message, 'error');
+      showToast(err.message || `Failed to ${method} provider.`, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -393,16 +430,19 @@ export default function AdminBookingDetailPage() {
                     <select
                       value={selectedProvider}
                       onChange={(e) => setSelectedProvider(e.target.value)}
+                      disabled={submitting || loading}
                       style={{
                         width: '100%',
                         height: '48px',
-                        background: 'var(--input-bg)',
-                        border: '1px solid var(--input-border)',
+                        background: '#0f172a',
+                        border: '1px solid #1e293b',
                         borderRadius: '12px',
                         padding: '0 16px',
                         color: '#fff',
                         outline: 'none',
                         fontSize: '15px',
+                        opacity: (submitting || loading) ? 0.6 : 1,
+                        cursor: (submitting || loading) ? 'not-allowed' : 'pointer',
                       }}
                       required
                     >
@@ -445,10 +485,23 @@ export default function AdminBookingDetailPage() {
                     type="submit"
                     className="btn-primary"
                     disabled={submitting || !selectedProvider}
-                    style={{ marginBottom: '16px' }}
+                    style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                   >
                     {submitting ? (
-                      <span className="spinner" />
+                      <>
+                        <span
+                          style={{
+                            width: '14px',
+                            height: '14px',
+                            border: '2px solid rgba(0,0,0,0.3)',
+                            borderTop: '2px solid #000',
+                            borderRadius: '50%',
+                            animation: 'spin 0.8s linear infinite',
+                            display: 'inline-block',
+                          }}
+                        />
+                        <span>Assigning...</span>
+                      </>
                     ) : booking.status === 'PENDING' ? (
                       'Assign Selected Provider'
                     ) : (
@@ -492,31 +545,58 @@ export default function AdminBookingDetailPage() {
         </div>
       </main>
 
-      {/* Accessible Non-Blocking Toast */}
-      <div
-        id="toast-notification"
-        role="status"
-        aria-live="polite"
-        style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          background: toast.type === 'success' ? '#10b981' : '#ef4444',
-          color: '#fff',
-          padding: '16px 24px',
-          borderRadius: '12px',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-          zIndex: 1000,
-          display: toast.visible ? 'block' : 'none',
-          transform: toast.visible ? 'translateY(0)' : 'translateY(100px)',
-          opacity: toast.visible ? 1 : 0,
-          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-          pointerEvents: toast.visible ? 'auto' : 'none',
-          fontWeight: 600,
-        }}
-      >
-        {toast.message}
-      </div>
+      {/* Top-Center Accessible Toast Notification Queue */}
+      {activeToast && (
+        <div
+          id="toast-notification"
+          role="status"
+          aria-live="polite"
+          style={{
+            position: 'fixed',
+            top: '24px',
+            left: '50%',
+            transform: toastExiting ? 'translate(-50%, -20px)' : 'translate(-50%, 0)',
+            opacity: toastExiting ? 0 : 1,
+            backgroundColor:
+              activeToast.type === 'success'
+                ? '#064e3b'
+                : activeToast.type === 'warning'
+                ? '#78350f'
+                : activeToast.type === 'info'
+                ? '#1e3a8a'
+                : '#7f1d1d',
+            border: `1px solid ${
+              activeToast.type === 'success'
+                ? '#059669'
+                : activeToast.type === 'warning'
+                ? '#d97706'
+                : activeToast.type === 'info'
+                ? '#2563eb'
+                : '#dc2626'
+            }`,
+            color: '#ffffff',
+            padding: '12px 24px',
+            borderRadius: '12px',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.6)',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontWeight: 600,
+            fontSize: '14px',
+            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            pointerEvents: 'none',
+          }}
+        >
+          <span style={{ fontSize: '16px' }}>
+            {activeToast.type === 'success' && '✓'}
+            {activeToast.type === 'error' && '✕'}
+            {activeToast.type === 'warning' && '⚠️'}
+            {activeToast.type === 'info' && 'ℹ️'}
+          </span>
+          <span>{activeToast.message}</span>
+        </div>
+      )}
     </div>
   );
 }

@@ -28,7 +28,7 @@ jest.mock('ioredis', () => {
 
 // Mock bullmq
 const mockRepeatableJobs = [
-  { key: 'old-job-key-1', name: 'SlotLockExpiryJob' }
+  { key: 'old-job-key-1', name: 'SlotLockExpiryJob' },
 ];
 const mockAdd = jest.fn().mockResolvedValue({ id: 'mock-job-id' });
 const mockRemoveRepeatableByKey = jest.fn().mockResolvedValue(true);
@@ -86,7 +86,9 @@ describe('Booking Slot Lock Expiry (e2e)', () => {
     });
 
     prisma = moduleFixture.get<PrismaService>(PrismaService);
-    expiryService = moduleFixture.get<SlotLockExpiryService>(SlotLockExpiryService);
+    expiryService = moduleFixture.get<SlotLockExpiryService>(
+      SlotLockExpiryService,
+    );
     bookingService = moduleFixture.get<BookingService>(BookingService);
 
     await app.init();
@@ -138,7 +140,7 @@ describe('Booking Slot Lock Expiry (e2e)', () => {
         id: testServiceId,
         categoryId: testCategoryId,
         name: 'Lock Service',
-        fixedPrice: 750.00,
+        fixedPrice: 750.0,
         isActive: true,
       },
     });
@@ -205,7 +207,7 @@ describe('Booking Slot Lock Expiry (e2e)', () => {
   // TC-002-014: Run cleanup with expired lock having booking -> lock preserved
   it('TC-002-014: should NOT delete lock if booking_id is not null (confirmed booking lock)', async () => {
     const expiredDate = new Date(Date.now() - 1000 * 60); // 1 minute ago
-    
+
     // Create test booking
     const booking = await prisma.booking.create({
       data: {
@@ -213,7 +215,7 @@ describe('Booking Slot Lock Expiry (e2e)', () => {
         customerId: testCustomerId,
         serviceId: testServiceId,
         serviceNameSnapshot: 'Lock Service',
-        servicePriceSnapshot: 750.00,
+        servicePriceSnapshot: 750.0,
         addressSnapshot: { label: 'Home', addressLine1: '456 Test Road' },
         slotDate: new Date('2026-08-02'),
         slotId: testSlotId,
@@ -340,7 +342,9 @@ describe('Booking Slot Lock Expiry (e2e)', () => {
     });
 
     // Mock prisma.$transaction to throw error
-    const spyTransaction = jest.spyOn(prisma, '$transaction').mockRejectedValueOnce(new Error('Simulated DB Error'));
+    const spyTransaction = jest
+      .spyOn(prisma, '$transaction')
+      .mockRejectedValueOnce(new Error('Simulated DB Error'));
 
     await expiryService.runCleanup();
 

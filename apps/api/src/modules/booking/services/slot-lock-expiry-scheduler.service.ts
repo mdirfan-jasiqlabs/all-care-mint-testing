@@ -42,7 +42,9 @@ export class SlotLockExpirySchedulerService implements OnApplicationBootstrap {
           removeOnFail: true,
         },
       );
-      this.logger.log('📅 Repeatable job SlotLockExpiryJob scheduled to run every 2 minutes.');
+      this.logger.log(
+        '📅 Repeatable job SlotLockExpiryJob scheduled to run every 2 minutes.',
+      );
     } catch (err) {
       this.logger.warn(`Could not setup repeatable job: ${err.message}`);
     }

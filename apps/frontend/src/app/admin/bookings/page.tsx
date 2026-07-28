@@ -181,9 +181,51 @@ export default function AdminBookingsPage() {
     setDrawerBooking(null);
   };
 
+  // Top-Center Notification Queue State (Wireframe SCR-MOD-002-WEB-001)
+  interface ToastMessage {
+    id: string;
+    message: string;
+    type: 'success' | 'error' | 'warning' | 'info';
+  }
+
+  const [toastQueue, setToastQueue] = useState<ToastMessage[]>([]);
+  const [activeToast, setActiveToast] = useState<ToastMessage | null>(null);
+  const [toastExiting, setToastExiting] = useState(false);
+
+  const showToast = (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'success') => {
+    const newItem: ToastMessage = { id: `${Date.now()}-${Math.random()}`, message, type };
+    setToastQueue((prev) => [...prev, newItem]);
+  };
+
+  // 1. Process toast queue when no active toast is displayed
+  useEffect(() => {
+    if (!activeToast && toastQueue.length > 0) {
+      const nextToast = toastQueue[0];
+      setToastQueue((prev) => prev.slice(1));
+      setActiveToast(nextToast);
+      setToastExiting(false);
+    }
+  }, [activeToast, toastQueue]);
+
+  // 2. Auto-dismiss active toast after exactly 3 seconds
+  useEffect(() => {
+    if (!activeToast) return;
+
+    const timer = setTimeout(() => {
+      setToastExiting(true);
+      const exitTimer = setTimeout(() => {
+        setActiveToast(null);
+        setToastExiting(false);
+      }, 300);
+      return () => clearTimeout(exitTimer);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [activeToast]);
+
   // Provider Assignment in Drawer
   const handleAssignProvider = async () => {
-    if (!selectedProviderId || !drawerBooking) return;
+    if (!selectedProviderId || !drawerBooking || actionSubmitting) return;
 
     try {
       setActionSubmitting(true);
@@ -200,15 +242,23 @@ export default function AdminBookingsPage() {
       });
 
       const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error?.message || `Failed to ${method} provider.`);
+      if (!res.ok) {
+        throw new Error(data.error?.message || data.message || `Failed to ${method} provider.`);
       }
 
-      alert('Provider assigned successfully!');
-      fetchBookings();
-      openBookingDrawer(drawerBooking);
+      showToast('Provider assigned successfully!', 'success');
+
+      // Separate refetch logic so secondary refetch failures don't trigger assignment failure
+      try {
+        await fetchBookings();
+        const updatedBooking = { ...drawerBooking, status: 'ASSIGNED', providerId: selectedProviderId };
+        await openBookingDrawer(updatedBooking);
+      } catch (refetchErr) {
+        console.error('Failed to refetch after provider assignment:', refetchErr);
+        showToast('Provider assigned successfully, but table refetch failed.', 'warning');
+      }
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message || 'Failed to assign provider.', 'error');
     } finally {
       setActionSubmitting(false);
     }
@@ -216,9 +266,9 @@ export default function AdminBookingsPage() {
 
   // Cancel Booking in Drawer
   const handleCancelBookingInDrawer = async () => {
-    if (!drawerBooking) return;
+    if (!drawerBooking || actionSubmitting) return;
     if (drawerBooking.status === 'ACCEPTED') {
-      alert('Cannot cancel accepted booking (BR-002-001 restriction).');
+      showToast('Cannot cancel accepted booking (BR-002-001 restriction).', 'error');
       return;
     }
     if (!confirm('Are you sure you want to cancel this booking?')) return;
@@ -237,14 +287,18 @@ export default function AdminBookingsPage() {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error?.message || 'Failed to cancel booking.');
+        throw new Error(data.error?.message || data.message || 'Failed to cancel booking.');
       }
 
-      alert('Booking cancelled successfully.');
-      fetchBookings();
+      showToast('Booking cancelled successfully.', 'success');
+      try {
+        await fetchBookings();
+      } catch (e) {
+        console.error('Refetch bookings failed:', e);
+      }
       closeDrawer();
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message || 'Failed to cancel booking.', 'error');
     } finally {
       setActionSubmitting(false);
     }
@@ -631,9 +685,21 @@ export default function AdminBookingsPage() {
                     </h3>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <select
+                        disabled={actionSubmitting || drawerLoading}
                         value={selectedProviderId}
                         onChange={(e) => setSelectedProviderId(e.target.value)}
-                        style={{ flex: 1, backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', padding: '8px', color: '#ffffff', fontSize: '12px', outline: 'none' }}
+                        style={{
+                          flex: 1,
+                          backgroundColor: '#0f172a',
+                          border: '1px solid #1e293b',
+                          borderRadius: '8px',
+                          padding: '8px',
+                          color: '#ffffff',
+                          fontSize: '12px',
+                          outline: 'none',
+                          opacity: (actionSubmitting || drawerLoading) ? 0.6 : 1,
+                          cursor: (actionSubmitting || drawerLoading) ? 'not-allowed' : 'pointer',
+                        }}
                       >
                         {drawerProviders.map((p) => (
                           <option key={p.id} value={p.id}>
@@ -642,11 +708,41 @@ export default function AdminBookingsPage() {
                         ))}
                       </select>
                       <button
-                        disabled={actionSubmitting}
+                        disabled={actionSubmitting || drawerLoading}
                         onClick={handleAssignProvider}
-                        style={{ backgroundColor: '#10b981', border: 'none', borderRadius: '8px', color: '#020617', fontWeight: 700, padding: '8px 14px', fontSize: '12px', cursor: 'pointer' }}
+                        style={{
+                          backgroundColor: '#10b981',
+                          border: 'none',
+                          borderRadius: '8px',
+                          color: '#020617',
+                          fontWeight: 700,
+                          padding: '8px 14px',
+                          fontSize: '12px',
+                          cursor: (actionSubmitting || drawerLoading) ? 'not-allowed' : 'pointer',
+                          opacity: (actionSubmitting || drawerLoading) ? 0.7 : 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                        }}
                       >
-                        Assign
+                        {actionSubmitting ? (
+                          <>
+                            <span
+                              style={{
+                                width: '12px',
+                                height: '12px',
+                                border: '2px solid rgba(2, 6, 23, 0.3)',
+                                borderTop: '2px solid #020617',
+                                borderRadius: '50%',
+                                animation: 'spin 0.8s linear infinite',
+                                display: 'inline-block',
+                              }}
+                            />
+                            <span>Assigning...</span>
+                          </>
+                        ) : (
+                          'Assign'
+                        )}
                       </button>
                     </div>
                   </div>
@@ -707,7 +803,59 @@ export default function AdminBookingsPage() {
           </aside>
         )}
 
-      </div>
+      {/* Top-Center Accessible Toast Notification Queue */}
+      {activeToast && (
+        <div
+          id="toast-notification"
+          role="status"
+          aria-live="polite"
+          style={{
+            position: 'fixed',
+            top: '24px',
+            left: '50%',
+            transform: toastExiting ? 'translate(-50%, -20px)' : 'translate(-50%, 0)',
+            opacity: toastExiting ? 0 : 1,
+            backgroundColor:
+              activeToast.type === 'success'
+                ? '#064e3b'
+                : activeToast.type === 'warning'
+                ? '#78350f'
+                : activeToast.type === 'info'
+                ? '#1e3a8a'
+                : '#7f1d1d',
+            border: `1px solid ${
+              activeToast.type === 'success'
+                ? '#059669'
+                : activeToast.type === 'warning'
+                ? '#d97706'
+                : activeToast.type === 'info'
+                ? '#2563eb'
+                : '#dc2626'
+            }`,
+            color: '#ffffff',
+            padding: '12px 24px',
+            borderRadius: '12px',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.6)',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontWeight: 600,
+            fontSize: '14px',
+            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            pointerEvents: 'none',
+          }}
+        >
+          <span style={{ fontSize: '16px' }}>
+            {activeToast.type === 'success' && '✓'}
+            {activeToast.type === 'error' && '✕'}
+            {activeToast.type === 'warning' && '⚠️'}
+            {activeToast.type === 'info' && 'ℹ️'}
+          </span>
+          <span>{activeToast.message}</span>
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
 }

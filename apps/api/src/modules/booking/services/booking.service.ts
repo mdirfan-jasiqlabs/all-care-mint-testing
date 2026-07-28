@@ -730,9 +730,14 @@ export class BookingService implements OnApplicationShutdown {
 
     if (targetStatus === BookingStatusEnum.COMPLETED) {
       try {
-        await this.notificationService.sendCompletedNotification(updatedBooking);
+        await this.notificationService.sendCompletedNotification(
+          updatedBooking,
+        );
       } catch (err) {
-        console.error(`[Notification Error] Failed to dispatch COMPLETED notification for booking ${bookingId}:`, err);
+        console.error(
+          `[Notification Error] Failed to dispatch COMPLETED notification for booking ${bookingId}:`,
+          err,
+        );
       }
     }
 
@@ -775,7 +780,6 @@ export class BookingService implements OnApplicationShutdown {
 
   // ─── Private Helpers ───
   // ... rest of private helpers
-
 
   // ─── Private Helpers ───
 
