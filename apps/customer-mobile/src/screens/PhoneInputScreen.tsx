@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/root.types';
+import { getBaseUrl } from '../utils/api';
 
 type PhoneInputScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -27,7 +28,7 @@ export default function PhoneInputScreen({ navigation }: Props) {
   const [error, setError] = useState('');
   const [isOffline, setIsOffline] = useState(false); // Can be connected to NetInfo
 
-  const handleSendCode = () => {
+  const handleSendCode = async () => {
     setError('');
 
     // Validation: 10-digit check
@@ -39,14 +40,34 @@ export default function PhoneInputScreen({ navigation }: Props) {
 
     setLoading(true);
 
-    // Simulate OTP dispatch
-    setTimeout(() => {
+    try {
+      const baseUrl = getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/v1/auth/otp/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mobileNumber: `${countryCode}${cleanNum}`,
+          role: 'CUSTOMER',
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.error?.message || 'Unable to send OTP. Please try again.');
+      }
+
       setLoading(false);
       navigation.navigate('OtpVerify', {
         mobileNumber: `${countryCode}${cleanNum}`,
       });
-    }, 1000);
+    } catch (err: any) {
+      setLoading(false);
+      setError(err.message || 'Unable to send OTP. Check internet connection.');
+    }
   };
+
 
   return (
     <SafeAreaView style={styles.safeArea}>

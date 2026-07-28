@@ -44,10 +44,19 @@ describe('AuthController', () => {
 
   beforeEach(async () => {
     const mockAuthSvc = {
+      sendOtp: jest.fn().mockResolvedValue({
+        success: true,
+        data: { message: 'OTP sent' },
+      }),
+      verifyOtp: jest.fn().mockResolvedValue({
+        success: true,
+        data: { accessToken: 'access-123', refreshToken: 'refresh-123' },
+      }),
       verifyFirebaseToken: jest.fn().mockResolvedValue(mockTokens),
       verifyAdminCredentials: jest.fn().mockResolvedValue(mockTokens),
       getUserContext: jest.fn(),
     };
+
 
     const mockTokenSvc = {
       rotateRefreshTokens: jest.fn().mockResolvedValue(mockTokens),

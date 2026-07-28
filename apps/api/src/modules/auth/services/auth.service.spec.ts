@@ -47,6 +47,7 @@ describe('AuthService', () => {
       findCustomerByMobile: jest.fn(),
       createCustomer: jest.fn(),
       findProviderByMobile: jest.fn(),
+      createProvider: jest.fn(),
       findAdminByEmail: jest.fn(),
       findAdminById: jest.fn(),
       findCustomerById: jest.fn(),
@@ -54,6 +55,11 @@ describe('AuthService', () => {
       incrementAdminFailedAttempts: jest.fn(),
       lockAdminAccount: jest.fn(),
       resetAdminFailedAttempts: jest.fn(),
+      createOtpAttempt: jest.fn(),
+      findLatestOtpAttempt: jest.fn(),
+      markOtpAttemptUsed: jest.fn(),
+      incrementOtpFailedAttempts: jest.fn(),
+      countRecentOtpAttempts: jest.fn().mockResolvedValue(0),
     };
 
     const mockTokenSvc = {
@@ -74,6 +80,92 @@ describe('AuthService', () => {
     authRepository = module.get(PrismaAuthRepository);
     tokenService = module.get(TokenService);
   });
+
+  describe('sendOtp and verifyOtp (US-000-001)', () => {
+    it('sendOtp should create an OTP attempt record and return success message', async () => {
+      authRepository.findLatestOtpAttempt.mockResolvedValue(null);
+      authRepository.createOtpAttempt.mockResolvedValue({ id: 'otp-1' });
+
+      const res = await authService.sendOtp({
+        mobileNumber: '9876543210',
+        role: 'CUSTOMER',
+      });
+
+      expect(res.success).toBe(true);
+      expect(res.data.message).toBe('OTP sent');
+      expect(authRepository.createOtpAttempt).toHaveBeenCalledWith(
+        '+919876543210',
+        'CUSTOMER',
+        expect.any(String),
+        expect.any(Date),
+      );
+    });
+
+    it('sendOtp should enforce 60s cooldown limit', async () => {
+      authRepository.findLatestOtpAttempt.mockResolvedValue({
+        id: 'otp-1',
+        createdAt: new Date(),
+      });
+
+      await expect(
+        authService.sendOtp({ mobileNumber: '9876543210', role: 'CUSTOMER' }),
+      ).rejects.toThrow();
+    });
+
+    it('verifyOtp should verify correct OTP and return tokens', async () => {
+      const mockCode = '123456';
+      const otpHash = await bcrypt.hash(mockCode, 10);
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+      authRepository.findLatestOtpAttempt.mockResolvedValue({
+        id: 'otp-1',
+        otpHash,
+        expiresAt,
+        usedAt: null,
+        failedAttempts: 0,
+      });
+
+      authRepository.findCustomerByMobile.mockResolvedValue({
+        id: 'cust-1',
+        mobileNumber: '+919876543210',
+        isSuspended: false,
+      });
+
+      const res = await authService.verifyOtp({
+        mobileNumber: '9876543210',
+        otp: '123456',
+        role: 'CUSTOMER',
+      });
+
+      expect(res.success).toBe(true);
+      expect(res.data.accessToken).toBe('mock-access-token');
+      expect(authRepository.markOtpAttemptUsed).toHaveBeenCalledWith('otp-1');
+    });
+
+    it('verifyOtp should reject invalid OTP and increment failed attempts', async () => {
+      const otpHash = await bcrypt.hash('123456', 10);
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+      authRepository.findLatestOtpAttempt.mockResolvedValue({
+        id: 'otp-1',
+        otpHash,
+        expiresAt,
+        usedAt: null,
+        failedAttempts: 0,
+      });
+
+      await expect(
+        authService.verifyOtp({
+          mobileNumber: '9876543210',
+          otp: '999999',
+          role: 'CUSTOMER',
+        }),
+      ).rejects.toThrow();
+
+      expect(authRepository.incrementOtpFailedAttempts).toHaveBeenCalledWith('otp-1');
+    });
+  });
+
 
   describe('verifyFirebaseToken (TC-UNIT-000-001)', () => {
     it('should verify customer mock token and return token pair', async () => {

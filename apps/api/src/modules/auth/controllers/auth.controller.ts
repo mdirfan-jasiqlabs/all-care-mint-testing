@@ -14,6 +14,9 @@ import { PrismaAuthRepository } from '../adapters/prisma-auth.repository';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { VerifyFirebaseTokenDto } from '../dto/verify-firebase-token.dto';
 import { AdminLoginDto } from '../dto/admin-login.dto';
+import { SendOtpDto } from '../dto/send-otp.dto';
+import { VerifyOtpDto } from '../dto/verify-otp.dto';
+import { RefreshTokenRequestDto } from '../dto/refresh-token-request.dto';
 
 @Controller('api/v1/auth')
 export class AuthController {
@@ -22,6 +25,37 @@ export class AuthController {
     private readonly tokenService: TokenService,
     private readonly authRepository: PrismaAuthRepository,
   ) {}
+
+  @Post('otp/send')
+  @HttpCode(200)
+  async sendOtp(@Body() dto: SendOtpDto) {
+    return this.authService.sendOtp(dto);
+  }
+
+  @Post('otp/verify')
+  @HttpCode(200)
+  async verifyOtp(@Body() dto: VerifyOtpDto) {
+    return this.authService.verifyOtp(dto);
+  }
+
+  @Post('token/refresh')
+  @HttpCode(200)
+  async refreshToken(
+    @Body() body: { refreshToken?: string; refresh_token?: string },
+  ) {
+    const tokenStr = body.refreshToken || body.refresh_token || '';
+    const tokens = await this.tokenService.rotateRefreshTokens(tokenStr);
+    return {
+      success: true,
+      data: tokens,
+      meta: {
+        requestId: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+      },
+    };
+  }
+
+
 
   @Post('customer/verify-otp')
   @HttpCode(200)

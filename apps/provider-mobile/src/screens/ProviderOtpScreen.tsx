@@ -30,7 +30,7 @@ export default function ProviderOtpScreen({ navigation, route }: Props) {
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [cooldown, setCooldown] = useState(30);
+  const [cooldown, setCooldown] = useState(60);
 
   useEffect(() => {
     if (cooldown > 0) {
@@ -49,15 +49,17 @@ export default function ProviderOtpScreen({ navigation, route }: Props) {
     setLoading(true);
 
     try {
-      const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : (Platform.OS === 'web' ? 'http://localhost:3000' : 'http://localhost:3000');
-      const firebaseToken = `mock-token-provider-${otp}`;
-      
-      const response = await fetch(`${baseUrl}/api/v1/auth/provider/verify-otp`, {
+      const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}/api/v1/auth/otp/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ firebaseToken, role: 'PROVIDER' }),
+        body: JSON.stringify({
+          mobileNumber,
+          otp,
+          role: 'PROVIDER',
+        }),
       });
 
       const result = await response.json();
@@ -67,22 +69,45 @@ export default function ProviderOtpScreen({ navigation, route }: Props) {
       }
 
       // Save tokens
-      const { accessToken, refreshToken } = result.data;
-      storage.setAccessToken(accessToken);
-      await storage.setRefreshToken(refreshToken);
+      const { accessToken, refreshToken, access_token, refresh_token } = result.data;
+      const finalAccess = accessToken || access_token;
+      const finalRefresh = refreshToken || refresh_token;
+
+      if (finalAccess) storage.setAccessToken(finalAccess);
+      if (finalRefresh) await storage.setRefreshToken(finalRefresh);
 
       setLoading(false);
       navigation.replace('ProviderDashboard');
     } catch (err: any) {
       setLoading(false);
-      setError(err.message || 'SMS verification server error. Please try again.');
+      setError(err.message || 'Verification server error. Please try again.');
     }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (cooldown > 0) return;
-    setCooldown(30);
+    try {
+      const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}/api/v1/auth/otp/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mobileNumber,
+          role: 'PROVIDER',
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.error?.message || 'Unable to resend OTP.');
+      }
+      setCooldown(60);
+    } catch (err: any) {
+      setError(err.message || 'Resend failed. Please try again.');
+    }
   };
+
 
   return (
     <SafeAreaView style={styles.safeArea}>

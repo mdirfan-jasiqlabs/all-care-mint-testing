@@ -155,4 +155,84 @@ export class PrismaAuthRepository implements IAuthRepository {
       },
     });
   }
+
+  async createProvider(mobileNumber: string, displayName?: string): Promise<any> {
+    return this.prisma.provider.create({
+      data: {
+        mobileNumber,
+        displayName: displayName || `Provider-${mobileNumber.slice(-4)}`,
+        serviceArea: 'Default Area',
+        status: 'APPROVED',
+      },
+    });
+  }
+
+  async createOtpAttempt(
+    mobileNumber: string,
+    role: string,
+    otpHash: string,
+    expiresAt: Date,
+  ): Promise<any> {
+    return this.prisma.otpAttempt.create({
+      data: {
+        mobileNumber,
+        role,
+        otpHash,
+        expiresAt,
+      },
+    });
+  }
+
+  async findLatestOtpAttempt(mobileNumber: string, role: string): Promise<any> {
+    return this.prisma.otpAttempt.findFirst({
+      where: {
+        mobileNumber,
+        role,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async markOtpAttemptUsed(id: string): Promise<void> {
+    await this.prisma.otpAttempt.update({
+      where: { id },
+      data: {
+        usedAt: new Date(),
+      },
+    });
+  }
+
+  async incrementOtpFailedAttempts(id: string): Promise<number> {
+    const res = await this.prisma.otpAttempt.update({
+      where: { id },
+      data: {
+        failedAttempts: {
+          increment: 1,
+        },
+      },
+      select: {
+        failedAttempts: true,
+      },
+    });
+    return res.failedAttempts;
+  }
+
+  async countRecentOtpAttempts(
+    mobileNumber: string,
+    role: string,
+    since: Date,
+  ): Promise<number> {
+    return this.prisma.otpAttempt.count({
+      where: {
+        mobileNumber,
+        role,
+        createdAt: {
+          gte: since,
+        },
+      },
+    });
+  }
 }
+

@@ -2,6 +2,9 @@ import {
   Injectable,
   UnauthorizedException,
   ForbiddenException,
+  BadRequestException,
+  ServiceUnavailableException,
+  Logger,
 } from '@nestjs/common';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
@@ -12,7 +15,10 @@ import { JwtTokenPair, UserContext } from '@all-care-mint/common';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
+
     private readonly authRepository: PrismaAuthRepository,
     private readonly tokenService: TokenService,
   ) {
@@ -213,4 +219,248 @@ export class AuthService {
       };
     }
   }
+
+  async sendOtp(dto: {
+    mobileNumber?: string;
+    mobile_number?: string;
+    role?: 'CUSTOMER' | 'PROVIDER';
+  }) {
+    if (process.env.FF_OTP_AUTH_ENABLED === 'false') {
+      throw new ServiceUnavailableException({
+        success: false,
+        error: {
+          code: 'ERR_SERVICE_UNAVAILABLE',
+          message: 'Authentication temporarily unavailable.',
+        },
+      });
+    }
+
+    const rawMobile = dto.mobileNumber || dto.mobile_number || '';
+    const digits = rawMobile.replace(/\D/g, '');
+    const cleanNum = digits.length > 10 ? digits.slice(-10) : digits;
+    if (!cleanNum || cleanNum.length < 10) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'ERR_INVALID_MOBILE',
+          message: 'Please enter a valid 10-digit mobile number.',
+        },
+      });
+    }
+    const mobileNumber = `+91${cleanNum}`;
+    const role = (dto.role || 'CUSTOMER').toUpperCase() as 'CUSTOMER' | 'PROVIDER';
+
+    // Cooldown check (60s)
+    const latestAttempt = await this.authRepository.findLatestOtpAttempt(
+      mobileNumber,
+      role,
+    );
+    if (latestAttempt) {
+      const secondsSinceLast =
+        (Date.now() - new Date(latestAttempt.createdAt).getTime()) / 1000;
+      if (secondsSinceLast < 60) {
+        throw new BadRequestException({
+          success: false,
+          error: {
+            code: 'ERR_OTP_COOLDOWN',
+            message: 'Please wait 60 seconds before requesting a new OTP.',
+          },
+        });
+      }
+    }
+
+    // Rate limit check (max 3 resends in 10 mins)
+    const tenMinsAgo = new Date(Date.now() - 10 * 60 * 1000);
+    const recentCount = await this.authRepository.countRecentOtpAttempts(
+      mobileNumber,
+      role,
+      tenMinsAgo,
+    );
+    if (recentCount >= 3) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'ERR_OTP_RATE_LIMITED',
+          message: 'Too many OTP requests. Please try again in 10 minutes.',
+        },
+      });
+    }
+
+    const mockCode = process.env.MOCK_OTP_CODE || '123456';
+    const otpHash = await bcrypt.hash(mockCode, 10);
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    await this.authRepository.createOtpAttempt(
+      mobileNumber,
+      role,
+      otpHash,
+      expiresAt,
+    );
+
+    const maskedMobile =
+      mobileNumber.length > 4
+        ? `******${mobileNumber.slice(-4)}`
+        : mobileNumber;
+    this.logger.log(`auth.otp.sent mobile=${maskedMobile} role=${role} ttl=300s`);
+
+    return {
+      success: true,
+      data: {
+        message: 'OTP sent',
+      },
+      meta: {
+        requestId: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+      },
+    };
+  }
+
+  async verifyOtp(dto: {
+    mobileNumber?: string;
+    mobile_number?: string;
+    otp: string;
+    role?: 'CUSTOMER' | 'PROVIDER';
+  }) {
+    if (process.env.FF_OTP_AUTH_ENABLED === 'false') {
+      throw new ServiceUnavailableException({
+        success: false,
+        error: {
+          code: 'ERR_SERVICE_UNAVAILABLE',
+          message: 'Authentication temporarily unavailable.',
+        },
+      });
+    }
+
+    const rawMobile = dto.mobileNumber || dto.mobile_number || '';
+    const digits = rawMobile.replace(/\D/g, '');
+    const cleanNum = digits.length > 10 ? digits.slice(-10) : digits;
+    const mobileNumber = `+91${cleanNum}`;
+    const role = (dto.role || 'CUSTOMER').toUpperCase() as 'CUSTOMER' | 'PROVIDER';
+    const maskedMobile =
+      mobileNumber.length > 4
+        ? `******${mobileNumber.slice(-4)}`
+        : mobileNumber;
+
+    const attempt = await this.authRepository.findLatestOtpAttempt(
+      mobileNumber,
+      role,
+    );
+
+    if (!attempt || attempt.usedAt || new Date() > new Date(attempt.expiresAt)) {
+      this.logger.warn(
+        `auth.otp.failed mobile=${maskedMobile} role=${role} reason=expired`,
+      );
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'ERR_OTP_EXPIRED',
+          message: 'OTP expired. Please request a new one.',
+        },
+      });
+    }
+
+    if (attempt.failedAttempts >= 5) {
+      this.logger.warn(
+        `auth.otp.failed mobile=${maskedMobile} role=${role} reason=max_attempts_exceeded`,
+      );
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'ERR_OTP_MAX_ATTEMPTS',
+          message:
+            'Maximum invalid OTP attempts exceeded. Please request a new OTP.',
+        },
+      });
+    }
+
+    const isMatch = await bcrypt.compare(dto.otp, attempt.otpHash);
+    if (!isMatch) {
+      const failedCount =
+        await this.authRepository.incrementOtpFailedAttempts(attempt.id);
+      this.logger.warn(
+        `auth.otp.failed mobile=${maskedMobile} role=${role} reason=invalid attempt_count=${failedCount}`,
+      );
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'ERR_INVALID_OTP',
+          message: 'Invalid OTP. Please try again.',
+        },
+      });
+    }
+
+    await this.authRepository.markOtpAttemptUsed(attempt.id);
+
+    let userObj: any;
+    let isNewUser = false;
+
+    if (role === 'CUSTOMER') {
+      let customer = await this.authRepository.findCustomerByMobile(mobileNumber);
+      if (!customer) {
+        customer = await this.authRepository.createCustomer(
+          mobileNumber,
+          `mock-uid-cust-${Date.now()}`,
+        );
+        isNewUser = true;
+      }
+      if (customer.isSuspended) {
+        throw new ForbiddenException({
+          success: false,
+          error: {
+            code: 'ERR_AUTH_CUSTOMER_SUSPENDED',
+            message: 'Your customer account is suspended.',
+          },
+        });
+      }
+      userObj = {
+        id: customer.id,
+        mobileNumber: customer.mobileNumber,
+        mobile_number: customer.mobileNumber,
+        role: 'CUSTOMER',
+      };
+    } else {
+      let provider = await this.authRepository.findProviderByMobile(mobileNumber);
+      if (!provider) {
+        provider = await this.authRepository.createProvider(mobileNumber);
+        isNewUser = true;
+      }
+      if (provider.status === 'REJECTED' || provider.status === 'SUSPENDED') {
+        throw new ForbiddenException({
+          success: false,
+          error: {
+            code: 'ERR_AUTH_PROVIDER_UNAPPROVED',
+            message: `Provider status: ${provider.status}`,
+          },
+        });
+      }
+      userObj = {
+        id: provider.id,
+        mobileNumber: provider.mobileNumber,
+        mobile_number: provider.mobileNumber,
+        role: 'PROVIDER',
+      };
+    }
+
+    const tokens = await this.tokenService.generateTokenPair(userObj.id, role);
+
+    this.logger.log(
+      `auth.otp.verified user_id=${userObj.id} role=${role} is_new_user=${isNewUser}`,
+    );
+
+    return {
+      success: true,
+      data: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        access_token: tokens.accessToken,
+        refresh_token: tokens.refreshToken,
+        user: userObj,
+      },
+      meta: {
+        requestId: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+      },
+    };
+  }
 }
+

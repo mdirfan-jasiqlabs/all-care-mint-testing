@@ -21,5 +21,16 @@ export interface IAuthRepository {
   findRefreshToken(tokenHash: string): Promise<any>;
   revokeToken(tokenId: string, reason: string): Promise<void>;
   revokeTokenFamily(tokenFamilyId: string, reason: string): Promise<void>;
-  updateLastActivity(tokenId: string): Promise<void>;
+  createProvider(mobileNumber: string, displayName?: string): Promise<any>;
+  createOtpAttempt(
+    mobileNumber: string,
+    role: string,
+    otpHash: string,
+    expiresAt: Date,
+  ): Promise<any>;
+  findLatestOtpAttempt(mobileNumber: string, role: string): Promise<any>;
+  markOtpAttemptUsed(id: string): Promise<void>;
+  incrementOtpFailedAttempts(id: string): Promise<number>;
+  countRecentOtpAttempts(mobileNumber: string, role: string, since: Date): Promise<number>;
 }
+

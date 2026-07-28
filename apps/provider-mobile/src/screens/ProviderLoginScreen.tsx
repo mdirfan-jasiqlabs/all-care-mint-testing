@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   SafeAreaView,
+  Platform,
 } from 'react-native';
+
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/root.types';
 
@@ -27,7 +29,7 @@ export default function ProviderLoginScreen({ navigation }: Props) {
   const [error, setError] = useState('');
   const [isOffline, setIsOffline] = useState(false); // Can be connected to NetInfo
 
-  const handleSendCode = () => {
+  const handleSendCode = async () => {
     setError('');
 
     // Validation: 10-digit check
@@ -39,14 +41,34 @@ export default function ProviderLoginScreen({ navigation }: Props) {
 
     setLoading(true);
 
-    // Simulate OTP dispatch
-    setTimeout(() => {
+    try {
+      const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}/api/v1/auth/otp/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mobileNumber: `${countryCode}${cleanNum}`,
+          role: 'PROVIDER',
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.error?.message || 'Unable to send OTP. Please try again.');
+      }
+
       setLoading(false);
       navigation.navigate('ProviderOtp', {
         mobileNumber: `${countryCode}${cleanNum}`,
       });
-    }, 1000);
+    } catch (err: any) {
+      setLoading(false);
+      setError(err.message || 'Unable to send OTP. Check internet connection.');
+    }
   };
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
