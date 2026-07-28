@@ -168,6 +168,18 @@ export class AuthService {
     if (isMatch) {
       // Reset failed attempts upon successful login
       await this.authRepository.resetAdminFailedAttempts(adminUser.id);
+
+      // Check admin account suspension status
+      if (adminUser.isSuspended) {
+        throw new ForbiddenException({
+          success: false,
+          error: {
+            code: 'ERR_AUTH_ADMIN_SUSPENDED',
+            message: 'Your account has been suspended. Contact the platform operator.',
+          },
+        });
+      }
+
       return this.tokenService.generateTokenPair(adminUser.id, 'ADMIN');
     } else {
       // Increment failed attempts and lock if >= 5

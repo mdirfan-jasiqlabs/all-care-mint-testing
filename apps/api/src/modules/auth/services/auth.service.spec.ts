@@ -247,6 +247,7 @@ describe('AuthService', () => {
         passwordHash,
         failedAttempts: 0,
         lockedUntil: null,
+        isSuspended: false,
       });
 
       const result = await authService.verifyAdminCredentials({
@@ -258,6 +259,25 @@ describe('AuthService', () => {
       expect(authRepository.resetAdminFailedAttempts).toHaveBeenCalledWith(
         'admin-1',
       );
+    });
+
+    it('should throw ForbiddenException if admin account is suspended', async () => {
+      const passwordHash = await bcrypt.hash('secret123', 10);
+      authRepository.findAdminByEmail.mockResolvedValue({
+        id: 'admin-1',
+        email: 'admin@allcaremint.com',
+        passwordHash,
+        failedAttempts: 0,
+        lockedUntil: null,
+        isSuspended: true,
+      });
+
+      await expect(
+        authService.verifyAdminCredentials({
+          email: 'admin@allcaremint.com',
+          password: 'secret123',
+        }),
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it('should throw UnauthorizedException on invalid email', async () => {
@@ -279,6 +299,7 @@ describe('AuthService', () => {
         passwordHash,
         failedAttempts: 4,
         lockedUntil: null,
+        isSuspended: false,
       });
 
       authRepository.incrementAdminFailedAttempts.mockResolvedValue(5);

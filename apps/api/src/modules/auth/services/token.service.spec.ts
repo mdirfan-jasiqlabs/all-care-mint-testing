@@ -28,7 +28,7 @@ describe('TokenService', () => {
   });
 
   describe('generateTokenPair', () => {
-    it('should generate valid JWT access token and refresh token', async () => {
+    it('should generate valid JWT access token and refresh token for CUSTOMER', async () => {
       const result = await tokenService.generateTokenPair(
         'user-123',
         'CUSTOMER',
@@ -38,6 +38,17 @@ describe('TokenService', () => {
       expect(result).toHaveProperty('refreshToken');
       expect(result.expiresIn).toBe(900);
       expect(authRepository.saveRefreshToken).toHaveBeenCalled();
+    });
+
+    it('should generate valid JWT access token with 4h expiry for ADMIN', async () => {
+      const result = await tokenService.generateTokenPair(
+        'admin-123',
+        'ADMIN',
+      );
+
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
+      expect(result.expiresIn).toBe(14400); // 4 hours
     });
   });
 

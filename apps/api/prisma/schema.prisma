@@ -20,6 +20,7 @@ model AdminUser {
   passwordHash   String    @map("password_hash") @db.VarChar(255)
   failedAttempts Int       @default(0) @map("failed_attempts")
   lockedUntil    DateTime? @map("locked_until") @db.Timestamptz
+  isSuspended    Boolean   @default(false) @map("is_suspended")
   createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   @@map("admin_users")

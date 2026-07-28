@@ -33,9 +33,13 @@ export class TokenService {
       throw new Error('JWT private key is missing. Failing closed.');
     }
 
+    const isAdmin = role === 'ADMIN';
+    const jwtExpiry = isAdmin ? '4h' : '15m';
+    const expiresInSeconds = isAdmin ? 4 * 60 * 60 : 15 * 60;
+
     const accessToken = jwt.sign(accessPayload, pKey, {
       algorithm: 'RS256',
-      expiresIn: '15m',
+      expiresIn: jwtExpiry,
     });
 
     const rawRefreshToken = crypto.randomBytes(32).toString('hex');
@@ -59,7 +63,7 @@ export class TokenService {
     return {
       accessToken,
       refreshToken: rawRefreshToken,
-      expiresIn: 15 * 60, // 15 minutes
+      expiresIn: expiresInSeconds,
     };
   }
 
