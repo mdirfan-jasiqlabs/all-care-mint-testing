@@ -176,11 +176,14 @@ export default function CustomerProfileScreen({ navigation }: Props) {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.card}>
-          <Text style={styles.title}>My Profile</Text>
+          <View style={styles.headerRow}>
+            <Text style={styles.title}>My Profile</Text>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>CUSTOMER</Text>
+            </View>
+          </View>
 
-          <Text style={styles.sectionHeader}>Account Details:</Text>
-
-          <Text style={styles.label}>Name</Text>
+          <Text style={styles.label}>Display Name</Text>
           <TextInput
             style={[styles.input, error === 'Name cannot be blank' ? styles.inputError : null]}
             placeholder="Enter your display name"
@@ -196,13 +199,18 @@ export default function CustomerProfileScreen({ navigation }: Props) {
             <Text style={styles.errorText}>{error}</Text>
           ) : null}
 
-          <Text style={styles.label}>Mobile Number</Text>
+          <View style={styles.labelRow}>
+            <Text style={styles.label}>Mobile Number</Text>
+            <View style={styles.lockBadge}>
+              <Text style={styles.lockIcon}>🔒</Text>
+              <Text style={styles.lockBadgeText}>LOCKED</Text>
+            </View>
+          </View>
           <View style={styles.readOnlyContainer}>
             <Text style={styles.readOnlyText}>{mobileNumber}</Text>
-            <Text style={styles.lockIcon}>🔒</Text>
           </View>
 
-          <Text style={styles.label}>Created At</Text>
+          <Text style={styles.label}>Account Created</Text>
           <View style={styles.readOnlyContainer}>
             <Text style={styles.readOnlyText}>{createdAt}</Text>
           </View>
@@ -222,7 +230,7 @@ export default function CustomerProfileScreen({ navigation }: Props) {
             disabled={!isDirty || saving}
           >
             {saving ? (
-              <ActivityIndicator color="hsl(210, 40%, 98%)" />
+              <ActivityIndicator color="hsl(224, 71%, 4%)" />
             ) : (
               <Text style={styles.buttonText}>Save Changes</Text>
             )}
@@ -270,23 +278,59 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: 'hsl(210, 40%, 98%)',
-    textAlign: 'center',
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: 'hsl(217, 32%, 15%)',
+    paddingBottom: 12,
     marginBottom: 20,
   },
-  sectionHeader: {
-    fontSize: 15,
-    fontWeight: '600',
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
     color: 'hsl(210, 40%, 98%)',
-    marginBottom: 16,
+  },
+  badge: {
+    backgroundColor: 'hsl(140, 84%, 10%)',
+    borderColor: 'hsl(140, 84%, 30%)',
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+  },
+  badgeText: {
+    color: 'hsl(150, 84%, 40%)',
+    fontSize: 9,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+  },
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
   },
   label: {
     fontSize: 12,
+    fontWeight: '600',
     color: 'hsl(215, 20%, 65%)',
     marginBottom: 6,
+  },
+  lockBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  lockIcon: {
+    fontSize: 10,
+    marginRight: 4,
+  },
+  lockBadgeText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: 'hsl(215, 20%, 50%)',
+    letterSpacing: 0.5,
   },
   input: {
     backgroundColor: 'hsl(217, 32%, 12%)',
@@ -315,11 +359,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   readOnlyText: {
-    color: 'hsl(215, 20%, 45%)',
+    color: 'hsl(215, 20%, 50%)',
     fontSize: 15,
-  },
-  lockIcon: {
-    fontSize: 14,
   },
   errorText: {
     color: 'hsl(350, 84%, 55%)',
@@ -345,22 +386,23 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   buttonText: {
-    color: 'hsl(210, 40%, 98%)',
+    color: 'hsl(224, 71%, 4%)',
     fontSize: 15,
     fontWeight: 'bold',
   },
   signOutButton: {
-    borderColor: 'hsl(350, 84%, 55%)',
+    backgroundColor: 'hsl(224, 71%, 2%)',
+    borderColor: 'hsl(217, 32%, 17%)',
     borderWidth: 1,
-    height: 46,
+    height: 44,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 12,
   },
   signOutButtonText: {
-    color: 'hsl(350, 84%, 55%)',
-    fontSize: 15,
+    color: 'hsl(215, 20%, 65%)',
+    fontSize: 14,
     fontWeight: 'bold',
   },
 });

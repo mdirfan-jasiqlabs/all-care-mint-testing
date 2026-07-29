@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   SafeAreaView,
+  KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 
@@ -69,7 +70,6 @@ export default function ProviderLoginScreen({ navigation }: Props) {
     }
   };
 
-
   return (
     <SafeAreaView style={styles.safeArea}>
       {isOffline && (
@@ -80,11 +80,24 @@ export default function ProviderLoginScreen({ navigation }: Props) {
         </View>
       )}
 
-      <View style={styles.container}>
-        <View style={styles.card}>
-          <Text style={styles.title}>All Care Mint — Provider Partner login</Text>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.container}
+      >
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.navigate('Gateway')}
+        >
+          <Text style={styles.backButtonText}>← Back to Gateway Selection</Text>
+        </TouchableOpacity>
 
-          <Text style={styles.label}>Enter your mobile number</Text>
+        <View style={styles.card}>
+          <Text style={styles.title}>Provider Partner Login</Text>
+          <Text style={styles.subtitle}>
+            Receive 6-digit OTP verification code via secure SMS transaction.
+          </Text>
+
+          <Text style={styles.label}>Mobile Number (India)</Text>
 
           <View style={styles.inputContainer}>
             <TouchableOpacity style={styles.countrySelector}>
@@ -112,13 +125,13 @@ export default function ProviderLoginScreen({ navigation }: Props) {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="hsl(210, 40%, 98%)" />
+              <ActivityIndicator color="hsl(224, 71%, 4%)" />
             ) : (
-              <Text style={styles.buttonText}>Send Verification Code</Text>
+              <Text style={styles.buttonText}>Send Verification Code ➔</Text>
             )}
           </TouchableOpacity>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -143,6 +156,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
   },
+  backButton: {
+    marginBottom: 16,
+    alignSelf: 'flex-start',
+  },
+  backButtonText: {
+    color: 'hsl(215, 20%, 65%)',
+    fontSize: 13,
+    fontWeight: '500',
+  },
   card: {
     backgroundColor: 'hsl(222, 47%, 11%)',
     borderRadius: 16,
@@ -156,14 +178,22 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
     color: 'hsl(210, 40%, 98%)',
     textAlign: 'center',
+    marginBottom: 6,
+  },
+  subtitle: {
+    fontSize: 12,
+    color: 'hsl(215, 20%, 65%)',
+    textAlign: 'center',
     marginBottom: 24,
+    lineHeight: 18,
   },
   label: {
-    fontSize: 14,
+    fontSize: 12,
+    fontWeight: '600',
     color: 'hsl(215, 20%, 65%)',
     marginBottom: 8,
   },
@@ -218,7 +248,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: 'hsl(210, 40%, 98%)',
+    color: 'hsl(224, 71%, 4%)',
     fontSize: 16,
     fontWeight: 'bold',
   },

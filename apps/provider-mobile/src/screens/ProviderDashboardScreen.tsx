@@ -155,7 +155,12 @@ export default function ProviderDashboardScreen({ navigation }: any) {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.title}>Partner Console</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Text style={styles.title}>Partner Console</Text>
+              <View style={styles.roleBadge}>
+                <Text style={styles.roleBadgeText}>PROVIDER PARTNER</Text>
+              </View>
+            </View>
             <Text style={styles.subtitle}>Manage your service jobs and schedule</Text>
           </View>
           <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
@@ -189,7 +194,11 @@ export default function ProviderDashboardScreen({ navigation }: any) {
             renderItem={renderJobItem}
             contentContainerStyle={styles.listContent}
             ListEmptyComponent={
-              <Text style={styles.emptyText}>No jobs found in this section.</Text>
+              <View style={styles.emptyContainer}>
+                <Text style={{ fontSize: 28, marginBottom: 8 }}>📋</Text>
+                <Text style={styles.emptyTitle}>All Jobs Dispatched</Text>
+                <Text style={styles.emptyText}>No pending jobs assigned in this section. Keep app active to receive new bookings.</Text>
+              </View>
             }
           />
         )}
@@ -337,10 +346,35 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginLeft: 8,
   },
+  emptyContainer: {
+    alignItems: 'center',
+    marginTop: 48,
+    paddingHorizontal: 24,
+  },
+  emptyTitle: {
+    color: 'hsl(210, 40%, 98%)',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 6,
+  },
   emptyText: {
     color: '#94a3b8',
     textAlign: 'center',
-    marginTop: 48,
-    fontSize: 14,
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  roleBadge: {
+    backgroundColor: 'hsl(204, 80%, 10%)',
+    borderWidth: 1,
+    borderColor: 'hsl(204, 60%, 20%)',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  roleBadgeText: {
+    color: 'hsl(199, 89%, 60%)',
+    fontSize: 9,
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
 });

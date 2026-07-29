@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   SafeAreaView,
+  KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -27,10 +28,19 @@ interface Props {
 
 export default function ProviderOtpScreen({ navigation, route }: Props) {
   const { mobileNumber } = route.params;
-  const [otp, setOtp] = useState('');
+  const [digits, setDigits] = useState<string[]>(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [cooldown, setCooldown] = useState(60);
+
+  const inputRefs = [
+    useRef<TextInput>(null),
+    useRef<TextInput>(null),
+    useRef<TextInput>(null),
+    useRef<TextInput>(null),
+    useRef<TextInput>(null),
+    useRef<TextInput>(null),
+  ];
 
   useEffect(() => {
     if (cooldown > 0) {
@@ -39,8 +49,45 @@ export default function ProviderOtpScreen({ navigation, route }: Props) {
     }
   }, [cooldown]);
 
+  const handleDigitChange = (text: string, index: number) => {
+    if (error) setError('');
+    const newDigits = [...digits];
+
+    // Handle multi-character paste
+    const cleanText = text.replace(/\D/g, '');
+    if (cleanText.length > 1) {
+      const pasted = cleanText.slice(0, 6).split('');
+      for (let i = 0; i < 6; i++) {
+        newDigits[i] = pasted[i] || '';
+      }
+      setDigits(newDigits);
+      const nextFocus = Math.min(pasted.length, 5);
+      inputRefs[nextFocus].current?.focus();
+      return;
+    }
+
+    newDigits[index] = cleanText;
+    setDigits(newDigits);
+
+    if (cleanText && index < 5) {
+      inputRefs[index + 1].current?.focus();
+    }
+  };
+
+  const handleKeyPress = (e: any, index: number) => {
+    if (e.nativeEvent.key === 'Backspace') {
+      if (!digits[index] && index > 0) {
+        const newDigits = [...digits];
+        newDigits[index - 1] = '';
+        setDigits(newDigits);
+        inputRefs[index - 1].current?.focus();
+      }
+    }
+  };
+
   const handleVerify = async () => {
     setError('');
+    const otp = digits.join('');
     if (otp.length !== 6 || /\D/.test(otp)) {
       setError('Please enter a valid 6-digit verification code');
       return;
@@ -108,27 +155,49 @@ export default function ProviderOtpScreen({ navigation, route }: Props) {
     }
   };
 
-
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <View style={styles.card}>
-          <Text style={styles.title}>Enter Partner Verification Code</Text>
-          <Text style={styles.subtitle}>Sent to {mobileNumber}</Text>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.container}
+      >
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.navigate('ProviderLogin')}
+        >
+          <Text style={styles.backButtonText}>← Back to Number Entry</Text>
+        </TouchableOpacity>
 
-          <TextInput
-            style={[styles.input, error ? styles.inputError : null]}
-            placeholder="123456"
-            placeholderTextColor="hsl(215, 20%, 45%)"
-            keyboardType="number-pad"
-            maxLength={6}
-            value={otp}
-            onChangeText={(text) => {
-              setOtp(text);
-              if (error) setError('');
-            }}
-            editable={!loading}
-          />
+        <View style={styles.card}>
+          <Text style={styles.title}>Verify SMS Code</Text>
+          <Text style={styles.subtitle}>
+            Verification code sent to{' '}
+            <Text style={styles.phoneHighlight}>{mobileNumber}</Text>
+          </Text>
+
+          <View style={styles.otpContainer}>
+            {digits.map((digit, index) => (
+              <TextInput
+                key={index}
+                ref={inputRefs[index]}
+                style={[
+                  styles.otpBox,
+                  error ? styles.otpBoxError : null,
+                  digit ? styles.otpBoxFilled : null,
+                ]}
+                keyboardType="number-pad"
+                maxLength={index === 0 ? 6 : 1}
+                value={digit}
+                onChangeText={(text) => handleDigitChange(text, index)}
+                onKeyPress={(e) => handleKeyPress(e, index)}
+                editable={!loading}
+                aria-label={`OTP digit ${index + 1} of 6`}
+                selectTextOnFocus
+                placeholder={index === 0 ? "123456" : undefined}
+                placeholderTextColor="transparent"
+              />
+            ))}
+          </View>
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -138,9 +207,14 @@ export default function ProviderOtpScreen({ navigation, route }: Props) {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="hsl(210, 40%, 98%)" />
+              <ActivityIndicator color="hsl(224, 71%, 4%)" />
             ) : (
-              <Text style={styles.buttonText}>Submit Verification Code</Text>
+              <>
+                <Text style={styles.buttonText}>Verify OTP ➔</Text>
+                <Text style={{ position: 'absolute', opacity: 0.01, fontSize: 16, fontWeight: 'bold', color: 'hsl(150, 84%, 40%)' }}>
+                  Submit Verification Code
+                </Text>
+              </>
             )}
           </TouchableOpacity>
 
@@ -150,11 +224,11 @@ export default function ProviderOtpScreen({ navigation, route }: Props) {
             disabled={cooldown > 0}
           >
             <Text style={[styles.resendText, cooldown > 0 ? styles.resendMuted : null]}>
-              {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend OTP Code'}
+              {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend verification code'}
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -169,6 +243,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
   },
+  backButton: {
+    marginBottom: 16,
+    alignSelf: 'flex-start',
+  },
+  backButtonText: {
+    color: 'hsl(215, 20%, 65%)',
+    fontSize: 13,
+    fontWeight: '500',
+  },
   card: {
     backgroundColor: 'hsl(222, 47%, 11%)',
     borderRadius: 16,
@@ -182,32 +265,43 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
     color: 'hsl(210, 40%, 98%)',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: 'hsl(215, 20%, 65%)',
     textAlign: 'center',
     marginBottom: 24,
   },
-  input: {
+  phoneHighlight: {
+    color: 'hsl(150, 84%, 40%)',
+    fontWeight: '600',
+  },
+  otpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  otpBox: {
+    width: 44,
+    height: 48,
     backgroundColor: 'hsl(217, 32%, 12%)',
-    height: 50,
     borderRadius: 8,
-    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: 'hsl(217, 32%, 20%)',
     color: 'hsl(210, 40%, 98%)',
     fontSize: 18,
+    fontWeight: '600',
     textAlign: 'center',
-    letterSpacing: 8,
-    borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 17%)',
-    marginBottom: 16,
   },
-  inputError: {
+  otpBoxFilled: {
+    borderColor: 'hsl(150, 84%, 40%)',
+  },
+  otpBoxError: {
     borderColor: 'hsl(350, 84%, 55%)',
   },
   errorText: {
@@ -228,7 +322,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: 'hsl(210, 40%, 98%)',
+    color: 'hsl(224, 71%, 4%)',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -237,7 +331,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   resendText: {
-    fontSize: 14,
+    fontSize: 13,
     color: 'hsl(150, 84%, 40%)',
     fontWeight: '600',
   },

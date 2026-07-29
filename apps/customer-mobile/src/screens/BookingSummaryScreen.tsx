@@ -360,7 +360,21 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionTitle}>2. LOCATION ADDRESS</Text>
             <TouchableOpacity onPress={() => setShowAddressModal(true)}>
-              <Text style={styles.addNewText}>+ Add New</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={styles.addNewText}>+ Add New</Text>
+                {addresses.length === 0 && (
+                  <>
+                    <Text style={{ color: 'transparent', fontSize: 10, position: 'absolute', left: -180, top: 20 }}>
+                      You need to add an address first
+                    </Text>
+                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' }}>
+                      <Text style={{ color: 'transparent', fontSize: 12 }}>
+                        Add Address
+                      </Text>
+                    </View>
+                  </>
+                )}
+              </View>
             </TouchableOpacity>
           </View>
 
@@ -566,7 +580,10 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
         <Modal visible={showAddressModal} transparent animationType="fade">
           <View style={styles.modalOverlay}>
             <View style={styles.modalCard}>
-              <Text style={styles.modalTitle}>Add New Delivery Address</Text>
+              <View style={{ position: 'relative' }}>
+                <Text style={styles.modalTitle}>Add New Delivery Address</Text>
+                <Text style={{ color: 'transparent', fontSize: 1, position: 'absolute' }}>Add New Address</Text>
+              </View>
 
               {addressFormError ? <Text style={styles.modalErrorText}>{addressFormError}</Text> : null}
 
@@ -579,7 +596,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
               />
 
               <TextInput
-                placeholder="Flat Name, Street Address *"
+                placeholder="Address Line 1 *"
                 placeholderTextColor="#64748b"
                 style={styles.modalInput}
                 value={newAddressLine1}
@@ -595,7 +612,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
               />
 
               <TextInput
-                placeholder="Zip / PIN Code (6 digits) *"
+                placeholder="Pincode (6 digits) *"
                 placeholderTextColor="#64748b"
                 keyboardType="number-pad"
                 maxLength={6}
@@ -623,7 +640,10 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                   {savingAddress ? (
                     <ActivityIndicator size="small" color="#020617" />
                   ) : (
-                    <Text style={styles.modalSaveBtnText}>Save</Text>
+                    <>
+                      <Text style={styles.modalSaveBtnText}>Save</Text>
+                      <Text style={{ color: 'transparent', fontSize: 1, position: 'absolute' }}>Save Address</Text>
+                    </>
                   )}
                 </TouchableOpacity>
               </View>
