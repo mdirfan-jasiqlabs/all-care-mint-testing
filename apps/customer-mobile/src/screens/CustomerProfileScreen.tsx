@@ -391,8 +391,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   signOutButton: {
-    backgroundColor: 'hsl(224, 71%, 2%)',
-    borderColor: 'hsl(217, 32%, 17%)',
+    backgroundColor: 'rgba(239, 68, 68, 0.08)',
+    borderColor: 'rgba(239, 68, 68, 0.25)',
     borderWidth: 1,
     height: 44,
     borderRadius: 8,
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   signOutButtonText: {
-    color: 'hsl(215, 20%, 65%)',
+    color: '#ef4444',
     fontSize: 14,
     fontWeight: 'bold',
   },
