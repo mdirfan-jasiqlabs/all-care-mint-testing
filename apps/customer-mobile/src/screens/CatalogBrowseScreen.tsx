@@ -167,14 +167,18 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
   };
 
   const renderSkeletons = () => (
-    <View style={styles.skeletonGrid}>
-      {[1, 2, 3, 4].map((i) => (
-        <View key={i} style={styles.skeletonCard}>
-          <View style={styles.skeletonIcon} />
-          <View style={styles.skeletonText} />
+    <FlatList
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      data={[1, 2, 3, 4]}
+      keyExtractor={(item) => item.toString()}
+      contentContainerStyle={styles.categoryScrollContainer}
+      renderItem={() => (
+        <View style={[styles.categoryPill, styles.categoryPillInactive, { width: 80, opacity: 0.5 }]}>
+          <View style={{ width: 40, height: 10, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.08)' }} />
         </View>
-      ))}
-    </View>
+      )}
+    />
   );
 
   const renderHeader = () => {
@@ -240,48 +244,34 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
             </Text>
           </View>
         ) : (
-          <View style={styles.categoriesGrid}>
-            <TouchableOpacity
-              onPress={() => setSelectedCategory('All')}
-              style={[
-                styles.categoryGridCard,
-                selectedCategory === 'All' ? styles.categoryGridCardActive : styles.categoryGridCardInactive
-              ]}
-              accessibilityLabel="Category All"
-              testID="category-card-all"
-            >
-              <Image
-                source={{ uri: 'https://img.icons8.com/fluency/48/grid.png' }}
-                style={styles.categoryCardIcon}
-              />
-              <Text style={[
-                styles.categoryGridCardText,
-                selectedCategory === 'All' ? styles.categoryGridCardTextActive : styles.categoryGridCardTextInactive
-              ]}>All</Text>
-            </TouchableOpacity>
-
-            {categories.map((cat: Category) => (
-              <TouchableOpacity
-                key={cat.id}
-                onPress={() => setSelectedCategory(cat.name)}
-                style={[
-                  styles.categoryGridCard,
-                  selectedCategory === cat.name ? styles.categoryGridCardActive : styles.categoryGridCardInactive
-                ]}
-                accessibilityLabel={`Category ${cat.name}`}
-                testID={`category-card-${cat.id}`}
-              >
-                <Image
-                  source={{ uri: cat.iconUrl || 'https://img.icons8.com/fluency/48/services.png' }}
-                  style={styles.categoryCardIcon}
-                />
-                <Text style={[
-                  styles.categoryGridCardText,
-                  selectedCategory === cat.name ? styles.categoryGridCardTextActive : styles.categoryGridCardTextInactive
-                ]}>{cat.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={[{ id: 'all', name: 'All' }, ...categories]}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.categoryScrollContainer}
+            renderItem={({ item }) => {
+              const isActive = selectedCategory === item.name;
+              return (
+                <TouchableOpacity
+                  onPress={() => setSelectedCategory(item.name)}
+                  style={[
+                    styles.categoryPill,
+                    isActive ? styles.categoryPillActive : styles.categoryPillInactive
+                  ]}
+                  accessibilityLabel={`Category ${item.name}`}
+                  testID={item.id === 'all' ? 'category-card-all' : `category-card-${item.id}`}
+                >
+                  <Text style={[
+                    styles.categoryPillText,
+                    isActive ? styles.categoryPillTextActive : styles.categoryPillTextInactive
+                  ]}>
+                    {item.name}
+                  </Text>
+                </TouchableOpacity>
+              );
+            }}
+          />
         )}
 
         {/* Active Services List Section Header */}
@@ -510,47 +500,38 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 1,
   },
-  categoriesGrid: {
+  categoryScrollContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 12,
-    marginVertical: 8,
-    justifyContent: 'space-between',
+    gap: 8,
   },
-  categoryGridCard: {
-    width: '47%',
-    aspectRatio: 1.1,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
+  categoryPill: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1.5,
-    minHeight: 100,
+    height: 36,
   },
-  categoryGridCardInactive: {
-    backgroundColor: 'rgba(17, 24, 39, 0.45)',
+  categoryPillActive: {
+    backgroundColor: '#10b981',
+  },
+  categoryPillInactive: {
+    backgroundColor: '#0f172a',
+    borderWidth: 1.5,
     borderColor: 'rgba(255, 255, 255, 0.08)',
   },
-  categoryGridCardActive: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderColor: '#10b981',
+  categoryPillText: {
+    fontSize: 12,
   },
-  categoryCardIcon: {
-    width: 40,
-    height: 40,
-    marginBottom: 8,
-  },
-  categoryGridCardText: {
-    fontSize: 13,
+  categoryPillTextActive: {
+    color: '#020617',
     fontWeight: 'bold',
-    textAlign: 'center',
   },
-  categoryGridCardTextInactive: {
-    color: '#94a3b8',
-  },
-  categoryGridCardTextActive: {
-    color: '#10b981',
+  categoryPillTextInactive: {
+    color: '#cbd5e1',
+    fontWeight: '600',
   },
   listContent: {
     paddingBottom: 120,

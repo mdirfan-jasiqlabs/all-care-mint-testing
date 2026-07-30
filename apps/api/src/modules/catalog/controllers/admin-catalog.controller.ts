@@ -7,6 +7,7 @@ import {
   Param,
   UseGuards,
   Req,
+  Res,
   HttpCode,
   ParseUUIDPipe,
 } from '@nestjs/common';
@@ -25,8 +26,19 @@ export class AdminCatalogController {
   constructor(private readonly adminCatalogService: AdminCatalogService) {}
 
   @Get('categories')
-  async getAllCategories() {
+  async getAllCategories(@Res({ passthrough: true }) res: any) {
     const categories = await this.adminCatalogService.getAllCategoriesAdmin();
+    const versionHash = await this.adminCatalogService.getCurrentVersionHash();
+
+    if (res) {
+      if (res.setHeader) {
+        res.setHeader('ETag', `"${versionHash}"`);
+        res.setHeader('Cache-Control', 'private, max-age=300');
+      } else if (res.header) {
+        res.header('ETag', `"${versionHash}"`);
+        res.header('Cache-Control', 'private, max-age=300');
+      }
+    }
 
     return {
       success: true,

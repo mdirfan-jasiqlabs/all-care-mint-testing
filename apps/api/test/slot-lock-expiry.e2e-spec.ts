@@ -153,21 +153,36 @@ describe('Booking Slot Lock Expiry (e2e)', () => {
   });
 
   async function cleanDb() {
-    await prisma.bookingStatusHistory.deleteMany({
-      where: { bookingId: { not: undefined } },
+    const cust = await prisma.customer.findFirst({
+      where: {
+        OR: [
+          { id: testCustomerId },
+          { mobileNumber: '+919999999999' }
+        ]
+      }
     });
-    await prisma.bookingSlotLock.deleteMany({
-      where: { id: { not: undefined } },
-    });
-    await prisma.booking.deleteMany({
-      where: { customerId: testCustomerId },
-    });
-    await prisma.idempotencyKey.deleteMany({
-      where: { customerId: testCustomerId },
-    });
-    await prisma.customerAddress.deleteMany({
-      where: { customerId: testCustomerId },
-    });
+
+    if (cust) {
+      await prisma.bookingStatusHistory.deleteMany({
+        where: { booking: { customerId: cust.id } }
+      });
+      await prisma.bookingSlotLock.deleteMany({
+        where: { customerId: cust.id }
+      });
+      await prisma.booking.deleteMany({
+        where: { customerId: cust.id }
+      });
+      await prisma.idempotencyKey.deleteMany({
+        where: { customerId: cust.id }
+      });
+      await prisma.customerAddress.deleteMany({
+        where: { customerId: cust.id }
+      });
+      await prisma.customer.delete({
+        where: { id: cust.id }
+      });
+    }
+
     await prisma.service.deleteMany({
       where: { id: testServiceId },
     });
@@ -176,9 +191,6 @@ describe('Booking Slot Lock Expiry (e2e)', () => {
     });
     await prisma.bookingTimeSlot.deleteMany({
       where: { id: testSlotId },
-    });
-    await prisma.customer.deleteMany({
-      where: { id: testCustomerId },
     });
   }
 

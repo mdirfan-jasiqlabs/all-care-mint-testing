@@ -205,4 +205,8 @@ export class AdminCatalogService {
 
     return updated;
   }
+
+  async getCurrentVersionHash(): Promise<string> {
+    return this.catalogRepo.getCurrentVersion();
+  }
 }

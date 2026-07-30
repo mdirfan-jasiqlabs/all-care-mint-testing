@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useCatalogETag } from '../catalog/CatalogETagContext';
 
 export default function AdminHeader() {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
   const [csrfToken, setCsrfToken] = useState('');
+  const { etag } = useCatalogETag();
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -42,7 +44,7 @@ export default function AdminHeader() {
     <header
       style={{
         borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        backgroundColor: 'rgba(9, 11, 17, 0.9)',
+        backgroundColor: 'rgba(2, 6, 23, 0.8)',
         backdropFilter: 'blur(12px)',
         padding: '16px 32px',
         display: 'flex',
@@ -55,17 +57,27 @@ export default function AdminHeader() {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
+        <svg style={{ width: '32px', height: '32px', color: '#10b981' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
         <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.5px', margin: 0 }}>
           All Care <span style={{ color: '#10b981', fontWeight: 500 }}>Mint</span>
         </h1>
-        <span style={{ fontSize: '11px', background: 'rgba(255, 255, 255, 0.08)', padding: '2px 8px', borderRadius: '20px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', marginLeft: '8px' }}>
-          Console
-        </span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <span style={{ fontSize: '12px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '4px 12px', borderRadius: '20px', fontWeight: 600 }}>
-          Active
+        <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
+          <span style={{ fontSize: '10px', color: '#10b981', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'monospace' }}>
+            ETag Header active
+          </span>
+          <span id="etag-val" style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>
+            {etag}
+          </span>
+        </div>
+        <span style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.2)', fontSize: '12px', padding: '4px 12px', borderRadius: '20px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>
+          MOD-001
+        </span>
+        <span style={{ background: '#1e293b', color: '#cbd5e1', fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600 }}>
+          Admin Panel
         </span>
         <button
           onClick={handleLogout}
@@ -82,6 +94,7 @@ export default function AdminHeader() {
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
+            transition: 'all 0.2s',
           }}
         >
           {loggingOut ? (
