@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   },
   headerWrapper: {
     marginBottom: 8,
-    paddingTop: Platform.OS === 'ios' ? 44 : 12,
+    paddingTop: Platform.OS === 'ios' ? 44 : 40,
   },
   header: {
     flexDirection: 'row',
