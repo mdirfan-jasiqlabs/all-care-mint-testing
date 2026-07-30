@@ -6,6 +6,7 @@ import { AdminCatalogController } from './controllers/admin-catalog.controller';
 import { CatalogService } from './services/catalog.service';
 import { AdminCatalogService } from './services/admin-catalog.service';
 import { PrismaCatalogRepository } from './adapters/prisma-catalog.repository';
+import { FeatureFlagService } from './services/feature-flag.service';
 
 @Module({
   imports: [PrismaModule, AuthModule],
@@ -13,6 +14,7 @@ import { PrismaCatalogRepository } from './adapters/prisma-catalog.repository';
   providers: [
     CatalogService,
     AdminCatalogService,
+    FeatureFlagService,
     {
       provide: 'ICatalogRepository',
       useClass: PrismaCatalogRepository,
@@ -24,6 +26,7 @@ import { PrismaCatalogRepository } from './adapters/prisma-catalog.repository';
   ],
   exports: [
     CatalogService,
+    FeatureFlagService,
     'ICatalogRepository',
     'IPlatformCatalogPublicFacade',
   ],

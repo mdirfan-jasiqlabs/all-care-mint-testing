@@ -9,6 +9,7 @@ import { CatalogService } from '../src/modules/catalog/services/catalog.service'
 import { AdminCatalogService } from '../src/modules/catalog/services/admin-catalog.service';
 import { PrismaCatalogRepository } from '../src/modules/catalog/adapters/prisma-catalog.repository';
 import { TokenService } from '../src/modules/auth/services/token.service';
+import { FeatureFlagService } from '../src/modules/catalog/services/feature-flag.service';
 
 describe('Catalog Module (e2e)', () => {
   let app: INestApplication<App>;
@@ -29,6 +30,7 @@ describe('Catalog Module (e2e)', () => {
       providers: [
         CatalogService,
         AdminCatalogService,
+        FeatureFlagService,
         {
           provide: 'ICatalogRepository',
           useClass: PrismaCatalogRepository,
@@ -82,6 +84,34 @@ describe('Catalog Module (e2e)', () => {
         .set('Authorization', 'Bearer customer-token')
         .send({ name: 'Forbidden Category' })
         .expect(403);
+    });
+  });
+
+  describe('Feature Flag and Malformed UUID tests', () => {
+    it('should return HTTP 400 when malformed category ID is passed to services list', () => {
+      return request(app.getHttpServer())
+        .get('/api/v1/catalog/categories/invalid-uuid/services')
+        .set('Authorization', 'Bearer customer-token')
+        .expect(400);
+    });
+
+    it('should return HTTP 400 when malformed service ID is passed to details', () => {
+      return request(app.getHttpServer())
+        .get('/api/v1/catalog/services/invalid-uuid')
+        .set('Authorization', 'Bearer customer-token')
+        .expect(400);
+    });
+
+    it('should return HTTP 503 when FF_CATALOG_ENABLED is false', async () => {
+      process.env.FF_CATALOG_ENABLED = 'false';
+      try {
+        await request(app.getHttpServer())
+          .get('/api/v1/catalog/categories')
+          .set('Authorization', 'Bearer customer-token')
+          .expect(503);
+      } finally {
+        delete process.env.FF_CATALOG_ENABLED;
+      }
     });
   });
 });

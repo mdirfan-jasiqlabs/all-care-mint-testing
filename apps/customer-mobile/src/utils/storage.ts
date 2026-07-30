@@ -101,3 +101,17 @@ export const clearUserName = () => {
   storageInstance.delete('auth.user_name');
   SecureStore.deleteItemAsync('auth.user_name').catch(() => {});
 };
+
+// General storage access for reuse (MMKV / web fallback)
+export const getItem = (key: string): string | undefined => {
+  return storageInstance.getString(key);
+};
+
+export const setItem = (key: string, value: string) => {
+  storageInstance.set(key, value);
+};
+
+export const deleteItem = (key: string) => {
+  storageInstance.delete(key);
+};
+

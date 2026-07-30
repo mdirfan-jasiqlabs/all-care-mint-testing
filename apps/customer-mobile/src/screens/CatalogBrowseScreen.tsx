@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TextInput,
-  ScrollView,
+  Image,
   Platform,
-  Alert,
+  SafeAreaView,
 } from 'react-native';
 import { useCatalogStore, Category, Service } from '../stores/catalogStore';
 import * as storage from '../utils/storage';
@@ -24,12 +24,21 @@ const SearchIcon = () => (
 
 export const CatalogBrowseScreen = ({ navigation, route }: any) => {
   const token = route?.params?.token || storage.getAccessToken() || '';
-  const { categories, servicesByCategory, isLoading, error, fetchCategories, fetchServices } = useCatalogStore();
+  const { 
+    categories, 
+    servicesByCategory, 
+    isLoading, 
+    error, 
+    isOffline,
+    isStale,
+    fetchCategories, 
+    fetchServicesByCategory 
+  } = useCatalogStore();
 
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [cart, setCart] = useState<Service[]>([]);
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
 
   useEffect(() => {
     fetchCategories(token);
@@ -38,27 +47,47 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
   // Fetch services for all categories when categories list changes
   useEffect(() => {
     if (categories && categories.length > 0) {
-      categories.forEach((cat) => {
-        fetchServices(cat.id, token);
+      categories.forEach((cat: Category) => {
+        fetchServicesByCategory(cat.id, token);
       });
     }
   }, [categories]);
 
+  // Synchronize cart prices when catalog data is updated/revalidated
+  useEffect(() => {
+    if (cart.length > 0) {
+      const updatedCart = cart.map((cartItem: Service) => {
+        const categoryServices = servicesByCategory[cartItem.categoryId] || [];
+        const freshService = categoryServices.find((s: Service) => s.id === cartItem.id);
+        if (freshService && freshService.fixedPrice !== cartItem.fixedPrice) {
+          console.log(`Syncing price for ${cartItem.name}: ${cartItem.fixedPrice} -> ${freshService.fixedPrice}`);
+          return { ...cartItem, fixedPrice: freshService.fixedPrice };
+        }
+        return cartItem;
+      });
+      
+      const priceChanged = updatedCart.some((item: Service, idx: number) => item.fixedPrice !== cart[idx].fixedPrice);
+      if (priceChanged) {
+        setCart(updatedCart);
+      }
+    }
+  }, [servicesByCategory]);
+
   // Combine services from store
-  const allServices = Object.values(servicesByCategory).flat();
+  const allServices: Service[] = (Object.values(servicesByCategory).flat() as Service[]);
 
   // Filter based on selected category and search query
-  const getSelectedServices = () => {
+  const getSelectedServices = (): Service[] => {
     let services: Service[] = [];
     if (selectedCategory === 'All') {
       const seen = new Set();
-      services = allServices.filter(svc => {
+      services = allServices.filter((svc: Service) => {
         const duplicate = seen.has(svc.id);
         seen.add(svc.id);
         return !duplicate;
       });
     } else {
-      const activeCat = categories.find(c => c.name === selectedCategory);
+      const activeCat = categories.find((c: Category) => c.name === selectedCategory);
       if (activeCat) {
         services = servicesByCategory[activeCat.id] || [];
       }
@@ -66,7 +95,7 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      services = services.filter(svc => 
+      services = services.filter((svc: Service) => 
         svc.name.toLowerCase().includes(query) ||
         (svc.description && svc.description.toLowerCase().includes(query))
       );
@@ -77,26 +106,35 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
   const currentServices = getSelectedServices();
 
   const toggleCart = (svc: Service) => {
-    if (cart.some(item => item.id === svc.id)) {
-      setCart(cart.filter(item => item.id !== svc.id));
+    if (cart.some((item: Service) => item.id === svc.id)) {
+      setCart(cart.filter((item: Service) => item.id !== svc.id));
     } else {
       setCart([...cart, svc]);
     }
   };
 
-  const getCartTotal = () => {
-    return cart.reduce((sum, item) => sum + parseFloat(item.fixedPrice), 0);
+  const getCartTotal = (): number => {
+    return cart.reduce((sum: number, item: Service) => sum + parseFloat(item.fixedPrice), 0);
   };
 
   const handleCheckout = () => {
-    if (cart.length === 0) return;
+    if (cart.length === 0 || isOffline) return;
     navigation.navigate('BookingSummary', { serviceId: cart[0].id });
   };
 
+  const handleRetry = () => {
+    fetchCategories(token);
+  };
+
   const renderServiceCard = ({ item }: { item: Service }) => {
-    const inCart = cart.some(cartItem => cartItem.id === item.id);
+    const inCart = cart.some((cartItem: Service) => cartItem.id === item.id);
     return (
-      <View style={styles.serviceCard}>
+      <TouchableOpacity
+        onPress={() => navigation.push('ServiceDetail', { serviceId: item.id })}
+        style={styles.serviceCard}
+        testID={`service-card-${item.id}`}
+        accessibilityLabel={`View details for ${item.name}`}
+      >
         <View style={styles.serviceInfo}>
           <Text style={styles.serviceName}>{item.name}</Text>
           {item.description && (
@@ -114,6 +152,8 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
             styles.addButton,
             inCart ? styles.addButtonActive : styles.addButtonInactive
           ]}
+          testID={`btn-add-service-${item.id}`}
+          accessibilityLabel={`Add ${item.name} to cart`}
         >
           <Text style={[
             styles.addButtonText,
@@ -122,9 +162,20 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
             {inCart ? 'Added' : 'Add'}
           </Text>
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     );
   };
+
+  const renderSkeletons = () => (
+    <View style={styles.skeletonGrid}>
+      {[1, 2, 3, 4].map((i) => (
+        <View key={i} style={styles.skeletonCard}>
+          <View style={styles.skeletonIcon} />
+          <View style={styles.skeletonText} />
+        </View>
+      ))}
+    </View>
+  );
 
   const renderHeader = () => {
     return (
@@ -132,18 +183,31 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
         {/* Phone Simulated Status Bar Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Text style={styles.backButtonText}>←  9:41</Text>
+            <Text style={styles.backButtonText}>← Dashboard</Text>
           </TouchableOpacity>
           
           <View style={styles.badgeRow}>
-            <View style={[styles.badge, styles.badgeOnline]}>
-              <Text style={[styles.badgeText, styles.badgeTextOnline]}>Online</Text>
+            <View style={[styles.badge, isOffline ? styles.badgeOffline : styles.badgeOnline]}>
+              <Text style={[styles.badgeText, isOffline ? styles.badgeTextOffline : styles.badgeTextOnline]}>
+                {isOffline ? 'Offline' : 'Online'}
+              </Text>
             </View>
-            <View style={[styles.badge, styles.badgeEtag]}>
-              <Text style={[styles.badgeText, styles.badgeTextEtag]}>ETag Match</Text>
+            <View style={[styles.badge, isStale ? styles.badgeStale : styles.badgeEtag]}>
+              <Text style={[styles.badgeText, isStale ? styles.badgeTextStale : styles.badgeTextEtag]}>
+                {isStale ? 'Cached Stale' : 'ETag Validated'}
+              </Text>
             </View>
           </View>
         </View>
+
+        {/* Offline Warning Banner */}
+        {isOffline && (
+          <View style={styles.offlineBanner} testID="offline-banner">
+            <Text style={styles.offlineBannerText}>
+              You're offline. Showing cached services.
+            </Text>
+          </View>
+        )}
 
         {/* Premium Search Box */}
         <View style={[
@@ -167,42 +231,58 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
           <Text style={styles.sectionHeader}>SERVICE CATEGORIES</Text>
         </View>
         
-        <View style={styles.sliderWrapper}>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false} 
-            contentContainerStyle={styles.categoriesSlider}
-          >
+        {isLoading && categories.length === 0 ? (
+          renderSkeletons()
+        ) : categories.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText} testID="txt-empty-categories">
+              Services coming soon! Check back later.
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.categoriesGrid}>
             <TouchableOpacity
               onPress={() => setSelectedCategory('All')}
               style={[
-                styles.categoryPill,
-                selectedCategory === 'All' ? styles.categoryPillActive : styles.categoryPillInactive
+                styles.categoryGridCard,
+                selectedCategory === 'All' ? styles.categoryGridCardActive : styles.categoryGridCardInactive
               ]}
+              accessibilityLabel="Category All"
+              testID="category-card-all"
             >
+              <Image
+                source={{ uri: 'https://img.icons8.com/fluency/48/grid.png' }}
+                style={styles.categoryCardIcon}
+              />
               <Text style={[
-                styles.categoryPillText,
-                selectedCategory === 'All' ? styles.categoryPillTextActive : styles.categoryPillTextInactive
+                styles.categoryGridCardText,
+                selectedCategory === 'All' ? styles.categoryGridCardTextActive : styles.categoryGridCardTextInactive
               ]}>All</Text>
             </TouchableOpacity>
 
-            {categories.map((cat) => (
+            {categories.map((cat: Category) => (
               <TouchableOpacity
                 key={cat.id}
                 onPress={() => setSelectedCategory(cat.name)}
                 style={[
-                  styles.categoryPill,
-                  selectedCategory === cat.name ? styles.categoryPillActive : styles.categoryPillInactive
+                  styles.categoryGridCard,
+                  selectedCategory === cat.name ? styles.categoryGridCardActive : styles.categoryGridCardInactive
                 ]}
+                accessibilityLabel={`Category ${cat.name}`}
+                testID={`category-card-${cat.id}`}
               >
+                <Image
+                  source={{ uri: cat.iconUrl || 'https://img.icons8.com/fluency/48/services.png' }}
+                  style={styles.categoryCardIcon}
+                />
                 <Text style={[
-                  styles.categoryPillText,
-                  selectedCategory === cat.name ? styles.categoryPillTextActive : styles.categoryPillTextInactive
+                  styles.categoryGridCardText,
+                  selectedCategory === cat.name ? styles.categoryGridCardTextActive : styles.categoryGridCardTextInactive
                 ]}>{cat.name}</Text>
               </TouchableOpacity>
             ))}
-          </ScrollView>
-        </View>
+          </View>
+        )}
 
         {/* Active Services List Section Header */}
         <View style={styles.sectionHeaderContainer}>
@@ -214,25 +294,52 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
     );
   };
 
+  if (error && categories.length === 0) {
+    const isNetworkError = error.toLowerCase().includes('network') || error.toLowerCase().includes('connection') || error.toLowerCase().includes('fetch');
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText} testID="error-message">
+            {isNetworkError 
+              ? 'Unable to load services. Please check your connection.' 
+              : 'Something went wrong. Please try again later.'}
+          </Text>
+          <TouchableOpacity 
+            onPress={handleRetry} 
+            style={styles.retryButton}
+            testID="btn-retry"
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      {isLoading && categories.length === 0 ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#10b981" />
-        </View>
-      ) : (
-        <FlatList
-          style={styles.list}
-          data={currentServices}
-          renderItem={renderServiceCard}
-          keyExtractor={(item) => item.id}
-          ListHeaderComponent={renderHeader}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>No services found matching "{searchQuery}"</Text>
-          }
-        />
-      )}
+      <FlatList
+        style={styles.list}
+        data={currentServices}
+        renderItem={renderServiceCard}
+        keyExtractor={(item) => item.id}
+        ListHeaderComponent={renderHeader}
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText} testID="txt-empty-services">
+              {selectedCategory === 'All'
+                ? `No services found matching "${searchQuery}"`
+                : 'No services available in this category yet'}
+            </Text>
+            {selectedCategory !== 'All' && (
+              <TouchableOpacity onPress={() => setSelectedCategory('All')} style={styles.emptyBackButton}>
+                <Text style={styles.emptyBackButtonText}>← Back to All</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        }
+      />
 
       {/* Sticky Bottom Cart Banner */}
       {cart.length > 0 && (
@@ -243,8 +350,20 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
               {cart.length} {cart.length === 1 ? 'Item' : 'Items'} (₹{getCartTotal()})
             </Text>
           </View>
-          <TouchableOpacity onPress={handleCheckout} style={styles.checkoutButton}>
-            <Text style={styles.checkoutButtonText}>Book Now ➔</Text>
+          <TouchableOpacity 
+            onPress={handleCheckout} 
+            disabled={isOffline}
+            style={[
+              styles.checkoutButton,
+              isOffline ? styles.checkoutButtonDisabled : styles.checkoutButtonEnabled
+            ]}
+          >
+            <Text style={[
+              styles.checkoutButtonText,
+              isOffline ? styles.checkoutButtonTextDisabled : styles.checkoutButtonTextEnabled
+            ]}>
+              {isOffline ? 'Offline' : 'Book Now ➔'}
+            </Text>
           </TouchableOpacity>
         </View>
       )}
@@ -259,11 +378,6 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   headerWrapper: {
     marginBottom: 8,
@@ -298,10 +412,16 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   badgeOnline: {
-    backgroundColor: '#1e293b',
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+  },
+  badgeOffline: {
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
   },
   badgeEtag: {
     backgroundColor: 'rgba(16, 185, 129, 0.15)',
+  },
+  badgeStale: {
+    backgroundColor: 'rgba(217, 119, 6, 0.15)',
   },
   badgeText: {
     fontSize: 10,
@@ -309,10 +429,27 @@ const styles = StyleSheet.create({
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
   },
   badgeTextOnline: {
-    color: '#94a3b8',
+    color: '#10b981',
+  },
+  badgeTextOffline: {
+    color: '#ef4444',
   },
   badgeTextEtag: {
     color: '#10b981',
+  },
+  badgeTextStale: {
+    color: '#d97706',
+  },
+  offlineBanner: {
+    backgroundColor: '#d97706',
+    paddingVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  offlineBannerText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   searchContainer: {
     flexDirection: 'row',
@@ -373,37 +510,47 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 1,
   },
-  sliderWrapper: {
+  categoriesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 12,
     marginVertical: 8,
+    justifyContent: 'space-between',
   },
-  categoriesSlider: {
-    paddingHorizontal: 16,
-    gap: 8,
-  },
-  categoryPill: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+  categoryGridCard: {
+    width: '47%',
+    aspectRatio: 1.1,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1.5,
+    minHeight: 100,
   },
-  categoryPillActive: {
-    backgroundColor: '#10b981',
+  categoryGridCardInactive: {
+    backgroundColor: 'rgba(17, 24, 39, 0.45)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
-  categoryPillInactive: {
-    backgroundColor: '#0f172a',
-    borderWidth: 1,
-    borderColor: '#1e293b',
+  categoryGridCardActive: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderColor: '#10b981',
   },
-  categoryPillText: {
-    fontSize: 12,
+  categoryCardIcon: {
+    width: 40,
+    height: 40,
+    marginBottom: 8,
+  },
+  categoryGridCardText: {
+    fontSize: 13,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
-  categoryPillTextActive: {
-    color: '#090b11',
-  },
-  categoryPillTextInactive: {
+  categoryGridCardTextInactive: {
     color: '#94a3b8',
+  },
+  categoryGridCardTextActive: {
+    color: '#10b981',
   },
   listContent: {
     paddingBottom: 120,
@@ -472,11 +619,82 @@ const styles = StyleSheet.create({
   addButtonTextActive: {
     color: '#020617',
   },
+  emptyContainer: {
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   emptyText: {
     color: '#94a3b8',
     textAlign: 'center',
-    marginTop: 40,
     fontSize: 14,
+    marginBottom: 16,
+  },
+  emptyBackButton: {
+    backgroundColor: '#1e293b',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  emptyBackButtonText: {
+    color: '#ffffff',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  errorText: {
+    color: '#ef4444',
+    textAlign: 'center',
+    fontSize: 15,
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: '#10b981',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#090b11',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  skeletonGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 12,
+    marginVertical: 8,
+    justifyContent: 'space-between',
+  },
+  skeletonCard: {
+    width: '47%',
+    aspectRatio: 1.1,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1.5,
+    padding: 16,
+    marginBottom: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  skeletonIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    marginBottom: 12,
+  },
+  skeletonText: {
+    width: '60%',
+    height: 12,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
   },
   cartBanner: {
     position: 'absolute',
@@ -509,14 +727,24 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   checkoutButton: {
-    backgroundColor: '#020617',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
   },
+  checkoutButtonEnabled: {
+    backgroundColor: '#020617',
+  },
+  checkoutButtonDisabled: {
+    backgroundColor: '#334155',
+  },
   checkoutButtonText: {
-    color: '#ffffff',
     fontSize: 12,
     fontWeight: 'bold',
+  },
+  checkoutButtonTextEnabled: {
+    color: '#ffffff',
+  },
+  checkoutButtonTextDisabled: {
+    color: '#94a3b8',
   },
 });

@@ -5,6 +5,7 @@ export type RootStackParamList = {
   Home: undefined;
   Profile: undefined;
   CatalogBrowse: { token?: string } | undefined;
+  ServiceDetail: { serviceId: string };
   AddressSelection: { serviceId: string };
   SlotSelection: { serviceId: string; addressId: string };
   BookingSummary: { serviceId: string; addressId: string; slotId: string; date: string };

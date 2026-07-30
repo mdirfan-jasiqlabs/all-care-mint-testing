@@ -111,27 +111,13 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
           }
         }
 
-        // Fetch Service details
-        const catRes = await fetch(`${baseUrl}/api/v1/catalog/categories`, {
+        // Fetch Service details directly
+        const svcRes = await fetch(`${baseUrl}/api/v1/catalog/services/${serviceId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const catData = await catRes.json();
-        if (catData.success) {
-          let foundService = null;
-          for (const cat of catData.data) {
-            const svcRes = await fetch(`${baseUrl}/api/v1/catalog/categories/${cat.id}/services`, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            const svcData = await svcRes.json();
-            if (svcData.success) {
-              const matched = svcData.data.find((s: any) => s.id === serviceId);
-              if (matched) {
-                foundService = matched;
-                break;
-              }
-            }
-          }
-          setService(foundService);
+        const svcData = await svcRes.json();
+        if (svcData.success) {
+          setService(svcData.data);
         }
       } catch (err) {
         console.error('Error loading checkout initial data:', err);
@@ -868,7 +854,7 @@ const styles = StyleSheet.create({
   },
   dayNumText: {
     fontSize: 16,
-    fontWeight: 'extrabold',
+    fontWeight: '800',
     marginTop: 2,
   },
   dayTextActive: {
@@ -979,7 +965,7 @@ const styles = StyleSheet.create({
   },
   footerTotalVal: {
     fontSize: 18,
-    fontWeight: 'extrabold',
+    fontWeight: '800',
     color: '#ffffff',
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
   },

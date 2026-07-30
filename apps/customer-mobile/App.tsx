@@ -11,6 +11,7 @@ import OtpVerifyScreen from './src/screens/OtpVerifyScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import CustomerProfileScreen from './src/screens/CustomerProfileScreen';
 import { CatalogBrowseScreen } from './src/screens/CatalogBrowseScreen';
+import { ServiceDetailScreen } from './src/screens/ServiceDetailScreen';
 import AddressSelectionScreen from './src/screens/AddressSelectionScreen';
 import SlotSelectionScreen from './src/screens/SlotSelectionScreen';
 import BookingSummaryScreen from './src/screens/BookingSummaryScreen';
@@ -96,6 +97,11 @@ export default function App() {
           <Stack.Screen
             name="CatalogBrowse"
             component={CatalogBrowseScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ServiceDetail"
+            component={ServiceDetailScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen
