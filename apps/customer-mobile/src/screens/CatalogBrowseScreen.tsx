@@ -313,7 +313,7 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
         data={currentServices}
         renderItem={renderServiceCard}
         keyExtractor={(item) => item.id}
-        ListHeaderComponent={renderHeader}
+        ListHeaderComponent={renderHeader()}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
