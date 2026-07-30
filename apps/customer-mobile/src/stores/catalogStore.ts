@@ -104,7 +104,7 @@ export const useCatalogStore = create<CatalogState>((set: any, get: any) => ({
       }
 
       if (!res.ok) {
-        throw new Error('Failed to fetch categories');
+        throw new Error(`Failed to fetch categories: ${res.status}`);
       }
 
       const data = await res.json();

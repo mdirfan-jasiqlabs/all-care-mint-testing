@@ -25,6 +25,25 @@ function isTokenExpired(token: string): boolean {
   }
 }
 
+function getRoleFromToken(token: string): string | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(''),
+    );
+    const payload = JSON.parse(jsonPayload);
+    return payload.role || null;
+  } catch (err) {
+    return null;
+  }
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -60,23 +79,26 @@ export function middleware(request: NextRequest) {
 
   const accessToken = request.cookies.get('admin_access_token')?.value;
   const isAuthenticated = accessToken && !isTokenExpired(accessToken);
+  const role = accessToken ? getRoleFromToken(accessToken) : null;
+  const isAdmin = isAuthenticated && role === 'ADMIN';
 
   if (isAdminPage && !isExcluded) {
-    if (!isAuthenticated) {
-      // Redirect unauthenticated users to the approved login ingress
+    if (!isAdmin) {
+      // Redirect unauthenticated or non-admin users to the approved login ingress
       const loginUrl = new URL('/login/admin', request.url);
       return NextResponse.redirect(loginUrl);
     }
   }
 
   // 4. Redirect Authenticated Users Away From Login
-  if (isExcluded && isAuthenticated) {
+  if (isExcluded && isAdmin) {
     const dashboardUrl = new URL('/dashboard/admin', request.url);
     return NextResponse.redirect(dashboardUrl);
   }
 
   return NextResponse.next();
 }
+
 
 // Scoped matcher config matching both /admin, /dashboard and /login/admin
 export const config = {
