@@ -97,7 +97,7 @@ export default function App() {
           <Stack.Screen
             name="CatalogBrowse"
             component={CatalogBrowseScreen}
-            options={{ headerShown: false }}
+            options={{ title: 'Browse Services' }}
           />
           <Stack.Screen
             name="ServiceDetail"

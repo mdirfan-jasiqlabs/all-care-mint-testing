@@ -184,25 +184,6 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
   const renderHeader = () => {
     return (
       <View style={styles.headerWrapper}>
-        {/* Phone Simulated Status Bar Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Text style={styles.backButtonText}>← Dashboard</Text>
-          </TouchableOpacity>
-          
-          <View style={styles.badgeRow}>
-            <View style={[styles.badge, isOffline ? styles.badgeOffline : styles.badgeOnline]}>
-              <Text style={[styles.badgeText, isOffline ? styles.badgeTextOffline : styles.badgeTextOnline]}>
-                {isOffline ? 'Offline' : 'Online'}
-              </Text>
-            </View>
-            <View style={[styles.badge, isStale ? styles.badgeStale : styles.badgeEtag]}>
-              <Text style={[styles.badgeText, isStale ? styles.badgeTextStale : styles.badgeTextEtag]}>
-                {isStale ? 'Cached Stale' : 'ETag Validated'}
-              </Text>
-            </View>
-          </View>
-        </View>
 
         {/* Offline Warning Banner */}
         {isOffline && (
@@ -371,7 +352,6 @@ const styles = StyleSheet.create({
   },
   headerWrapper: {
     marginBottom: 8,
-    paddingTop: Platform.OS === 'ios' ? 44 : 40,
   },
   header: {
     flexDirection: 'row',
