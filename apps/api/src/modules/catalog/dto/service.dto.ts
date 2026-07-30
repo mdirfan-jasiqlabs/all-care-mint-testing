@@ -5,11 +5,13 @@ import {
   IsBoolean,
   IsNumberString,
   MaxLength,
+  IsUUID,
 } from 'class-validator';
 
 export class CreateServiceDto {
   @IsString()
   @IsNotEmpty()
+  @IsUUID()
   categoryId!: string;
 
   @IsString()

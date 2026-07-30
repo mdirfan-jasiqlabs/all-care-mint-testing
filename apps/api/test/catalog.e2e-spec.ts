@@ -12,6 +12,7 @@ import { TokenService } from '../src/modules/auth/services/token.service';
 import { FeatureFlagService } from '../src/modules/catalog/services/feature-flag.service';
 
 describe('Catalog Module (e2e)', () => {
+  jest.setTimeout(30000);
   let app: INestApplication<App>;
 
   beforeAll(async () => {

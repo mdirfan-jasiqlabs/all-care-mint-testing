@@ -8,6 +8,7 @@ import {
   UseGuards,
   Req,
   HttpCode,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { AdminCatalogService } from '../services/admin-catalog.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -60,7 +61,7 @@ export class AdminCatalogController {
 
   @Patch('categories/:id')
   async updateCategory(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateCategoryDto,
     @Req() req: any,
   ) {
@@ -84,7 +85,7 @@ export class AdminCatalogController {
   }
 
   @Get('categories/:id/services')
-  async getCategoryServices(@Param('id') id: string) {
+  async getCategoryServices(@Param('id', ParseUUIDPipe) id: string) {
     const services =
       await this.adminCatalogService.getAllServicesForCategoryAdmin(id);
 
@@ -121,7 +122,7 @@ export class AdminCatalogController {
 
   @Patch('services/:id')
   async updateService(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateServiceDto,
     @Req() req: any,
   ) {
