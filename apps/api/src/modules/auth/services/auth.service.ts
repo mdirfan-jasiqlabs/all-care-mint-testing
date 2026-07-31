@@ -125,6 +125,15 @@ export class AuthService {
           },
         });
       }
+      if (provider.status === 'SUSPENDED') {
+        throw new ForbiddenException({
+          success: false,
+          error: {
+            code: 'ERR_PROVIDER_SUSPENDED',
+            message: 'Account suspended.',
+          },
+        });
+      }
       if (provider.status !== 'APPROVED') {
         throw new ForbiddenException({
           success: false,
@@ -459,7 +468,16 @@ export class AuthService {
         provider = await this.authRepository.createProvider(mobileNumber);
         isNewUser = true;
       }
-      if (provider.status === 'REJECTED' || provider.status === 'SUSPENDED') {
+      if (provider.status === 'SUSPENDED') {
+        throw new ForbiddenException({
+          success: false,
+          error: {
+            code: 'ERR_PROVIDER_SUSPENDED',
+            message: 'Account suspended.',
+          },
+        });
+      }
+      if (provider.status !== 'APPROVED') {
         throw new ForbiddenException({
           success: false,
           error: {

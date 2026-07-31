@@ -27,6 +27,12 @@ export class EligibilityService {
       throw new ProviderIneligibleException('Provider not found.');
     }
 
+    if (provider.status === 'SUSPENDED') {
+      throw new ProviderIneligibleException(
+        'Selected provider is suspended and ineligible for assignments.',
+      );
+    }
+
     if (provider.status !== 'APPROVED') {
       throw new ProviderIneligibleException(
         `Provider status is ${provider.status}. Only APPROVED providers can be assigned.`,

@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 
 interface AdminSidebarProps {
-  activePage: 'dashboard' | 'catalog' | 'bookings' | 'users';
+  activePage: 'dashboard' | 'catalog' | 'bookings' | 'users' | 'providers';
 }
 
 export default function AdminSidebar({ activePage }: AdminSidebarProps) {
@@ -79,6 +79,12 @@ export default function AdminSidebar({ activePage }: AdminSidebarProps) {
             style={getLinkStyle('bookings')}
           >
             Manage Bookings
+          </button>
+          <button
+            onClick={() => handleNav('/admin/providers')}
+            style={getLinkStyle('providers')}
+          >
+            Providers Directory
           </button>
           <button
             style={getLinkStyle('users')}

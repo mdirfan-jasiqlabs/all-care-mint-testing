@@ -41,9 +41,12 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
       const data = await res.json();
       if (data.success) {
         setBooking(data.data);
+      } else {
+        setBooking(null);
       }
     } catch (err) {
       showToast('Failed to retrieve job details.', 'error');
+      setBooking(null);
     } finally {
       setLoading(false);
     }

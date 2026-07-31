@@ -587,7 +587,7 @@ export class BookingService implements OnApplicationShutdown {
         success: false,
         error: {
           code: 'ERR_BOOKING_FORBIDDEN',
-          message: 'You do not have permission to access this booking.',
+          message: 'Access denied.',
         },
       });
     }
