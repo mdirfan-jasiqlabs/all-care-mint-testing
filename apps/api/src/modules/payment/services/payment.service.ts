@@ -3,31 +3,12 @@ import {
   BadRequestException,
   NotFoundException,
   ForbiddenException,
+  ConflictException,
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import * as crypto from 'crypto';
-
-export interface InitiatePaymentDto {
-  bookingDraftId?: string;
-  serviceId?: string;
-  slotId?: string;
-  slotDate?: string;
-  addressId?: string;
-  bookingId?: string;
-  amountInr?: number;
-  amountPaise?: number;
-}
-
-export interface AdminPaymentsQueryDto {
-  method?: string;
-  status?: string;
-  date_from?: string;
-  date_to?: string;
-  page?: number;
-  page_size?: number;
-  format?: string;
-}
+import { InitiatePaymentDto, AdminPaymentsQueryDto } from '../dto/payment.dto';
 
 interface DraftMeta {
   bookingDraftId: string;
@@ -527,6 +508,20 @@ export class PaymentService {
    * Admin Payment Reconciliation Ledger
    */
   async getAdminPayments(query: AdminPaymentsQueryDto) {
+    if (query.page !== undefined) {
+      const pageNum = Number(query.page);
+      if (isNaN(pageNum) || pageNum < 1 || !Number.isInteger(pageNum)) {
+        throw new BadRequestException('page must be an integer greater than or equal to 1');
+      }
+    }
+
+    if (query.page_size !== undefined) {
+      const pageSizeNum = Number(query.page_size);
+      if (isNaN(pageSizeNum) || pageSizeNum < 1 || pageSizeNum > 100 || !Number.isInteger(pageSizeNum)) {
+        throw new BadRequestException('page_size must be an integer between 1 and 100');
+      }
+    }
+
     const page = Math.max(1, Number(query.page) || 1);
     const pageSize = Math.max(1, Number(query.page_size) || 20);
     const skip = (page - 1) * pageSize;
@@ -538,21 +533,82 @@ export class PaymentService {
         where.paymentMethod = 'CASH_ON_SERVICE';
       } else if (query.method === 'ONLINE') {
         where.paymentMethod = 'ONLINE';
+      } else {
+        throw new BadRequestException('Invalid payment method filter');
       }
     }
 
     if (query.status) {
+      const validStatuses = [
+        'PAYMENT_PENDING',
+        'PAYMENT_SUCCESS',
+        'PAYMENT_FAILED',
+        'CASH_PENDING',
+        'CASH_SETTLED',
+      ];
+      if (!validStatuses.includes(query.status)) {
+        throw new BadRequestException('Invalid payment status filter');
+      }
       where.status = query.status;
     }
 
-    if (query.date_from || query.date_to) {
+    let dateFromParsed: Date | undefined;
+    let dateToParsed: Date | undefined;
+
+    if (query.date_from) {
+      dateFromParsed = new Date(query.date_from);
+      if (isNaN(dateFromParsed.getTime())) {
+        throw new BadRequestException('Invalid date_from format');
+      }
+    }
+
+    if (query.date_to) {
+      dateToParsed = new Date(query.date_to);
+      if (isNaN(dateToParsed.getTime())) {
+        throw new BadRequestException('Invalid date_to format');
+      }
+      if (/^\d{4}-\d{2}-\d{2}$/.test(query.date_to)) {
+        dateToParsed.setUTCHours(23, 59, 59, 999);
+      }
+    }
+
+    if (dateFromParsed && dateToParsed && dateFromParsed > dateToParsed) {
+      throw new BadRequestException('date_from cannot be after date_to');
+    }
+
+    if (dateFromParsed || dateToParsed) {
       where.createdAt = {};
-      if (query.date_from) {
-        where.createdAt.gte = new Date(query.date_from);
+      if (dateFromParsed) {
+        where.createdAt.gte = dateFromParsed;
       }
-      if (query.date_to) {
-        where.createdAt.lte = new Date(query.date_to);
+      if (dateToParsed) {
+        where.createdAt.lte = dateToParsed;
       }
+    }
+
+    this.logger.log({
+      event: 'admin.payments.list',
+      filters: {
+        method: query.method,
+        status: query.status,
+        date_from: query.date_from,
+        date_to: query.date_to,
+        page,
+        page_size: pageSize,
+        format: query.format,
+      },
+    });
+
+    if (query.method || query.status || query.date_from || query.date_to) {
+      this.logger.log({
+        event: 'admin.payments.filter_applied',
+        filters: {
+          method: query.method,
+          status: query.status,
+          date_from: query.date_from,
+          date_to: query.date_to,
+        },
+      });
     }
 
     const [total, items] = await Promise.all([
@@ -581,7 +637,7 @@ export class PaymentService {
       id: item.id,
       date: item.createdAt.toISOString(),
       booking_id: item.booking?.bookingReference || item.bookingId || 'N/A',
-      customer_name: item.customer.displayName || item.customer.mobileNumber,
+      customer_name: item.customer?.displayName || item.customer?.mobileNumber || 'Unknown Customer',
       service_name: item.booking?.serviceNameSnapshot || 'N/A',
       provider_name: item.booking?.provider?.displayName || 'Unassigned',
       amount_inr: item.amountPaise / 100,
@@ -612,17 +668,94 @@ export class PaymentService {
   }
 
   async settleCashPayment(paymentId: string) {
+    this.logger.log({
+      event: 'admin.payment.settlement.requested',
+      payment_id: paymentId,
+    });
+
+    const isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(paymentId);
+    if (!isUuid) {
+      this.logger.warn({
+        event: 'admin.payment.settlement.rejected',
+        payment_id: paymentId,
+        reason: 'Invalid payment ID UUID format',
+      });
+      throw new NotFoundException('Payment order not found');
+    }
+
     const paymentOrder = await this.prisma.paymentOrder.findUnique({
       where: { id: paymentId },
     });
 
     if (!paymentOrder) {
+      this.logger.warn({
+        event: 'admin.payment.settlement.failed',
+        payment_id: paymentId,
+        reason: 'Payment order not found',
+      });
       throw new NotFoundException('Payment order not found');
     }
 
-    const updated = await this.prisma.paymentOrder.update({
+    if (paymentOrder.paymentMethod !== 'CASH_ON_SERVICE') {
+      this.logger.warn({
+        event: 'admin.payment.settlement.rejected',
+        payment_id: paymentId,
+        payment_method: paymentOrder.paymentMethod,
+        reason: 'Cannot settle non-cash payment order',
+      });
+      throw new ConflictException('Only cash payments can be settled');
+    }
+
+    if (paymentOrder.status === 'CASH_SETTLED') {
+      this.logger.warn({
+        event: 'admin.payment.settlement.rejected',
+        payment_id: paymentId,
+        status: paymentOrder.status,
+        reason: 'Payment order is already settled',
+      });
+      throw new ConflictException('Payment order is already settled');
+    }
+
+    if (paymentOrder.status !== 'CASH_PENDING') {
+      this.logger.warn({
+        event: 'admin.payment.settlement.rejected',
+        payment_id: paymentId,
+        status: paymentOrder.status,
+        reason: 'Payment status is not CASH_PENDING',
+      });
+      throw new ConflictException(`Cannot settle cash payment with status ${paymentOrder.status}`);
+    }
+
+    // Atomic conditional update to handle concurrent requests safely
+    const updateResult = await this.prisma.paymentOrder.updateMany({
+      where: {
+        id: paymentId,
+        status: 'CASH_PENDING',
+        paymentMethod: 'CASH_ON_SERVICE',
+      },
+      data: {
+        status: 'CASH_SETTLED',
+      },
+    });
+
+    if (updateResult.count === 0) {
+      this.logger.warn({
+        event: 'admin.payment.settlement.rejected',
+        payment_id: paymentId,
+        reason: 'Concurrent settlement state transition detected',
+      });
+      throw new ConflictException('Payment order is already settled or status changed');
+    }
+
+    const updated = await this.prisma.paymentOrder.findUnique({
       where: { id: paymentId },
-      data: { status: 'CASH_SETTLED' },
+    });
+
+    this.logger.log({
+      event: 'admin.payment.settled',
+      payment_id: updated.id,
+      booking_id: updated.bookingId,
+      status: updated.status,
     });
 
     return {

@@ -244,6 +244,7 @@ describe('PaymentService (Unit Tests - DEF-007)', () => {
   });
 
   it('9. Concurrency P2002 Absorption: absorbs Prisma P2002 constraint error gracefully into HTTP 200 idempotent response', async () => {
+    mockPaymentOrder.status = 'PAYMENT_SUCCESS';
     (prisma.$transaction as jest.Mock).mockRejectedValueOnce({ code: 'P2002', message: 'Unique constraint failed' });
 
     const payload = {
@@ -269,6 +270,7 @@ describe('PaymentService (Unit Tests - DEF-007)', () => {
   });
 
   it('10. Payment Failed: updates status to PAYMENT_FAILED when pending', async () => {
+    mockPaymentOrder.status = 'PAYMENT_PENDING';
     const payload = {
       event: 'payment.failed',
       razorpay_order_id: mockOrderId,
