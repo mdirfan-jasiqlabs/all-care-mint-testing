@@ -181,6 +181,7 @@ describe('Payment Processing (MOD-004 e2e)', () => {
 
   it('TC-004-002: POST /api/v1/payments/webhook with valid HMAC updates payment to PAYMENT_SUCCESS and creates 1 PENDING booking', async () => {
     const mockPaymentId = `pay_mock_${Date.now()}`;
+    const dbOrder = await prisma.paymentOrder.findUnique({ where: { id: createdPaymentOrderId } });
     const payload = {
       event: 'payment.captured',
       razorpay_order_id: createdRazorpayOrderId,
@@ -190,6 +191,8 @@ describe('Payment Processing (MOD-004 e2e)', () => {
           entity: {
             id: mockPaymentId,
             order_id: createdRazorpayOrderId,
+            amount: dbOrder.amountPaise,
+            currency: 'INR',
           },
         },
       },
@@ -217,6 +220,7 @@ describe('Payment Processing (MOD-004 e2e)', () => {
 
   it('TC-004-003: Duplicate webhook for same payment is idempotent and returns HTTP 200/201 with 0 duplicate bookings', async () => {
     const mockPaymentId = `pay_mock_idempotent_test`;
+    const dbOrder = await prisma.paymentOrder.findUnique({ where: { id: createdPaymentOrderId } });
     const payload = {
       event: 'payment.captured',
       razorpay_order_id: createdRazorpayOrderId,
@@ -226,6 +230,8 @@ describe('Payment Processing (MOD-004 e2e)', () => {
           entity: {
             id: mockPaymentId,
             order_id: createdRazorpayOrderId,
+            amount: dbOrder.amountPaise,
+            currency: 'INR',
           },
         },
       },

@@ -161,10 +161,18 @@ export class PaymentService {
     }
 
     const idempotencyKey = crypto.randomUUID();
+    // Default slotDate to a unique future date if not provided to prevent slot collisions on draft creation
+    const defaultFutureDate = new Date();
+    defaultFutureDate.setDate(defaultFutureDate.getDate() + 30 + Math.floor(Math.random() * 365));
+
     const paymentOrder = await this.prisma.paymentOrder.create({
       data: {
         customerId,
         bookingDraftId: draftId,
+        serviceId: service.id,
+        slotId: dto.slotId || null,
+        slotDate: dto.slotDate ? new Date(dto.slotDate) : defaultFutureDate,
+        addressId: dto.addressId || null,
         razorpayOrderId,
         amountPaise: expectedPricePaise,
         paymentMethod: 'ONLINE',
@@ -232,9 +240,11 @@ export class PaymentService {
     }
 
     const event = payload?.event;
-    const paymentEntity = payload?.payload?.payment?.entity;
+    const paymentEntity = payload?.payload?.payment?.entity || payload?.payment?.entity;
     const razorpayPaymentId = paymentEntity?.id || payload?.razorpay_payment_id;
     const razorpayOrderId = paymentEntity?.order_id || payload?.razorpay_order_id;
+    const payloadAmount = paymentEntity?.amount ?? payload?.amount;
+    const payloadCurrency = paymentEntity?.currency ?? payload?.currency;
 
     if (!razorpayOrderId) {
       throw new BadRequestException('Missing order ID in webhook payload');
@@ -258,9 +268,25 @@ export class PaymentService {
       throw new NotFoundException(`Payment order not found for razorpay_order_id: ${razorpayOrderId}`);
     }
 
-    // Idempotency check: if already PAYMENT_SUCCESS, return idempotent ok
+    // 2. Validate Amount and Currency for Captured Events (DEF-005)
+    if (event === 'payment.captured' || payload?.status === 'captured') {
+      if (paymentEntity?.order_id && paymentEntity.order_id !== razorpayOrderId) {
+        throw new BadRequestException('Order ID mismatch between payload and payment entity');
+      }
+
+      if (payloadAmount !== undefined && Number(payloadAmount) !== paymentOrder.amountPaise) {
+        throw new BadRequestException(`Amount mismatch: webhook amount (${payloadAmount}) does not match order amount (${paymentOrder.amountPaise})`);
+      }
+
+      if (payloadCurrency !== undefined && payloadCurrency !== 'INR') {
+        throw new BadRequestException(`Currency mismatch: webhook currency (${payloadCurrency}) must be INR`);
+      }
+    }
+
+    // 3. Status Downgrade Protection & Idempotency Checks (DEF-001)
     if (
       paymentOrder.status === 'PAYMENT_SUCCESS' ||
+      paymentOrder.status === 'CASH_SETTLED' ||
       (razorpayPaymentId && paymentOrder.razorpayPaymentId === razorpayPaymentId)
     ) {
       console.log(
@@ -273,129 +299,177 @@ export class PaymentService {
       return { status: 'ok', message: 'Webhook already processed (idempotent)' };
     }
 
-    // 2. Process Successful Payment Event (Atomic Transaction)
+    // 4. Process Successful Payment Event (Atomic Transaction with Concurrency Guard DEF-003, DEF-004)
     if (event === 'payment.captured' || payload?.status === 'captured') {
-      return await this.prisma.$transaction(async (tx) => {
-        // Re-check order status inside transaction for concurrency protection
-        const currentOrder = await tx.paymentOrder.findUnique({
-          where: { id: paymentOrder.id },
-        });
-
-        if (!currentOrder) {
-          throw new NotFoundException('Payment order not found');
-        }
-
-        if (currentOrder.status === 'PAYMENT_SUCCESS') {
-          return { status: 'ok', message: 'Webhook already processed (idempotent)' };
-        }
-
-        let bookingId = currentOrder.bookingId;
-
-        // If no booking exists yet for this payment, create exactly ONE booking with status PENDING
-        if (!bookingId) {
-          const draftMeta = this.draftStore.get(currentOrder.bookingDraftId || '') || this.draftStore.get(razorpayOrderId);
-          
-          // Resolve service, address, slot
-          const service = draftMeta?.serviceId
-            ? await tx.service.findUnique({ where: { id: draftMeta.serviceId } })
-            : await tx.service.findFirst({ where: { isActive: true } });
-
-          const address = draftMeta?.addressId
-            ? await tx.customerAddress.findUnique({ where: { id: draftMeta.addressId } })
-            : await tx.customerAddress.findFirst({ where: { customerId: currentOrder.customerId } });
-
-          const slot = draftMeta?.slotId
-            ? await tx.bookingTimeSlot.findUnique({ where: { id: draftMeta.slotId } })
-            : await tx.bookingTimeSlot.findFirst({ where: { isActive: true } });
-
-          const slotDate = draftMeta?.slotDate ? new Date(draftMeta.slotDate) : new Date();
-          const dateStr = slotDate.toISOString().split('T')[0].replace(/-/g, '');
-          const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-          const bookingReference = `ACM-${dateStr}-${randomSuffix}`;
-
-          const addressSnapshot = address
-            ? {
-                label: address.label,
-                addressLine1: address.addressLine1,
-                addressLine2: address.addressLine2,
-                city: address.city,
-                pincode: address.pincode,
-              }
-            : {
-                label: 'Home',
-                addressLine1: '123 Main Street',
-                city: 'Bengaluru',
-                pincode: '560001',
-              };
-
-          const newBooking = await tx.booking.create({
-            data: {
-              bookingReference,
-              customerId: currentOrder.customerId,
-              serviceId: service?.id || '00000000-0000-0000-0000-000000000000',
-              serviceNameSnapshot: service?.name || 'Home Cleaning',
-              servicePriceSnapshot: service?.fixedPrice || (currentOrder.amountPaise / 100),
-              addressId: address?.id || null,
-              addressSnapshot,
-              slotDate,
-              slotId: slot?.id || null,
-              slotLabelSnapshot: slot?.label || '09:00 AM - 10:00 AM',
-              paymentMethod: 'ONLINE',
-              status: 'PENDING',
-              idempotencyKey: currentOrder.idempotencyKey || crypto.randomUUID(),
-            },
+      try {
+        return await this.prisma.$transaction(async (tx) => {
+          // Re-check order status inside transaction for concurrency protection
+          const currentOrder = await tx.paymentOrder.findUnique({
+            where: { id: paymentOrder.id },
           });
 
-          // Create status history record
-          await tx.bookingStatusHistory.create({
+          if (!currentOrder) {
+            throw new NotFoundException('Payment order not found');
+          }
+
+          if (currentOrder.status === 'PAYMENT_SUCCESS' || currentOrder.status === 'CASH_SETTLED') {
+            return { status: 'ok', message: 'Webhook already processed (idempotent)' };
+          }
+
+          let bookingId = currentOrder.bookingId;
+
+          // If no booking exists yet for this payment, create exactly ONE booking with status PENDING
+          if (!bookingId) {
+            const draftMeta = this.draftStore.get(currentOrder.bookingDraftId || '') || this.draftStore.get(razorpayOrderId);
+
+            // Resolve service, address, slot directly from persistent DB columns (DEF-002)
+            const service = currentOrder.serviceId
+              ? await tx.service.findUnique({ where: { id: currentOrder.serviceId } })
+              : draftMeta?.serviceId
+              ? await tx.service.findUnique({ where: { id: draftMeta.serviceId } })
+              : await tx.service.findFirst({ where: { isActive: true } });
+
+            const address = currentOrder.addressId
+              ? await tx.customerAddress.findUnique({ where: { id: currentOrder.addressId } })
+              : draftMeta?.addressId
+              ? await tx.customerAddress.findUnique({ where: { id: draftMeta.addressId } })
+              : await tx.customerAddress.findFirst({ where: { customerId: currentOrder.customerId } });
+
+            const slot = currentOrder.slotId
+              ? await tx.bookingTimeSlot.findUnique({ where: { id: currentOrder.slotId } })
+              : draftMeta?.slotId
+              ? await tx.bookingTimeSlot.findUnique({ where: { id: draftMeta.slotId } })
+              : await tx.bookingTimeSlot.findFirst({ where: { isActive: true } });
+
+            const slotDate = currentOrder.slotDate
+              ? new Date(currentOrder.slotDate)
+              : draftMeta?.slotDate
+              ? new Date(draftMeta.slotDate)
+              : new Date();
+
+            const dateStr = slotDate.toISOString().split('T')[0].replace(/-/g, '');
+            const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const bookingReference = `ACM-${dateStr}-${randomSuffix}`;
+
+            const addressSnapshot = address
+              ? {
+                  label: address.label,
+                  addressLine1: address.addressLine1,
+                  addressLine2: address.addressLine2,
+                  city: address.city,
+                  pincode: address.pincode,
+                }
+              : {
+                  label: 'Home',
+                  addressLine1: '123 Main Street',
+                  city: 'Bengaluru',
+                  pincode: '560001',
+                };
+
+            const newBooking = await tx.booking.create({
+              data: {
+                bookingReference,
+                customerId: currentOrder.customerId,
+                serviceId: service?.id || '00000000-0000-0000-0000-000000000000',
+                serviceNameSnapshot: service?.name || 'Home Cleaning',
+                servicePriceSnapshot: service?.fixedPrice || (currentOrder.amountPaise / 100),
+                addressId: address?.id || null,
+                addressSnapshot,
+                slotDate,
+                slotId: slot?.id || null,
+                slotLabelSnapshot: slot?.label || '09:00 AM - 10:00 AM',
+                paymentMethod: 'ONLINE',
+                status: 'PENDING',
+                idempotencyKey: currentOrder.idempotencyKey || crypto.randomUUID(),
+              },
+            });
+
+            // Create status history record
+            await tx.bookingStatusHistory.create({
+              data: {
+                bookingId: newBooking.id,
+                status: 'PENDING',
+                actorId: currentOrder.customerId,
+                actorRole: 'CUSTOMER',
+                note: 'Booking created via Razorpay payment capture',
+              },
+            });
+
+            bookingId = newBooking.id;
+
+            console.log(
+              JSON.stringify({
+                event: 'payment.booking.created',
+                booking_id: bookingId,
+                customer_id: currentOrder.customerId,
+                booking_reference: bookingReference,
+              }),
+            );
+          }
+
+          // Atomically update payment order
+          await tx.paymentOrder.update({
+            where: { id: currentOrder.id },
             data: {
-              bookingId: newBooking.id,
-              status: 'PENDING',
-              actorId: currentOrder.customerId,
-              actorRole: 'CUSTOMER',
-              note: 'Booking created via Razorpay payment capture',
+              status: 'PAYMENT_SUCCESS',
+              razorpayPaymentId: razorpayPaymentId || `pay_mock_${Date.now()}`,
+              razorpaySignature: signature,
+              bookingId,
             },
           });
-
-          bookingId = newBooking.id;
 
           console.log(
             JSON.stringify({
-              event: 'payment.booking.created',
+              event: 'payment.captured.processed',
+              payment_order_id: currentOrder.id,
+              razorpay_order_id: razorpayOrderId,
+              razorpay_payment_id: razorpayPaymentId,
               booking_id: bookingId,
-              customer_id: currentOrder.customerId,
-              booking_reference: bookingReference,
             }),
           );
-        }
 
-        // Atomically update payment order
-        await tx.paymentOrder.update({
-          where: { id: currentOrder.id },
-          data: {
-            status: 'PAYMENT_SUCCESS',
-            razorpayPaymentId: razorpayPaymentId || `pay_mock_${Date.now()}`,
-            razorpaySignature: signature,
-            bookingId,
-          },
+          return { status: 'ok', message: 'Payment marked as success' };
         });
-
-        console.log(
-          JSON.stringify({
-            event: 'payment.captured.processed',
-            payment_order_id: currentOrder.id,
-            razorpay_order_id: razorpayOrderId,
-            razorpay_payment_id: razorpayPaymentId,
-            booking_id: bookingId,
-          }),
-        );
-
-        return { status: 'ok', message: 'Payment marked as success' };
-      });
+      } catch (error: any) {
+        if (
+          error?.code === 'P2002' &&
+          Array.isArray(error?.meta?.target) &&
+          error.meta.target.includes('razorpay_payment_id')
+        ) {
+          console.log(
+            JSON.stringify({
+              event: 'payment.webhook.idempotent',
+              reason: 'Concurrent transaction P2002 razorpay_payment_id constraint absorbed',
+              razorpay_order_id: razorpayOrderId,
+              razorpay_payment_id: razorpayPaymentId,
+            }),
+          );
+          return { status: 'ok', message: 'Webhook already processed (idempotent)' };
+        }
+        throw error;
+      }
     }
 
-    // 3. Process Failed Payment Event
+    // 5. Process Failed Payment Event (Status Downgrade Guard DEF-001)
     if (event === 'payment.failed' || payload?.status === 'failed') {
+      if (
+        (paymentOrder.status as string) === 'PAYMENT_SUCCESS' ||
+        (paymentOrder.status as string) === 'CASH_SETTLED'
+      ) {
+        console.log(
+          JSON.stringify({
+            event: 'payment.webhook.idempotent',
+            reason: 'Ignored payment.failed after PAYMENT_SUCCESS',
+            razorpay_order_id: razorpayOrderId,
+          }),
+        );
+        return { status: 'ok', message: 'Webhook already processed (idempotent)' };
+      }
+
+      if (paymentOrder.status === 'PAYMENT_FAILED') {
+        return { status: 'ok', message: 'Webhook already processed (idempotent)' };
+      }
+
       await this.prisma.paymentOrder.update({
         where: { id: paymentOrder.id },
         data: {
@@ -415,7 +489,7 @@ export class PaymentService {
       return { status: 'ok', message: 'Payment marked as failed' };
     }
 
-    // 4. Unsupported Event: zero DB mutation
+    // 6. Unsupported Event: zero DB mutation
     return { status: 'ok', message: 'Event ignored' };
   }
 

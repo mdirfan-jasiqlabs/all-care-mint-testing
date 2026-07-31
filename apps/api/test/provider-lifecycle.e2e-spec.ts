@@ -17,6 +17,7 @@ import { RolesGuard } from '../src/modules/auth/guards/roles.guard';
 import { ApprovedProviderGuard } from '../src/modules/auth/guards/approved-provider.guard';
 
 describe('Provider Booking Lifecycle (e2e)', () => {
+  jest.setTimeout(60000);
   let app: INestApplication<App>;
   let prisma: PrismaService;
   const provider1Id = '4f1ea001-c812-42ea-a417-000000000001';

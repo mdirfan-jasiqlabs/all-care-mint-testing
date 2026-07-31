@@ -126,6 +126,7 @@ model Service {
 
   category          ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   bookings          Booking[]
+  paymentOrders     PaymentOrder[]
 
   @@unique([categoryId, name], map: "uq_service_name_category")
   @@index([categoryId], map: "idx_services_category_id")
@@ -169,6 +170,7 @@ model CustomerAddress {
 
   customer     Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
   bookings     Booking[]
+  paymentOrders PaymentOrder[]
 
   @@index([customerId], map: "idx_addresses_customer_id")
   @@map("customer_addresses")
@@ -185,6 +187,7 @@ model BookingTimeSlot {
   updatedAt    DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
   locks        BookingSlotLock[]
   bookings     Booking[]
+  paymentOrders PaymentOrder[]
 
   @@map("booking_time_slots")
 }
@@ -301,8 +304,12 @@ model PaymentOrder {
   customerId        String        @map("customer_id") @db.Uuid
   bookingId         String?       @map("booking_id") @db.Uuid
   bookingDraftId    String?       @map("booking_draft_id") @db.VarChar(255)
+  serviceId         String?       @map("service_id") @db.Uuid
+  slotId            String?       @map("slot_id") @db.Uuid
+  slotDate          DateTime?     @map("slot_date") @db.Date
+  addressId         String?       @map("address_id") @db.Uuid
   razorpayOrderId   String?       @map("razorpay_order_id") @db.VarChar(255)
-  razorpayPaymentId String?       @map("razorpay_payment_id") @db.VarChar(255)
+  razorpayPaymentId String?       @unique @map("razorpay_payment_id") @db.VarChar(255)
   razorpaySignature String?       @map("razorpay_signature") @db.VarChar(255)
   amountPaise       Int           @map("amount_paise")
   paymentMethod     PaymentMethod @default(ONLINE) @map("payment_method")
@@ -312,12 +319,14 @@ model PaymentOrder {
   createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
-  customer          Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  booking           Booking?      @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  customer          Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  booking           Booking?         @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  service           Service?         @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  slot              BookingTimeSlot? @relation(fields: [slotId], references: [id], onDelete: SetNull)
+  address           CustomerAddress? @relation(fields: [addressId], references: [id], onDelete: SetNull)
 
   @@index([customerId, status], map: "idx_payment_orders_customer_status")
   @@index([razorpayOrderId], map: "idx_payment_orders_razorpay_order")
-  @@index([razorpayPaymentId], map: "idx_payment_orders_razorpay_payment")
   @@map("payment_orders")
 }
 
