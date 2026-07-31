@@ -58,6 +58,7 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
         flexDirection: 'column',
         gap: '24px',
         flexShrink: 0,
+        overflowY: 'auto',
       }}
     >
       <div>

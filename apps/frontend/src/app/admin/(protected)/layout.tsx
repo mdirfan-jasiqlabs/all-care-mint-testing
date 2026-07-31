@@ -24,15 +24,24 @@ export default function ProtectedAdminLayout({ children }: { children: React.Rea
   return (
     <CatalogETagProvider>
       <ToastProvider>
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'hsl(224, 71%, 4%)', color: '#f8fafc' }}>
+        {/* Viewport-locked shell: no document-level scroll */}
+        <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'hsl(224, 71%, 4%)', color: '#f8fafc', overflow: 'hidden' }}>
+          {/* Sticky header at top */}
           <AdminHeader />
-          <div style={{ flex: 1, display: 'flex', position: 'relative' }}>
+
+          {/* Content row: sidebar (fixed) + main (scrollable) */}
+          <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+            {/* Sidebar: fills remaining height, never scrolls with content */}
             <AdminSidebar />
-            <main style={{ flex: 1, padding: '32px', display: 'flex', flexDirection: 'column', overflowX: 'hidden' }}>
-              {children}
+
+            {/* Main content: only this area scrolls vertically */}
+            <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ flex: 1, padding: '32px' }}>
+                {children}
+              </div>
+              <AdminFooter />
             </main>
           </div>
-          <AdminFooter />
         </div>
 
         {mounted && isMobile && (
@@ -51,3 +60,4 @@ export default function ProtectedAdminLayout({ children }: { children: React.Rea
     </CatalogETagProvider>
   );
 }
+
