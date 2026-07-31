@@ -42,16 +42,41 @@ function ProvidersPageContent() {
   const [submitting, setSubmitting] = useState(false);
 
   // Fetch service categories for onboard modal
+  const fetchCategories = async () => {
+    try {
+      const token = sessionStorage.getItem('access_token');
+      // Try public categories endpoint (no auth required) or fallback to admin catalog
+      const res = await fetch('http://localhost:3000/api/v1/public/categories');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+        setAvailableCategories(data.data);
+        return;
+      }
+
+      // Secondary attempt with Admin endpoint
+      const adminRes = await fetch('http://localhost:3000/api/v1/admin/catalog/categories', {
+        headers: {
+          Authorization: `Bearer ${token || ''}`,
+        },
+      });
+      const adminData = await adminRes.json();
+      if (adminData.success && Array.isArray(adminData.data)) {
+        setAvailableCategories(adminData.data);
+      }
+    } catch (err) {
+      console.error('Failed to load categories for provider onboarding', err);
+    }
+  };
+
   useEffect(() => {
-    fetch('http://localhost:3000/api/v1/catalog/categories')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setAvailableCategories(data.data);
-        }
-      })
-      .catch(() => {});
+    fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (modalOpen) {
+      fetchCategories();
+    }
+  }, [modalOpen]);
 
   // Sync state if URL query param changes externally (e.g. Browser Back/Forward)
   useEffect(() => {
