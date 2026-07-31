@@ -56,7 +56,14 @@ describe('ProviderService', () => {
     it('should format mobile number and onboard provider', async () => {
       mockProviderRepo.findProviderByMobile.mockResolvedValue(null);
       mockProviderRepo.saveProvider.mockResolvedValue({
-        id: 'prov-1',
+        id: '4f1ea001-c812-42ea-a417-000000000001',
+        mobileNumber: '+919876543210',
+        displayName: 'Rajesh',
+        status: ProviderStatusEnum.PENDING_REVIEW,
+        serviceArea: 'Indiranagar',
+      });
+      mockProviderRepo.findProviderById.mockResolvedValue({
+        id: '4f1ea001-c812-42ea-a417-000000000001',
         mobileNumber: '+919876543210',
         displayName: 'Rajesh',
         status: ProviderStatusEnum.PENDING_REVIEW,
@@ -78,7 +85,7 @@ describe('ProviderService', () => {
     });
 
     it('should throw ConflictException if provider mobile already exists', async () => {
-      mockProviderRepo.findProviderByMobile.mockResolvedValue({ id: 'prov-1' });
+      mockProviderRepo.findProviderByMobile.mockResolvedValue({ id: '4f1ea001-c812-42ea-a417-000000000001' });
 
       await expect(
         service.onboardProvider(
@@ -96,7 +103,7 @@ describe('ProviderService', () => {
   describe('updateProviderStatus', () => {
     it('should update status and create audit log', async () => {
       const existing = {
-        id: 'prov-1',
+        id: '4f1ea001-c812-42ea-a417-000000000001',
         mobileNumber: '+919876543210',
         displayName: 'Rajesh',
         status: ProviderStatusEnum.PENDING_REVIEW,
@@ -107,38 +114,44 @@ describe('ProviderService', () => {
         status: ProviderStatusEnum.APPROVED,
       });
 
-      const result = await service.updateProviderStatus('prov-1', ProviderStatusEnum.APPROVED, 'admin-1');
+      const result = await service.updateProviderStatus('4f1ea001-c812-42ea-a417-000000000001', ProviderStatusEnum.APPROVED, 'admin-1');
       expect(result.status).toBe(ProviderStatusEnum.APPROVED);
       expect(mockPrisma.auditLog.create).toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException on invalid UUID', async () => {
+      await expect(
+        service.updateProviderStatus('invalid-uuid-123', ProviderStatusEnum.APPROVED, 'admin-1'),
+      ).rejects.toThrow();
     });
   });
 
   describe('validateProviderActive', () => {
     it('should throw ForbiddenException if provider is suspended', async () => {
       mockProviderRepo.findProviderById.mockResolvedValue({
-        id: 'prov-1',
+        id: '4f1ea001-c812-42ea-a417-000000000001',
         status: ProviderStatusEnum.SUSPENDED,
       });
 
-      await expect(service.validateProviderActive('prov-1')).rejects.toThrow(ForbiddenException);
+      await expect(service.validateProviderActive('4f1ea001-c812-42ea-a417-000000000001')).rejects.toThrow(ForbiddenException);
     });
 
     it('should throw ForbiddenException if provider is pending', async () => {
       mockProviderRepo.findProviderById.mockResolvedValue({
-        id: 'prov-1',
+        id: '4f1ea001-c812-42ea-a417-000000000001',
         status: ProviderStatusEnum.PENDING_REVIEW,
       });
 
-      await expect(service.validateProviderActive('prov-1')).rejects.toThrow(ForbiddenException);
+      await expect(service.validateProviderActive('4f1ea001-c812-42ea-a417-000000000001')).rejects.toThrow(ForbiddenException);
     });
 
     it('should pass if provider is approved', async () => {
       mockProviderRepo.findProviderById.mockResolvedValue({
-        id: 'prov-1',
+        id: '4f1ea001-c812-42ea-a417-000000000001',
         status: ProviderStatusEnum.APPROVED,
       });
 
-      await expect(service.validateProviderActive('prov-1')).resolves.not.toThrow();
+      await expect(service.validateProviderActive('4f1ea001-c812-42ea-a417-000000000001')).resolves.not.toThrow();
     });
   });
 });

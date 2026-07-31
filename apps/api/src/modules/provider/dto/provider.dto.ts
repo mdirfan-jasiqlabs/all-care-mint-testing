@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEnum, Matches, MaxLength } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, Matches, MaxLength, IsOptional, IsArray } from 'class-validator';
 
 export enum ProviderStatusEnum {
   PENDING_REVIEW = 'PENDING_REVIEW',
@@ -22,6 +22,11 @@ export class CreateProviderDto {
   @IsNotEmpty()
   @MaxLength(100)
   serviceArea: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  categoryIds?: string[];
 }
 
 export class UpdateProviderStatusDto {

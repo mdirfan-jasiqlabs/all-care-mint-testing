@@ -294,6 +294,37 @@ export class AuthService {
     const mobileNumber = `+91${cleanNum}`;
     const role = (dto.role || 'CUSTOMER').toUpperCase() as 'CUSTOMER' | 'PROVIDER';
 
+    if (role === 'PROVIDER') {
+      const provider = await this.authRepository.findProviderByMobile(mobileNumber);
+      if (!provider) {
+        throw new ForbiddenException({
+          success: false,
+          error: {
+            code: 'ERR_AUTH_PROVIDER_UNAPPROVED',
+            message: 'No provider account matches this mobile number.',
+          },
+        });
+      }
+      if (provider.status === 'SUSPENDED') {
+        throw new ForbiddenException({
+          success: false,
+          error: {
+            code: 'ERR_PROVIDER_SUSPENDED',
+            message: 'Account suspended.',
+          },
+        });
+      }
+      if (provider.status !== 'APPROVED') {
+        throw new ForbiddenException({
+          success: false,
+          error: {
+            code: 'ERR_AUTH_PROVIDER_UNAPPROVED',
+            message: `Provider status: ${provider.status}`,
+          },
+        });
+      }
+    }
+
     // Cooldown check (60s)
     const latestAttempt = await this.authRepository.findLatestOtpAttempt(
       mobileNumber,
@@ -465,8 +496,13 @@ export class AuthService {
     } else {
       let provider = await this.authRepository.findProviderByMobile(mobileNumber);
       if (!provider) {
-        provider = await this.authRepository.createProvider(mobileNumber);
-        isNewUser = true;
+        throw new ForbiddenException({
+          success: false,
+          error: {
+            code: 'ERR_AUTH_PROVIDER_UNAPPROVED',
+            message: 'No provider account matches this mobile number.',
+          },
+        });
       }
       if (provider.status === 'SUSPENDED') {
         throw new ForbiddenException({

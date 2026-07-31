@@ -32,7 +32,21 @@ export default function ProvidersPage() {
   const [fullName, setFullName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [serviceArea, setServiceArea] = useState('');
+  const [availableCategories, setAvailableCategories] = useState<{ id: string; name: string }[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+
+  // Fetch service categories for onboard modal
+  useEffect(() => {
+    fetch('http://localhost:3000/api/v1/catalog/categories')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setAvailableCategories(data.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Handle search debouncing
   useEffect(() => {
@@ -92,6 +106,10 @@ export default function ProvidersPage() {
       addToast('All fields are required.', 'warning');
       return;
     }
+    if (selectedCategoryIds.length === 0) {
+      addToast('Please select at least one service category.', 'warning');
+      return;
+    }
     // Indian mobile number validation
     if (!/^[6-9][0-9]{9}$/.test(mobileNumber)) {
       addToast('Please enter a valid 10-digit Indian mobile number.', 'warning');
@@ -111,6 +129,7 @@ export default function ProvidersPage() {
           fullName,
           mobileNumber,
           serviceArea,
+          categoryIds: selectedCategoryIds,
         }),
       });
 
@@ -124,6 +143,7 @@ export default function ProvidersPage() {
       setFullName('');
       setMobileNumber('');
       setServiceArea('');
+      setSelectedCategoryIds([]);
       fetchProviders();
     } catch (err: any) {
       addToast(err.message || 'Failed to add provider', 'error');
@@ -451,6 +471,35 @@ export default function ProvidersPage() {
                     fontSize: '13px',
                   }}
                 />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px' }}>
+                  Service Category Assignments *
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '140px', overflowY: 'auto', backgroundColor: '#020617', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                  {availableCategories.length === 0 ? (
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>No categories available</span>
+                  ) : (
+                    availableCategories.map((cat) => (
+                      <label key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#ffffff', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          value={cat.id}
+                          checked={selectedCategoryIds.includes(cat.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedCategoryIds((prev) => [...prev, cat.id]);
+                            } else {
+                              setSelectedCategoryIds((prev) => prev.filter((id) => id !== cat.id));
+                            }
+                          }}
+                        />
+                        {cat.name}
+                      </label>
+                    ))
+                  )}
+                </div>
               </div>
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
