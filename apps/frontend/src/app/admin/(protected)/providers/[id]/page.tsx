@@ -52,12 +52,22 @@ export default function ProviderDetailPage() {
       }
 
       // 2. Fetch all service categories
-      const categoriesRes = await fetch('http://localhost:3000/api/v1/catalog/categories');
-      if (categoriesRes.ok) {
-        const categoriesData = await categoriesRes.json();
-        if (categoriesData.success) {
-          setCategories(categoriesData.data);
+      try {
+        const publicRes = await fetch('http://localhost:3000/api/v1/public/categories');
+        const pubData = await publicRes.json();
+        if (pubData.success && Array.isArray(pubData.data)) {
+          setCategories(pubData.data);
+        } else {
+          const adminRes = await fetch('http://localhost:3000/api/v1/admin/catalog/categories', {
+            headers: { Authorization: `Bearer ${token || ''}` },
+          });
+          const admData = await adminRes.json();
+          if (admData.success && Array.isArray(admData.data)) {
+            setCategories(admData.data);
+          }
         }
+      } catch {
+        // Fallback fetch
       }
     } catch (err: any) {
       addToast(err.message || 'Error fetching data', 'error');
