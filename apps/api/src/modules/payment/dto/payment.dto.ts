@@ -7,6 +7,22 @@ export class InitiatePaymentDto {
 
   @IsOptional()
   @IsString()
+  serviceId?: string;
+
+  @IsOptional()
+  @IsString()
+  slotId?: string;
+
+  @IsOptional()
+  @IsString()
+  slotDate?: string;
+
+  @IsOptional()
+  @IsString()
+  addressId?: string;
+
+  @IsOptional()
+  @IsString()
   bookingId?: string;
 
   @IsOptional()

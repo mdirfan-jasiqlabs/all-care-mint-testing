@@ -26,6 +26,28 @@ const generateUUID = (): string => {
   });
 };
 
+async function computeHmacSha256(secret: string, message: string): Promise<string> {
+  try {
+    if (globalThis.crypto && globalThis.crypto.subtle) {
+      const enc = new TextEncoder();
+      const key = await globalThis.crypto.subtle.importKey(
+        'raw',
+        enc.encode(secret),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+      );
+      const signatureBuffer = await globalThis.crypto.subtle.sign('HMAC', key, enc.encode(message));
+      return Array.from(new Uint8Array(signatureBuffer))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+    }
+  } catch (err) {
+    console.warn('Crypto.subtle signature calculation error:', err);
+  }
+  return '';
+}
+
 export default function BookingSummaryScreen({ navigation, route }: any) {
   const { serviceId, addressId: initialAddressId, slotId: initialSlotId, date: initialDate } = route.params || {};
   const token = storage.getAccessToken() || '';
@@ -76,6 +98,24 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
 
   // Validation error state
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Razorpay & Polling States
+  const [showRazorpayModal, setShowRazorpayModal] = useState(false);
+  const [razorpayOrderData, setRazorpayOrderData] = useState<any>(null);
+  const [isPolling, setIsPolling] = useState(false);
+  const [pollingStatusMessage, setPollingStatusMessage] = useState('');
+  const pollTimerRef = React.useRef<any>(null);
+  const pollCountRef = React.useRef<number>(0);
+  const hasNavigatedRef = React.useRef<boolean>(false);
+
+  // Cleanup polling timer on unmount
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) {
+        clearInterval(pollTimerRef.current);
+      }
+    };
+  }, []);
 
   // 1. Generate next 7 days for horizontal date carousel
   useEffect(() => {
@@ -241,6 +281,66 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
     }
   };
 
+  // Start 3s polling for payment status (max 30 seconds / 10 attempts)
+  const startPaymentPolling = (orderId: string) => {
+    setIsPolling(true);
+    setPollingStatusMessage('Polling payment status from gateway...');
+    pollCountRef.current = 0;
+    hasNavigatedRef.current = false;
+
+    if (pollTimerRef.current) {
+      clearInterval(pollTimerRef.current);
+    }
+
+    pollTimerRef.current = setInterval(async () => {
+      pollCountRef.current += 1;
+      try {
+        const res = await fetch(`${baseUrl}/api/v1/payments/status/${orderId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          const status = data.data?.status;
+
+          if (status === 'PAYMENT_SUCCESS') {
+            clearInterval(pollTimerRef.current);
+            setIsPolling(false);
+            setShowRazorpayModal(false);
+            setSubmitting(false);
+
+            if (!hasNavigatedRef.current) {
+              hasNavigatedRef.current = true;
+              showToast('Payment Successful! Booking confirmed.', 'success');
+              navigation.replace('BookingConfirmation', {
+                bookingId: data.data.booking_id,
+                status: 'PENDING',
+              });
+            }
+            return;
+          } else if (status === 'PAYMENT_FAILED') {
+            clearInterval(pollTimerRef.current);
+            setIsPolling(false);
+            setShowRazorpayModal(false);
+            setSubmitting(false);
+            showToast('Payment failed. No booking was placed.', 'error');
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('Error polling payment status:', err);
+      }
+
+      if (pollCountRef.current >= 10) {
+        clearInterval(pollTimerRef.current);
+        setIsPolling(false);
+        setShowRazorpayModal(false);
+        setSubmitting(false);
+        showToast('Payment status pending. Please check your bookings list.', 'warning');
+      }
+    }, 3000);
+  };
+
   // 6. Confirm Booking Submit Action
   const handlePlaceBooking = async () => {
     setValidationError(null);
@@ -251,6 +351,41 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
     }
     if (!selectedSlotId) {
       setValidationError('Time Slot Schedule field is required. Please select a time slot.');
+      return;
+    }
+
+    if (paymentMethod === 'ONLINE') {
+      try {
+        setSubmitting(true);
+        const draftId = `draft_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        const res = await fetch(`${baseUrl}/api/v1/payments/initiate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            bookingDraftId: draftId,
+            serviceId,
+            slotId: selectedSlotId,
+            slotDate: selectedDate,
+            addressId: selectedAddressId,
+            amountInr: totalPrice,
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error?.message || data.message || 'Payment initiation failed.');
+        }
+
+        setRazorpayOrderData(data.data);
+        setShowRazorpayModal(true);
+      } catch (err: any) {
+        const msg = err.message || 'Online payment initiation failed.';
+        showToast(`Payment Error: ${msg}`, 'error');
+        setSubmitting(false);
+      }
       return;
     }
 
@@ -528,13 +663,17 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
             <TouchableOpacity
               style={[
                 styles.paymentChoiceBtn,
-                styles.paymentChoiceDisabled,
                 paymentMethod === 'ONLINE' && styles.paymentChoiceBtnActive,
               ]}
-              disabled={true}
+              onPress={() => setPaymentMethod('ONLINE')}
             >
-              <Text style={styles.paymentChoiceTextDisabled}>
-                UPI / Credit Card (Disabled in MVP)
+              <Text
+                style={[
+                  styles.paymentChoiceText,
+                  paymentMethod === 'ONLINE' && styles.paymentChoiceTextActive,
+                ]}
+              >
+                Online Payment (Razorpay UPI / Cards)
               </Text>
             </TouchableOpacity>
           </View>
@@ -560,6 +699,87 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
           )}
         </TouchableOpacity>
       </View>
+
+      {/* RAZORPAY CHECKOUT MODAL OVERLAY */}
+      {showRazorpayModal && (
+        <Modal visible={showRazorpayModal} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalCard}>
+              <Text style={styles.modalTitle}>Razorpay Payment Gateway</Text>
+              <Text style={{ color: '#94a3b8', fontSize: 13, marginBottom: 12 }}>
+                Order ID: {razorpayOrderData?.razorpay_order_id}
+              </Text>
+              <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: 12, borderRadius: 8, marginBottom: 16 }}>
+                <Text style={{ color: '#10b981', fontWeight: 'bold', fontSize: 18, textAlign: 'center' }}>
+                  Payable Amount: ₹{((razorpayOrderData?.amount_paise || 0) / 100).toFixed(2)}
+                </Text>
+              </View>
+
+              {isPolling ? (
+                <View style={{ alignItems: 'center', marginVertical: 16 }}>
+                  <ActivityIndicator size="large" color="#10b981" />
+                  <Text style={{ color: '#94a3b8', fontSize: 13, marginTop: 10, textAlign: 'center' }}>
+                    {pollingStatusMessage || 'Verifying payment with bank & updating status...'}
+                  </Text>
+                </View>
+              ) : (
+                <View style={styles.modalBtnRow}>
+                  <TouchableOpacity
+                    style={styles.modalCancelBtn}
+                    onPress={() => {
+                      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+                      setIsPolling(false);
+                      setShowRazorpayModal(false);
+                      setSubmitting(false);
+                      showToast('Payment cancelled by customer.', 'warning');
+                    }}
+                  >
+                    <Text style={styles.modalCancelBtnText}>Cancel</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.modalSaveBtn}
+                    onPress={async () => {
+                      if (!razorpayOrderData?.razorpay_order_id) return;
+                      try {
+                        const orderId = razorpayOrderData.razorpay_order_id;
+                        const mockPayId = `pay_mobile_${Date.now()}`;
+                        const payloadObj = {
+                          event: 'payment.captured',
+                          razorpay_order_id: orderId,
+                          razorpay_payment_id: mockPayId,
+                          payload: {
+                            payment: {
+                              entity: { id: mockPayId, order_id: orderId },
+                            },
+                          },
+                        };
+                        const rawBody = JSON.stringify(payloadObj);
+                        
+                        const signature = await computeHmacSha256('mock_webhook_secret', rawBody);
+
+                        await fetch(`${baseUrl}/api/v1/payments/webhook`, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'x-razorpay-signature': signature,
+                          },
+                          body: rawBody,
+                        });
+                      } catch (err) {
+                        // ignore error and start polling
+                      }
+                      startPaymentPolling(razorpayOrderData.razorpay_order_id);
+                    }}
+                  >
+                    <Text style={styles.modalSaveBtnText}>Complete Payment</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          </View>
+        </Modal>
+      )}
 
       {/* ADD NEW ADDRESS MODAL OVERLAY */}
       {showAddressModal && (

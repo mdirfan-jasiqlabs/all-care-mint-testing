@@ -24,6 +24,7 @@ async function bootstrap() {
         },
       },
     }),
+    { rawBody: true },
   );
 
   app.useGlobalPipes(

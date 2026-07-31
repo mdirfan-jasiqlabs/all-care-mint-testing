@@ -36,19 +36,27 @@ export class PaymentController {
   /** POST /api/v1/payments/webhook - HMAC verified Razorpay webhook */
   @Post('webhook')
   async handleWebhook(
-    @Req() req: any,
+    @Req() req: RawBodyRequest<any>,
     @Headers('x-razorpay-signature') signature: string,
     @Body(new ValidationPipe({ whitelist: false, forbidNonWhitelisted: false })) payload: any,
   ) {
-    const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(payload || {});
-    const result = await this.paymentService.handleWebhook(rawBody, signature, payload);
+    const rawBodyBuffer = req.rawBody || req.body;
+    const rawBodyStr = Buffer.isBuffer(rawBodyBuffer)
+      ? rawBodyBuffer.toString('utf8')
+      : typeof rawBodyBuffer === 'string'
+      ? rawBodyBuffer
+      : JSON.stringify(payload || {});
+    const result = await this.paymentService.handleWebhook(rawBodyStr, signature, payload);
     return result;
   }
 
-  /** GET /api/v1/payments/status/:order_id - Status check endpoint */
+  /** GET /api/v1/payments/status/:order_id - Status check endpoint (Customer Auth & Ownership protected) */
   @Get('status/:order_id')
-  async getPaymentStatus(@Param('order_id') orderId: string) {
-    const result = await this.paymentService.getPaymentStatus(orderId);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('CUSTOMER')
+  async getPaymentStatus(@Req() req: any, @Param('order_id') orderId: string) {
+    const customerId = req.user.id || req.user.userId || req.user.sub;
+    const result = await this.paymentService.getPaymentStatus(orderId, customerId);
     return {
       success: true,
       data: result,
