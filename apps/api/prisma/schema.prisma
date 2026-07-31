@@ -39,6 +39,7 @@ model Customer {
   bookings        Booking[]
   idempotencyKeys IdempotencyKey[]
   slotLocks       BookingSlotLock[]
+  paymentOrders   PaymentOrder[]
 
   @@map("customers")
 }
@@ -217,6 +218,7 @@ model Booking {
   slot                 BookingTimeSlot?       @relation(fields: [slotId], references: [id], onDelete: Restrict)
   statusHistory        BookingStatusHistory[]
   locks                BookingSlotLock[]
+  paymentOrders        PaymentOrder[]
 
   @@index([customerId, status], map: "idx_bookings_customer_status")
   @@index([providerId, status], map: "idx_bookings_provider_status")
@@ -285,5 +287,39 @@ model OtpAttempt {
   @@index([mobileNumber, role], map: "idx_otp_attempts_mobile_role")
   @@map("otp_attempts")
 }
+
+enum PaymentStatus {
+  PAYMENT_PENDING
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  CASH_PENDING
+  CASH_SETTLED
+}
+
+model PaymentOrder {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId        String        @map("customer_id") @db.Uuid
+  bookingId         String?       @map("booking_id") @db.Uuid
+  bookingDraftId    String?       @map("booking_draft_id") @db.VarChar(255)
+  razorpayOrderId   String?       @map("razorpay_order_id") @db.VarChar(255)
+  razorpayPaymentId String?       @map("razorpay_payment_id") @db.VarChar(255)
+  razorpaySignature String?       @map("razorpay_signature") @db.VarChar(255)
+  amountPaise       Int           @map("amount_paise")
+  paymentMethod     PaymentMethod @default(ONLINE) @map("payment_method")
+  status            PaymentStatus @default(PAYMENT_PENDING)
+  idempotencyKey    String?       @unique @map("idempotency_key") @db.VarChar(255)
+  failureReason     String?       @map("failure_reason") @db.Text
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  customer          Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  booking           Booking?      @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@index([customerId, status], map: "idx_payment_orders_customer_status")
+  @@index([razorpayOrderId], map: "idx_payment_orders_razorpay_order")
+  @@index([razorpayPaymentId], map: "idx_payment_orders_razorpay_payment")
+  @@map("payment_orders")
+}
+
 
 
