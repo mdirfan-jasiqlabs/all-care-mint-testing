@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useToast } from '../../_components/Toast';
 
 interface PaymentRecord {
   id: string;
@@ -17,6 +18,7 @@ interface PaymentRecord {
 export default function AdminPaymentsPage() {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [methodFilter, setMethodFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFrom, setDateFrom] = useState('');
@@ -24,13 +26,16 @@ export default function AdminPaymentsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [settlingId, setSettlingId] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
+  const { addToast } = useToast();
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
 
   const fetchPayments = async () => {
     setLoading(true);
+    setErrorMsg(null);
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : '';
+      const token = typeof window !== 'undefined' ? (localStorage.getItem('admin_token') || localStorage.getItem('access_token') || '') : '';
       const params = new URLSearchParams();
       if (methodFilter) params.append('method', methodFilter);
       if (statusFilter) params.append('status', statusFilter);
@@ -44,6 +49,15 @@ export default function AdminPaymentsPage() {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          throw new Error('Unauthorized access to admin payments API');
+        }
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson?.error?.message || errJson?.message || `HTTP ${res.status} error fetching payments`);
+      }
+
       const json = await res.json();
       if (json.success && json.data) {
         setPayments(json.data.data || []);
@@ -51,8 +65,11 @@ export default function AdminPaymentsPage() {
       } else {
         setPayments([]);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to fetch payments:', err);
+      setErrorMsg(err.message || 'Failed to load payments ledger records.');
+      addToast(err.message || 'Error loading payment records', 'error');
+      setPayments([]);
     } finally {
       setLoading(false);
     }
@@ -63,29 +80,44 @@ export default function AdminPaymentsPage() {
   }, [methodFilter, statusFilter, dateFrom, dateTo, page]);
 
   const handleSettle = async (id: string) => {
+    if (settlingId) return; // Prevent duplicate clicks
     setSettlingId(id);
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : '';
+      const token = typeof window !== 'undefined' ? (localStorage.getItem('admin_token') || localStorage.getItem('access_token') || '') : '';
       const res = await fetch(`${API_BASE}/admin/payments/${id}/settle`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      const json = await res.json();
-      if (json.success) {
-        fetchPayments();
+
+      const json = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        const errorText = json.error?.message || json.message || `Settlement failed (HTTP ${res.status})`;
+        addToast(errorText, 'error');
+        return;
       }
-    } catch (err) {
+
+      if (json.success) {
+        addToast('Cash payment marked as settled', 'success');
+        await fetchPayments();
+      } else {
+        addToast(json.message || 'Settlement request returned unsuccessful', 'error');
+      }
+    } catch (err: any) {
       console.error('Failed to settle payment:', err);
+      addToast(err.message || 'Network error during payment settlement', 'error');
     } finally {
       setSettlingId(null);
     }
   };
 
   const handleExportCsv = async () => {
+    if (exporting) return;
+    setExporting(true);
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : '';
+      const token = typeof window !== 'undefined' ? (localStorage.getItem('admin_token') || localStorage.getItem('access_token') || '') : '';
       const params = new URLSearchParams();
       if (methodFilter) params.append('method', methodFilter);
       if (statusFilter) params.append('status', statusFilter);
@@ -96,6 +128,14 @@ export default function AdminPaymentsPage() {
       const res = await fetch(`${API_BASE}/admin/payments?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        const msg = errJson?.error?.message || errJson?.message || `CSV export failed (HTTP ${res.status})`;
+        addToast(msg, 'error');
+        return;
+      }
+
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -104,8 +144,13 @@ export default function AdminPaymentsPage() {
       document.body.appendChild(a);
       a.click();
       a.remove();
-    } catch (err) {
+      window.URL.revokeObjectURL(url);
+      addToast('CSV export downloaded successfully', 'success');
+    } catch (err: any) {
       console.error('Failed to export CSV:', err);
+      addToast(err.message || 'Failed to generate CSV export', 'error');
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -181,7 +226,7 @@ export default function AdminPaymentsPage() {
       {/* Header Banner */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
+          <h1 id="admin-payments-heading" style={{ fontSize: '24px', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
             Payments & Financial Ledger
           </h1>
           <p style={{ fontSize: '14px', color: '#94a3b8', marginTop: '4px', margin: 0 }}>
@@ -189,7 +234,9 @@ export default function AdminPaymentsPage() {
           </p>
         </div>
         <button
+          id="export-csv-btn"
           onClick={handleExportCsv}
+          disabled={exporting}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -201,7 +248,8 @@ export default function AdminPaymentsPage() {
             fontSize: '14px',
             borderRadius: '8px',
             border: 'none',
-            cursor: 'pointer',
+            cursor: exporting ? 'not-allowed' : 'pointer',
+            opacity: exporting ? 0.7 : 1,
             boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)',
           }}
         >
@@ -210,7 +258,7 @@ export default function AdminPaymentsPage() {
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
-          Export CSV
+          {exporting ? 'Exporting...' : 'Export CSV'}
         </button>
       </div>
 
@@ -228,8 +276,11 @@ export default function AdminPaymentsPage() {
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <label style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>Payment Method</label>
+          <label htmlFor="method-filter-select" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+            Payment Method
+          </label>
           <select
+            id="method-filter-select"
             value={methodFilter}
             onChange={(e) => {
               setMethodFilter(e.target.value);
@@ -245,14 +296,17 @@ export default function AdminPaymentsPage() {
             }}
           >
             <option value="">All Methods</option>
-            <option value="ONLINE">ONLINE (Razorpay)</option>
-            <option value="CASH">CASH (On Service)</option>
+            <option value="ONLINE">ONLINE</option>
+            <option value="CASH">CASH</option>
           </select>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <label style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>Payment Status</label>
+          <label htmlFor="status-filter-select" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+            Payment Status
+          </label>
           <select
+            id="status-filter-select"
             value={statusFilter}
             onChange={(e) => {
               setStatusFilter(e.target.value);
@@ -277,8 +331,11 @@ export default function AdminPaymentsPage() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <label style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>From Date</label>
+          <label htmlFor="date-from-input" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+            From Date
+          </label>
           <input
+            id="date-from-input"
             type="date"
             value={dateFrom}
             onChange={(e) => {
@@ -297,8 +354,11 @@ export default function AdminPaymentsPage() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <label style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>To Date</label>
+          <label htmlFor="date-to-input" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+            To Date
+          </label>
           <input
+            id="date-to-input"
             type="date"
             value={dateTo}
             onChange={(e) => {
@@ -326,92 +386,128 @@ export default function AdminPaymentsPage() {
           overflow: 'hidden',
         }}
       >
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
-              <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Date</th>
-              <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Booking Ref</th>
-              <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Customer</th>
-              <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Service</th>
-              <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Amount</th>
-              <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Method</th>
-              <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Status</th>
-              <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={8} style={{ padding: '32px', textAlign: 'center', color: '#94a3b8' }}>
-                  Loading payment records...
-                </td>
+        {errorMsg && (
+          <div
+            id="error-payments-state"
+            style={{
+              padding: '16px 20px',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+              color: '#f87171',
+              fontSize: '14px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <span>{errorMsg}</span>
+            <button
+              onClick={fetchPayments}
+              style={{
+                padding: '4px 12px',
+                backgroundColor: '#ef4444',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: 600,
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        <div style={{ overflowX: 'auto' }}>
+          <table id="admin-payments-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
+                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Date</th>
+                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Booking ID</th>
+                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Customer</th>
+                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Service</th>
+                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Amount</th>
+                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Method</th>
+                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Status</th>
+                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', textAlign: 'right' }}>Action</th>
               </tr>
-            ) : payments.length === 0 ? (
-              <tr>
-                <td colSpan={8} style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>
-                  No payment transactions found matching the filter criteria.
-                </td>
-              </tr>
-            ) : (
-              payments.map((row) => (
-                <tr key={row.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                  <td style={{ padding: '14px 16px', fontSize: '14px', color: '#cbd5e1' }}>
-                    {new Date(row.date).toLocaleDateString('en-IN', {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </td>
-                  <td style={{ padding: '14px 16px', fontSize: '14px', fontWeight: 600, color: '#f8fafc' }}>
-                    {row.booking_id}
-                  </td>
-                  <td style={{ padding: '14px 16px', fontSize: '14px', color: '#cbd5e1' }}>
-                    {row.customer_name}
-                  </td>
-                  <td style={{ padding: '14px 16px', fontSize: '14px', color: '#cbd5e1' }}>
-                    {row.service_name}
-                  </td>
-                  <td style={{ padding: '14px 16px', fontSize: '14px', fontWeight: 700, color: '#10b981' }}>
-                    ₹{row.amount_inr}
-                  </td>
-                  <td style={{ padding: '14px 16px' }}>{renderMethodBadge(row.payment_method)}</td>
-                  <td style={{ padding: '14px 16px' }}>{renderStatusBadge(row.status)}</td>
-                  <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                    {row.status === 'CASH_PENDING' ? (
-                      <button
-                        onClick={() => handleSettle(row.id)}
-                        disabled={settlingId === row.id}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: '#3b82f6',
-                          color: '#ffffff',
-                          borderRadius: '6px',
-                          border: 'none',
-                          fontWeight: 600,
-                          fontSize: '12px',
-                          cursor: 'pointer',
-                          opacity: settlingId === row.id ? 0.6 : 1,
-                        }}
-                      >
-                        {settlingId === row.id ? 'Settling...' : 'Mark Settled'}
-                      </button>
-                    ) : (
-                      <span style={{ fontSize: '12px', color: '#475569' }}>—</span>
-                    )}
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={8} style={{ padding: '32px', textAlign: 'center', color: '#94a3b8' }}>
+                    Loading payment records...
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : payments.length === 0 ? (
+                <tr>
+                  <td id="empty-payments-state" colSpan={8} style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>
+                    No payment transactions found matching the filter criteria.
+                  </td>
+                </tr>
+              ) : (
+                payments.map((row) => (
+                  <tr key={row.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                    <td style={{ padding: '14px 16px', fontSize: '14px', color: '#cbd5e1' }}>
+                      {new Date(row.date).toLocaleDateString('en-IN', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </td>
+                    <td style={{ padding: '14px 16px', fontSize: '14px', fontWeight: 600, color: '#f8fafc' }}>
+                      {row.booking_id}
+                    </td>
+                    <td style={{ padding: '14px 16px', fontSize: '14px', color: '#cbd5e1' }}>
+                      {row.customer_name}
+                    </td>
+                    <td style={{ padding: '14px 16px', fontSize: '14px', color: '#cbd5e1' }}>
+                      {row.service_name}
+                    </td>
+                    <td style={{ padding: '14px 16px', fontSize: '14px', fontWeight: 700, color: '#10b981' }}>
+                      ₹{row.amount_inr}
+                    </td>
+                    <td style={{ padding: '14px 16px' }}>{renderMethodBadge(row.payment_method)}</td>
+                    <td style={{ padding: '14px 16px' }}>{renderStatusBadge(row.status)}</td>
+                    <td style={{ padding: '14px 16px', textAlign: 'right' }}>
+                      {row.status === 'CASH_PENDING' ? (
+                        <button
+                          id={`settle-btn-${row.id}`}
+                          onClick={() => handleSettle(row.id)}
+                          disabled={settlingId === row.id}
+                          style={{
+                            padding: '6px 12px',
+                            backgroundColor: '#3b82f6',
+                            color: '#ffffff',
+                            borderRadius: '6px',
+                            border: 'none',
+                            fontWeight: 600,
+                            fontSize: '12px',
+                            cursor: settlingId === row.id ? 'not-allowed' : 'pointer',
+                            opacity: settlingId === row.id ? 0.6 : 1,
+                          }}
+                        >
+                          {settlingId === row.id ? 'Settling...' : 'Mark Settled'}
+                        </button>
+                      ) : (
+                        <span style={{ fontSize: '12px', color: '#475569' }}>—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {/* Pagination Bar */}
         <div
           style={{
             display: 'flex',
-            justify: 'space-between',
+            justifyContent: 'space-between',
             alignItems: 'center',
             padding: '12px 16px',
             backgroundColor: '#1e293b',
@@ -423,6 +519,7 @@ export default function AdminPaymentsPage() {
           </span>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
+              id="prev-page-btn"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
               style={{
@@ -439,6 +536,7 @@ export default function AdminPaymentsPage() {
               Previous
             </button>
             <button
+              id="next-page-btn"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
               style={{

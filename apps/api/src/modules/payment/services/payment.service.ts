@@ -751,6 +751,10 @@ export class PaymentService {
       where: { id: paymentId },
     });
 
+    if (!updated) {
+      throw new NotFoundException('Payment order not found after settlement');
+    }
+
     this.logger.log({
       event: 'admin.payment.settled',
       payment_id: updated.id,
