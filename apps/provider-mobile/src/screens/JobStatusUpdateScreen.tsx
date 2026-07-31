@@ -68,10 +68,10 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
           body: JSON.stringify({ status: item.status }),
         });
         if (res.ok || res.status === 409) {
-          storage.removeOfflineUpdate(item.id);
+          storage.removeOfflineUpdate(item.clientOpId);
         }
       } catch (err) {
-        console.error('Failed to sync offline item:', item.id, err);
+        console.error('Failed to sync offline item:', item.clientOpId, err);
       }
     }
     setSyncState('synced');

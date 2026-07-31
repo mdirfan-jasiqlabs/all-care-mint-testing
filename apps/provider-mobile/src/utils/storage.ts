@@ -126,3 +126,9 @@ export const enqueueOfflineUpdate = (bookingId: string, status: string): void =>
   }
 };
 
+export const removeOfflineUpdate = (clientOpId: string): void => {
+  const queue = getOfflineQueue();
+  const filteredQueue = queue.filter(item => item.clientOpId !== clientOpId);
+  saveOfflineQueue(filteredQueue);
+};
+

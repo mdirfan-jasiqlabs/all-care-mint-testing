@@ -10,6 +10,7 @@ import {
   Query,
   UseGuards,
   Req,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
@@ -60,7 +61,10 @@ export class ProviderBookingController {
 
   /** 6.4.2 GET /api/v1/provider/bookings/:id */
   @Get(':id')
-  async getBookingDetail(@Req() req: any, @Param('id') id: string) {
+  async getBookingDetail(
+    @Req() req: any,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
     const data = await this.bookingService.getProviderBookingDetail(
       id,
       req.user.id,
@@ -70,7 +74,10 @@ export class ProviderBookingController {
 
   /** 6.4.4 PATCH /api/v1/provider/bookings/:id/accept */
   @Patch(':id/accept')
-  async acceptBooking(@Req() req: any, @Param('id') id: string) {
+  async acceptBooking(
+    @Req() req: any,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
     const data = await this.bookingService.providerAcceptBooking(
       id,
       req.user.id,
@@ -82,7 +89,7 @@ export class ProviderBookingController {
   @Patch(':id/reject')
   async rejectBooking(
     @Req() req: any,
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: RejectBookingDto,
   ) {
     const data = await this.bookingService.providerRejectBooking(
@@ -97,7 +104,7 @@ export class ProviderBookingController {
   @Patch(':id/status')
   async updateStatus(
     @Req() req: any,
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateBookingStatusDto,
   ) {
     const data = await this.bookingService.providerUpdateStatus(
