@@ -168,9 +168,14 @@ export default function ProviderDashboardScreen({ navigation }: any) {
             </View>
             <Text style={styles.subtitle}>Manage your service jobs and schedule</Text>
           </View>
-          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-            <Text style={styles.logoutText}>Sign Out</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+            <TouchableOpacity style={styles.earningsBtn} onPress={() => navigation.navigate('ProviderEarnings')}>
+              <Text style={styles.earningsBtnText}>💰 Earnings</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+              <Text style={styles.logoutText}>Sign Out</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Tab Selector */}
@@ -383,4 +388,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 1,
   },
+  earningsBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+  },
+  earningsBtnText: {
+    color: '#10b981',
+    fontWeight: '600',
+    fontSize: 12,
+  },
 });
+

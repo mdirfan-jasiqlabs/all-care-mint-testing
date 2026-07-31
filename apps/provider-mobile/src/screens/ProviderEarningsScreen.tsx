@@ -8,7 +8,10 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
+  Platform,
+  RefreshControl,
 } from 'react-native';
+import * as storage from '../utils/storage';
 
 interface JobEarning {
   booking_id: string;
@@ -22,22 +25,65 @@ export default function ProviderEarningsScreen({ navigation }: any) {
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [jobs, setJobs] = useState<JobEarning[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const API_BASE = 'http://localhost:3000/api/v1';
+  const baseUrl =
+    Platform.OS === 'android'
+      ? 'http://10.0.2.2:3000'
+      : Platform.OS === 'web'
+      ? 'http://localhost:3000'
+      : 'http://localhost:3000';
+  const API_BASE = `${baseUrl}/api/v1`;
 
-  const fetchEarnings = async () => {
-    setLoading(true);
+  const fetchEarnings = async (isPullToRefresh = false) => {
+    if (isPullToRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+    setError(null);
+
+    const token = storage.getAccessToken();
+    if (!token) {
+      setLoading(false);
+      setRefreshing(false);
+      navigation.replace('ProviderLogin');
+      return;
+    }
+
     try {
-      const res = await fetch(`${API_BASE}/providers/me/earnings`);
-      const json = await res.json();
-      if (json.success && json.data) {
-        setTotalEarnings(json.data.total_earnings_inr || 0);
-        setJobs(json.data.jobs || []);
+      const res = await fetch(`${API_BASE}/providers/me/earnings`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          storage.clearAccessToken();
+          await storage.clearRefreshToken();
+          navigation.replace('ProviderLogin');
+          return;
+        }
+        throw new Error(`Server returned HTTP ${res.status}`);
       }
-    } catch (e) {
+
+      const json = await res.json();
+      const earningsData = json.data || json;
+      if (typeof earningsData.total_earnings_inr === 'number') {
+        setTotalEarnings(earningsData.total_earnings_inr);
+        setJobs(earningsData.jobs || []);
+      } else {
+        throw new Error('Invalid earnings data payload');
+      }
+    } catch (e: any) {
       console.error('Failed to fetch provider earnings:', e);
+      setError(e.message || 'Failed to load earnings summary.');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -48,8 +94,10 @@ export default function ProviderEarningsScreen({ navigation }: any) {
   const renderJobItem = ({ item }: { item: JobEarning }) => (
     <View style={styles.jobCard}>
       <View style={styles.jobHeader}>
-        <Text style={styles.serviceName}>{item.service_name}</Text>
-        <Text style={styles.amountText}>+₹{item.amount}</Text>
+        <Text style={styles.serviceName} numberOfLines={2} ellipsizeMode="tail">
+          {item.service_name}
+        </Text>
+        <Text style={styles.amountText}>+₹{item.amount.toLocaleString('en-IN')}</Text>
       </View>
       <View style={styles.jobFooter}>
         <Text style={styles.refText}>Ref: {item.booking_reference}</Text>
@@ -70,8 +118,11 @@ export default function ProviderEarningsScreen({ navigation }: any) {
 
       {/* Title Bar */}
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Text style={styles.backText}>← Back</Text>
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Earnings Summary</Text>
-        <TouchableOpacity onPress={fetchEarnings} style={styles.refreshButton}>
+        <TouchableOpacity onPress={() => fetchEarnings()} style={styles.refreshButton}>
           <Text style={styles.refreshText}>Refresh</Text>
         </TouchableOpacity>
       </View>
@@ -94,10 +145,23 @@ export default function ProviderEarningsScreen({ navigation }: any) {
       {loading ? (
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color="#10b981" />
+          <Text style={styles.loadingText}>Loading earnings breakdown...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorTitle}>Unable to Load Earnings</Text>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={() => fetchEarnings()}>
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
         </View>
       ) : jobs.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No completed job earnings found.</Text>
+          <Text style={{ fontSize: 36, marginBottom: 8 }}>💼</Text>
+          <Text style={styles.emptyTitle}>No Completed Job Earnings</Text>
+          <Text style={styles.emptyText}>
+            You currently have no completed bookings. Completed job earnings will be summarized here.
+          </Text>
         </View>
       ) : (
         <FlatList
@@ -105,6 +169,13 @@ export default function ProviderEarningsScreen({ navigation }: any) {
           keyExtractor={(item) => item.booking_id}
           renderItem={renderJobItem}
           contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => fetchEarnings(true)}
+              tintColor="#10b981"
+            />
+          }
         />
       )}
     </SafeAreaView>
@@ -120,13 +191,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.08)',
   },
+  backButton: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  backText: {
+    color: '#94a3b8',
+    fontSize: 14,
+    fontWeight: '500',
+  },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
     color: '#f8fafc',
   },
@@ -142,8 +222,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   heroCard: {
-    margin: 20,
-    padding: 24,
+    margin: 16,
+    padding: 20,
     backgroundColor: '#0f172a',
     borderRadius: 16,
     borderWidth: 1,
@@ -153,15 +233,15 @@ const styles = StyleSheet.create({
   heroLabel: {
     fontSize: 14,
     color: '#94a3b8',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   heroAmount: {
-    fontSize: 36,
+    fontSize: 34,
     fontWeight: '800',
     color: '#10b981',
   },
   badgeContainer: {
-    marginTop: 12,
+    marginTop: 10,
     paddingHorizontal: 12,
     paddingVertical: 4,
     backgroundColor: 'rgba(255, 255, 255, 0.06)',
@@ -174,7 +254,8 @@ const styles = StyleSheet.create({
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    alignItems: 'center',
+    paddingHorizontal: 16,
     marginBottom: 12,
   },
   sectionTitle: {
@@ -190,17 +271,62 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 24,
+  },
+  loadingText: {
+    color: '#94a3b8',
+    marginTop: 12,
+    fontSize: 14,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  errorTitle: {
+    color: '#f8fafc',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  errorText: {
+    color: '#ef4444',
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: '#10b981',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  retryText: {
+    color: '#020617',
+    fontWeight: '700',
+    fontSize: 14,
   },
   emptyContainer: {
-    padding: 40,
+    flex: 1,
+    padding: 32,
+    justifyContent: 'center',
     alignItems: 'center',
+  },
+  emptyTitle: {
+    color: '#f8fafc',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 6,
   },
   emptyText: {
     color: '#64748b',
     fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
   },
   listContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingBottom: 24,
   },
   jobCard: {
@@ -214,13 +340,15 @@ const styles = StyleSheet.create({
   jobHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 8,
   },
   serviceName: {
+    flex: 1,
     fontSize: 15,
     fontWeight: '600',
     color: '#f8fafc',
+    marginRight: 12,
   },
   amountText: {
     fontSize: 16,
@@ -230,6 +358,7 @@ const styles = StyleSheet.create({
   jobFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   refText: {
     fontSize: 12,

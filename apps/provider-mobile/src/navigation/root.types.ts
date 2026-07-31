@@ -5,4 +5,6 @@ export type RootStackParamList = {
   ProviderDashboard: undefined;
   ProviderJobDetail: { bookingId: string };
   JobStatusUpdate: { bookingId: string };
+  ProviderEarnings: undefined;
 };
+

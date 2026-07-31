@@ -10,6 +10,7 @@ import ProviderOtpScreen from './src/screens/ProviderOtpScreen';
 import ProviderDashboardScreen from './src/screens/ProviderDashboardScreen';
 import ProviderJobDetailScreen from './src/screens/ProviderJobDetailScreen';
 import JobStatusUpdateScreen from './src/screens/JobStatusUpdateScreen';
+import ProviderEarningsScreen from './src/screens/ProviderEarningsScreen';
 import * as storage from './src/utils/storage';
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -87,6 +88,11 @@ export default function App() {
           name="JobStatusUpdate"
           component={JobStatusUpdateScreen}
           options={{ title: 'Update Progress' }}
+        />
+        <Stack.Screen
+          name="ProviderEarnings"
+          component={ProviderEarningsScreen}
+          options={{ title: 'Earnings Summary' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
