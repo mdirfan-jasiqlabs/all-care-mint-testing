@@ -83,11 +83,6 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
   };
 
   const handleRejectJob = async () => {
-    if (!rejectionReason.trim()) {
-      showToast('Please provide a reason for rejecting the job.', 'warning');
-      return;
-    }
-
     try {
       setSubmitting(true);
       const res = await fetch(`${baseUrl}/api/v1/providers/me/bookings/${bookingId}/reject`, {
@@ -96,7 +91,7 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ reason: rejectionReason }),
+        body: JSON.stringify({ reason: rejectionReason.trim() || 'Provider rejected job assignment' }),
       });
 
       const data = await res.json();
@@ -182,53 +177,22 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
 
       {/* Actions */}
       {booking.status === 'ASSIGNED' ? (
-        rejecting ? (
-          <View style={styles.rejectForm}>
-            <Text style={styles.formLabel}>Rejection Reason *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Provide a reason for rejection..."
-              placeholderTextColor="#94a3b8"
-              value={rejectionReason}
-              onChangeText={setRejectionReason}
-              multiline
-              numberOfLines={3}
-            />
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={[styles.actionBtn, styles.btnCancel]}
-                onPress={() => setRejecting(false)}
-                disabled={submitting}
-              >
-                <Text style={styles.btnCancelText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.actionBtn, styles.btnRejectSubmit]}
-                onPress={handleRejectJob}
-                disabled={submitting}
-              >
-                {submitting ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.btnRejectSubmitText}>Submit Rejection</Text>}
-              </TouchableOpacity>
-            </View>
-          </View>
-        ) : (
-          <View style={styles.actionContainer}>
-            <TouchableOpacity
-              style={[styles.actionBtn, styles.btnAccept]}
-              onPress={handleAcceptJob}
-              disabled={submitting}
-            >
-              {submitting ? <ActivityIndicator size="small" color="#020617" /> : <Text style={styles.btnAcceptText}>Accept Job</Text>}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.actionBtn, styles.btnReject]}
-              onPress={() => setRejecting(true)}
-              disabled={submitting}
-            >
-              <Text style={styles.btnRejectText}>Reject Job</Text>
-            </TouchableOpacity>
-          </View>
-        )
+        <View style={styles.actionContainer}>
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.btnAccept]}
+            onPress={handleAcceptJob}
+            disabled={submitting}
+          >
+            {submitting ? <ActivityIndicator size="small" color="#020617" /> : <Text style={styles.btnAcceptText}>Accept Job</Text>}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.btnReject]}
+            onPress={() => setRejecting(true)}
+            disabled={submitting}
+          >
+            <Text style={styles.btnRejectText}>Reject Job</Text>
+          </TouchableOpacity>
+        </View>
       ) : ['ACCEPTED', 'ON_THE_WAY', 'STARTED'].includes(booking.status) ? (
         <TouchableOpacity
           style={[styles.actionBtn, styles.btnUpdateStatus]}
@@ -245,6 +209,54 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
         <Text style={styles.backBtnText}>Back to Dashboard</Text>
       </TouchableOpacity>
       </ScrollView>
+
+      {/* REJECTION CONFIRMATION MODAL */}
+      {rejecting && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Reject this job? It will be reassigned.</Text>
+            <Text style={styles.modalSubTitle}>
+              This action will unassign you from this job and return it to the dispatch queue for admin reassignment.
+            </Text>
+
+            <Text style={styles.formLabel}>Rejection Reason (Optional)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Provide a reason for rejection..."
+              placeholderTextColor="#94a3b8"
+              value={rejectionReason}
+              onChangeText={setRejectionReason}
+              multiline
+              numberOfLines={3}
+            />
+
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.btnCancel]}
+                onPress={() => {
+                  setRejecting(false);
+                  setRejectionReason('');
+                }}
+                disabled={submitting}
+              >
+                <Text style={styles.btnCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.btnRejectSubmit]}
+                onPress={handleRejectJob}
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <Text style={styles.btnRejectSubmitText}>Confirm Rejection</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
+
       <ToastContainer toastQueue={toastQueue} onDismiss={dismissToast} />
     </View>
   );
@@ -450,5 +462,38 @@ const styles = StyleSheet.create({
   btnRejectSubmitText: {
     color: '#ffffff',
     fontWeight: 'bold',
+  },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    zIndex: 999,
+  },
+  modalContainer: {
+    backgroundColor: '#0f172a',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: 6,
+  },
+  modalSubTitle: {
+    fontSize: 13,
+    color: '#94a3b8',
+    marginBottom: 16,
+    lineHeight: 18,
   },
 });

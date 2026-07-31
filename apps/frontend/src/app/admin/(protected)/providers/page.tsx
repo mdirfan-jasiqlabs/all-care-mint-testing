@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useToast } from '../../_components/Toast';
 import TableSkeleton from '../../_components/TableSkeleton';
 
@@ -14,15 +14,20 @@ interface Provider {
   categories?: { id: string; name: string }[];
 }
 
-export default function ProvidersPage() {
+function ProvidersPageContent() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { addToast } = useToast();
+
+  const initialSearch = searchParams.get('search') || '';
 
   const [providers, setProviders] = useState<Provider[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [search, setSearch] = useState(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [page, setPage] = useState(1);
   const limit = 20;
@@ -48,18 +53,41 @@ export default function ProvidersPage() {
       .catch(() => {});
   }, []);
 
-  // Handle search debouncing
+  // Sync state if URL query param changes externally (e.g. Browser Back/Forward)
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') || '';
+    if (urlSearch !== search) {
+      setSearch(urlSearch);
+      setDebouncedSearch(urlSearch);
+    }
+  }, [searchParams]);
+
+  // Handle search debouncing and URL parameter synchronization
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
       setPage(1);
+
+      const params = new URLSearchParams(window.location.search);
+      if (search.trim()) {
+        params.set('search', search.trim());
+      } else {
+        params.delete('search');
+      }
+      const queryString = params.toString();
+      const targetUrl = queryString ? `${pathname}?${queryString}` : pathname;
+
+      if (window.location.search !== (queryString ? `?${queryString}` : '')) {
+        router.push(targetUrl);
+      }
     }, 300);
     return () => clearTimeout(handler);
-  }, [search]);
+  }, [search, pathname, router]);
 
   const fetchProviders = async () => {
     try {
       setLoading(true);
+      setFetchError(null);
       const token = sessionStorage.getItem('access_token');
       
       let url = `http://localhost:3000/api/v1/admin/providers?page=${page}&limit=${limit}`;
@@ -78,7 +106,7 @@ export default function ProvidersPage() {
 
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
-          router.push('/login/admin');
+          router.push('/admin/login');
           return;
         }
         throw new Error('Failed to fetch providers directory');
@@ -90,7 +118,9 @@ export default function ProvidersPage() {
         setTotal(data.total);
       }
     } catch (err: any) {
-      addToast(err.message || 'Error fetching providers', 'error');
+      const errMsg = err.message || 'Failed to fetch providers directory';
+      setFetchError(errMsg);
+      addToast(errMsg, 'error');
     } finally {
       setLoading(false);
     }
@@ -182,6 +212,8 @@ export default function ProvidersPage() {
     };
   };
 
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
@@ -267,20 +299,40 @@ export default function ProvidersPage() {
         </div>
       </div>
 
-      {/* TABLE */}
+      {/* TABLE CONTAINER */}
       <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.45)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '24px' }}>
         {loading ? (
-          <TableSkeleton rows={5} columns={4} />
+          <TableSkeleton rows={5} columns={5} />
+        ) : fetchError ? (
+          <div style={{ textAlign: 'center', padding: '40px 24px', color: '#f87171' }}>
+            <p style={{ fontSize: '14px', fontWeight: 600, marginBottom: '16px' }}>{fetchError}</p>
+            <button
+              onClick={fetchProviders}
+              style={{
+                backgroundColor: '#10b981',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 18px',
+                fontWeight: 700,
+                fontSize: '13px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)',
+              }}
+            >
+              Retry
+            </button>
+          </div>
         ) : (
           <>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', color: '#64748b', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.5px' }}>
                   <th style={{ padding: '12px' }}>Provider Name</th>
-                  <th style={{ padding: '12px' }}>Mobile Number</th>
-                  <th style={{ padding: '12px' }}>Service Area</th>
-                  <th style={{ padding: '12px' }}>Categories</th>
-                  <th style={{ padding: '12px' }}>Status</th>
+                  <th style={{ padding: '12px' }}>Mobile</th>
+                  <th style={{ padding: '12px' }}>Service Categories</th>
+                  <th style={{ padding: '12px' }}>Status Badge</th>
+                  <th style={{ padding: '12px' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -294,12 +346,24 @@ export default function ProvidersPage() {
                   providers.map((p) => (
                     <tr
                       key={p.id}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`View details for ${p.displayName}`}
                       onClick={() => router.push(`/admin/providers/${p.id}`)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          router.push(`/admin/providers/${p.id}`);
+                        }
+                      }}
                       style={{
                         borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
                         cursor: 'pointer',
                         transition: 'background-color 0.2s',
+                        outline: 'none',
                       }}
+                      onFocus={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)')}
+                      onBlur={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)')}
                       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                     >
@@ -310,15 +374,32 @@ export default function ProvidersPage() {
                         {p.mobileNumber}
                       </td>
                       <td style={{ padding: '16px', color: '#cbd5e1' }}>
-                        {p.serviceArea}
-                      </td>
-                      <td style={{ padding: '16px', color: '#cbd5e1' }}>
                         {p.categories && p.categories.length > 0
                           ? p.categories.map((c) => c.name).join(', ')
                           : 'None'}
                       </td>
                       <td style={{ padding: '16px' }}>
                         <span style={getStatusBadgeStyles(p.status)}>{p.status.replace('_', ' ')}</span>
+                      </td>
+                      <td style={{ padding: '16px' }}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/admin/providers/${p.id}`);
+                          }}
+                          style={{
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            color: '#10b981',
+                            border: '1px solid rgba(16, 185, 129, 0.2)',
+                            borderRadius: '6px',
+                            padding: '6px 12px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          View Details
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -327,10 +408,10 @@ export default function ProvidersPage() {
             </table>
 
             {/* PAGINATION */}
-            {total > limit && (
+            {total > 0 && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '16px' }}>
                 <span style={{ fontSize: '12px', color: '#64748b' }}>
-                  Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} providers
+                  Page {page} of {totalPages} (Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} providers)
                 </span>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
@@ -349,16 +430,16 @@ export default function ProvidersPage() {
                     Previous
                   </button>
                   <button
-                    disabled={page * limit >= total}
-                    onClick={() => setPage((p) => p + 1)}
+                    disabled={page >= totalPages}
+                    onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
                     style={{
                       backgroundColor: 'rgba(255, 255, 255, 0.05)',
                       border: '1px solid rgba(255, 255, 255, 0.08)',
-                      color: page * limit >= total ? '#64748b' : '#ffffff',
+                      color: page >= totalPages ? '#64748b' : '#ffffff',
                       borderRadius: '6px',
                       padding: '6px 12px',
                       fontSize: '12px',
-                      cursor: page * limit >= total ? 'not-allowed' : 'pointer',
+                      cursor: page >= totalPages ? 'not-allowed' : 'pointer',
                     }}
                   >
                     Next
@@ -546,5 +627,13 @@ export default function ProvidersPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ProvidersPage() {
+  return (
+    <Suspense fallback={<TableSkeleton rows={5} columns={5} />}>
+      <ProvidersPageContent />
+    </Suspense>
   );
 }

@@ -704,6 +704,14 @@ export class BookingService implements OnApplicationShutdown {
       return booking;
     }
 
+    if (targetStatus === BookingStatusEnum.REJECTED) {
+      return this.providerRejectBooking(
+        bookingId,
+        providerId,
+        'Provider rejected via status update',
+      );
+    }
+
     this.stateEngine.validateTransition(
       booking.status,
       targetStatus,

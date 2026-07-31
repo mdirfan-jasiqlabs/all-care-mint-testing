@@ -116,6 +116,11 @@ export class UpdateBookingStatusDto {
   @IsEnum(BookingStatusEnum)
   @IsNotEmpty()
   status: BookingStatusEnum;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(255)
+  reason?: string;
 }
 
 export class RejectBookingDto {

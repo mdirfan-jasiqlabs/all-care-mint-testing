@@ -14,6 +14,7 @@ import { PrismaAddressRepository } from '../src/modules/booking/adapters/prisma-
 import { BookingStatusEnum } from '../src/modules/booking/types/booking.types';
 import { JwtAuthGuard } from '../src/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../src/modules/auth/guards/roles.guard';
+import { ApprovedProviderGuard } from '../src/modules/auth/guards/approved-provider.guard';
 
 describe('Provider Booking Lifecycle (e2e)', () => {
   let app: INestApplication<App>;
@@ -55,6 +56,8 @@ describe('Provider Booking Lifecycle (e2e)', () => {
       .overrideGuard(JwtAuthGuard)
       .useValue({ canActivate: () => true })
       .overrideGuard(RolesGuard)
+      .useValue({ canActivate: () => true })
+      .overrideGuard(ApprovedProviderGuard)
       .useValue({ canActivate: () => true })
       .compile();
 

@@ -14,13 +14,14 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
+import { ApprovedProviderGuard } from '../../auth/guards/approved-provider.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { BookingService } from '../services/booking.service';
 import { RejectBookingDto, UpdateBookingStatusDto } from '../dto/booking.dto';
 import { BookingStatusEnum } from '../types/booking.types';
 
 @Controller('api/v1/providers/me/bookings')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, ApprovedProviderGuard)
 @Roles('PROVIDER')
 export class ProviderBookingController {
   constructor(private readonly bookingService: BookingService) {}

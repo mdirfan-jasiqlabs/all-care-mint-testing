@@ -1,6 +1,3 @@
-// ─── apps/provider-mobile/src/screens/ProviderDashboardScreen.tsx ───
-// Source: DLD Section 8.1 & 6.4 — Provider Dashboard Screen
-
 import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
@@ -11,10 +8,10 @@ import {
   Platform,
   FlatList,
   ActivityIndicator,
-  Alert,
   BackHandler,
 } from 'react-native';
 import * as storage from '../utils/storage';
+import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
 
 export default function ProviderDashboardScreen({ navigation }: any) {
   const token = storage.getAccessToken() || '';
@@ -23,6 +20,14 @@ export default function ProviderDashboardScreen({ navigation }: any) {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'active' | 'history'>('active');
+
+  const [toastQueue, setToastQueue] = useState<ToastItem[]>([]);
+  const showToast = (message: string, type: ToastType = 'success') => {
+    setToastQueue((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, message, type }]);
+  };
+  const dismissToast = (id: string) => {
+    setToastQueue((prev) => prev.filter((t) => t.id !== id));
+  };
 
   const fetchJobs = async () => {
     try {
@@ -50,7 +55,7 @@ export default function ProviderDashboardScreen({ navigation }: any) {
         setJobs(data.data);
       }
     } catch (err) {
-      Alert.alert('Error', 'Failed to retrieve jobs.');
+      showToast('Failed to retrieve jobs.', 'error');
     } finally {
       setLoading(false);
     }
@@ -204,6 +209,7 @@ export default function ProviderDashboardScreen({ navigation }: any) {
         )}
 
       </View>
+      <ToastContainer toastQueue={toastQueue} onDismiss={dismissToast} />
     </SafeAreaView>
   );
 }

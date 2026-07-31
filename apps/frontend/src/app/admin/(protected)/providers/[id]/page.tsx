@@ -41,7 +41,7 @@ export default function ProviderDetailPage() {
       });
       if (!providerRes.ok) {
         if (providerRes.status === 401 || providerRes.status === 403) {
-          router.push('/login/admin');
+          router.push('/admin/login');
           return;
         }
         throw new Error('Failed to retrieve provider details');
