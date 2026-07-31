@@ -29,6 +29,7 @@ export default function ProviderDetailPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [pendingCategoryId, setPendingCategoryId] = useState<string | null>(null);
 
   const fetchData = async () => {
     try {
@@ -101,7 +102,7 @@ export default function ProviderDetailPage() {
       }
 
       addToast(`Provider status updated to ${newStatus}.`, 'success');
-      fetchData();
+      await fetchData();
     } catch (err: any) {
       addToast(err.message || 'Status transition failed', 'error');
     } finally {
@@ -112,6 +113,7 @@ export default function ProviderDetailPage() {
   const handleAddCategory = async (categoryId: string) => {
     try {
       setSubmitting(true);
+      setPendingCategoryId(categoryId);
       const token = sessionStorage.getItem('access_token');
       const res = await fetch(`http://localhost:3000/api/v1/admin/providers/${id}/categories`, {
         method: 'POST',
@@ -128,17 +130,19 @@ export default function ProviderDetailPage() {
       }
 
       addToast('Category mapped successfully.', 'success');
-      fetchData();
+      await fetchData();
     } catch (err: any) {
       addToast(err.message || 'Mapping failed', 'error');
     } finally {
       setSubmitting(false);
+      setPendingCategoryId(null);
     }
   };
 
   const handleRemoveCategory = async (categoryId: string) => {
     try {
       setSubmitting(true);
+      setPendingCategoryId(categoryId);
       const token = sessionStorage.getItem('access_token');
       const res = await fetch(`http://localhost:3000/api/v1/admin/providers/${id}/categories/${categoryId}`, {
         method: 'DELETE',
@@ -153,11 +157,12 @@ export default function ProviderDetailPage() {
       }
 
       addToast('Category mapping removed.', 'success');
-      fetchData();
+      await fetchData();
     } catch (err: any) {
       addToast(err.message || 'Mapping removal failed', 'error');
     } finally {
       setSubmitting(false);
+      setPendingCategoryId(null);
     }
   };
 
@@ -420,13 +425,34 @@ export default function ProviderDetailPage() {
                         color: '#f87171',
                         border: '1px solid rgba(239, 68, 68, 0.2)',
                         borderRadius: '6px',
-                        padding: '6px 12px',
+                        padding: '6px 14px',
                         fontSize: '12px',
                         fontWeight: 600,
-                        cursor: 'pointer',
+                        cursor: submitting ? 'not-allowed' : 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        opacity: submitting ? 0.7 : 1,
                       }}
                     >
-                      Remove
+                      {pendingCategoryId === cat.id ? (
+                        <>
+                          <span
+                            style={{
+                              width: '12px',
+                              height: '12px',
+                              border: '2px solid rgba(248, 113, 113, 0.3)',
+                              borderTop: '2px solid #f87171',
+                              borderRadius: '50%',
+                              animation: 'spin 0.8s linear infinite',
+                              display: 'inline-block',
+                            }}
+                          />
+                          Removing...
+                        </>
+                      ) : (
+                        'Remove'
+                      )}
                     </button>
                   ) : (
                     <button
@@ -437,13 +463,34 @@ export default function ProviderDetailPage() {
                         color: '#34d399',
                         border: '1px solid rgba(16, 185, 129, 0.2)',
                         borderRadius: '6px',
-                        padding: '6px 12px',
+                        padding: '6px 14px',
                         fontSize: '12px',
                         fontWeight: 600,
-                        cursor: 'pointer',
+                        cursor: submitting ? 'not-allowed' : 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        opacity: submitting ? 0.7 : 1,
                       }}
                     >
-                      Add
+                      {pendingCategoryId === cat.id ? (
+                        <>
+                          <span
+                            style={{
+                              width: '12px',
+                              height: '12px',
+                              border: '2px solid rgba(52, 211, 153, 0.3)',
+                              borderTop: '2px solid #34d399',
+                              borderRadius: '50%',
+                              animation: 'spin 0.8s linear infinite',
+                              display: 'inline-block',
+                            }}
+                          />
+                          Adding...
+                        </>
+                      ) : (
+                        'Add'
+                      )}
                     </button>
                   )}
                 </div>
