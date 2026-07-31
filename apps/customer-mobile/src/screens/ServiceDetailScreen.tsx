@@ -7,7 +7,6 @@ import {
   ActivityIndicator,
   Image,
   ScrollView,
-  SafeAreaView,
 } from 'react-native';
 import { useCatalogStore, Service } from '../stores/catalogStore';
 import * as storage from '../utils/storage';
@@ -49,33 +48,16 @@ export const ServiceDetailScreen = ({ navigation, route }: any) => {
 
   if (!service) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Text style={styles.backButtonText}>← Back</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.container}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Service not found.</Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()} 
-          style={styles.backButton}
-          accessibilityLabel="Back to Catalog"
-          testID="btn-back-to-catalog"
-        >
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Service Details</Text>
-      </View>
-
+    <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Premium placeholder image */}
         <View style={styles.imageContainer}>
@@ -128,7 +110,7 @@ export const ServiceDetailScreen = ({ navigation, route }: any) => {
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -143,28 +125,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: 'hsl(217, 32%, 17%)',
-  },
-  backButton: {
-    padding: 8,
-  },
-  backButtonText: {
-    color: '#10b981',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  headerTitle: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 16,
-  },
+
   scrollContent: {
     paddingBottom: 100,
   },
