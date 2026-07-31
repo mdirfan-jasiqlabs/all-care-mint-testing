@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useToast } from '../_components/Toast';
-import TableSkeleton from '../_components/TableSkeleton';
+import { useToast } from '../../_components/Toast';
+import TableSkeleton from '../../_components/TableSkeleton';
 
 interface Provider {
   id: string;
@@ -164,7 +164,7 @@ export default function ProvidersPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div style={{ flex: 1 }}>
           <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#ffffff' }}>Service Providers Directory</h1>
           <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px' }}>
@@ -308,7 +308,7 @@ export default function ProvidersPage() {
 
             {/* PAGINATION */}
             {total > limit && (
-              <div style={{ display: 'flex', justifyContent: 'between', alignItems: 'center', marginTop: '24px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '16px' }}>
                 <span style={{ fontSize: '12px', color: '#64748b' }}>
                   Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} providers
                 </span>

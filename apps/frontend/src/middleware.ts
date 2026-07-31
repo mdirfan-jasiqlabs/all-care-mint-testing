@@ -52,8 +52,8 @@ export function middleware(request: NextRequest) {
     const loginUrl = new URL('/login/admin', request.url);
     return NextResponse.redirect(loginUrl);
   }
-  if (pathname === '/admin/dashboard') {
-    const dashboardUrl = new URL('/dashboard/admin', request.url);
+  if (pathname === '/dashboard/admin') {
+    const dashboardUrl = new URL('/admin/dashboard', request.url);
     return NextResponse.redirect(dashboardUrl);
   }
 
@@ -92,7 +92,7 @@ export function middleware(request: NextRequest) {
 
   // 4. Redirect Authenticated Users Away From Login
   if (isExcluded && isAdmin) {
-    const dashboardUrl = new URL('/dashboard/admin', request.url);
+    const dashboardUrl = new URL('/admin/dashboard', request.url);
     return NextResponse.redirect(dashboardUrl);
   }
 

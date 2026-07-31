@@ -1,14 +1,27 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface AdminSidebarProps {
-  activePage: 'dashboard' | 'catalog' | 'bookings' | 'users' | 'providers';
+  activePage?: 'dashboard' | 'catalog' | 'bookings' | 'users' | 'providers';
 }
 
-export default function AdminSidebar({ activePage }: AdminSidebarProps) {
+export default function AdminSidebar({ activePage: activePageProp }: AdminSidebarProps) {
   const router = useRouter();
+  const pathname = usePathname() || '';
+
+  const getActivePage = (): string => {
+    if (activePageProp) return activePageProp;
+    if (pathname.startsWith('/admin/catalog')) return 'catalog';
+    if (pathname.startsWith('/admin/bookings')) return 'bookings';
+    if (pathname.startsWith('/admin/providers')) return 'providers';
+    if (pathname.startsWith('/admin/users')) return 'users';
+    if (pathname.startsWith('/dashboard/admin') || pathname.startsWith('/admin/dashboard')) return 'dashboard';
+    return '';
+  };
+
+  const activePage = getActivePage();
 
   const handleNav = (path: string) => {
     router.push(path);
@@ -63,7 +76,7 @@ export default function AdminSidebar({ activePage }: AdminSidebarProps) {
         </div>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <button
-            onClick={() => handleNav('/dashboard/admin')}
+            onClick={() => handleNav('/admin/dashboard')}
             style={getLinkStyle('dashboard')}
           >
             Dashboard
@@ -97,3 +110,4 @@ export default function AdminSidebar({ activePage }: AdminSidebarProps) {
     </aside>
   );
 }
+

@@ -5,9 +5,9 @@ import { ToastProvider } from '../_components/Toast';
 import AdminHeader from '../_components/AdminHeader';
 import AdminSidebar from '../_components/AdminSidebar';
 import AdminFooter from '../_components/AdminFooter';
-import { CatalogETagProvider } from './CatalogETagContext';
+import { CatalogETagProvider } from '../catalog/CatalogETagContext';
 
-export default function CatalogLayout({ children }: { children: React.ReactNode }) {
+export default function ProtectedAdminLayout({ children }: { children: React.ReactNode }) {
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -24,10 +24,10 @@ export default function CatalogLayout({ children }: { children: React.ReactNode 
   return (
     <CatalogETagProvider>
       <ToastProvider>
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'hsl(224, 71%, 4%)', color: '#f8fafc' }}>
           <AdminHeader />
           <div style={{ flex: 1, display: 'flex', position: 'relative' }}>
-            <AdminSidebar activePage="catalog" />
+            <AdminSidebar />
             <main style={{ flex: 1, padding: '32px', display: 'flex', flexDirection: 'column', overflowX: 'hidden' }}>
               {children}
             </main>
@@ -44,7 +44,7 @@ export default function CatalogLayout({ children }: { children: React.ReactNode 
               </svg>
             </div>
             <h2 className="overlay-title">Unsupported Device</h2>
-            <p className="overlay-description">Catalog editor requires a desktop resolution.</p>
+            <p className="overlay-description">Admin Operations Console requires a desktop resolution.</p>
           </div>
         )}
       </ToastProvider>

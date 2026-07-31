@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useToast } from '../../_components/Toast';
+import { useToast } from '../../../_components/Toast';
 
 interface Provider {
   id: string;
@@ -22,7 +22,7 @@ interface Category {
 export default function ProviderDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const { id } = params;
+  const id = params?.id as string;
   const { addToast } = useToast();
 
   const [provider, setProvider] = useState<Provider | null>(null);
@@ -218,7 +218,7 @@ export default function ProviderDetailPage() {
         >
           ← Back to Providers Directory
         </button>
-        <div style={{ display: 'flex', justifyContent: 'between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff' }}>{provider.displayName}</h1>
             <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px' }}>
@@ -388,7 +388,7 @@ export default function ProviderDetailPage() {
                   key={cat.id}
                   style={{
                     display: 'flex',
-                    justifyContent: 'between',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
                     padding: '14px 16px',
                     backgroundColor: isMapped ? 'rgba(16, 185, 129, 0.04)' : 'rgba(255, 255, 255, 0.02)',

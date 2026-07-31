@@ -83,7 +83,7 @@ export default function AdminLoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Redirect to admin dashboard
-      router.push('/dashboard/admin');
+      router.push('/admin/dashboard');
     } catch (err: any) {
       setError(err.message || 'An error occurred. Please try again.');
       setLoading(false);
