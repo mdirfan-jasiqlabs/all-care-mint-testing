@@ -1,6 +1,8 @@
 export interface FcmMulticastResult {
   successCount: number;
   failureCount: number;
+  invalidTokens: string[];
+  rateLimitedTokens?: string[];
   failedTokens: string[];
 }
 

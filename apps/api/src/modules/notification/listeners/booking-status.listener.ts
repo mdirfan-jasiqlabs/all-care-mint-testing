@@ -1,71 +1,46 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { NotificationService } from '../services/notification.service';
-
-export interface BookingStatusChangedEvent {
-  bookingId: string;
-  status: 'ASSIGNED' | 'ACCEPTED' | 'ON_THE_WAY' | 'COMPLETED' | 'CANCELLED' | 'REJECTED';
-  customerId: string;
-  providerId?: string;
-  serviceName?: string;
-}
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { BookingStatusChangedEvent } from '../../booking/events/booking-status-changed.event';
+import { BookingDomainEventEmitter } from '../../booking/services/booking-domain-event.emitter';
 
 @Injectable()
-export class BookingStatusListener {
+export class BookingStatusListener implements OnModuleInit {
   private readonly logger = new Logger(BookingStatusListener.name);
 
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor(
+    @InjectQueue('NotificationQueue')
+    private readonly notificationQueue: Queue,
+    private readonly domainEventEmitter: BookingDomainEventEmitter,
+  ) {}
 
-  async handleBookingStatusChanged(event: BookingStatusChangedEvent) {
-    this.logger.log(`Received booking.status.changed event for booking: ${event.bookingId}`);
+  onModuleInit() {
+    this.logger.log('Initializing BookingStatusListener domain event listener...');
+    this.domainEventEmitter.onBookingStatusChanged(async (event: BookingStatusChangedEvent) => {
+      await this.handleBookingStatusChanged(event);
+    });
+  }
 
-    const { bookingId, status, customerId, providerId, serviceName } = event;
+  async handleBookingStatusChanged(event: BookingStatusChangedEvent): Promise<void> {
+    const { bookingId, status, statusHistoryId, timestamp } = event;
+    const jobId = `notif-${bookingId}-${status}-${statusHistoryId || timestamp}`;
 
-    if (status === 'ASSIGNED' && providerId) {
-      // Notify Provider
-      await this.notificationService.sendPushToUser(
-        providerId,
-        'New Job Assigned',
-        `New Job Assigned: ${serviceName || 'Service'}`,
-        { booking_id: bookingId, type: 'assignment' },
-      );
-      // Notify Customer
-      await this.notificationService.sendPushToUser(
-        customerId,
-        'Provider assigned!',
-        'Your booking is now assigned to a provider.',
-        { booking_id: bookingId, type: 'status_update' },
-      );
-    } else if (status === 'ACCEPTED') {
-      // Notify Customer
-      await this.notificationService.sendPushToUser(
-        customerId,
-        'Booking Accepted',
-        'Provider has accepted your booking.',
-        { booking_id: bookingId, type: 'status_update' },
-      );
-    } else if (status === 'ON_THE_WAY') {
-      // Notify Customer
-      await this.notificationService.sendPushToUser(
-        customerId,
-        'Provider On The Way',
-        'Your service provider is on the way!',
-        { booking_id: bookingId, type: 'status_update' },
-      );
-    } else if (status === 'COMPLETED') {
-      // Notify Customer
-      await this.notificationService.sendPushToUser(
-        customerId,
-        'Service Completed',
-        'Your booking has been completed. Please rate your provider!',
-        { booking_id: bookingId, type: 'rating_prompt' },
-      );
-    } else if (status === 'CANCELLED' && providerId) {
-      // Notify Provider
-      await this.notificationService.sendPushToUser(
-        providerId,
-        'Booking Cancelled',
-        'A booking assigned to you has been cancelled.',
-        { booking_id: bookingId, type: 'cancellation' },
+    this.logger.log(
+      `[BookingStatusListener] Received domain event for booking=${bookingId}, status=${status}. Enqueuing job=${jobId}`,
+    );
+
+    try {
+      await this.notificationQueue.add('dispatch_push', event, {
+        jobId,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 1000 },
+        removeOnComplete: 100,
+        removeOnFail: 500,
+      });
+      this.logger.log(`[NotificationQueue Producer] Job ${jobId} successfully enqueued.`);
+    } catch (err) {
+      this.logger.warn(
+        `[NotificationQueue Producer Warning] Queue unavailable for job ${jobId}: ${err.message}. Booking transaction preserved.`,
       );
     }
   }

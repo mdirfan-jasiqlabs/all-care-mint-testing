@@ -40,6 +40,7 @@ import {
 } from '../errors/booking.exceptions';
 import { PrismaService } from '../../../prisma/prisma.service';
 import Redis from 'ioredis';
+import { BookingDomainEventEmitter } from './booking-domain-event.emitter';
 
 @Injectable()
 export class BookingService implements OnApplicationShutdown {
@@ -52,6 +53,7 @@ export class BookingService implements OnApplicationShutdown {
     private readonly eligibilityService: EligibilityService,
     private readonly prisma: PrismaService,
     private readonly notificationService: NotificationService,
+    private readonly domainEventEmitter: BookingDomainEventEmitter,
     @Inject('REDIS_CLIENT')
     private readonly redisClient: Redis,
   ) {}
@@ -444,12 +446,22 @@ export class BookingService implements OnApplicationShutdown {
       where: { bookingId },
     });
 
-    await this.bookingRepo.createStatusHistory({
+    const historyRecord = await this.bookingRepo.createStatusHistory({
       bookingId,
       status: BookingStatusEnum.CANCELLED,
       actorId,
       actorRole,
       note: reason || 'Booking cancelled',
+    });
+
+    this.domainEventEmitter.emitBookingStatusChanged({
+      bookingId,
+      status: 'CANCELLED',
+      customerId: booking.customerId,
+      providerId: booking.providerId ?? undefined,
+      serviceName: booking.serviceNameSnapshot,
+      statusHistoryId: historyRecord.id,
+      timestamp: Date.now(),
     });
 
     return updatedBooking;
@@ -527,7 +539,7 @@ export class BookingService implements OnApplicationShutdown {
       BookingStatusEnum.ASSIGNED,
     );
 
-    await this.bookingRepo.createStatusHistory({
+    const historyRecord = await this.bookingRepo.createStatusHistory({
       bookingId,
       status: BookingStatusEnum.ASSIGNED,
       actorId: adminId,
@@ -535,17 +547,15 @@ export class BookingService implements OnApplicationShutdown {
       note: `Provider ${providerId} assigned`,
     });
 
-    // Trigger push notification to Customer and Provider
-    try {
-      await this.notificationService.sendAssignedNotification(
-        bookingId,
-        booking.customerId,
-        providerId,
-        booking.serviceNameSnapshot,
-      );
-    } catch (err) {
-      console.warn(`[Notification Warning] ${err.message}`);
-    }
+    this.domainEventEmitter.emitBookingStatusChanged({
+      bookingId,
+      status: 'ASSIGNED',
+      customerId: booking.customerId,
+      providerId,
+      serviceName: booking.serviceNameSnapshot,
+      statusHistoryId: historyRecord.id,
+      timestamp: Date.now(),
+    });
 
     return updatedBooking;
   }
@@ -581,7 +591,7 @@ export class BookingService implements OnApplicationShutdown {
       newProviderId,
     );
 
-    await this.bookingRepo.createStatusHistory({
+    const reassignHistoryRecord = await this.bookingRepo.createStatusHistory({
       bookingId,
       status: BookingStatusEnum.ASSIGNED,
       actorId: adminId,
@@ -589,17 +599,15 @@ export class BookingService implements OnApplicationShutdown {
       note: `Provider reassigned from ${booking.providerId} to ${newProviderId}`,
     });
 
-    // Trigger push notification to Customer and New Provider
-    try {
-      await this.notificationService.sendAssignedNotification(
-        bookingId,
-        booking.customerId,
-        newProviderId,
-        booking.serviceNameSnapshot,
-      );
-    } catch (err) {
-      console.warn(`[Notification Warning] ${err.message}`);
-    }
+    this.domainEventEmitter.emitBookingStatusChanged({
+      bookingId,
+      status: 'ASSIGNED',
+      customerId: booking.customerId,
+      providerId: newProviderId,
+      serviceName: booking.serviceNameSnapshot,
+      statusHistoryId: reassignHistoryRecord.id,
+      timestamp: Date.now(),
+    });
 
     return updatedBooking;
   }
@@ -690,11 +698,21 @@ export class BookingService implements OnApplicationShutdown {
       BookingStatusEnum.ACCEPTED,
     );
 
-    await this.bookingRepo.createStatusHistory({
+    const acceptHistoryRecord = await this.bookingRepo.createStatusHistory({
       bookingId,
       status: BookingStatusEnum.ACCEPTED,
       actorId: providerId,
       actorRole: ActorRoleEnum.PROVIDER,
+    });
+
+    this.domainEventEmitter.emitBookingStatusChanged({
+      bookingId,
+      status: 'ACCEPTED',
+      customerId: booking.customerId,
+      providerId,
+      serviceName: booking.serviceNameSnapshot,
+      statusHistoryId: acceptHistoryRecord.id,
+      timestamp: Date.now(),
     });
 
     return updatedBooking;
@@ -726,12 +744,22 @@ export class BookingService implements OnApplicationShutdown {
     );
 
     // Record REJECTED in history, but reset booking status to PENDING
-    await this.bookingRepo.createStatusHistory({
+    const rejectHistoryRecord = await this.bookingRepo.createStatusHistory({
       bookingId,
       status: BookingStatusEnum.REJECTED,
       actorId: providerId,
       actorRole: ActorRoleEnum.PROVIDER,
       note: reason,
+    });
+
+    this.domainEventEmitter.emitBookingStatusChanged({
+      bookingId,
+      status: 'REJECTED',
+      customerId: booking.customerId,
+      providerId,
+      serviceName: booking.serviceNameSnapshot,
+      statusHistoryId: rejectHistoryRecord.id,
+      timestamp: Date.now(),
     });
 
     // Clear provider and reset to PENDING per DLD Section 6.4.5
@@ -792,25 +820,22 @@ export class BookingService implements OnApplicationShutdown {
       additionalFields,
     );
 
-    await this.bookingRepo.createStatusHistory({
+    const statusHistoryRecord = await this.bookingRepo.createStatusHistory({
       bookingId,
       status: targetStatus,
       actorId: providerId,
       actorRole: ActorRoleEnum.PROVIDER,
     });
 
-    if (targetStatus === BookingStatusEnum.COMPLETED) {
-      try {
-        await this.notificationService.sendCompletedNotification(
-          updatedBooking,
-        );
-      } catch (err) {
-        console.error(
-          `[Notification Error] Failed to dispatch COMPLETED notification for booking ${bookingId}:`,
-          err,
-        );
-      }
-    }
+    this.domainEventEmitter.emitBookingStatusChanged({
+      bookingId,
+      status: targetStatus as any,
+      customerId: booking.customerId,
+      providerId,
+      serviceName: booking.serviceNameSnapshot,
+      statusHistoryId: statusHistoryRecord.id,
+      timestamp: Date.now(),
+    });
 
     return updatedBooking;
   }

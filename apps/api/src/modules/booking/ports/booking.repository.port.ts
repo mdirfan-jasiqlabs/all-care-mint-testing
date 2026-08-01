@@ -66,7 +66,7 @@ export interface IBookingRepository {
     actorId: string;
     actorRole: ActorRoleEnum;
     note?: string;
-  }): Promise<void>;
+  }): Promise<{ id: string }>;
   findStatusHistory(bookingId: string): Promise<BookingStatusHistoryEntity[]>;
 
   // ── Slot Locks ──

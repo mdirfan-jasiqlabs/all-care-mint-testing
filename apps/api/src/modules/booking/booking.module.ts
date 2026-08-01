@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';
+import { NotificationModule } from '../notification/notification.module';
 import { AddressController } from './controllers/address.controller';
 import { CustomerBookingController } from './controllers/customer-booking.controller';
 import { AdminBookingController } from './controllers/admin-booking.controller';
@@ -11,6 +12,7 @@ import { StateEngineService } from './services/state-engine.service';
 import { EligibilityService } from './services/eligibility.service';
 import { SlotLockExpiryService } from './services/slot-lock-expiry.service';
 import { NotificationService } from './services/notification.service';
+import { BookingDomainEventEmitter } from './services/booking-domain-event.emitter';
 import { PrismaBookingRepository } from './adapters/prisma-booking.repository';
 import { PrismaAddressRepository } from './adapters/prisma-address.repository';
 import Redis from 'ioredis';
@@ -29,7 +31,6 @@ const RedisClientProvider = {
       connectTimeout: 2000, // 2 seconds connect timeout
       enableOfflineQueue: false, // fail immediately instead of hanging requests when Redis is down
       retryStrategy: (times) => {
-        // Retries indefinitely but with a maximum delay of 2 seconds between retries to keep attempting recovery
         return Math.min(times * 100, 2000);
       },
     });
@@ -46,6 +47,7 @@ const RedisClientProvider = {
   imports: [
     PrismaModule,
     AuthModule,
+    forwardRef(() => NotificationModule),
     BullModule.forRoot({
       connection: {
         host: process.env.REDIS_HOST || '127.0.0.1',
@@ -78,6 +80,7 @@ const RedisClientProvider = {
     SlotLockExpiryProcessor,
     SlotLockExpirySchedulerService,
     NotificationService,
+    BookingDomainEventEmitter,
     RedisClientProvider,
     {
       provide: 'IBookingRepository',
@@ -96,6 +99,7 @@ const RedisClientProvider = {
     BookingService,
     AddressService,
     NotificationService,
+    BookingDomainEventEmitter,
     'IBookingRepository',
     'IAddressRepository',
     'IBookingPublicFacade',

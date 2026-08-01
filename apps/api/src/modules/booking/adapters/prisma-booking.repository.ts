@@ -267,8 +267,8 @@ export class PrismaBookingRepository implements IBookingRepository {
     actorId: string;
     actorRole: ActorRoleEnum;
     note?: string;
-  }): Promise<void> {
-    await this.prisma.bookingStatusHistory.create({
+  }): Promise<{ id: string }> {
+    const created = await this.prisma.bookingStatusHistory.create({
       data: {
         bookingId: history.bookingId,
         status: history.status,
@@ -277,6 +277,7 @@ export class PrismaBookingRepository implements IBookingRepository {
         note: history.note ?? null,
       },
     });
+    return { id: created.id };
   }
 
   async findStatusHistory(
