@@ -159,41 +159,31 @@ export default function ProviderDashboardScreen({ navigation }: any) {
         
         {/* Partner Console Header Card */}
         <View style={styles.consoleCard}>
-          {/* Top Row: Title & Subtitle + Provider Partner Badge */}
-          <View style={styles.consoleHeaderRow}>
-            <View style={{ flex: 1, paddingRight: 8 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <Text style={styles.consoleTitle}>Partner Console</Text>
-                <View style={styles.roleBadge}>
-                  <Text style={styles.roleBadgeText}>PROVIDER PARTNER</Text>
-                </View>
-              </View>
+          <View style={styles.consoleCardTop}>
+            <View style={styles.consoleTitleBlock}>
+              <Text style={styles.consoleTitle}>Partner Console</Text>
               <Text style={styles.consoleSubtitle}>Manage your service jobs and schedule</Text>
+            </View>
+            <View style={styles.roleBadge}>
+              <Text style={styles.roleBadgeText}>👥 PROVIDER PARTNER</Text>
             </View>
           </View>
 
-          {/* Bottom Row: 2 Equal-Width Action Cards (Clean, No Description) */}
-          <View style={styles.actionCardsRow}>
-            {/* Earnings Summary Card */}
-            <TouchableOpacity
-              style={styles.earningsCard}
-              onPress={() => navigation.navigate('ProviderEarnings')}
-              activeOpacity={0.7}
-            >
-              <Text style={{ fontSize: 16 }}>👛</Text>
-              <Text style={styles.earningsCardTitle}>Earnings Summary</Text>
-              <Text style={styles.earningsChevron}>›</Text>
+          <View style={styles.actionBox}>
+            <TouchableOpacity style={styles.earningsBtn} onPress={() => navigation.navigate('ProviderEarnings')}>
+              <View style={styles.btnLeft}>
+                <Text style={styles.btnIcon}>💳</Text>
+                <Text style={styles.earningsBtnText}>Earnings Summary</Text>
+              </View>
+              <Text style={styles.earningsArrow}>›</Text>
             </TouchableOpacity>
 
-            {/* Sign Out Card */}
-            <TouchableOpacity
-              style={styles.signOutCard}
-              onPress={handleLogout}
-              activeOpacity={0.7}
-            >
-              <Text style={{ fontSize: 15 }}>🚪</Text>
-              <Text style={styles.signOutCardTitle}>Sign Out</Text>
-              <Text style={styles.signOutChevron}>›</Text>
+            <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+              <View style={styles.btnLeft}>
+                <Text style={styles.btnIcon}>🚪</Text>
+                <Text style={styles.logoutText}>Sign Out</Text>
+              </View>
+              <Text style={styles.logoutArrow}>›</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -268,97 +258,60 @@ const styles = StyleSheet.create({
     })
   },
   consoleCard: {
-    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    backgroundColor: '#0a0f1d',
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
     padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     marginBottom: 20,
-    marginTop: Platform.OS === 'android' ? 8 : 0,
-    gap: 16,
+    marginTop: Platform.OS === 'android' ? 12 : 4,
   },
-  consoleHeaderRow: {
+  consoleCardTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    marginBottom: 14,
+  },
+  consoleTitleBlock: {
+    flex: 1,
+    paddingRight: 8,
   },
   consoleTitle: {
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: 'bold',
     color: '#ffffff',
-    letterSpacing: -0.3,
   },
   consoleSubtitle: {
     fontSize: 13,
     color: '#94a3b8',
     marginTop: 4,
   },
-  providerBadge: {
+  actionBox: {
+    backgroundColor: 'rgba(2, 6, 23, 0.6)',
+    borderRadius: 12,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.04)',
+    flexDirection: 'row',
+    gap: 10,
+  },
+  btnLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(6, 182, 212, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(6, 182, 212, 0.3)',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
   },
-  badgeIcon: {
-    fontSize: 13,
+  btnIcon: {
+    fontSize: 14,
   },
-  badgeText: {
-    color: '#22d3ee',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  earningsCard: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(16, 185, 129, 0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-  },
-  signOutCard: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(239, 68, 68, 0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-  },
-  earningsCardTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#34d399',
-    flex: 1,
-    marginLeft: 6,
-  },
-  signOutCardTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#f87171',
-    flex: 1,
-    marginLeft: 6,
-  },
-  earningsChevron: {
+  earningsArrow: {
+    color: '#10b981',
     fontSize: 16,
-    fontWeight: '400',
-    color: '#34d399',
+    fontWeight: 'bold',
   },
-  signOutChevron: {
-    fontSize: 16,
-    fontWeight: '400',
+  logoutArrow: {
     color: '#f87171',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   tabContainer: {
     flexDirection: 'row',
@@ -458,31 +411,52 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   roleBadge: {
-    backgroundColor: 'hsl(204, 80%, 10%)',
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
     borderWidth: 1,
-    borderColor: 'hsl(204, 60%, 20%)',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
   roleBadgeText: {
-    color: 'hsl(199, 89%, 60%)',
-    fontSize: 9,
+    color: '#60a5fa',
+    fontSize: 10,
     fontWeight: 'bold',
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
   earningsBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderRadius: 6,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(16, 185, 129, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
+    borderColor: 'rgba(16, 185, 129, 0.25)',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   earningsBtnText: {
     color: '#10b981',
-    fontWeight: '600',
-    fontSize: 12,
+    fontWeight: 'bold',
+    fontSize: 13,
+  },
+  logoutBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(239, 68, 68, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.25)',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  logoutText: {
+    color: '#f87171',
+    fontWeight: 'bold',
+    fontSize: 13,
   },
 });
 
