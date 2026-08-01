@@ -26,26 +26,122 @@ const generateUUID = (): string => {
   });
 };
 
-async function computeHmacSha256(secret: string, message: string): Promise<string> {
-  try {
-    if (globalThis.crypto && globalThis.crypto.subtle) {
-      const enc = new TextEncoder();
-      const key = await globalThis.crypto.subtle.importKey(
-        'raw',
-        enc.encode(secret),
-        { name: 'HMAC', hash: 'SHA-256' },
-        false,
-        ['sign']
-      );
-      const signatureBuffer = await globalThis.crypto.subtle.sign('HMAC', key, enc.encode(message));
-      return Array.from(new Uint8Array(signatureBuffer))
-        .map((b) => b.toString(16).padStart(2, '0'))
-        .join('');
-    }
-  } catch (err) {
-    console.warn('Crypto.subtle signature calculation error:', err);
+function sha256Pure(ascii: string): number[] {
+  function rightRotate(value: number, amount: number) {
+    return (value >>> amount) | (value << (32 - amount));
   }
-  return '';
+  const mathPow = Math.pow;
+  const maxWord = mathPow(2, 32);
+  const result: number[] = [];
+  const words: number[] = [];
+  const asciiLength = ascii.length;
+
+  const K: number[] = [];
+  const H: number[] = [];
+
+  let isPrime = (n: number) => {
+    for (let factor = 2; factor <= Math.sqrt(n); factor++) {
+      if (n % factor === 0) return false;
+    }
+    return true;
+  };
+
+  let getFractionalBits = (n: number) => Math.floor((n - Math.floor(n)) * maxWord);
+
+  let n = 2, nPrime = 0;
+  while (nPrime < 64) {
+    if (isPrime(n)) {
+      if (nPrime < 8) H[nPrime] = getFractionalBits(Math.pow(n, 1 / 2));
+      K[nPrime] = getFractionalBits(Math.pow(n, 1 / 3));
+      nPrime++;
+    }
+    n++;
+  }
+
+  const bytes: number[] = [];
+  for (let i = 0; i < asciiLength; i++) {
+    bytes.push(ascii.charCodeAt(i));
+  }
+  bytes.push(0x80);
+  while ((bytes.length % 64) !== 56) {
+    bytes.push(0);
+  }
+
+  const bitLen = asciiLength * 8;
+  for (let i = 7; i >= 0; i--) {
+    bytes.push(Math.floor(bitLen / Math.pow(2, i * 8)) & 0xff);
+  }
+
+  for (let i = 0; i < bytes.length; i += 4) {
+    words.push(
+      (bytes[i] << 24) |
+      (bytes[i + 1] << 16) |
+      (bytes[i + 2] << 8) |
+      bytes[i + 3]
+    );
+  }
+
+  for (let i = 0; i < words.length; i += 16) {
+    const w = words.slice(i, i + 16);
+    const oldH = [...H];
+
+    for (let j = 0; j < 64; j++) {
+      if (j >= 16) {
+        const s0 = rightRotate(w[j - 15], 7) ^ rightRotate(w[j - 15], 18) ^ (w[j - 15] >>> 3);
+        const s1 = rightRotate(w[j - 2], 17) ^ rightRotate(w[j - 2], 19) ^ (w[j - 2] >>> 10);
+        w[j] = (w[j - 16] + s0 + w[j - 7] + s1) | 0;
+      }
+
+      const s1 = rightRotate(H[4], 6) ^ rightRotate(H[4], 11) ^ rightRotate(H[4], 25);
+      const ch = (H[4] & H[5]) ^ (~H[4] & H[6]);
+      const temp1 = (H[7] + s1 + ch + K[j] + w[j]) | 0;
+      const s0 = rightRotate(H[0], 2) ^ rightRotate(H[0], 13) ^ rightRotate(H[0], 22);
+      const maj = (H[0] & H[1]) ^ (H[0] & H[2]) ^ (H[1] & H[2]);
+      const temp2 = (s0 + maj) | 0;
+
+      H[7] = H[6];
+      H[6] = H[5];
+      H[5] = H[4];
+      H[4] = (H[3] + temp1) | 0;
+      H[3] = H[2];
+      H[2] = H[1];
+      H[1] = H[0];
+      H[0] = (temp1 + temp2) | 0;
+    }
+
+    for (let j = 0; j < 8; j++) {
+      H[j] = (H[j] + oldH[j]) | 0;
+    }
+  }
+
+  for (let i = 0; i < 8; i++) {
+    result.push((H[i] >>> 24) & 0xff);
+    result.push((H[i] >>> 16) & 0xff);
+    result.push((H[i] >>> 8) & 0xff);
+    result.push(H[i] & 0xff);
+  }
+  return result;
+}
+
+async function computeHmacSha256(secret: string, message: string): Promise<string> {
+  let keyBytes = Array.from(secret).map((c) => c.charCodeAt(0));
+  if (keyBytes.length > 64) {
+    keyBytes = sha256Pure(secret);
+  }
+  while (keyBytes.length < 64) {
+    keyBytes.push(0);
+  }
+
+  const oPad = keyBytes.map((b) => b ^ 0x5c);
+  const iPad = keyBytes.map((b) => b ^ 0x36);
+
+  const innerMsg = String.fromCharCode(...iPad) + message;
+  const innerHash = sha256Pure(innerMsg);
+
+  const outerMsg = String.fromCharCode(...oPad) + String.fromCharCode(...innerHash);
+  const outerHash = sha256Pure(outerMsg);
+
+  return outerHash.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 export default function BookingSummaryScreen({ navigation, route }: any) {
