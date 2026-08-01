@@ -155,4 +155,26 @@ export class RatingService {
       created_at: rating.createdAt,
     };
   }
+
+  /**
+   * GET /api/v1/ratings/booking/:bookingId
+   * Retrieve customer's rating for a specific booking
+   */
+  async getRatingForBooking(customerId: string, bookingId: string) {
+    const rating = await this.prisma.rating.findFirst({
+      where: { customerId, bookingId },
+    });
+
+    if (!rating) {
+      return null;
+    }
+
+    return {
+      id: rating.id,
+      booking_id: rating.bookingId,
+      rating_score: rating.ratingScore,
+      review_text: rating.reviewText,
+      created_at: rating.createdAt,
+    };
+  }
 }

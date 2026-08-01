@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Param, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
@@ -27,6 +27,17 @@ export class AdminRatingController {
 @Roles('CUSTOMER')
 export class CustomerRatingController {
   constructor(private readonly ratingService: RatingService) {}
+
+  /** GET /api/v1/ratings/booking/:bookingId - Fetch customer's rating for a booking */
+  @Get('booking/:bookingId')
+  async getRatingForBooking(@Req() req: any, @Param('bookingId') bookingId: string) {
+    const customerId = req.user.id || req.user.userId || req.user.sub;
+    const result = await this.ratingService.getRatingForBooking(customerId, bookingId);
+    return {
+      success: true,
+      data: result,
+    };
+  }
 
   /** POST /api/v1/ratings - Submit rating for completed booking */
   @Post()

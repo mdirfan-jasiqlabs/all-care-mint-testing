@@ -33,6 +33,9 @@ export default function BookingDetailScreen({ navigation, route }: any) {
       const data = await apiClient.get(`/api/v1/bookings/${bookingId}`);
       if (data.success) {
         setBooking(data.data);
+        if (data.data.status === 'COMPLETED') {
+          fetchRatingDetails();
+        }
       }
     } catch (err) {
       Alert.alert('Error', 'Failed to retrieve booking details.');
@@ -41,25 +44,48 @@ export default function BookingDetailScreen({ navigation, route }: any) {
     }
   };
 
-  useEffect(() => {
-    fetchBookingDetails();
-
-    // Check if rating was previously submitted for this booking
-    const savedRatingStr = storage.getItem(`rating_${bookingId}`);
-    if (savedRatingStr) {
-      try {
-        const savedRating = JSON.parse(savedRatingStr);
-        if (savedRating.ratingScore) {
-          setRatingScore(savedRating.ratingScore);
-        }
-        if (savedRating.reviewText) {
-          setReviewText(savedRating.reviewText);
-        }
+  const fetchRatingDetails = async () => {
+    try {
+      const data = await apiClient.get(`/api/v1/ratings/booking/${bookingId}`);
+      if (data.success && data.data) {
+        setRatingScore(data.data.rating_score);
+        setReviewText(data.data.review_text || '');
         setRatingSubmitted(true);
-      } catch (e) {
-        // Ignore parse error
+        storage.setItem(
+          `rating_${bookingId}`,
+          JSON.stringify({
+            ratingScore: data.data.rating_score,
+            reviewText: data.data.review_text || '',
+          })
+        );
+      } else {
+        // Fallback to local storage if API didn't return rating
+        const savedRatingStr = storage.getItem(`rating_${bookingId}`);
+        if (savedRatingStr) {
+          const savedRating = JSON.parse(savedRatingStr);
+          if (savedRating.ratingScore) setRatingScore(savedRating.ratingScore);
+          if (savedRating.reviewText) setReviewText(savedRating.reviewText);
+          setRatingSubmitted(true);
+        }
+      }
+    } catch (err) {
+      // Fallback to local storage
+      const savedRatingStr = storage.getItem(`rating_${bookingId}`);
+      if (savedRatingStr) {
+        try {
+          const savedRating = JSON.parse(savedRatingStr);
+          if (savedRating.ratingScore) setRatingScore(savedRating.ratingScore);
+          if (savedRating.reviewText) setReviewText(savedRating.reviewText);
+          setRatingSubmitted(true);
+        } catch (e) {
+          // Ignore parse error
+        }
       }
     }
+  };
+
+  useEffect(() => {
+    fetchBookingDetails();
   }, [bookingId]);
 
   const handleRatingSubmit = async () => {
@@ -73,18 +99,14 @@ export default function BookingDetailScreen({ navigation, route }: any) {
       });
 
       if (data.success) {
-        const ratingPayload = { ratingScore, reviewText: reviewText.trim() };
-        storage.setItem(`rating_${bookingId}`, JSON.stringify(ratingPayload));
-        setRatingSubmitted(true);
+        await fetchRatingDetails();
         Alert.alert('Thank You!', 'Your rating and review have been submitted successfully.');
       } else {
         throw new Error(data.error?.message || 'Failed to submit rating.');
       }
     } catch (err: any) {
       if (err.status === 409 || err.message?.includes('already')) {
-        const ratingPayload = { ratingScore, reviewText: reviewText.trim() };
-        storage.setItem(`rating_${bookingId}`, JSON.stringify(ratingPayload));
-        setRatingSubmitted(true);
+        await fetchRatingDetails();
         Alert.alert('Notice', 'A rating has already been submitted for this booking.');
       } else {
         Alert.alert('Error', err.message || 'Failed to submit rating.');
