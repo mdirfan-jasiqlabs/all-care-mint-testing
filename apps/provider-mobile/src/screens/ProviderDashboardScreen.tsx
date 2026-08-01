@@ -157,23 +157,53 @@ export default function ProviderDashboardScreen({ navigation }: any) {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <View style={styles.titleWrapper}>
-              <Text style={styles.title}>Partner Console</Text>
-              <View style={styles.roleBadge}>
-                <Text style={styles.roleBadgeText}>PROVIDER PARTNER</Text>
-              </View>
+        {/* Partner Console Header Card */}
+        <View style={styles.consoleCard}>
+          {/* Top Row: Title & Subtitle + Provider Partner Badge */}
+          <View style={styles.consoleHeaderRow}>
+            <View style={{ flex: 1, paddingRight: 8 }}>
+              <Text style={styles.consoleTitle}>Partner Console</Text>
+              <Text style={styles.consoleSubtitle}>Manage your service jobs and schedule</Text>
             </View>
-            <Text style={styles.subtitle}>Manage your service jobs and schedule</Text>
+
+            <View style={styles.providerBadge}>
+              <Text style={styles.badgeIcon}>👥</Text>
+              <Text style={styles.badgeText}>Provider Partner</Text>
+            </View>
           </View>
-          <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.earningsBtn} onPress={() => navigation.navigate('ProviderEarnings')}>
-              <Text style={styles.earningsBtnText}>💰 Earnings Summary</Text>
+
+          {/* Bottom Row: 2 Equal-Width Action Cards */}
+          <View style={styles.actionCardsRow}>
+            {/* Earnings Summary Card */}
+            <TouchableOpacity
+              style={styles.earningsCard}
+              onPress={() => navigation.navigate('ProviderEarnings')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.actionIconBox}>
+                <Text style={{ fontSize: 20 }}>👛</Text>
+              </View>
+              <View style={styles.actionTextBox}>
+                <Text style={styles.earningsCardTitle}>Earnings Summary</Text>
+                <Text style={styles.actionCardSubtitle}>View your earnings</Text>
+              </View>
+              <Text style={styles.earningsChevron}>›</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-              <Text style={styles.logoutText}>Sign Out</Text>
+
+            {/* Sign Out Card */}
+            <TouchableOpacity
+              style={styles.signOutCard}
+              onPress={handleLogout}
+              activeOpacity={0.7}
+            >
+              <View style={styles.actionIconBoxRed}>
+                <Text style={{ fontSize: 18 }}>🚪</Text>
+              </View>
+              <View style={styles.actionTextBox}>
+                <Text style={styles.signOutCardTitle}>Sign Out</Text>
+                <Text style={styles.actionCardSubtitle}>See you again!</Text>
+              </View>
+              <Text style={styles.signOutChevron}>›</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -247,51 +277,118 @@ const styles = StyleSheet.create({
       }
     })
   },
-  header: {
+  consoleCard: {
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 16,
     marginBottom: 20,
-    marginTop: Platform.OS === 'android' ? 12 : 4,
-    gap: 12,
+    marginTop: Platform.OS === 'android' ? 8 : 0,
+    gap: 16,
   },
-  headerTop: {
-    flexDirection: 'column',
-  },
-  titleWrapper: {
+  consoleHeaderRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
-  title: {
+  consoleTitle: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#ffffff',
+    letterSpacing: -0.3,
   },
-  subtitle: {
+  consoleSubtitle: {
     fontSize: 13,
     color: '#94a3b8',
-    marginTop: 2,
+    marginTop: 4,
   },
-  headerActions: {
+  providerBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#0f172a',
-    borderRadius: 10,
-    padding: 8,
+    gap: 6,
+    backgroundColor: 'rgba(6, 182, 212, 0.12)',
     borderWidth: 1,
-    borderColor: '#1e293b',
-  },
-  logoutBtn: {
-    paddingHorizontal: 12,
+    borderColor: 'rgba(6, 182, 212, 0.3)',
+    borderRadius: 10,
+    paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 8,
+  },
+  badgeIcon: {
+    fontSize: 13,
+  },
+  badgeText: {
+    color: '#22d3ee',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  actionCardsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  earningsCard: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+    borderRadius: 12,
+    padding: 12,
+    gap: 8,
+  },
+  signOutCard: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(239, 68, 68, 0.08)',
     borderWidth: 1,
     borderColor: 'rgba(239, 68, 68, 0.3)',
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderRadius: 12,
+    padding: 12,
+    gap: 8,
   },
-  logoutText: {
-    color: '#f87171',
+  actionIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionIconBoxRed: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionTextBox: {
+    flex: 1,
+  },
+  earningsCardTitle: {
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    color: '#34d399',
+  },
+  signOutCardTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#f87171',
+  },
+  actionCardSubtitle: {
+    fontSize: 11,
+    color: '#64748b',
+    marginTop: 2,
+  },
+  earningsChevron: {
+    fontSize: 18,
+    fontWeight: '400',
+    color: '#34d399',
+  },
+  signOutChevron: {
+    fontSize: 18,
+    fontWeight: '400',
+    color: '#f87171',
   },
   tabContainer: {
     flexDirection: 'row',
