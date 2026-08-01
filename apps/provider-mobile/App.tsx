@@ -92,7 +92,7 @@ export default function App() {
         <Stack.Screen
           name="ProviderEarnings"
           component={ProviderEarningsScreen}
-          options={{ title: 'Earnings Summary' }}
+          options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>
