@@ -24,7 +24,9 @@ export class PushTokenController {
   async registerToken(@Req() req: any, @Body() body: RegisterPushTokenDto) {
     const fcmToken = body.getResolvedToken();
     const deviceId = body.getResolvedDeviceId();
-    const userRole = body.getResolvedUserRole(req.user?.role || 'CUSTOMER');
+    const jwtRole = req.user?.role || 'CUSTOMER';
+    const userRole = body.getResolvedUserRole(jwtRole);
+    const platform = body.getResolvedPlatform();
 
     if (!fcmToken || !deviceId) {
       throw new BadRequestException({
@@ -42,6 +44,7 @@ export class PushTokenController {
       userRole,
       deviceId,
       fcmToken,
+      platform,
     );
 
     return {
@@ -51,6 +54,7 @@ export class PushTokenController {
         fcmToken: tokenInfo.fcmToken,
         deviceId: tokenInfo.deviceId,
         isActive: tokenInfo.isActive,
+        platform: tokenInfo.platform || platform,
       },
     };
   }

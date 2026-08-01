@@ -15,8 +15,9 @@ export class TokenRegistryService {
     role: string,
     deviceId: string,
     fcmToken: string,
+    platform: string = 'ANDROID',
   ): Promise<PushTokenInfo> {
-    return this.tokenRepo.upsertToken(userId, role, deviceId, fcmToken);
+    return this.tokenRepo.upsertToken(userId, role, deviceId, fcmToken, platform);
   }
 
   async getActiveTokensForUser(userId: string): Promise<PushTokenInfo[]> {
@@ -24,7 +25,6 @@ export class TokenRegistryService {
   }
 
   async revokeToken(userId: string, deviceId: string): Promise<void> {
-    // Check if token exists for any user
     const existing = await this.prisma.pushToken.findFirst({
       where: { deviceId },
     });

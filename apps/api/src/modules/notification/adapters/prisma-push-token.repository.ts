@@ -21,17 +21,43 @@ export class PrismaPushTokenRepository implements IPushTokenRepository {
     role: string,
     deviceId: string,
     fcmToken: string,
+    platform: string = 'ANDROID',
   ): Promise<PushTokenInfo> {
+    // Deterministic secure policy for duplicate fcmToken:
+    // If another device/user already registered this exact fcmToken, revoke/reassign that previous record
+    // to prevent uq_push_tokens_fcm_token constraint violation and ensure a single active owner.
+    const existingTokenRow = await this.prisma.pushToken.findFirst({
+      where: {
+        fcmToken,
+        NOT: {
+          userId,
+          deviceId,
+        },
+      },
+    });
+
+    if (existingTokenRow) {
+      await this.prisma.pushToken.update({
+        where: { id: existingTokenRow.id },
+        data: {
+          fcmToken: `reassigned_${existingTokenRow.id}_${Date.now()}`,
+          isActive: false,
+          updatedAt: new Date(),
+        },
+      });
+    }
+
     const record = await this.prisma.pushToken.upsert({
       where: {
-        userRole_deviceId: {
-          userRole: role,
+        userId_deviceId: {
+          userId,
           deviceId,
         },
       },
       update: {
-        userId,
+        userRole: role,
         fcmToken,
+        platform,
         isActive: true,
         lastSeenAt: new Date(),
         updatedAt: new Date(),
@@ -41,6 +67,7 @@ export class PrismaPushTokenRepository implements IPushTokenRepository {
         userRole: role,
         deviceId,
         fcmToken,
+        platform,
         isActive: true,
       },
     });

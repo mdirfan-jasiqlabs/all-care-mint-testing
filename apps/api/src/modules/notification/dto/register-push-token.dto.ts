@@ -21,7 +21,7 @@ export class RegisterPushTokenDto {
   @IsOptional()
   userRole?: 'CUSTOMER' | 'PROVIDER';
 
-  @IsString()
+  @IsEnum(['ANDROID'])
   @IsOptional()
   platform?: string;
 
@@ -33,10 +33,12 @@ export class RegisterPushTokenDto {
     return this.deviceId || this.device_id || '';
   }
 
-  getResolvedUserRole(defaultRole: 'CUSTOMER' | 'PROVIDER' = 'CUSTOMER'): 'CUSTOMER' | 'PROVIDER' {
-    if (this.userRole === 'PROVIDER' || this.userRole === 'CUSTOMER') {
-      return this.userRole;
-    }
-    return defaultRole;
+  getResolvedUserRole(jwtRole: 'CUSTOMER' | 'PROVIDER' = 'CUSTOMER'): 'CUSTOMER' | 'PROVIDER' {
+    // Identity & Role Isolation: Always enforce the authenticated JWT role.
+    return jwtRole;
+  }
+
+  getResolvedPlatform(): string {
+    return this.platform || 'ANDROID';
   }
 }
