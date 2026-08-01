@@ -704,6 +704,9 @@ export class PaymentService {
           customer: {
             select: { displayName: true, mobileNumber: true },
           },
+          service: {
+            select: { name: true },
+          },
           booking: {
             select: {
               bookingReference: true,
@@ -720,7 +723,7 @@ export class PaymentService {
       date: item.createdAt.toISOString(),
       booking_id: item.booking?.bookingReference || item.bookingId || 'N/A',
       customer_name: item.customer?.displayName || item.customer?.mobileNumber || 'Unknown Customer',
-      service_name: item.booking?.serviceNameSnapshot || 'N/A',
+      service_name: item.booking?.serviceNameSnapshot || item.service?.name || 'N/A',
       provider_name: item.booking?.provider?.displayName || 'Unassigned',
       amount_inr: item.amountPaise / 100,
       payment_method: item.paymentMethod === 'CASH_ON_SERVICE' ? 'CASH' : 'ONLINE',
