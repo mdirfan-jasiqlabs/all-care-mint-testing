@@ -45,12 +45,10 @@ export default function BookingConfirmationScreen({ navigation, route }: any) {
     fetchBookingDetails();
   }, []);
 
-  const handleCancelBooking = async () => {
-    if (!confirm('Are you sure you want to cancel this booking?')) return;
-
+  const performCancellation = async () => {
     try {
       setSubmitting(true);
-      const res = await fetch(`${baseUrl}/api/v1/bookings/${bookingId}/cancel`, {
+      const res = await fetch(`${baseUrl}/api/v1/bookings/me/${bookingId}/cancel`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -70,6 +68,20 @@ export default function BookingConfirmationScreen({ navigation, route }: any) {
       Alert.alert('Error', err.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleCancelBooking = () => {
+    const confirmMessage = 'Are you sure you want to cancel this booking?';
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && typeof (window as any).confirm === 'function') {
+      if ((window as any).confirm(confirmMessage)) {
+        performCancellation();
+      }
+    } else {
+      Alert.alert('Cancel Booking', confirmMessage, [
+        { text: 'No', style: 'cancel' },
+        { text: 'Yes, Cancel', style: 'destructive', onPress: performCancellation },
+      ]);
     }
   };
 

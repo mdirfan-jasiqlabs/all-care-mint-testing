@@ -72,8 +72,8 @@ export default function BookingDetailScreen({ navigation, route }: any) {
   const handleCancelBooking = () => {
     const confirmMessage = 'Cancel this booking? This action cannot be undone.';
     
-    if (Platform.OS === 'web') {
-      if (window.confirm(confirmMessage)) {
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && typeof (window as any).confirm === 'function') {
+      if ((window as any).confirm(confirmMessage)) {
         performCancellation();
       }
     } else {
@@ -82,7 +82,7 @@ export default function BookingDetailScreen({ navigation, route }: any) {
         confirmMessage,
         [
           { text: 'No', style: 'cancel' },
-          { text: 'Yes', onPress: performCancellation },
+          { text: 'Yes, Cancel', style: 'destructive', onPress: performCancellation },
         ]
       );
     }
