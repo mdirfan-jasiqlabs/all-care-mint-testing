@@ -165,7 +165,7 @@ export default function ProviderDashboardScreen({ navigation }: any) {
               <Text style={styles.consoleSubtitle}>Manage your service jobs and schedule</Text>
             </View>
             <View style={styles.roleBadge}>
-              <Text style={styles.roleBadgeText}>👥 PROVIDER PARTNER</Text>
+              <Text style={styles.roleBadgeText}>PROVIDER PARTNER</Text>
             </View>
           </View>
 
