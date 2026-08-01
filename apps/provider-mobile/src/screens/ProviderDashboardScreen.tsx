@@ -159,8 +159,8 @@ export default function ProviderDashboardScreen({ navigation }: any) {
         
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View style={styles.headerTop}>
+            <View style={styles.titleWrapper}>
               <Text style={styles.title}>Partner Console</Text>
               <View style={styles.roleBadge}>
                 <Text style={styles.roleBadgeText}>PROVIDER PARTNER</Text>
@@ -168,9 +168,9 @@ export default function ProviderDashboardScreen({ navigation }: any) {
             </View>
             <Text style={styles.subtitle}>Manage your service jobs and schedule</Text>
           </View>
-          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+          <View style={styles.headerActions}>
             <TouchableOpacity style={styles.earningsBtn} onPress={() => navigation.navigate('ProviderEarnings')}>
-              <Text style={styles.earningsBtnText}>💰 Earnings</Text>
+              <Text style={styles.earningsBtnText}>💰 Earnings Summary</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
               <Text style={styles.logoutText}>Sign Out</Text>
@@ -248,11 +248,17 @@ const styles = StyleSheet.create({
     })
   },
   header: {
+    marginBottom: 20,
+    marginTop: Platform.OS === 'android' ? 12 : 4,
+    gap: 12,
+  },
+  headerTop: {
+    flexDirection: 'column',
+  },
+  titleWrapper: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
-    marginTop: Platform.OS === 'android' ? 24 : 8,
+    justifyContent: 'space-between',
   },
   title: {
     fontSize: 22,
@@ -264,17 +270,27 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
     marginTop: 2,
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#0f172a',
+    borderRadius: 10,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#1e293b',
+  },
   logoutBtn: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(239, 68, 68, 0.3)',
-    backgroundColor: 'rgba(239, 68, 68, 0.05)',
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
   },
   logoutText: {
     color: '#f87171',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 'bold',
   },
   tabContainer: {
