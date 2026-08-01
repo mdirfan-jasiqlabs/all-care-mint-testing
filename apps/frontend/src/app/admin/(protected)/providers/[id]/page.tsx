@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { apiClient } from '@/lib/api';
 import { useToast } from '../../../_components/Toast';
 
 interface Provider {
@@ -34,35 +35,20 @@ export default function ProviderDetailPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const token = sessionStorage.getItem('access_token');
 
       // 1. Fetch provider details
-      const providerRes = await fetch(`http://localhost:3000/api/v1/admin/providers/${id}`, {
-        headers: { Authorization: `Bearer ${token || ''}` },
-      });
-      if (!providerRes.ok) {
-        if (providerRes.status === 401 || providerRes.status === 403) {
-          router.push('/admin/login');
-          return;
-        }
-        throw new Error('Failed to retrieve provider details');
-      }
-      const providerData = await providerRes.json();
+      const providerData = await apiClient.get(`/api/v1/admin/providers/${id}`);
       if (providerData.success) {
         setProvider(providerData.data);
       }
 
       // 2. Fetch all service categories
       try {
-        const publicRes = await fetch('http://localhost:3000/api/v1/public/categories');
-        const pubData = await publicRes.json();
+        const pubData = await apiClient.get('/api/v1/public/categories');
         if (pubData.success && Array.isArray(pubData.data)) {
           setCategories(pubData.data);
         } else {
-          const adminRes = await fetch('http://localhost:3000/api/v1/admin/catalog/categories', {
-            headers: { Authorization: `Bearer ${token || ''}` },
-          });
-          const admData = await adminRes.json();
+          const admData = await apiClient.get('/api/v1/admin/catalog/categories');
           if (admData.success && Array.isArray(admData.data)) {
             setCategories(admData.data);
           }
@@ -71,6 +57,10 @@ export default function ProviderDetailPage() {
         // Fallback fetch
       }
     } catch (err: any) {
+      if (err.status === 401 || err.status === 403) {
+        router.push('/admin/login');
+        return;
+      }
       addToast(err.message || 'Error fetching data', 'error');
     } finally {
       setLoading(false);
@@ -86,21 +76,7 @@ export default function ProviderDetailPage() {
   const handleStatusChange = async (newStatus: string) => {
     try {
       setSubmitting(true);
-      const token = sessionStorage.getItem('access_token');
-      const res = await fetch(`http://localhost:3000/api/v1/admin/providers/${id}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token || ''}`,
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error?.message || 'Failed to update status');
-      }
-
+      await apiClient.patch(`/api/v1/admin/providers/${id}/status`, { status: newStatus });
       addToast(`Provider status updated to ${newStatus}.`, 'success');
       await fetchData();
     } catch (err: any) {
@@ -114,21 +90,7 @@ export default function ProviderDetailPage() {
     try {
       setSubmitting(true);
       setPendingCategoryId(categoryId);
-      const token = sessionStorage.getItem('access_token');
-      const res = await fetch(`http://localhost:3000/api/v1/admin/providers/${id}/categories`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token || ''}`,
-        },
-        body: JSON.stringify({ categoryId }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error?.message || 'Failed to assign category');
-      }
-
+      await apiClient.post(`/api/v1/admin/providers/${id}/categories`, { categoryId });
       addToast('Category mapped successfully.', 'success');
       await fetchData();
     } catch (err: any) {
@@ -143,19 +105,7 @@ export default function ProviderDetailPage() {
     try {
       setSubmitting(true);
       setPendingCategoryId(categoryId);
-      const token = sessionStorage.getItem('access_token');
-      const res = await fetch(`http://localhost:3000/api/v1/admin/providers/${id}/categories/${categoryId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token || ''}`,
-        },
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error?.message || 'Failed to remove category');
-      }
-
+      await apiClient.delete(`/api/v1/admin/providers/${id}/categories/${categoryId}`);
       addToast('Category mapping removed.', 'success');
       await fetchData();
     } catch (err: any) {

@@ -13,13 +13,11 @@ import {
   ScrollView,
 } from 'react-native';
 import * as storage from '../utils/storage';
-import { getBaseUrl } from '../utils/api';
+import { apiClient } from '../services/api';
 import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
 
 export default function AddressSelectionScreen({ navigation, route }: any) {
   const { serviceId } = route.params;
-  const token = storage.getAccessToken() || '';
-  const baseUrl = getBaseUrl();
 
   const [addresses, setAddresses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,10 +44,7 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
   const fetchAddresses = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${baseUrl}/api/v1/addresses`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const data = await apiClient.get('/api/v1/addresses');
       if (data.success) {
         setAddresses(data.data);
       }
@@ -78,23 +73,15 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
 
     try {
       setSubmitting(true);
-      const res = await fetch(`${baseUrl}/api/v1/addresses`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          label,
-          addressLine1,
-          addressLine2: addressLine2 || undefined,
-          city,
-          pincode,
-        }),
+      const data = await apiClient.post('/api/v1/addresses', {
+        label,
+        addressLine1,
+        addressLine2: addressLine2 || undefined,
+        city,
+        pincode,
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.error?.message || 'Failed to add address.');
       }
 
@@ -118,12 +105,8 @@ export default function AddressSelectionScreen({ navigation, route }: any) {
   const handleDeleteAddress = async (id: string) => {
     try {
       setLoading(true);
-      const res = await fetch(`${baseUrl}/api/v1/addresses/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
+      const data = await apiClient.delete(`/api/v1/addresses/${id}`);
+      if (!data.success) {
         throw new Error(data.error?.message || 'Failed to delete address.');
       }
       showToast('Address deleted successfully.', 'success');

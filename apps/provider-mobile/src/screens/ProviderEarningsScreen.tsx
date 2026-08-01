@@ -12,6 +12,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import * as storage from '../utils/storage';
+import { apiClient } from '../services/api';
 
 interface JobEarning {
   booking_id: string;
@@ -27,14 +28,6 @@ export default function ProviderEarningsScreen({ navigation }: any) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const baseUrl =
-    Platform.OS === 'android'
-      ? 'http://10.0.2.2:3000'
-      : Platform.OS === 'web'
-      ? 'http://localhost:3000'
-      : 'http://localhost:3000';
-  const API_BASE = `${baseUrl}/api/v1`;
 
   const fetchEarnings = async (isPullToRefresh = false) => {
     if (isPullToRefresh) {
@@ -53,24 +46,7 @@ export default function ProviderEarningsScreen({ navigation }: any) {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/providers/me/earnings`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          storage.clearAccessToken();
-          await storage.clearRefreshToken();
-          navigation.replace('ProviderLogin');
-          return;
-        }
-        throw new Error(`Server returned HTTP ${res.status}`);
-      }
-
-      const json = await res.json();
+      const json = await apiClient.get('/api/v1/providers/me/earnings');
       const earningsData = json.data || json;
       if (typeof earningsData.total_earnings_inr === 'number') {
         setTotalEarnings(earningsData.total_earnings_inr);
@@ -79,6 +55,12 @@ export default function ProviderEarningsScreen({ navigation }: any) {
         throw new Error('Invalid earnings data payload');
       }
     } catch (e: any) {
+      if (e.status === 401 || e.status === 403) {
+        storage.clearAccessToken();
+        await storage.clearRefreshToken();
+        navigation.replace('ProviderLogin');
+        return;
+      }
       console.error('Failed to fetch provider earnings:', e);
       setError(e.message || 'Failed to load earnings summary.');
     } finally {

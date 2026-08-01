@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiClient } from '@/lib/api';
 
 interface Booking {
   id: string;
@@ -71,33 +72,22 @@ export default function AdminBookingsPage() {
     try {
       setLoading(true);
       setError(null);
-      const token = sessionStorage.getItem('access_token');
 
       let statusQuery = activeTab === 'ALL' ? '' : activeTab;
-      let url = `http://localhost:3000/api/v1/admin/bookings?page=${page}&limit=${limit}`;
+      let url = `/api/v1/admin/bookings?page=${page}&limit=${limit}`;
       if (statusQuery) url += `&status=${statusQuery}`;
       if (dateFilter) url += `&date=${dateFilter}`;
 
-      const res = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token || ''}`,
-        },
-      });
-
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          router.push('/login/admin');
-          return;
-        }
-        throw new Error(`Failed to load bookings (${res.status})`);
-      }
-
-      const data = await res.json();
+      const data = await apiClient.get(url);
       if (data.success) {
         setBookings(data.data);
         setTotal(data.total);
       }
     } catch (err: any) {
+      if (err.status === 401 || err.status === 403) {
+        router.push('/login/admin');
+        return;
+      }
       setError(err.message || 'Failed to fetch bookings');
     } finally {
       setLoading(false);
@@ -116,46 +106,34 @@ export default function AdminBookingsPage() {
     setDrawerLoading(true);
 
     try {
-      const token = sessionStorage.getItem('access_token');
-
       // 1. Fetch complete details
-      const detailRes = await fetch(`http://localhost:3000/api/v1/admin/bookings/${booking.id}`, {
-        headers: { Authorization: `Bearer ${token || ''}` },
-      });
       let categoryId = '';
-      if (detailRes.ok) {
-        const detailData = await detailRes.json();
+      try {
+        const detailData = await apiClient.get(`/api/v1/admin/bookings/${booking.id}`);
         if (detailData.success) {
           setDrawerBooking(detailData.data);
           categoryId = detailData.data.service?.categoryId || '';
         }
-      }
+      } catch { /* ignore detail fetch errors */ }
 
       // 2. Fetch history
-      const historyRes = await fetch(`http://localhost:3000/api/v1/admin/bookings/${booking.id}/history`, {
-        headers: { Authorization: `Bearer ${token || ''}` },
-      });
-      if (historyRes.ok) {
-        const historyData = await historyRes.json();
+      try {
+        const historyData = await apiClient.get(`/api/v1/admin/bookings/${booking.id}/history`);
         if (historyData.success) {
           setDrawerHistory(historyData.data);
         }
-      }
+      } catch { /* ignore history fetch errors */ }
 
       // 3. Fetch matching providers for assignment
-      const providersRes = await fetch(
-        `http://localhost:3000/api/v1/admin/bookings/providers?service_category_id=${categoryId}`,
-        { headers: { Authorization: `Bearer ${token || ''}` } },
-      );
-      if (providersRes.ok) {
-        const providersData = await providersRes.json();
+      try {
+        const providersData = await apiClient.get(`/api/v1/admin/bookings/providers?service_category_id=${categoryId}`);
         if (providersData.success) {
           setDrawerProviders(providersData.data);
           if (providersData.data.length > 0) {
             setSelectedProviderId(providersData.data[0].id);
           }
         }
-      }
+      } catch { /* ignore providers fetch errors */ }
     } catch (err) {
       console.error('Error loading drawer details:', err);
     } finally {
@@ -217,22 +195,11 @@ export default function AdminBookingsPage() {
 
     try {
       setActionSubmitting(true);
-      const token = sessionStorage.getItem('access_token');
       const method = drawerBooking.status === 'PENDING' ? 'assign' : 'reassign';
 
-      const res = await fetch(`http://localhost:3000/api/v1/admin/bookings/${drawerBooking.id}/${method}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token || ''}`,
-        },
-        body: JSON.stringify({ providerId: selectedProviderId }),
+      await apiClient.patch(`/api/v1/admin/bookings/${drawerBooking.id}/${method}`, {
+        providerId: selectedProviderId,
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error?.message || data.message || `Failed to ${method} provider.`);
-      }
 
       showToast('Provider assigned successfully!', 'success');
 
@@ -262,18 +229,11 @@ export default function AdminBookingsPage() {
 
     try {
       setActionSubmitting(true);
-      const token = sessionStorage.getItem('access_token');
-      const res = await fetch(`http://localhost:3000/api/v1/admin/bookings/${drawerBooking.id}/cancel`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token || ''}`,
-        },
-        body: JSON.stringify({ reason: 'Admin cancelled from drawer console' }),
+      const data = await apiClient.patch(`/api/v1/admin/bookings/${drawerBooking.id}/cancel`, {
+        reason: 'Admin cancelled from drawer console',
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.error?.message || data.message || 'Failed to cancel booking.');
       }
 

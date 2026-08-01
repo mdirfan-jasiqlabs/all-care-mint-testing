@@ -13,7 +13,7 @@ import {
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/root.types';
 import * as storage from '../utils/storage';
-import { getBaseUrl } from '../utils/api';
+import { apiClient } from '../services/api';
 
 type CustomerProfileScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -43,21 +43,9 @@ export default function CustomerProfileScreen({ navigation }: Props) {
     }
 
     try {
-      const baseUrl = getBaseUrl();
-      const response = await fetch(`${baseUrl}/api/v1/customers/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const result = await apiClient.get('/api/v1/customers/me');
 
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        if (response.status === 401) {
-          // Token expired, clear and go to login
-          handleLogout();
-          return;
-        }
+      if (!result.success) {
         throw new Error(result.error?.message || 'Failed to load profile.');
       }
 
@@ -75,6 +63,10 @@ export default function CustomerProfileScreen({ navigation }: Props) {
       setCreatedAt(formattedDate);
       setLoading(false);
     } catch (err: any) {
+      if (err.status === 401) {
+        handleLogout();
+        return;
+      }
       setLoading(false);
       setError(err.message || 'Server failed to retrieve profile. Please try again.');
     }
@@ -101,19 +93,9 @@ export default function CustomerProfileScreen({ navigation }: Props) {
     setSaving(true);
 
     try {
-      const baseUrl = getBaseUrl();
-      const response = await fetch(`${baseUrl}/api/v1/customers/me`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name }),
-      });
+      const result = await apiClient.patch('/api/v1/customers/me', { name });
 
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
+      if (!result.success) {
         throw new Error(result.error?.message || 'Failed to save changes.');
       }
 
@@ -134,15 +116,7 @@ export default function CustomerProfileScreen({ navigation }: Props) {
     // Call logout API asynchronously
     if (token) {
       try {
-        const baseUrl = getBaseUrl();
-        await fetch(`${baseUrl}/api/v1/auth/logout`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ refreshToken: refresh }),
-        });
+        await apiClient.post('/api/v1/auth/logout', { refreshToken: refresh });
       } catch (e) {
         // ignore logout call error
       }

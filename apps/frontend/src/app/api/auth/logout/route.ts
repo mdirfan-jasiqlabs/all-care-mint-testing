@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { backendApiClient } from '@/lib/api-server';
 
 export async function POST(request: Request) {
   try {
@@ -8,12 +9,10 @@ export async function POST(request: Request) {
     const refreshToken = cookieStore.get('admin_refresh_token')?.value;
 
     if (accessToken) {
-      const backendUrl = process.env.BACKEND_API_URL || 'http://127.0.0.1:3000';
       try {
-        await fetch(`${backendUrl}/api/v1/auth/logout`, {
+        await backendApiClient.raw('/api/v1/auth/logout', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken}`,
           },
           body: JSON.stringify({ refreshToken }),

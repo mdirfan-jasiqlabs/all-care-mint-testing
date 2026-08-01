@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { apiClient } from '@/lib/api';
 
 interface Booking {
   id: string;
@@ -102,40 +103,27 @@ export default function AdminBookingDetailPage() {
     try {
       setLoading(true);
       setError(null);
-      const token = sessionStorage.getItem('access_token');
 
-      const bookingRes = await fetch(`http://localhost:3000/api/v1/admin/bookings/${id}`, {
-        headers: { 'Authorization': `Bearer ${token || ''}` },
-      });
-      if (!bookingRes.ok) {
-        throw new Error('Failed to load booking details.');
-      }
-      const bookingData = await bookingRes.json();
+      const bookingData = await apiClient.get(`/api/v1/admin/bookings/${id}`);
       let categoryId = '';
       if (bookingData.success) {
         setBooking(bookingData.data);
         categoryId = bookingData.data.service?.categoryId || '';
       }
 
-      const historyRes = await fetch(`http://localhost:3000/api/v1/admin/bookings/${id}/history`, {
-        headers: { 'Authorization': `Bearer ${token || ''}` },
-      });
-      if (historyRes.ok) {
-        const historyData = await historyRes.json();
+      try {
+        const historyData = await apiClient.get(`/api/v1/admin/bookings/${id}/history`);
         if (historyData.success) {
           setHistory(historyData.data);
         }
-      }
+      } catch { /* ignore history errors */ }
 
-      const providersRes = await fetch(`http://localhost:3000/api/v1/admin/bookings/providers?service_category_id=${categoryId}`, {
-        headers: { 'Authorization': `Bearer ${token || ''}` },
-      });
-      if (providersRes.ok) {
-        const providersData = await providersRes.json();
+      try {
+        const providersData = await apiClient.get(`/api/v1/admin/bookings/providers?service_category_id=${categoryId}`);
         if (providersData.success) {
           setProviders(providersData.data);
         }
-      }
+      } catch { /* ignore providers errors */ }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch details');
     } finally {
@@ -156,21 +144,10 @@ export default function AdminBookingDetailPage() {
     const method = booking?.status === 'PENDING' ? 'assign' : 'reassign';
     try {
       setSubmitting(true);
-      const token = sessionStorage.getItem('access_token');
       
-      const res = await fetch(`http://localhost:3000/api/v1/admin/bookings/${id}/${method}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token || ''}`,
-        },
-        body: JSON.stringify({ providerId: selectedProvider }),
+      await apiClient.patch(`/api/v1/admin/bookings/${id}/${method}`, {
+        providerId: selectedProvider,
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error?.message || data.message || `Failed to ${method} provider.`);
-      }
 
       const assignedProv = providers.find(p => p.id === selectedProvider);
       const providerName = assignedProv ? assignedProv.displayName : 'Provider';
@@ -194,18 +171,11 @@ export default function AdminBookingDetailPage() {
 
     try {
       setSubmitting(true);
-      const token = sessionStorage.getItem('access_token');
-      const res = await fetch(`http://localhost:3000/api/v1/admin/bookings/${id}/cancel`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token || ''}`,
-        },
-        body: JSON.stringify({ reason: 'Admin cancelled from details page' }),
+      const data = await apiClient.patch(`/api/v1/admin/bookings/${id}/cancel`, {
+        reason: 'Admin cancelled from details page',
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.error?.message || 'Failed to cancel booking');
       }
 

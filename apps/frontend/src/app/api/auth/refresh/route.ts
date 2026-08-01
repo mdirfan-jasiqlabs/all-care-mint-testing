@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { backendApiClient } from '@/lib/api-server';
 
 export async function POST(request: Request) {
   try {
@@ -24,12 +25,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const backendUrl = process.env.BACKEND_API_URL || 'http://127.0.0.1:3000';
-    const response = await fetch(`${backendUrl}/api/v1/auth/refresh`, {
+    const response = await backendApiClient.raw('/api/v1/auth/refresh', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({ refreshToken }),
     });
 

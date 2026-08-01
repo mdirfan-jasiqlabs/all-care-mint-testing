@@ -11,12 +11,11 @@ import {
   Platform,
 } from 'react-native';
 import * as storage from '../utils/storage';
+import { apiClient } from '../services/api';
 import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
 
 export default function JobStatusUpdateScreen({ navigation, route }: any) {
   const { bookingId } = route.params;
-  const token = storage.getAccessToken() || '';
-  const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : (Platform.OS === 'web' ? 'http://localhost:3000' : 'http://localhost:3000');
 
   const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -35,10 +34,7 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
   const fetchJobDetails = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${baseUrl}/api/v1/providers/me/bookings/${bookingId}`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const data = await apiClient.get(`/api/v1/providers/me/bookings/${bookingId}`);
       if (data.success) {
         setBooking(data.data);
       }
@@ -59,12 +55,8 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
 
     for (const item of updatedQueue) {
       try {
-        const res = await fetch(`${baseUrl}/api/v1/providers/me/bookings/${item.bookingId}/status`, {
+        const res = await apiClient.raw(`/api/v1/providers/me/bookings/${item.bookingId}/status`, {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
           body: JSON.stringify({ status: item.status }),
         });
         if (res.ok || res.status === 409) {
@@ -87,23 +79,11 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
     try {
       setSubmitting(true);
       setSyncState('syncing');
-      const res = await fetch(`${baseUrl}/api/v1/providers/me/bookings/${bookingId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: targetStatus }),
+      const data = await apiClient.patch(`/api/v1/providers/me/bookings/${bookingId}/status`, {
+        status: targetStatus,
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        if (res.status === 409) {
-          setSyncState('synced');
-          showToast(`Job status is already ${targetStatus}.`, 'info');
-          setTimeout(() => navigation.goBack(), 1000);
-          return;
-        }
+      if (!data.success) {
         throw new Error(data.error?.message || 'Failed to update job status.');
       }
 
@@ -111,6 +91,13 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
       showToast(`Job status updated to ${targetStatus}.`, 'success');
       setTimeout(() => navigation.goBack(), 1000);
     } catch (err: any) {
+      if (err.status === 409) {
+        setSyncState('synced');
+        showToast(`Job status is already ${targetStatus}.`, 'info');
+        setTimeout(() => navigation.goBack(), 1000);
+        return;
+      }
+
       const isNetworkError = err.message === 'Network request failed' ||
                              err.message?.includes('Network') ||
                              err.message?.includes('fetch') ||

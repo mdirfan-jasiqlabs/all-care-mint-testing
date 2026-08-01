@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { apiClient } from '@/lib/api';
 import { useToast } from '../../_components/Toast';
 import TableSkeleton from '../../_components/TableSkeleton';
 
@@ -44,22 +45,15 @@ function ProvidersPageContent() {
   // Fetch service categories for onboard modal
   const fetchCategories = async () => {
     try {
-      const token = sessionStorage.getItem('access_token');
       // Try public categories endpoint (no auth required) or fallback to admin catalog
-      const res = await fetch('http://localhost:3000/api/v1/public/categories');
-      const data = await res.json();
+      const data = await apiClient.get('/api/v1/public/categories');
       if (data.success && Array.isArray(data.data) && data.data.length > 0) {
         setAvailableCategories(data.data);
         return;
       }
 
       // Secondary attempt with Admin endpoint
-      const adminRes = await fetch('http://localhost:3000/api/v1/admin/catalog/categories', {
-        headers: {
-          Authorization: `Bearer ${token || ''}`,
-        },
-      });
-      const adminData = await adminRes.json();
+      const adminData = await apiClient.get('/api/v1/admin/catalog/categories');
       if (adminData.success && Array.isArray(adminData.data)) {
         setAvailableCategories(adminData.data);
       }
@@ -113,9 +107,8 @@ function ProvidersPageContent() {
     try {
       setLoading(true);
       setFetchError(null);
-      const token = sessionStorage.getItem('access_token');
       
-      let url = `http://localhost:3000/api/v1/admin/providers?page=${page}&limit=${limit}`;
+      let url = `/api/v1/admin/providers?page=${page}&limit=${limit}`;
       if (statusFilter !== 'ALL') {
         url += `&status=${statusFilter}`;
       }
@@ -123,26 +116,16 @@ function ProvidersPageContent() {
         url += `&search=${encodeURIComponent(debouncedSearch)}`;
       }
 
-      const res = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token || ''}`,
-        },
-      });
-
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          router.push('/admin/login');
-          return;
-        }
-        throw new Error('Failed to fetch providers directory');
-      }
-
-      const data = await res.json();
+      const data = await apiClient.get(url);
       if (data.success) {
         setProviders(data.data);
         setTotal(data.total);
       }
     } catch (err: any) {
+      if (err.status === 401 || err.status === 403) {
+        router.push('/admin/login');
+        return;
+      }
       const errMsg = err.message || 'Failed to fetch providers directory';
       setFetchError(errMsg);
       addToast(errMsg, 'error');
@@ -173,25 +156,12 @@ function ProvidersPageContent() {
 
     try {
       setSubmitting(true);
-      const token = sessionStorage.getItem('access_token');
-      const res = await fetch('http://localhost:3000/api/v1/admin/providers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token || ''}`,
-        },
-        body: JSON.stringify({
-          fullName,
-          mobileNumber,
-          serviceArea,
-          categoryIds: selectedCategoryIds,
-        }),
+      await apiClient.post('/api/v1/admin/providers', {
+        fullName,
+        mobileNumber,
+        serviceArea,
+        categoryIds: selectedCategoryIds,
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error?.message || 'Failed to onboard provider');
-      }
 
       addToast('Provider onboarded successfully.', 'success');
       setModalOpen(false);

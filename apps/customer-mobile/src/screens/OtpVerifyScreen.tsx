@@ -14,7 +14,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/root.types';
 import * as storage from '../utils/storage';
-import { getBaseUrl } from '../utils/api';
+import { apiClient } from '../services/api';
 
 type OtpVerifyScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -97,22 +97,13 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
     setLoading(true);
 
     try {
-      const baseUrl = getBaseUrl();
-      const response = await fetch(`${baseUrl}/api/v1/auth/otp/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          mobileNumber,
-          otp,
-          role: 'CUSTOMER',
-        }),
+      const result = await apiClient.post('/api/v1/auth/otp/verify', {
+        mobileNumber,
+        otp,
+        role: 'CUSTOMER',
       });
 
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
+      if (!result.success) {
         throw new Error(result.error?.message || 'Verification failed. Please try again.');
       }
 
@@ -139,19 +130,11 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
   const handleResend = async () => {
     if (cooldown > 0) return;
     try {
-      const baseUrl = getBaseUrl();
-      const response = await fetch(`${baseUrl}/api/v1/auth/otp/send`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          mobileNumber,
-          role: 'CUSTOMER',
-        }),
+      const result = await apiClient.post('/api/v1/auth/otp/send', {
+        mobileNumber,
+        role: 'CUSTOMER',
       });
-      const result = await response.json();
-      if (!response.ok || !result.success) {
+      if (!result.success) {
         throw new Error(result.error?.message || 'Unable to resend OTP.');
       }
       setCooldown(60);

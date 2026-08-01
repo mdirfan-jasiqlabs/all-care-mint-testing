@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getBaseUrl } from '../utils/api';
+import { apiClient } from '../services/api';
 import * as storage from '../utils/storage';
 import * as NetInfo from '@react-native-community/netinfo';
 import { Platform } from 'react-native';
@@ -82,16 +82,16 @@ export const useCatalogStore = create<CatalogState>((set: any, get: any) => ({
 
     // 2. Online: Send If-None-Match if ETag exists
     try {
-      const baseUrl = getBaseUrl();
       const etag = storage.getItem('catalog.categories.etag') || '';
-      const headers: Record<string, string> = {
-        'Authorization': `Bearer ${token}`,
-      };
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
       if (etag) {
         headers['If-None-Match'] = etag;
       }
 
-      const res = await fetch(`${baseUrl}/api/v1/catalog/categories`, { headers });
+      const res = await apiClient.raw('/api/v1/catalog/categories', { headers });
 
       if (res.status === 304) {
         // Not modified: load from cache and update timestamp
@@ -158,16 +158,16 @@ export const useCatalogStore = create<CatalogState>((set: any, get: any) => ({
     }
 
     try {
-      const baseUrl = getBaseUrl();
       const etag = storage.getItem(`catalog.services.${categoryId}.etag`) || '';
-      const headers: Record<string, string> = {
-        'Authorization': `Bearer ${token}`,
-      };
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
       if (etag) {
         headers['If-None-Match'] = etag;
       }
 
-      const res = await fetch(`${baseUrl}/api/v1/catalog/categories/${categoryId}/services`, { headers });
+      const res = await apiClient.raw(`/api/v1/catalog/categories/${categoryId}/services`, { headers });
 
       if (res.status === 304) {
         const cachedData = storage.getItem(`catalog.services.${categoryId}`);
@@ -255,18 +255,12 @@ export const useCatalogStore = create<CatalogState>((set: any, get: any) => ({
     }
 
     try {
-      const baseUrl = getBaseUrl();
-      const res = await fetch(`${baseUrl}/api/v1/catalog/services/${serviceId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to fetch service details');
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
       }
+      const data = await apiClient.get(`/api/v1/catalog/services/${serviceId}`, { headers });
 
-      const data = await res.json();
       if (data.success) {
         const service = data.data;
         storage.setItem(`catalog.service.${serviceId}`, JSON.stringify(service));

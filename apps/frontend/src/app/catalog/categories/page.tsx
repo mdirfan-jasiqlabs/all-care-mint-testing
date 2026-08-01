@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiClient } from '@/lib/api';
 
 interface Category {
   id: string;
@@ -23,18 +24,7 @@ export default function CatalogCategoriesPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const token = sessionStorage.getItem('access_token');
-        const res = await fetch('http://localhost:3000/api/v1/catalog/categories', {
-          headers: {
-            'Authorization': `Bearer ${token || ''}`,
-          },
-        });
-
-        if (!res.ok) {
-          throw new Error(`Failed to load categories (${res.status})`);
-        }
-
-        const body = await res.json();
+        const body = await apiClient.get('/api/v1/catalog/categories');
         if (body.success) {
           setCategories(body.data);
           setFilteredCategories(body.data);

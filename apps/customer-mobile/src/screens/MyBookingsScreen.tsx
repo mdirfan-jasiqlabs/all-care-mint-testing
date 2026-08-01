@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import * as storage from '../utils/storage';
-import { getBaseUrl } from '../utils/api';
+import { apiClient } from '../services/api';
 
 export default function MyBookingsScreen({ navigation, route }: any) {
   const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
@@ -22,20 +22,12 @@ export default function MyBookingsScreen({ navigation, route }: any) {
   const [toastOpacity] = useState(new Animated.Value(0));
 
   const isFocused = useIsFocused();
-  const baseUrl = getBaseUrl();
-  const token = storage.getAccessToken() || '';
 
   // Fetch bookings based on activeTab
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const res = await fetch(
-        `${baseUrl}/api/v1/bookings?filter=${activeTab}&page=1&limit=50`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const data = await res.json();
+      const data = await apiClient.get(`/api/v1/bookings?filter=${activeTab}&page=1&limit=50`);
       if (data.success) {
         setBookings(data.data || []);
       }

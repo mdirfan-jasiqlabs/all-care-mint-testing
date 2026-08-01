@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiClient } from '@/lib/api';
 import { useToast } from './Toast';
 import ConfirmModal from './ConfirmModal';
 import TableSkeleton from './TableSkeleton';
@@ -29,7 +30,7 @@ interface ServiceItem {
 
 type SortOrder = 'asc' | 'desc' | null;
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
 
 export default function UnifiedCatalogManager() {
   const router = useRouter();
@@ -86,10 +87,7 @@ export default function UnifiedCatalogManager() {
     try {
       setLoadingCategories(true);
       setError(null);
-      const token = sessionStorage.getItem('access_token');
-      const res = await fetch(`${API_BASE_URL}/api/v1/admin/catalog/categories`, {
-        headers: { 'Authorization': `Bearer ${token || ''}` },
-      });
+      const res = await apiClient.raw('/api/v1/admin/catalog/categories');
 
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
@@ -129,25 +127,16 @@ export default function UnifiedCatalogManager() {
     if (!catId) return;
     try {
       setLoadingServices(true);
-      const token = sessionStorage.getItem('access_token');
-      const res = await fetch(`${API_BASE_URL}/api/v1/admin/catalog/categories/${catId}/services`, {
-        headers: { 'Authorization': `Bearer ${token || ''}` },
-      });
-
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          addToast('Session expired or access denied', 'error');
-          router.push('/login/admin');
-          return;
-        }
-        throw new Error(`Failed to load services (${res.status})`);
-      }
-
-      const data = await res.json();
+      const data = await apiClient.get(`/api/v1/admin/catalog/categories/${catId}/services`);
       if (data.success) {
         setServices(data.data);
       }
     } catch (err: any) {
+      if (err.status === 401 || err.status === 403) {
+        addToast('Session expired or access denied', 'error');
+        router.push('/login/admin');
+        return;
+      }
       addToast(err.message || 'Failed to fetch services', 'error');
     } finally {
       setLoadingServices(false);
@@ -269,40 +258,29 @@ export default function UnifiedCatalogManager() {
 
     try {
       setSubmittingCat(true);
-      const token = sessionStorage.getItem('access_token');
-      const url = editingCategory
-        ? `${API_BASE_URL}/api/v1/admin/catalog/categories/${editingCategory.id}`
-        : `${API_BASE_URL}/api/v1/admin/catalog/categories`;
-      const method = editingCategory ? 'PATCH' : 'POST';
+      const path = editingCategory
+        ? `/api/v1/admin/catalog/categories/${editingCategory.id}`
+        : `/api/v1/admin/catalog/categories`;
 
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token || ''}`,
-        },
-        body: JSON.stringify(catFormData),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (res.status === 409) {
-          setCatDrawerError(`Category with name "${catFormData.name}" already exists.`);
-          return;
-        }
-        if (res.status === 401 || res.status === 403) {
-          addToast('Session expired or access denied', 'error');
-          router.push('/login/admin');
-          return;
-        }
-        throw new Error(data.message || 'Action failed.');
+      if (editingCategory) {
+        await apiClient.patch(path, catFormData);
+      } else {
+        await apiClient.post(path, catFormData);
       }
 
       addToast(`Category ${editingCategory ? 'updated' : 'created'} successfully`, 'success');
       setIsCatDrawerOpen(false);
       await fetchCategories(); // refetch categories (updates ETag!)
     } catch (err: any) {
+      if (err.status === 409) {
+        setCatDrawerError(`Category with name "${catFormData.name}" already exists.`);
+        return;
+      }
+      if (err.status === 401 || err.status === 403) {
+        addToast('Session expired or access denied', 'error');
+        router.push('/login/admin');
+        return;
+      }
       setCatDrawerError(err.message || 'An unexpected error occurred.');
     } finally {
       setSubmittingCat(false);
@@ -327,34 +305,14 @@ export default function UnifiedCatalogManager() {
 
     try {
       setSubmittingSvc(true);
-      const token = sessionStorage.getItem('access_token');
-      const url = editingService
-        ? `${API_BASE_URL}/api/v1/admin/catalog/services/${editingService.id}`
-        : `${API_BASE_URL}/api/v1/admin/catalog/services`;
-      const method = editingService ? 'PATCH' : 'POST';
+      const path = editingService
+        ? `/api/v1/admin/catalog/services/${editingService.id}`
+        : `/api/v1/admin/catalog/services`;
 
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token || ''}`,
-        },
-        body: JSON.stringify(svcFormData),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (res.status === 409) {
-          setSvcDrawerError('Service name already exists in this category.');
-          return;
-        }
-        if (res.status === 401 || res.status === 403) {
-          addToast('Session expired or access denied', 'error');
-          router.push('/login/admin');
-          return;
-        }
-        throw new Error(data.message || 'Action failed.');
+      if (editingService) {
+        await apiClient.patch(path, svcFormData);
+      } else {
+        await apiClient.post(path, svcFormData);
       }
 
       addToast(`Service ${editingService ? 'updated' : 'created'} successfully`, 'success');
@@ -366,6 +324,15 @@ export default function UnifiedCatalogManager() {
       }
       await fetchCategories(); // refetch categories (updates ETag!)
     } catch (err: any) {
+      if (err.status === 409) {
+        setSvcDrawerError('Service name already exists in this category.');
+        return;
+      }
+      if (err.status === 401 || err.status === 403) {
+        addToast('Session expired or access denied', 'error');
+        router.push('/login/admin');
+        return;
+      }
       setSvcDrawerError(err.message || 'An unexpected error occurred.');
     } finally {
       setSubmittingSvc(false);
@@ -384,28 +351,15 @@ export default function UnifiedCatalogManager() {
   const confirmToggleCatActive = async (category: ServiceCategory, forceState?: boolean) => {
     const nextState = forceState !== undefined ? forceState : !category.isActive;
     try {
-      const token = sessionStorage.getItem('access_token');
-      const res = await fetch(`${API_BASE_URL}/api/v1/admin/catalog/categories/${category.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token || ''}`,
-        },
-        body: JSON.stringify({ isActive: nextState }),
-      });
-
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          addToast('Session expired or access denied', 'error');
-          router.push('/login/admin');
-          return;
-        }
-        throw new Error('Failed to update category state');
-      }
-
+      await apiClient.patch(`/api/v1/admin/catalog/categories/${category.id}`, { isActive: nextState });
       addToast(`Category "${category.name}" has been ${nextState ? 'activated' : 'deactivated'} successfully`, 'success');
       await fetchCategories();
     } catch (err: any) {
+      if (err.status === 401 || err.status === 403) {
+        addToast('Session expired or access denied', 'error');
+        router.push('/login/admin');
+        return;
+      }
       addToast(err.message || 'Failed to update category state', 'error');
     } finally {
       setDeactivatingCategory(null);
@@ -423,25 +377,7 @@ export default function UnifiedCatalogManager() {
   const confirmToggleSvcActive = async (service: ServiceItem, forceState?: boolean) => {
     const nextState = forceState !== undefined ? forceState : !service.isActive;
     try {
-      const token = sessionStorage.getItem('access_token');
-      const res = await fetch(`${API_BASE_URL}/api/v1/admin/catalog/services/${service.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token || ''}`,
-        },
-        body: JSON.stringify({ isActive: nextState }),
-      });
-
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          addToast('Session expired or access denied', 'error');
-          router.push('/login/admin');
-          return;
-        }
-        throw new Error('Failed to update service state');
-      }
-
+      await apiClient.patch(`/api/v1/admin/catalog/services/${service.id}`, { isActive: nextState });
       addToast(`Service "${service.name}" has been ${nextState ? 'activated' : 'deactivated'} successfully`, 'success');
       if (selectedCategoryId) {
         await fetchServices(selectedCategoryId);

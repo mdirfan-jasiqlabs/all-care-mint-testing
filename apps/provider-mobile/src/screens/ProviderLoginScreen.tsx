@@ -13,6 +13,7 @@ import {
 
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/root.types';
+import { apiClient } from '../services/api';
 
 type ProviderLoginScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -43,20 +44,12 @@ export default function ProviderLoginScreen({ navigation }: Props) {
     setLoading(true);
 
     try {
-      const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
-      const response = await fetch(`${baseUrl}/api/v1/auth/otp/send`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          mobileNumber: `${countryCode}${cleanNum}`,
-          role: 'PROVIDER',
-        }),
+      const result = await apiClient.post('/api/v1/auth/otp/send', {
+        mobileNumber: `${countryCode}${cleanNum}`,
+        role: 'PROVIDER',
       });
 
-      const result = await response.json();
-      if (!response.ok || !result.success) {
+      if (!result.success) {
         throw new Error(result.error?.message || 'Unable to send OTP. Please try again.');
       }
 

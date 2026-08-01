@@ -14,6 +14,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/root.types';
 import * as storage from '../utils/storage';
+import { apiClient } from '../services/api';
 
 type ProviderOtpScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -96,22 +97,13 @@ export default function ProviderOtpScreen({ navigation, route }: Props) {
     setLoading(true);
 
     try {
-      const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
-      const response = await fetch(`${baseUrl}/api/v1/auth/otp/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          mobileNumber,
-          otp,
-          role: 'PROVIDER',
-        }),
+      const result = await apiClient.post('/api/v1/auth/otp/verify', {
+        mobileNumber,
+        otp,
+        role: 'PROVIDER',
       });
 
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
+      if (!result.success) {
         throw new Error(result.error?.message || 'Verification failed. Please try again.');
       }
 
@@ -134,19 +126,11 @@ export default function ProviderOtpScreen({ navigation, route }: Props) {
   const handleResend = async () => {
     if (cooldown > 0) return;
     try {
-      const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
-      const response = await fetch(`${baseUrl}/api/v1/auth/otp/send`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          mobileNumber,
-          role: 'PROVIDER',
-        }),
+      const result = await apiClient.post('/api/v1/auth/otp/send', {
+        mobileNumber,
+        role: 'PROVIDER',
       });
-      const result = await response.json();
-      if (!response.ok || !result.success) {
+      if (!result.success) {
         throw new Error(result.error?.message || 'Unable to resend OTP.');
       }
       setCooldown(60);

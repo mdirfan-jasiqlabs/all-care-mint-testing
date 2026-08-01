@@ -11,12 +11,10 @@ import {
   BackHandler,
 } from 'react-native';
 import * as storage from '../utils/storage';
+import { apiClient } from '../services/api';
 import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
 
 export default function ProviderDashboardScreen({ navigation }: any) {
-  const token = storage.getAccessToken() || '';
-  const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : (Platform.OS === 'web' ? 'http://localhost:3000' : 'http://localhost:3000');
-
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'active' | 'history'>('active');
@@ -33,28 +31,21 @@ export default function ProviderDashboardScreen({ navigation }: any) {
     try {
       setLoading(true);
       const url = activeTab === 'active' 
-        ? `${baseUrl}/api/v1/providers/me/bookings?page=1&limit=20`
-        : `${baseUrl}/api/v1/providers/me/bookings/history?page=1&limit=20`;
+        ? '/api/v1/providers/me/bookings?page=1&limit=20'
+        : '/api/v1/providers/me/bookings/history?page=1&limit=20';
 
-      const res = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
+      const data = await apiClient.get(url);
 
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          storage.clearAccessToken();
-          await storage.clearRefreshToken();
-          navigation.replace('ProviderLogin');
-          return;
-        }
-        throw new Error('Failed to load jobs list.');
-      }
-
-      const data = await res.json();
       if (data.success) {
         setJobs(data.data);
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err.status === 401 || err.status === 403) {
+        storage.clearAccessToken();
+        await storage.clearRefreshToken();
+        navigation.replace('ProviderLogin');
+        return;
+      }
       showToast('Failed to retrieve jobs.', 'error');
     } finally {
       setLoading(false);
@@ -89,14 +80,7 @@ export default function ProviderDashboardScreen({ navigation }: any) {
 
     if (tokenVal) {
       try {
-        await fetch(`${baseUrl}/api/v1/auth/logout`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${tokenVal}`,
-          },
-          body: JSON.stringify({ refreshToken: refresh }),
-        });
+        await apiClient.post('/api/v1/auth/logout', { refreshToken: refresh });
       } catch (e) {
         // ignore logout errors
       }

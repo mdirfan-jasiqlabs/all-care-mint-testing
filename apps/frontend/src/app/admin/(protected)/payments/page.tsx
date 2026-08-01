@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiClient } from '@/lib/api';
 import { useToast } from '../../_components/Toast';
 
 interface PaymentRecord {
@@ -29,13 +30,11 @@ export default function AdminPaymentsPage() {
   const [exporting, setExporting] = useState(false);
 
   const { addToast } = useToast();
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
 
   const fetchPayments = async () => {
     setLoading(true);
     setErrorMsg(null);
     try {
-      const token = typeof window !== 'undefined' ? (localStorage.getItem('admin_token') || localStorage.getItem('access_token') || '') : '';
       const params = new URLSearchParams();
       if (methodFilter) params.append('method', methodFilter);
       if (statusFilter) params.append('status', statusFilter);
@@ -44,21 +43,7 @@ export default function AdminPaymentsPage() {
       params.append('page', String(page));
       params.append('page_size', '20');
 
-      const res = await fetch(`${API_BASE}/admin/payments?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          throw new Error('Unauthorized access to admin payments API');
-        }
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson?.error?.message || errJson?.message || `HTTP ${res.status} error fetching payments`);
-      }
-
-      const json = await res.json();
+      const json = await apiClient.get(`/api/v1/admin/payments?${params.toString()}`);
       if (json.success && json.data) {
         setPayments(json.data.data || []);
         setTotalPages(json.data.meta?.total_pages || 1);
@@ -83,22 +68,7 @@ export default function AdminPaymentsPage() {
     if (settlingId) return; // Prevent duplicate clicks
     setSettlingId(id);
     try {
-      const token = typeof window !== 'undefined' ? (localStorage.getItem('admin_token') || localStorage.getItem('access_token') || '') : '';
-      const res = await fetch(`${API_BASE}/admin/payments/${id}/settle`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const json = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        const errorText = json.error?.message || json.message || `Settlement failed (HTTP ${res.status})`;
-        addToast(errorText, 'error');
-        return;
-      }
-
+      const json = await apiClient.patch(`/api/v1/admin/payments/${id}/settle`);
       if (json.success) {
         addToast('Cash payment marked as settled', 'success');
         await fetchPayments();
@@ -117,7 +87,6 @@ export default function AdminPaymentsPage() {
     if (exporting) return;
     setExporting(true);
     try {
-      const token = typeof window !== 'undefined' ? (localStorage.getItem('admin_token') || localStorage.getItem('access_token') || '') : '';
       const params = new URLSearchParams();
       if (methodFilter) params.append('method', methodFilter);
       if (statusFilter) params.append('status', statusFilter);
@@ -125,9 +94,7 @@ export default function AdminPaymentsPage() {
       if (dateTo) params.append('date_to', dateTo);
       params.append('format', 'csv');
 
-      const res = await fetch(`${API_BASE}/admin/payments?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.raw(`/api/v1/admin/payments?${params.toString()}`);
 
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));

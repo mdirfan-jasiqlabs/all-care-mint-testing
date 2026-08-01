@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { apiClient } from '@/lib/api';
 
 interface Service {
   id: string;
@@ -33,18 +34,7 @@ function CatalogServicesContent() {
 
     const fetchServices = async () => {
       try {
-        const token = sessionStorage.getItem('access_token');
-        const res = await fetch(`http://localhost:3000/api/v1/catalog/categories/${categoryId}/services`, {
-          headers: {
-            'Authorization': `Bearer ${token || ''}`,
-          },
-        });
-
-        if (!res.ok) {
-          throw new Error(`Failed to load services (${res.status})`);
-        }
-
-        const body = await res.json();
+        const body = await apiClient.get(`/api/v1/catalog/categories/${categoryId}/services`);
         if (body.success) {
           setServices(body.data);
           setFilteredServices(body.data);

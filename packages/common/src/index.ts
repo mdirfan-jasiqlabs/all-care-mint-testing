@@ -9,3 +9,6 @@ export interface UserContext {
   mobileNumber: string;
   role: 'CUSTOMER' | 'PROVIDER' | 'ADMIN';
 }
+
+export * from './apiClient';
+

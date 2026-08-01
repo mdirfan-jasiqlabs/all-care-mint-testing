@@ -8,13 +8,11 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import * as storage from '../utils/storage';
-import { getBaseUrl } from '../utils/api';
+import { apiClient } from '../services/api';
 import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
 
 export default function SlotSelectionScreen({ navigation, route }: any) {
   const { serviceId, addressId } = route.params;
-  const token = storage.getAccessToken() || '';
-  const baseUrl = getBaseUrl();
 
   const [dates, setDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -48,13 +46,9 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
   const fetchSlots = async (date: string) => {
     try {
       setLoading(true);
-      const res = await fetch(
-        `${baseUrl}/api/v1/bookings/slots?service_id=${serviceId}&date=${date}`,
-        {
-          headers: { 'Authorization': `Bearer ${token}` },
-        },
+      const data = await apiClient.get(
+        `/api/v1/bookings/slots?service_id=${serviceId}&date=${date}`
       );
-      const data = await res.json();
       if (data.success) {
         setSlots(data.data);
       }
@@ -74,17 +68,12 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
   const handleSelectSlot = async (slotId: string) => {
     try {
       setSubmitting(true);
-      const res = await fetch(`${baseUrl}/api/v1/bookings/slots/lock`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ slotId, date: selectedDate }),
+      const data = await apiClient.post('/api/v1/bookings/slots/lock', {
+        slotId,
+        date: selectedDate,
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (!data.success) {
         throw new Error(
           data.error?.message ||
             data.message ||

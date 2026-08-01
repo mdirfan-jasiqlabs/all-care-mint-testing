@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiClient } from '@/lib/api';
 import { useToast } from '../../_components/Toast';
 
 interface RatingRecord {
@@ -27,13 +28,11 @@ export default function AdminRatingsPage() {
   const [totalPages, setTotalPages] = useState(1);
 
   const { addToast } = useToast();
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
 
   const fetchRatings = async () => {
     setLoading(true);
     setErrorMsg(null);
     try {
-      const token = typeof window !== 'undefined' ? (localStorage.getItem('admin_token') || localStorage.getItem('access_token') || '') : '';
       const params = new URLSearchParams();
       if (providerSearch) params.append('provider_search', providerSearch);
       if (minRatingFilter) params.append('min_rating', minRatingFilter);
@@ -42,21 +41,7 @@ export default function AdminRatingsPage() {
       params.append('page', String(page));
       params.append('page_size', '20');
 
-      const res = await fetch(`${API_BASE}/admin/ratings?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          throw new Error('Unauthorized access to admin ratings API');
-        }
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson?.error?.message || errJson?.message || `HTTP ${res.status} error fetching ratings`);
-      }
-
-      const json = await res.json();
+      const json = await apiClient.get(`/api/v1/admin/ratings?${params.toString()}`);
       if (json.success && json.data) {
         setRatings(json.data.data || []);
         setTotalPages(json.data.meta?.total_pages || 1);

@@ -10,12 +10,11 @@ import {
   Platform,
 } from 'react-native';
 import * as storage from '../utils/storage';
+import { apiClient } from '../services/api';
 import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
 
 export default function ProviderJobDetailScreen({ navigation, route }: any) {
   const { bookingId } = route.params;
-  const token = storage.getAccessToken() || '';
-  const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:3000' : (Platform.OS === 'web' ? 'http://localhost:3000' : 'http://localhost:3000');
 
   const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -35,10 +34,7 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
   const fetchJobDetails = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${baseUrl}/api/v1/providers/me/bookings/${bookingId}`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const data = await apiClient.get(`/api/v1/providers/me/bookings/${bookingId}`);
       if (data.success) {
         setBooking(data.data);
       } else {
@@ -59,17 +55,9 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
   const handleAcceptJob = async () => {
     try {
       setSubmitting(true);
-      const res = await fetch(`${baseUrl}/api/v1/providers/me/bookings/${bookingId}/accept`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({}),
-      });
+      const data = await apiClient.patch(`/api/v1/providers/me/bookings/${bookingId}/accept`, {});
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.error?.message || 'Failed to accept job.');
       }
 
@@ -85,17 +73,11 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
   const handleRejectJob = async () => {
     try {
       setSubmitting(true);
-      const res = await fetch(`${baseUrl}/api/v1/providers/me/bookings/${bookingId}/reject`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ reason: rejectionReason.trim() || 'Provider rejected job assignment' }),
+      const data = await apiClient.patch(`/api/v1/providers/me/bookings/${bookingId}/reject`, {
+        reason: rejectionReason.trim() || 'Provider rejected job assignment',
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.error?.message || 'Failed to reject job.');
       }
 

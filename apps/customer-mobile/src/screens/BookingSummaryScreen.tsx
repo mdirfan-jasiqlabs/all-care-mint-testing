@@ -15,7 +15,7 @@ import {
   Platform,
 } from 'react-native';
 import * as storage from '../utils/storage';
-import { getBaseUrl } from '../utils/api';
+import { apiClient } from '../services/api';
 import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
 
 const generateUUID = (): string => {
@@ -146,8 +146,6 @@ async function computeHmacSha256(secret: string, message: string): Promise<strin
 
 export default function BookingSummaryScreen({ navigation, route }: any) {
   const { serviceId, addressId: initialAddressId, slotId: initialSlotId, date: initialDate } = route.params || {};
-  const token = storage.getAccessToken() || '';
-  const baseUrl = getBaseUrl();
 
   // Toast Queue state
   const [toastQueue, setToastQueue] = useState<ToastItem[]>([]);
@@ -238,10 +236,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
       try {
         setLoading(true);
         // Fetch addresses
-        const addrRes = await fetch(`${baseUrl}/api/v1/addresses`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const addrData = await addrRes.json();
+        const addrData = await apiClient.get('/api/v1/addresses');
         if (addrData.success) {
           setAddresses(addrData.data);
           if (addrData.data.length > 0 && !selectedAddressId) {
@@ -250,10 +245,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
         }
 
         // Fetch Service details directly
-        const svcRes = await fetch(`${baseUrl}/api/v1/catalog/services/${serviceId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const svcData = await svcRes.json();
+        const svcData = await apiClient.get(`/api/v1/catalog/services/${serviceId}`);
         if (svcData.success) {
           setService(svcData.data);
         }
@@ -274,11 +266,9 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
     if (!serviceId || !dateStr) return;
     try {
       setLoadingSlots(true);
-      const slotRes = await fetch(
-        `${baseUrl}/api/v1/bookings/slots?service_id=${serviceId}&date=${dateStr}`,
-        { headers: { Authorization: `Bearer ${token}` } },
+      const slotData = await apiClient.get(
+        `/api/v1/bookings/slots?service_id=${serviceId}&date=${dateStr}`
       );
-      const slotData = await slotRes.json();
       if (slotData.success) {
         setSlots(slotData.data);
         // Auto-select first available slot if none selected or if date changed
@@ -310,17 +300,12 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
       setSelectedSlotLabel(slot.label);
       setValidationError(null);
 
-      const res = await fetch(`${baseUrl}/api/v1/bookings/slots/lock`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ slotId: slot.id, date: selectedDate }),
+      const data = await apiClient.post('/api/v1/bookings/slots/lock', {
+        slotId: slot.id,
+        date: selectedDate,
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.error?.message || data.message || 'Slot locking failed.');
       }
     } catch (err: any) {
@@ -346,22 +331,14 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
 
     try {
       setSavingAddress(true);
-      const res = await fetch(`${baseUrl}/api/v1/addresses`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          label: newLabel,
-          addressLine1: newAddressLine1,
-          city: newCity,
-          pincode: newPincode,
-        }),
+      const data = await apiClient.post('/api/v1/addresses', {
+        label: newLabel,
+        addressLine1: newAddressLine1,
+        city: newCity,
+        pincode: newPincode,
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.error?.message || 'Failed to save address.');
       }
 
@@ -393,12 +370,9 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
     pollTimerRef.current = setInterval(async () => {
       pollCountRef.current += 1;
       try {
-        const res = await fetch(`${baseUrl}/api/v1/payments/status/${orderId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
+        const data = await apiClient.get(`/api/v1/payments/status/${orderId}`);
 
-        if (res.ok && data.success) {
+        if (data.success) {
           const status = data.data?.status;
 
           if (status === 'PAYMENT_SUCCESS') {
@@ -455,24 +429,23 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
     try {
       setSubmitting(true);
       const cashIdempotencyKey = generateUUID();
-      const res = await fetch(`${baseUrl}/api/v1/bookings`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          'x-idempotency-key': cashIdempotencyKey,
-        },
-        body: JSON.stringify({
+      const data = await apiClient.post(
+        '/api/v1/bookings',
+        {
           serviceId,
           slotId: selectedSlotId,
           slotDate: selectedDate,
           addressId: selectedAddressId,
           paymentMethod: 'CASH_ON_SERVICE',
-        }),
-      });
+        },
+        {
+          headers: {
+            'x-idempotency-key': cashIdempotencyKey,
+          },
+        }
+      );
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.error?.message || 'Failed to place cash booking.');
       }
 
@@ -507,24 +480,16 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
       try {
         setSubmitting(true);
         const draftId = `draft_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-        const res = await fetch(`${baseUrl}/api/v1/payments/initiate`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            bookingDraftId: draftId,
-            serviceId,
-            slotId: selectedSlotId,
-            slotDate: selectedDate,
-            addressId: selectedAddressId,
-            amountInr: totalPrice,
-          }),
+        const data = await apiClient.post('/api/v1/payments/initiate', {
+          bookingDraftId: draftId,
+          serviceId,
+          slotId: selectedSlotId,
+          slotDate: selectedDate,
+          addressId: selectedAddressId,
+          amountInr: totalPrice,
         });
 
-        const data = await res.json();
-        if (!res.ok || !data.success) {
+        if (!data.success) {
           throw new Error(data.error?.message || data.message || 'Payment initiation failed.');
         }
 
@@ -540,24 +505,23 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
 
     try {
       setSubmitting(true);
-      const res = await fetch(`${baseUrl}/api/v1/bookings`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          'x-idempotency-key': idempotencyKey,
-        },
-        body: JSON.stringify({
+      const data = await apiClient.post(
+        '/api/v1/bookings',
+        {
           serviceId,
           slotId: selectedSlotId,
           slotDate: selectedDate,
           addressId: selectedAddressId,
           paymentMethod,
-        }),
-      });
+        },
+        {
+          headers: {
+            'x-idempotency-key': idempotencyKey,
+          },
+        }
+      );
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.error?.message || 'Failed to place booking.');
       }
 
@@ -944,7 +908,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                         const rawBody = JSON.stringify(payloadObj);
                         const signature = await computeHmacSha256('mock_webhook_secret', rawBody);
 
-                        await fetch(`${baseUrl}/api/v1/payments/webhook`, {
+                        await apiClient.raw('/api/v1/payments/webhook', {
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
@@ -982,7 +946,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                         
                         const signature = await computeHmacSha256('mock_webhook_secret', rawBody);
 
-                        await fetch(`${baseUrl}/api/v1/payments/webhook`, {
+                        await apiClient.raw('/api/v1/payments/webhook', {
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
