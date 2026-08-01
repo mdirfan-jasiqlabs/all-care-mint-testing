@@ -94,20 +94,40 @@ async function run() {
     });
     console.log('✅ Customer Device 2 Revoked:', revokeRes.message);
 
-    // 3. US-005-004: Admin In-Panel Badge Counts & Read Reset
-    console.log('\n--- 3. Admin Notification Badge Counts (US-005-004) ---');
+    // 3. US-005-004: Public Provider Lead Submission & Admin Badge In-Panel Alert
+    console.log('\n--- 3. Public Provider Lead Submission & Admin Badge Alert (US-005-004) ---');
 
+    // Public Lead Submission
+    const leadSubmitRes = await fetchJson('/api/v1/provider-leads', {
+      method: 'POST',
+      body: {
+        name: 'Integration Test Lead',
+        mobileNumber: '9876543210',
+        serviceArea: 'Indiranagar, Bengaluru',
+      },
+    });
+    console.log('✅ Public Provider Lead Submitted:', leadSubmitRes.data);
+
+    // Check Badge Counts
     const badgeCountsBefore = await fetchJson('/api/v1/admin/notifications/badge-counts', {
       headers: authHeader(adminToken),
     });
     console.log('✅ Admin Badge Counts Initial:', badgeCountsBefore.data);
 
+    // Fetch Admin Provider Leads Review Listing
+    const leadsList = await fetchJson('/api/v1/admin/notifications/provider-leads?status=UNACKNOWLEDGED', {
+      headers: authHeader(adminToken),
+    });
+    console.log(`✅ Admin Review Screen Leads Count: ${leadsList.total}`);
+
+    // Mark Leads Read
     const markReadRes = await fetchJson('/api/v1/admin/notifications/provider-leads/read', {
       method: 'PATCH',
       headers: authHeader(adminToken),
     });
     console.log('✅ Admin Leads Marked Read:', markReadRes.message);
 
+    // Check Badge Counts After Reset
     const badgeCountsAfter = await fetchJson('/api/v1/admin/notifications/badge-counts', {
       headers: authHeader(adminToken),
     });

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { apiClient } from '@/lib/api';
 import { useToast } from '../../_components/Toast';
 import TableSkeleton from '../../_components/TableSkeleton';
@@ -235,6 +236,46 @@ function ProvidersPageContent() {
         >
           + Onboard Provider
         </button>
+      </div>
+
+      {/* NAVIGATION TABS */}
+      <div
+        style={{
+          display: 'flex',
+          gap: '8px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          paddingBottom: '12px',
+        }}
+      >
+        <Link
+          href="/admin/providers"
+          style={{
+            padding: '8px 16px',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: 700,
+            textDecoration: 'none',
+            color: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+          }}
+        >
+          Registered Providers Directory
+        </Link>
+        <Link
+          href="/admin/providers/leads"
+          style={{
+            padding: '8px 16px',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: 600,
+            textDecoration: 'none',
+            color: '#94a3b8',
+            backgroundColor: 'transparent',
+          }}
+        >
+          Provider Application Leads
+        </Link>
       </div>
 
       {/* FILTER BAR */}

@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 
 interface AdminSidebarProps {
-  activePage?: 'dashboard' | 'catalog' | 'bookings' | 'users' | 'providers';
+  activePage?: 'dashboard' | 'catalog' | 'bookings' | 'users' | 'providers' | 'provider-leads';
 }
 
 export default function AdminSidebar({ activePage: activePageProp }: AdminSidebarProps) {
@@ -33,9 +33,21 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
 
     fetchBadgeCounts();
     const interval = setInterval(fetchBadgeCounts, 30000);
+
+    const handleReadEvent = () => {
+      fetchBadgeCounts();
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('provider-leads-read', handleReadEvent);
+    }
+
     return () => {
       isMounted = false;
       clearInterval(interval);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('provider-leads-read', handleReadEvent);
+      }
     };
   }, []);
 
@@ -43,6 +55,7 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
     if (activePageProp) return activePageProp;
     if (pathname.startsWith('/admin/catalog')) return 'catalog';
     if (pathname.startsWith('/admin/bookings')) return 'bookings';
+    if (pathname.startsWith('/admin/providers/leads')) return 'provider-leads';
     if (pathname.startsWith('/admin/providers')) return 'providers';
     if (pathname.startsWith('/admin/payments')) return 'payments';
     if (pathname.startsWith('/admin/ratings')) return 'ratings';
@@ -128,10 +141,18 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
             onClick={() => handleNav('/admin/providers')}
             style={getLinkStyle('providers')}
           >
-            <span>Providers Directory</span>
+            Providers Directory
+          </button>
+          <button
+            onClick={() => handleNav('/admin/providers/leads')}
+            style={getLinkStyle('provider-leads')}
+            aria-live="polite"
+          >
+            <span>Provider Application Leads</span>
             {badgeCount > 0 && (
               <span
                 id="provider-leads-badge"
+                aria-label={`${badgeCount} unread provider leads`}
                 style={{
                   marginLeft: 'auto',
                   backgroundColor: '#ef4444',
@@ -144,6 +165,9 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
                 }}
               >
                 {badgeCount > 99 ? '99+' : badgeCount}
+                <span style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', borderWidth: 0 }}>
+                  unread provider leads
+                </span>
               </span>
             )}
           </button>
@@ -170,5 +194,3 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
     </aside>
   );
 }
-
-

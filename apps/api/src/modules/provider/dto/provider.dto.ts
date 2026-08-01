@@ -40,3 +40,20 @@ export class AssignCategoryDto {
   @IsNotEmpty()
   categoryId: string;
 }
+
+export class SubmitProviderLeadDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(150)
+  name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^[6-9][0-9]{9}$/, { message: 'Invalid 10-digit Indian mobile number format' })
+  mobileNumber: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  serviceArea: string;
+}
