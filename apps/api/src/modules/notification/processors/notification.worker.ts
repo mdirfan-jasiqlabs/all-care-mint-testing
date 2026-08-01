@@ -37,7 +37,7 @@ export class NotificationWorker extends WorkerHost {
 
     const recipients: { userId: string; title: string; body: string; dataPayload: Record<string, string> }[] = [];
 
-    const { bookingId, status, customerId, providerId, serviceName } = event;
+    const { bookingId, status, customerId, providerId, serviceName, slotDate, slotLabel } = event;
 
     if (status === 'ASSIGNED') {
       recipients.push({
@@ -47,11 +47,24 @@ export class NotificationWorker extends WorkerHost {
         dataPayload: { booking_id: bookingId, type: 'status_update', status: 'ASSIGNED' },
       });
       if (providerId) {
+        let bodyText = `New Job Assigned: ${serviceName || 'Service'}`;
+        if (slotDate) {
+          const dateObj = typeof slotDate === 'string' ? new Date(slotDate) : slotDate;
+          const dateStr = !isNaN(dateObj.getTime()) ? dateObj.toISOString().split('T')[0] : String(slotDate);
+          bodyText += ` on ${dateStr}`;
+          if (slotLabel) {
+            bodyText += ` at ${slotLabel}`;
+          }
+        } else if (slotLabel) {
+          bodyText += ` at ${slotLabel}`;
+        }
+        bodyText += '.';
+
         recipients.push({
           userId: providerId,
           title: 'New Job Assigned',
-          body: `New Job Assigned: ${serviceName || 'Service'}`,
-          dataPayload: { booking_id: bookingId, type: 'assignment', status: 'ASSIGNED' },
+          body: bodyText,
+          dataPayload: { booking_id: bookingId, type: 'new_assignment', status: 'ASSIGNED' },
         });
       }
     } else if (status === 'ACCEPTED') {

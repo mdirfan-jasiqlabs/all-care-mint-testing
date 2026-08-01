@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { RootStackParamList } from './src/navigation/root.types';
@@ -12,8 +12,19 @@ import ProviderJobDetailScreen from './src/screens/ProviderJobDetailScreen';
 import JobStatusUpdateScreen from './src/screens/JobStatusUpdateScreen';
 import ProviderEarningsScreen from './src/screens/ProviderEarningsScreen';
 import * as storage from './src/utils/storage';
+import { setupNotificationListeners, registerProviderPushToken } from './src/services/notificationService';
 
 const Stack = createStackNavigator<RootStackParamList>();
+export const navigationRef = createNavigationContainerRef<RootStackParamList>();
+
+const linking = {
+  prefixes: ['allcaremint://'],
+  config: {
+    screens: {
+      ProviderJobDetail: 'provider/bookings/:bookingId',
+    },
+  },
+};
 
 export default function App() {
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
@@ -24,12 +35,23 @@ export default function App() {
       const token = storage.getAccessToken();
       if (token) {
         setInitialRoute('ProviderDashboard');
+        registerProviderPushToken().catch(() => {});
       } else {
         setInitialRoute('Gateway');
       }
     };
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    let cleanup: (() => void) | undefined;
+    if (initialRoute !== null) {
+      cleanup = setupNotificationListeners(navigationRef);
+    }
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, [initialRoute]);
 
   if (initialRoute === null) {
     return (
@@ -40,7 +62,7 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef} linking={linking}>
       <StatusBar style="light" />
       <Stack.Navigator
         initialRouteName={initialRoute}

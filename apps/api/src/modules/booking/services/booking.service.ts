@@ -553,6 +553,8 @@ export class BookingService implements OnApplicationShutdown {
       customerId: booking.customerId,
       providerId,
       serviceName: booking.serviceNameSnapshot,
+      slotDate: booking.slotDate,
+      slotLabel: booking.slotLabelSnapshot,
       statusHistoryId: historyRecord.id,
       timestamp: Date.now(),
     });
@@ -605,6 +607,8 @@ export class BookingService implements OnApplicationShutdown {
       customerId: booking.customerId,
       providerId: newProviderId,
       serviceName: booking.serviceNameSnapshot,
+      slotDate: booking.slotDate,
+      slotLabel: booking.slotLabelSnapshot,
       statusHistoryId: reassignHistoryRecord.id,
       timestamp: Date.now(),
     });

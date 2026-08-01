@@ -4,6 +4,8 @@ export interface BookingStatusChangedEvent {
   customerId: string;
   providerId?: string;
   serviceName?: string;
+  slotDate?: Date | string;
+  slotLabel?: string;
   statusHistoryId?: string;
   deliveredTokens?: string[];
   timestamp: number;
