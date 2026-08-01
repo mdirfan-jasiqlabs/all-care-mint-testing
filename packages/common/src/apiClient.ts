@@ -74,10 +74,13 @@ export class ApiClient {
     }
 
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
       ...this.defaultHeaders,
       ...customHeaders,
     };
+
+    if (options.body !== undefined && !Object.keys(headers).some((k) => k.toLowerCase() === 'content-type')) {
+      headers['Content-Type'] = 'application/json';
+    }
 
     const hasAuthHeader = Object.keys(headers).some(
       (k) => k.toLowerCase() === 'authorization'
