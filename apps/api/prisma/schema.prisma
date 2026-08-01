@@ -297,6 +297,7 @@ enum PaymentStatus {
   PAYMENT_FAILED
   CASH_PENDING
   CASH_SETTLED
+  CANCELLED
 }
 
 model PaymentOrder {

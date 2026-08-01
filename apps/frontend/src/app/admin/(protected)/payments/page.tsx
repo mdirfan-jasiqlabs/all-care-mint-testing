@@ -12,7 +12,7 @@ interface PaymentRecord {
   provider_name: string;
   amount_inr: number;
   payment_method: 'CASH' | 'ONLINE';
-  status: 'PAYMENT_PENDING' | 'PAYMENT_SUCCESS' | 'PAYMENT_FAILED' | 'CASH_PENDING' | 'CASH_SETTLED';
+  status: 'PAYMENT_PENDING' | 'PAYMENT_SUCCESS' | 'PAYMENT_FAILED' | 'CASH_PENDING' | 'CASH_SETTLED' | 'CANCELLED';
 }
 
 export default function AdminPaymentsPage() {
@@ -196,10 +196,10 @@ export default function AdminPaymentsPage() {
       bg = 'rgba(239, 68, 68, 0.15)';
       color = '#f87171';
       border = 'rgba(248, 113, 113, 0.3)';
-    } else if (status === 'PAYMENT_PENDING') {
-      bg = 'rgba(234, 179, 8, 0.15)';
-      color = '#facc15';
-      border = 'rgba(250, 204, 21, 0.3)';
+    } else if (status === 'CANCELLED') {
+      bg = 'rgba(148, 163, 184, 0.15)';
+      color = '#94a3b8';
+      border = 'rgba(148, 163, 184, 0.3)';
     }
 
     return (
@@ -327,6 +327,7 @@ export default function AdminPaymentsPage() {
             <option value="CASH_SETTLED">CASH_SETTLED</option>
             <option value="PAYMENT_FAILED">PAYMENT_FAILED</option>
             <option value="PAYMENT_PENDING">PAYMENT_PENDING</option>
+            <option value="CANCELLED">CANCELLED</option>
           </select>
         </div>
 

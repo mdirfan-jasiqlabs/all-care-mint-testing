@@ -104,6 +104,8 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
   const [razorpayOrderData, setRazorpayOrderData] = useState<any>(null);
   const [isPolling, setIsPolling] = useState(false);
   const [pollingStatusMessage, setPollingStatusMessage] = useState('');
+  const [paymentFailedState, setPaymentFailedState] = useState(false);
+  const [failedOrderId, setFailedOrderId] = useState<string | null>(null);
   const pollTimerRef = React.useRef<any>(null);
   const pollCountRef = React.useRef<number>(0);
   const hasNavigatedRef = React.useRef<boolean>(false);
@@ -308,6 +310,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
             setIsPolling(false);
             setShowRazorpayModal(false);
             setSubmitting(false);
+            setPaymentFailedState(false);
 
             if (!hasNavigatedRef.current) {
               hasNavigatedRef.current = true;
@@ -323,7 +326,9 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
             setIsPolling(false);
             setShowRazorpayModal(false);
             setSubmitting(false);
-            showToast('Payment failed. No booking was placed.', 'error');
+            setPaymentFailedState(true);
+            setFailedOrderId(orderId);
+            showToast('Payment was not successful. No booking has been placed.', 'error');
             return;
           }
         }
@@ -339,6 +344,54 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
         showToast('Payment status pending. Please check your bookings list.', 'warning');
       }
     }, 3000);
+  };
+
+  // US-004-006 Retry CTA action (reopens Razorpay with same order_id)
+  const handleTryAgain = () => {
+    if (!razorpayOrderData?.razorpay_order_id && !failedOrderId) return;
+    setPaymentFailedState(false);
+    setShowRazorpayModal(true);
+  };
+
+  // US-004-006 Pay with Cash CTA action (creates CASH_ON_SERVICE booking while preserving failed payment_orders row)
+  const handlePayWithCashFallback = async () => {
+    if (submitting || lockingSlot) return;
+    try {
+      setSubmitting(true);
+      const cashIdempotencyKey = generateUUID();
+      const res = await fetch(`${baseUrl}/api/v1/bookings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          'x-idempotency-key': cashIdempotencyKey,
+        },
+        body: JSON.stringify({
+          serviceId,
+          slotId: selectedSlotId,
+          slotDate: selectedDate,
+          addressId: selectedAddressId,
+          paymentMethod: 'CASH_ON_SERVICE',
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error?.message || 'Failed to place cash booking.');
+      }
+
+      setPaymentFailedState(false);
+      showToast('Cash booking placed successfully!', 'success');
+      navigation.replace('BookingConfirmation', {
+        bookingId: data.data.bookingId,
+        status: data.data.status,
+      });
+    } catch (err: any) {
+      const msg = err.message || 'Cash fallback checkout failed.';
+      showToast(`Checkout Failure: ${msg}`, 'error');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // 6. Confirm Booking Submit Action
@@ -450,6 +503,40 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
             <Text style={styles.onlineBadgeText}>Online</Text>
           </View>
         </View>
+
+        {/* US-004-006 PAYMENT FAILURE RECOVERY CARD */}
+        {paymentFailedState && (
+          <View style={styles.failureBannerCard}>
+            <View style={styles.failureBannerHeaderRow}>
+              <Text style={styles.failureWarningIcon}>⚠️</Text>
+              <Text style={styles.failureBannerTitle}>Payment Failed</Text>
+            </View>
+            <Text style={styles.failureBannerMessage}>
+              Payment was not successful. No booking has been placed.
+            </Text>
+            <View style={styles.failureCtaRow}>
+              <TouchableOpacity
+                style={[styles.retryBtn, submitting && styles.btnDisabled]}
+                disabled={submitting}
+                onPress={handleTryAgain}
+              >
+                <Text style={styles.retryBtnText}>Try Again</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.cashFallbackBtn, submitting && styles.btnDisabled]}
+                disabled={submitting}
+                onPress={handlePayWithCashFallback}
+              >
+                {submitting ? (
+                  <ActivityIndicator size="small" color="#020617" />
+                ) : (
+                  <Text style={styles.cashFallbackBtnText}>Pay with Cash</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
 
         {/* Validation Error Alert Banner */}
         {validationError && (
@@ -738,6 +825,47 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                   </TouchableOpacity>
 
                   <TouchableOpacity
+                    style={styles.modalFailBtn}
+                    onPress={async () => {
+                      if (!razorpayOrderData?.razorpay_order_id) return;
+                      try {
+                        const orderId = razorpayOrderData.razorpay_order_id;
+                        const mockPayId = `pay_fail_${Date.now()}`;
+                        const payloadObj = {
+                          event: 'payment.failed',
+                          razorpay_order_id: orderId,
+                          razorpay_payment_id: mockPayId,
+                          payload: {
+                            payment: {
+                              entity: {
+                                id: mockPayId,
+                                order_id: orderId,
+                                error_description: 'Simulated customer failure',
+                              },
+                            },
+                          },
+                        };
+                        const rawBody = JSON.stringify(payloadObj);
+                        const signature = await computeHmacSha256('mock_webhook_secret', rawBody);
+
+                        await fetch(`${baseUrl}/api/v1/payments/webhook`, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'x-razorpay-signature': signature,
+                          },
+                          body: rawBody,
+                        });
+                      } catch (err) {
+                        // ignore error and start polling
+                      }
+                      startPaymentPolling(razorpayOrderData.razorpay_order_id);
+                    }}
+                  >
+                    <Text style={styles.modalFailBtnText}>Fail Payment</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
                     style={styles.modalSaveBtn}
                     onPress={async () => {
                       if (!razorpayOrderData?.razorpay_order_id) return;
@@ -772,7 +900,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                       startPaymentPolling(razorpayOrderData.razorpay_order_id);
                     }}
                   >
-                    <Text style={styles.modalSaveBtnText}>Complete Payment</Text>
+                    <Text style={styles.modalSaveBtnText}>Complete</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -1289,5 +1417,80 @@ const styles = StyleSheet.create({
     height: 120,
     backgroundColor: '#0f172a',
     borderRadius: 16,
+  },
+  failureBannerCard: {
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    borderWidth: 1.5,
+    borderColor: '#ef4444',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+  },
+  failureBannerHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 8,
+  },
+  failureWarningIcon: {
+    fontSize: 20,
+  },
+  failureBannerTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#f87171',
+  },
+  failureBannerMessage: {
+    fontSize: 14,
+    color: '#fca5a5',
+    lineHeight: 20,
+    marginBottom: 16,
+    fontWeight: '500',
+  },
+  failureCtaRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  retryBtn: {
+    flex: 1,
+    height: 44,
+    backgroundColor: '#ef4444',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  retryBtnText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  cashFallbackBtn: {
+    flex: 1,
+    height: 44,
+    backgroundColor: '#10b981',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cashFallbackBtnText: {
+    color: '#020617',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  modalFailBtn: {
+    flex: 1,
+    height: 42,
+    backgroundColor: '#ef4444',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalFailBtnText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 13,
+  },
+  btnDisabled: {
+    opacity: 0.5,
   },
 });

@@ -232,6 +232,25 @@ export class BookingService implements OnApplicationShutdown {
       });
     }
 
+    // 7.5 Check if booking intent is already fulfilled for this customer, slot, and slotDate (DEF-006-003)
+    const existingActiveBooking = await this.prisma.booking.findFirst({
+      where: {
+        customerId,
+        slotId: dto.slotId,
+        slotDate,
+        status: { not: 'CANCELLED' },
+      },
+    });
+    if (existingActiveBooking) {
+      throw new ConflictException({
+        success: false,
+        error: {
+          code: 'ERR_BOOKING_INTENT_ALREADY_FULFILLED',
+          message: 'A booking has already been placed for this time slot.',
+        },
+      });
+    }
+
     // 8. Generate booking reference: ACM-YYYYMMDD-XXXX
     const dateStr = dto.slotDate.replace(/-/g, '');
     const randomSuffix = Math.random()
@@ -263,6 +282,26 @@ export class BookingService implements OnApplicationShutdown {
       paymentMethod: dto.paymentMethod,
       idempotencyKey,
     });
+
+    // 9b. If CASH_ON_SERVICE, create CASH_PENDING payment order for audit trail & ledger
+    if (dto.paymentMethod === PaymentMethodEnum.CASH_ON_SERVICE) {
+      const amountPaise = Math.round(
+        parseFloat(service.fixedPrice.toString()) * 100,
+      );
+      await this.prisma.paymentOrder.create({
+        data: {
+          customerId,
+          bookingId: booking.id,
+          serviceId: dto.serviceId,
+          slotId: dto.slotId,
+          slotDate,
+          addressId: dto.addressId,
+          amountPaise,
+          paymentMethod: 'CASH_ON_SERVICE',
+          status: 'CASH_PENDING',
+        },
+      });
+    }
 
     // 10. Link slot lock to booking
     await this.bookingRepo.updateSlotLockBookingId(lock.id, booking.id);

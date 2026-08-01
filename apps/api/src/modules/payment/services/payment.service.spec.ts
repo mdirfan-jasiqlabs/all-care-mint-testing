@@ -51,6 +51,8 @@ describe('PaymentService (Unit Tests - DEF-007)', () => {
           if (where.id === mockPaymentOrder.id) return Promise.resolve(mockPaymentOrder);
           return Promise.resolve(null);
         }),
+        findMany: jest.fn().mockResolvedValue([]),
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
         create: jest.fn().mockImplementation(({ data }) => Promise.resolve({ id: 'po_new_1', ...data })),
         update: jest.fn().mockImplementation(({ data }) => {
           Object.assign(mockPaymentOrder, data);
@@ -70,7 +72,13 @@ describe('PaymentService (Unit Tests - DEF-007)', () => {
         findFirst: jest.fn().mockResolvedValue({ id: mockSlotId, label: '09:00 AM - 10:00 AM' }),
       },
       booking: {
+        findFirst: jest.fn().mockResolvedValue(null),
+        findUnique: jest.fn().mockResolvedValue(null),
         create: jest.fn().mockResolvedValue({ id: 'booking_new_1', bookingReference: 'ACM-20260815-REF1', status: 'PENDING' }),
+        update: jest.fn().mockResolvedValue({ id: 'booking_new_1', paymentMethod: 'ONLINE' }),
+      },
+      bookingSlotLock: {
+        findFirst: jest.fn().mockResolvedValue(null),
       },
       bookingStatusHistory: {
         create: jest.fn().mockResolvedValue({ id: 'bsh_new_1', status: 'PENDING' }),

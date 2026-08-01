@@ -299,93 +299,136 @@ export class PaymentService {
 
           let bookingId = currentOrder.bookingId;
 
-          // If no booking exists yet for this payment, create exactly ONE booking with status PENDING
+          // If no booking exists yet for this payment, check if booking intent is already fulfilled or create new booking (DEF-006-003)
           if (!bookingId) {
-            const draftMeta = this.draftStore.get(currentOrder.bookingDraftId || '') || this.draftStore.get(razorpayOrderId);
+            // Guard: Check if an active booking already exists for this booking intent (customerId + slotId + slotDate)
+            let existingIntentBooking: any = null;
 
-            // Resolve service, address, slot directly from persistent DB columns (DEF-002)
-            const service = currentOrder.serviceId
-              ? await tx.service.findUnique({ where: { id: currentOrder.serviceId } })
-              : draftMeta?.serviceId
-              ? await tx.service.findUnique({ where: { id: draftMeta.serviceId } })
-              : await tx.service.findFirst({ where: { isActive: true } });
+            if (currentOrder.customerId && currentOrder.slotId && currentOrder.slotDate) {
+              existingIntentBooking = await tx.booking.findFirst({
+                where: {
+                  customerId: currentOrder.customerId,
+                  slotId: currentOrder.slotId,
+                  slotDate: currentOrder.slotDate,
+                  status: { not: 'CANCELLED' },
+                },
+              });
+            }
 
-            const address = currentOrder.addressId
-              ? await tx.customerAddress.findUnique({ where: { id: currentOrder.addressId } })
-              : draftMeta?.addressId
-              ? await tx.customerAddress.findUnique({ where: { id: draftMeta.addressId } })
-              : await tx.customerAddress.findFirst({ where: { customerId: currentOrder.customerId } });
+            // Fallback Check: Check if slot lock for this slotId & slotDate is already linked to a booking
+            if (!existingIntentBooking && currentOrder.slotId && currentOrder.slotDate) {
+              const lock = await tx.bookingSlotLock.findFirst({
+                where: {
+                  slotId: currentOrder.slotId,
+                  slotDate: currentOrder.slotDate,
+                  bookingId: { not: null },
+                },
+              });
+              if (lock?.bookingId) {
+                existingIntentBooking = await tx.booking.findUnique({
+                  where: { id: lock.bookingId },
+                });
+              }
+            }
 
-            const slot = currentOrder.slotId
-              ? await tx.bookingTimeSlot.findUnique({ where: { id: currentOrder.slotId } })
-              : draftMeta?.slotId
-              ? await tx.bookingTimeSlot.findUnique({ where: { id: draftMeta.slotId } })
-              : await tx.bookingTimeSlot.findFirst({ where: { isActive: true } });
+            if (existingIntentBooking) {
+              console.log(
+                JSON.stringify({
+                  event: 'payment.webhook.intent_already_fulfilled',
+                  reason: 'Booking intent already fulfilled by existing booking',
+                  existing_booking_id: existingIntentBooking.id,
+                  existing_payment_method: existingIntentBooking.paymentMethod,
+                  razorpay_order_id: razorpayOrderId,
+                }),
+              );
+              bookingId = existingIntentBooking.id;
+            } else {
+              const draftMeta = this.draftStore.get(currentOrder.bookingDraftId || '') || this.draftStore.get(razorpayOrderId);
 
-            const slotDate = currentOrder.slotDate
-              ? new Date(currentOrder.slotDate)
-              : draftMeta?.slotDate
-              ? new Date(draftMeta.slotDate)
-              : new Date();
+              // Resolve service, address, slot directly from persistent DB columns (DEF-002)
+              const service = currentOrder.serviceId
+                ? await tx.service.findUnique({ where: { id: currentOrder.serviceId } })
+                : draftMeta?.serviceId
+                ? await tx.service.findUnique({ where: { id: draftMeta.serviceId } })
+                : await tx.service.findFirst({ where: { isActive: true } });
 
-            const dateStr = slotDate.toISOString().split('T')[0].replace(/-/g, '');
-            const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-            const bookingReference = `ACM-${dateStr}-${randomSuffix}`;
+              const address = currentOrder.addressId
+                ? await tx.customerAddress.findUnique({ where: { id: currentOrder.addressId } })
+                : draftMeta?.addressId
+                ? await tx.customerAddress.findUnique({ where: { id: draftMeta.addressId } })
+                : await tx.customerAddress.findFirst({ where: { customerId: currentOrder.customerId } });
 
-            const addressSnapshot = address
-              ? {
-                  label: address.label,
-                  addressLine1: address.addressLine1,
-                  addressLine2: address.addressLine2,
-                  city: address.city,
-                  pincode: address.pincode,
-                }
-              : {
-                  label: 'Home',
-                  addressLine1: '123 Main Street',
-                  city: 'Bengaluru',
-                  pincode: '560001',
-                };
+              const slot = currentOrder.slotId
+                ? await tx.bookingTimeSlot.findUnique({ where: { id: currentOrder.slotId } })
+                : draftMeta?.slotId
+                ? await tx.bookingTimeSlot.findUnique({ where: { id: draftMeta.slotId } })
+                : await tx.bookingTimeSlot.findFirst({ where: { isActive: true } });
 
-            const newBooking = await tx.booking.create({
-              data: {
-                bookingReference,
-                customerId: currentOrder.customerId,
-                serviceId: service?.id || '00000000-0000-0000-0000-000000000000',
-                serviceNameSnapshot: service?.name || 'Home Cleaning',
-                servicePriceSnapshot: service?.fixedPrice || (currentOrder.amountPaise / 100),
-                addressId: address?.id || null,
-                addressSnapshot,
-                slotDate,
-                slotId: slot?.id || null,
-                slotLabelSnapshot: slot?.label || '09:00 AM - 10:00 AM',
-                paymentMethod: 'ONLINE',
-                status: 'PENDING',
-                idempotencyKey: currentOrder.idempotencyKey || crypto.randomUUID(),
-              },
-            });
+              const slotDate = currentOrder.slotDate
+                ? new Date(currentOrder.slotDate)
+                : draftMeta?.slotDate
+                ? new Date(draftMeta.slotDate)
+                : new Date();
 
-            // Create status history record
-            await tx.bookingStatusHistory.create({
-              data: {
-                bookingId: newBooking.id,
-                status: 'PENDING',
-                actorId: currentOrder.customerId,
-                actorRole: 'CUSTOMER',
-                note: 'Booking created via Razorpay payment capture',
-              },
-            });
+              const dateStr = slotDate.toISOString().split('T')[0].replace(/-/g, '');
+              const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+              const bookingReference = `ACM-${dateStr}-${randomSuffix}`;
 
-            bookingId = newBooking.id;
+              const addressSnapshot = address
+                ? {
+                    label: address.label,
+                    addressLine1: address.addressLine1,
+                    addressLine2: address.addressLine2,
+                    city: address.city,
+                    pincode: address.pincode,
+                  }
+                : {
+                    label: 'Home',
+                    addressLine1: '123 Main Street',
+                    city: 'Bengaluru',
+                    pincode: '560001',
+                  };
 
-            console.log(
-              JSON.stringify({
-                event: 'payment.booking.created',
-                booking_id: bookingId,
-                customer_id: currentOrder.customerId,
-                booking_reference: bookingReference,
-              }),
-            );
+              const newBooking = await tx.booking.create({
+                data: {
+                  bookingReference,
+                  customerId: currentOrder.customerId,
+                  serviceId: service?.id || '00000000-0000-0000-0000-000000000000',
+                  serviceNameSnapshot: service?.name || 'Home Cleaning',
+                  servicePriceSnapshot: service?.fixedPrice || (currentOrder.amountPaise / 100),
+                  addressId: address?.id || null,
+                  addressSnapshot,
+                  slotDate,
+                  slotId: slot?.id || null,
+                  slotLabelSnapshot: slot?.label || '09:00 AM - 10:00 AM',
+                  paymentMethod: 'ONLINE',
+                  status: 'PENDING',
+                  idempotencyKey: currentOrder.idempotencyKey || crypto.randomUUID(),
+                },
+              });
+
+              // Create status history record
+              await tx.bookingStatusHistory.create({
+                data: {
+                  bookingId: newBooking.id,
+                  status: 'PENDING',
+                  actorId: currentOrder.customerId,
+                  actorRole: 'CUSTOMER',
+                  note: 'Booking created via Razorpay payment capture',
+                },
+              });
+
+              bookingId = newBooking.id;
+
+              console.log(
+                JSON.stringify({
+                  event: 'payment.booking.created',
+                  booking_id: bookingId,
+                  customer_id: currentOrder.customerId,
+                  booking_reference: bookingReference,
+                }),
+              );
+            }
           }
 
           // Atomically update payment order
@@ -398,6 +441,44 @@ export class PaymentService {
               bookingId,
             },
           });
+
+          // Financial Reconciliation (DEF-006-003): If a CASH_PENDING payment order exists for this booking, transition it to CANCELLED (superseded by online success)
+          if (bookingId) {
+            const cashPaymentOrdersToCancel = await tx.paymentOrder.findMany({
+              where: {
+                bookingId,
+                status: 'CASH_PENDING',
+              },
+            });
+
+            if (cashPaymentOrdersToCancel.length > 0) {
+              await tx.paymentOrder.updateMany({
+                where: {
+                  bookingId,
+                  status: 'CASH_PENDING',
+                },
+                data: {
+                  status: 'CANCELLED',
+                  failureReason: 'Superseded by delayed online payment success',
+                },
+              });
+
+              // Also update booking paymentMethod to ONLINE so provider & APIs see online payment
+              await tx.booking.update({
+                where: { id: bookingId },
+                data: { paymentMethod: 'ONLINE' },
+              });
+
+              console.log(
+                JSON.stringify({
+                  event: 'payment.reconciliation.cash_superseded',
+                  booking_id: bookingId,
+                  online_payment_order_id: currentOrder.id,
+                  cancelled_cash_order_count: cashPaymentOrdersToCancel.length,
+                }),
+              );
+            }
+          }
 
           console.log(
             JSON.stringify({
@@ -545,6 +626,7 @@ export class PaymentService {
         'PAYMENT_FAILED',
         'CASH_PENDING',
         'CASH_SETTLED',
+        'CANCELLED',
       ];
       if (!validStatuses.includes(query.status)) {
         throw new BadRequestException('Invalid payment status filter');

@@ -72,6 +72,7 @@ export enum PaymentStatusFilter {
   PAYMENT_FAILED = 'PAYMENT_FAILED',
   CASH_PENDING = 'CASH_PENDING',
   CASH_SETTLED = 'CASH_SETTLED',
+  CANCELLED = 'CANCELLED',
 }
 
 export class AdminPaymentsQueryDto {
