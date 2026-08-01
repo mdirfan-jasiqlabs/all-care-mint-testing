@@ -535,6 +535,18 @@ export class BookingService implements OnApplicationShutdown {
       note: `Provider ${providerId} assigned`,
     });
 
+    // Trigger push notification to Customer and Provider
+    try {
+      await this.notificationService.sendAssignedNotification(
+        bookingId,
+        booking.customerId,
+        providerId,
+        booking.serviceNameSnapshot,
+      );
+    } catch (err) {
+      console.warn(`[Notification Warning] ${err.message}`);
+    }
+
     return updatedBooking;
   }
 
@@ -576,6 +588,18 @@ export class BookingService implements OnApplicationShutdown {
       actorRole: ActorRoleEnum.ADMIN,
       note: `Provider reassigned from ${booking.providerId} to ${newProviderId}`,
     });
+
+    // Trigger push notification to Customer and New Provider
+    try {
+      await this.notificationService.sendAssignedNotification(
+        bookingId,
+        booking.customerId,
+        newProviderId,
+        booking.serviceNameSnapshot,
+      );
+    } catch (err) {
+      console.warn(`[Notification Warning] ${err.message}`);
+    }
 
     return updatedBooking;
   }

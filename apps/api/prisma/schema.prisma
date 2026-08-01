@@ -353,5 +353,31 @@ model Rating {
   @@map("ratings")
 }
 
+model PushToken {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  userRole   String   @map("user_role") @db.VarChar(50)
+  deviceId   String   @map("device_id") @db.VarChar(255)
+  fcmToken   String   @map("fcm_token") @db.Text
+  isActive   Boolean  @default(true) @map("is_active")
+  lastSeenAt DateTime @default(now()) @map("last_seen_at") @db.Timestamptz
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
+  @@unique([userRole, deviceId], map: "uq_push_tokens_user_role_device")
+  @@unique([fcmToken], map: "uq_push_tokens_fcm_token")
+  @@index([userId], map: "idx_push_tokens_user_id")
+  @@map("push_tokens")
+}
 
+model ProviderLead {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String   @db.VarChar(150)
+  mobileNumber   String   @map("mobile_number") @db.VarChar(20)
+  serviceArea    String   @map("service_area") @db.VarChar(100)
+  isAcknowledged Boolean  @default(false) @map("is_acknowledged")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([isAcknowledged, createdAt], map: "idx_leads_acknowledged")
+  @@map("provider_leads")
+}

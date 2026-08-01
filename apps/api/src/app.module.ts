@@ -8,9 +8,19 @@ import { BookingModule } from './modules/booking/booking.module';
 import { ProviderModule } from './modules/provider/provider.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { RatingModule } from './modules/rating/rating.module';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, CatalogModule, BookingModule, ProviderModule, PaymentModule, RatingModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    CatalogModule,
+    BookingModule,
+    ProviderModule,
+    PaymentModule,
+    RatingModule,
+    NotificationModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

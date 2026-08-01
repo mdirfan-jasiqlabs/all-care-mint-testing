@@ -10,6 +10,34 @@ interface AdminSidebarProps {
 export default function AdminSidebar({ activePage: activePageProp }: AdminSidebarProps) {
   const router = useRouter();
   const pathname = usePathname() || '';
+  const [badgeCount, setBadgeCount] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    const fetchBadgeCounts = async () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') || localStorage.getItem('token') : null;
+        const res = await fetch('/api/v1/admin/notifications/badge-counts', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && isMounted) {
+            setBadgeCount(json.data?.provider_leads ?? 0);
+          }
+        }
+      } catch (err) {
+        // Ignore fetch errors silently
+      }
+    };
+
+    fetchBadgeCounts();
+    const interval = setInterval(fetchBadgeCounts, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   const getActivePage = (): string => {
     if (activePageProp) return activePageProp;
@@ -100,7 +128,24 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
             onClick={() => handleNav('/admin/providers')}
             style={getLinkStyle('providers')}
           >
-            Providers Directory
+            <span>Providers Directory</span>
+            {badgeCount > 0 && (
+              <span
+                id="provider-leads-badge"
+                style={{
+                  marginLeft: 'auto',
+                  backgroundColor: '#ef4444',
+                  color: '#ffffff',
+                  borderRadius: '9999px',
+                  padding: '2px 8px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  boxShadow: '0 0 8px rgba(239, 68, 68, 0.6)',
+                }}
+              >
+                {badgeCount > 99 ? '99+' : badgeCount}
+              </span>
+            )}
           </button>
           <button
             onClick={() => handleNav('/admin/payments')}
@@ -125,4 +170,5 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
     </aside>
   );
 }
+
 
