@@ -9,6 +9,7 @@ import {
   ScrollView,
   SafeAreaView,
   Platform,
+  TextInput,
 } from 'react-native';
 import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
@@ -19,6 +20,12 @@ export default function BookingDetailScreen({ navigation, route }: any) {
   const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  // Rating & Review State
+  const [ratingScore, setRatingScore] = useState<number>(5);
+  const [reviewText, setReviewText] = useState<string>('');
+  const [ratingSubmitted, setRatingSubmitted] = useState<boolean>(false);
+  const [submittingRating, setSubmittingRating] = useState<boolean>(false);
 
   const fetchBookingDetails = async () => {
     try {
@@ -37,6 +44,34 @@ export default function BookingDetailScreen({ navigation, route }: any) {
   useEffect(() => {
     fetchBookingDetails();
   }, [bookingId]);
+
+  const handleRatingSubmit = async () => {
+    if (!booking) return;
+    try {
+      setSubmittingRating(true);
+      const data = await apiClient.post('/api/v1/ratings', {
+        bookingId: booking.id,
+        ratingScore,
+        reviewText: reviewText.trim() || undefined,
+      });
+
+      if (data.success) {
+        setRatingSubmitted(true);
+        Alert.alert('Thank You!', 'Your rating and review have been submitted successfully.');
+      } else {
+        throw new Error(data.error?.message || 'Failed to submit rating.');
+      }
+    } catch (err: any) {
+      if (err.status === 409 || err.message?.includes('already')) {
+        setRatingSubmitted(true);
+        Alert.alert('Notice', 'A rating has already been submitted for this booking.');
+      } else {
+        Alert.alert('Error', err.message || 'Failed to submit rating.');
+      }
+    } finally {
+      setSubmittingRating(false);
+    }
+  };
 
   const performCancellation = async () => {
     try {
@@ -94,6 +129,7 @@ export default function BookingDetailScreen({ navigation, route }: any) {
   }
 
   const isCancellable = ['PENDING', 'ASSIGNED'].includes(booking.status);
+  const isCompleted = booking.status === 'COMPLETED';
   const formattedDate = new Date(booking.slotDate).toLocaleDateString('en-IN', {
     day: 'numeric',
     month: 'short',
@@ -147,6 +183,60 @@ export default function BookingDetailScreen({ navigation, route }: any) {
             {booking.addressSnapshot?.city} - {booking.addressSnapshot?.pincode}
           </Text>
         </View>
+
+        {isCompleted && (
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Rate & Review Service</Text>
+            {ratingSubmitted ? (
+              <View style={styles.ratingSuccessContainer}>
+                <View style={styles.starRow}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Text key={star} style={[styles.starText, { color: star <= ratingScore ? '#f59e0b' : '#4b5563' }]}>
+                      ★
+                    </Text>
+                  ))}
+                </View>
+                {reviewText ? <Text style={styles.reviewSubmittedText}>"{reviewText}"</Text> : null}
+                <Text style={styles.submittedBadge}>✓ Rating & Review Submitted</Text>
+              </View>
+            ) : (
+              <View style={styles.ratingForm}>
+                <Text style={styles.ratingSubLabel}>How was your service experience?</Text>
+                <View style={styles.starPickerRow}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <TouchableOpacity key={star} onPress={() => setRatingScore(star)} style={styles.starTouch}>
+                      <Text style={[styles.starPickerText, { color: star <= ratingScore ? '#f59e0b' : '#4b5563' }]}>
+                        ★
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                <TextInput
+                  style={styles.reviewInput}
+                  placeholder="Write feedback for the service provider (optional)..."
+                  placeholderTextColor="#6b7280"
+                  multiline
+                  numberOfLines={3}
+                  value={reviewText}
+                  onChangeText={setReviewText}
+                />
+
+                <TouchableOpacity
+                  style={[styles.submitRatingBtn, submittingRating && styles.btnDisabled]}
+                  onPress={handleRatingSubmit}
+                  disabled={submittingRating}
+                >
+                  {submittingRating ? (
+                    <ActivityIndicator size="small" color="#ffffff" />
+                  ) : (
+                    <Text style={styles.submitRatingBtnText}>Submit Rating & Review</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        )}
 
         {isCancellable && (
           <TouchableOpacity
@@ -258,4 +348,76 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  ratingForm: {
+    marginTop: 12,
+  },
+  ratingSubLabel: {
+    color: 'hsl(215, 20%, 65%)',
+    fontSize: 13,
+    marginBottom: 12,
+  },
+  starPickerRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  starTouch: {
+    paddingHorizontal: 8,
+  },
+  starPickerText: {
+    fontSize: 32,
+  },
+  reviewInput: {
+    backgroundColor: 'hsl(224, 71%, 4%)',
+    borderWidth: 1,
+    borderColor: 'hsl(217, 32%, 17%)',
+    borderRadius: 12,
+    padding: 12,
+    color: '#f9fafb',
+    fontSize: 14,
+    textAlignVertical: 'top',
+    minHeight: 80,
+    marginBottom: 16,
+  },
+  submitRatingBtn: {
+    backgroundColor: 'hsl(150, 84%, 40%)',
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  submitRatingBtnText: {
+    color: '#ffffff',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  btnDisabled: {
+    opacity: 0.6,
+  },
+  ratingSuccessContainer: {
+    marginTop: 12,
+    alignItems: 'center',
+  },
+  starRow: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  starText: {
+    fontSize: 26,
+    marginHorizontal: 2,
+  },
+  reviewSubmittedText: {
+    color: 'hsl(210, 40%, 98%)',
+    fontSize: 14,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginVertical: 4,
+  },
+  submittedBadge: {
+    color: '#34d399',
+    fontSize: 13,
+    fontWeight: 'bold',
+    marginTop: 8,
+  },
 });
+
