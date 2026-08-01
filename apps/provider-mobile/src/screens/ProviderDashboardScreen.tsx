@@ -162,17 +162,17 @@ export default function ProviderDashboardScreen({ navigation }: any) {
           {/* Top Row: Title & Subtitle + Provider Partner Badge */}
           <View style={styles.consoleHeaderRow}>
             <View style={{ flex: 1, paddingRight: 8 }}>
-              <Text style={styles.consoleTitle}>Partner Console</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <Text style={styles.consoleTitle}>Partner Console</Text>
+                <View style={styles.roleBadge}>
+                  <Text style={styles.roleBadgeText}>PROVIDER PARTNER</Text>
+                </View>
+              </View>
               <Text style={styles.consoleSubtitle}>Manage your service jobs and schedule</Text>
-            </View>
-
-            <View style={styles.providerBadge}>
-              <Text style={styles.badgeIcon}>👥</Text>
-              <Text style={styles.badgeText}>Provider Partner</Text>
             </View>
           </View>
 
-          {/* Bottom Row: 2 Equal-Width Action Cards */}
+          {/* Bottom Row: 2 Equal-Width Action Cards (Clean, No Description) */}
           <View style={styles.actionCardsRow}>
             {/* Earnings Summary Card */}
             <TouchableOpacity
@@ -180,13 +180,8 @@ export default function ProviderDashboardScreen({ navigation }: any) {
               onPress={() => navigation.navigate('ProviderEarnings')}
               activeOpacity={0.7}
             >
-              <View style={styles.actionIconBox}>
-                <Text style={{ fontSize: 20 }}>👛</Text>
-              </View>
-              <View style={styles.actionTextBox}>
-                <Text style={styles.earningsCardTitle}>Earnings Summary</Text>
-                <Text style={styles.actionCardSubtitle}>View your earnings</Text>
-              </View>
+              <Text style={{ fontSize: 16 }}>👛</Text>
+              <Text style={styles.earningsCardTitle}>Earnings Summary</Text>
               <Text style={styles.earningsChevron}>›</Text>
             </TouchableOpacity>
 
@@ -196,13 +191,8 @@ export default function ProviderDashboardScreen({ navigation }: any) {
               onPress={handleLogout}
               activeOpacity={0.7}
             >
-              <View style={styles.actionIconBoxRed}>
-                <Text style={{ fontSize: 18 }}>🚪</Text>
-              </View>
-              <View style={styles.actionTextBox}>
-                <Text style={styles.signOutCardTitle}>Sign Out</Text>
-                <Text style={styles.actionCardSubtitle}>See you again!</Text>
-              </View>
+              <Text style={{ fontSize: 15 }}>🚪</Text>
+              <Text style={styles.signOutCardTitle}>Sign Out</Text>
               <Text style={styles.signOutChevron}>›</Text>
             </TouchableOpacity>
           </View>
@@ -322,71 +312,51 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
-  actionCardsRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
   earningsCard: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: 'rgba(16, 185, 129, 0.08)',
     borderWidth: 1,
     borderColor: 'rgba(16, 185, 129, 0.3)',
     borderRadius: 12,
-    padding: 12,
-    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
   },
   signOutCard: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: 'rgba(239, 68, 68, 0.08)',
     borderWidth: 1,
     borderColor: 'rgba(239, 68, 68, 0.3)',
     borderRadius: 12,
-    padding: 12,
-    gap: 8,
-  },
-  actionIconBox: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  actionIconBoxRed: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  actionTextBox: {
-    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
   },
   earningsCardTitle: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
     color: '#34d399',
+    flex: 1,
+    marginLeft: 6,
   },
   signOutCardTitle: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
     color: '#f87171',
-  },
-  actionCardSubtitle: {
-    fontSize: 11,
-    color: '#64748b',
-    marginTop: 2,
+    flex: 1,
+    marginLeft: 6,
   },
   earningsChevron: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '400',
     color: '#34d399',
   },
   signOutChevron: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '400',
     color: '#f87171',
   },
