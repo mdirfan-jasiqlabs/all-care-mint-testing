@@ -7,9 +7,10 @@ import { CatalogModule } from './modules/catalog/catalog.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { ProviderModule } from './modules/provider/provider.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { RatingModule } from './modules/rating/rating.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, CatalogModule, BookingModule, ProviderModule, PaymentModule],
+  imports: [PrismaModule, AuthModule, CatalogModule, BookingModule, ProviderModule, PaymentModule, RatingModule],
   controllers: [AppController],
   providers: [AppService],
 })

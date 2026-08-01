@@ -17,6 +17,7 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
     if (pathname.startsWith('/admin/bookings')) return 'bookings';
     if (pathname.startsWith('/admin/providers')) return 'providers';
     if (pathname.startsWith('/admin/payments')) return 'payments';
+    if (pathname.startsWith('/admin/ratings')) return 'ratings';
     if (pathname.startsWith('/admin/users')) return 'users';
     if (pathname.startsWith('/dashboard/admin') || pathname.startsWith('/admin/dashboard')) return 'dashboard';
     return '';
@@ -106,6 +107,12 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
             style={getLinkStyle('payments')}
           >
             Payments & Cash Ledger
+          </button>
+          <button
+            onClick={() => handleNav('/admin/ratings')}
+            style={getLinkStyle('ratings')}
+          >
+            Provider Ratings & Feedback
           </button>
           <button
             style={getLinkStyle('users')}
