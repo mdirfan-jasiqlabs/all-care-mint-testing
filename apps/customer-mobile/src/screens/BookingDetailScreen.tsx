@@ -43,6 +43,23 @@ export default function BookingDetailScreen({ navigation, route }: any) {
 
   useEffect(() => {
     fetchBookingDetails();
+
+    // Check if rating was previously submitted for this booking
+    const savedRatingStr = storage.getItem(`rating_${bookingId}`);
+    if (savedRatingStr) {
+      try {
+        const savedRating = JSON.parse(savedRatingStr);
+        if (savedRating.ratingScore) {
+          setRatingScore(savedRating.ratingScore);
+        }
+        if (savedRating.reviewText) {
+          setReviewText(savedRating.reviewText);
+        }
+        setRatingSubmitted(true);
+      } catch (e) {
+        // Ignore parse error
+      }
+    }
   }, [bookingId]);
 
   const handleRatingSubmit = async () => {
@@ -56,6 +73,8 @@ export default function BookingDetailScreen({ navigation, route }: any) {
       });
 
       if (data.success) {
+        const ratingPayload = { ratingScore, reviewText: reviewText.trim() };
+        storage.setItem(`rating_${bookingId}`, JSON.stringify(ratingPayload));
         setRatingSubmitted(true);
         Alert.alert('Thank You!', 'Your rating and review have been submitted successfully.');
       } else {
@@ -63,6 +82,8 @@ export default function BookingDetailScreen({ navigation, route }: any) {
       }
     } catch (err: any) {
       if (err.status === 409 || err.message?.includes('already')) {
+        const ratingPayload = { ratingScore, reviewText: reviewText.trim() };
+        storage.setItem(`rating_${bookingId}`, JSON.stringify(ratingPayload));
         setRatingSubmitted(true);
         Alert.alert('Notice', 'A rating has already been submitted for this booking.');
       } else {
