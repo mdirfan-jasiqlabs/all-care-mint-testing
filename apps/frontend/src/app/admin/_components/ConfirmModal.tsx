@@ -8,6 +8,7 @@ interface ConfirmModalProps {
   message: string;
   confirmText?: string;
   cancelText?: string;
+  isLoading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -18,6 +19,7 @@ export default function ConfirmModal({
   message,
   confirmText = 'Deactivate',
   cancelText = 'Cancel',
+  isLoading = false,
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
@@ -26,7 +28,7 @@ export default function ConfirmModal({
 
   // Esc key closure and Focus trap
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || isLoading) return;
 
     // Focus Cancel button by default
     cancelBtnRef.current?.focus();
@@ -52,7 +54,7 @@ export default function ConfirmModal({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onCancel]);
+  }, [isOpen, isLoading, onCancel]);
 
   if (!isOpen) return null;
 
@@ -69,7 +71,7 @@ export default function ConfirmModal({
         justifyContent: 'center',
         padding: '24px',
       }}
-      onClick={onCancel}
+      onClick={isLoading ? undefined : onCancel}
     >
       <div
         style={{
@@ -104,15 +106,17 @@ export default function ConfirmModal({
           <button
             ref={cancelBtnRef}
             onClick={onCancel}
+            disabled={isLoading}
             style={{
               padding: '10px 18px',
               borderRadius: '8px',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               backgroundColor: 'transparent',
-              color: '#cbd5e1',
+              color: isLoading ? '#64748b' : '#cbd5e1',
               fontSize: '14px',
               fontWeight: 600,
-              cursor: 'pointer',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              opacity: isLoading ? 0.6 : 1,
             }}
           >
             {cancelText}
@@ -120,7 +124,12 @@ export default function ConfirmModal({
           <button
             ref={confirmBtnRef}
             onClick={onConfirm}
+            disabled={isLoading}
             style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
               padding: '10px 18px',
               borderRadius: '8px',
               border: 'none',
@@ -128,11 +137,13 @@ export default function ConfirmModal({
               color: '#ffffff',
               fontSize: '14px',
               fontWeight: 600,
-              cursor: 'pointer',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
               boxShadow: '0 4px 6px -1px rgba(239, 68, 68, 0.2)',
+              opacity: isLoading ? 0.7 : 1,
             }}
           >
-            {confirmText}
+            {isLoading && <div className="spinner" style={{ width: '14px', height: '14px' }} />}
+            {isLoading ? 'Deactivating...' : confirmText}
           </button>
         </div>
       </div>

@@ -82,12 +82,22 @@ export default function UnifiedCatalogManager() {
   const [deactivatingCategory, setDeactivatingCategory] = useState<ServiceCategory | null>(null);
   const [deactivatingService, setDeactivatingService] = useState<ServiceItem | null>(null);
 
+  // Deactivation / activation loading states
+  const [togglingCatId, setTogglingCatId] = useState<string | null>(null);
+  const [togglingSvcId, setTogglingSvcId] = useState<string | null>(null);
+
   // 1. Fetch Categories (with ETag read)
   const fetchCategories = async () => {
     try {
       setLoadingCategories(true);
       setError(null);
-      const res = await apiClient.raw('/api/v1/admin/catalog/categories');
+      const res = await apiClient.raw('/api/v1/admin/catalog/categories', {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+        },
+        cache: 'no-store',
+      });
 
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
@@ -127,7 +137,13 @@ export default function UnifiedCatalogManager() {
     if (!catId) return;
     try {
       setLoadingServices(true);
-      const data = await apiClient.get(`/api/v1/admin/catalog/categories/${catId}/services`);
+      const data = await apiClient.get(`/api/v1/admin/catalog/categories/${catId}/services`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+        },
+        cache: 'no-store',
+      });
       if (data.success) {
         setServices(data.data);
       }
@@ -351,7 +367,14 @@ export default function UnifiedCatalogManager() {
   const confirmToggleCatActive = async (category: ServiceCategory, forceState?: boolean) => {
     const nextState = forceState !== undefined ? forceState : !category.isActive;
     try {
+      setTogglingCatId(category.id);
       await apiClient.patch(`/api/v1/admin/catalog/categories/${category.id}`, { isActive: nextState });
+
+      // Immediately update local state map so UI updates instantly
+      setCategories((prev) =>
+        prev.map((c) => (c.id === category.id ? { ...c, isActive: nextState } : c))
+      );
+
       addToast(`Category "${category.name}" has been ${nextState ? 'activated' : 'deactivated'} successfully`, 'success');
       await fetchCategories();
     } catch (err: any) {
@@ -362,6 +385,7 @@ export default function UnifiedCatalogManager() {
       }
       addToast(err.message || 'Failed to update category state', 'error');
     } finally {
+      setTogglingCatId(null);
       setDeactivatingCategory(null);
     }
   };
@@ -377,7 +401,14 @@ export default function UnifiedCatalogManager() {
   const confirmToggleSvcActive = async (service: ServiceItem, forceState?: boolean) => {
     const nextState = forceState !== undefined ? forceState : !service.isActive;
     try {
+      setTogglingSvcId(service.id);
       await apiClient.patch(`/api/v1/admin/catalog/services/${service.id}`, { isActive: nextState });
+
+      // Immediately update local state map so UI updates instantly
+      setServices((prev) =>
+        prev.map((s) => (s.id === service.id ? { ...s, isActive: nextState } : s))
+      );
+
       addToast(`Service "${service.name}" has been ${nextState ? 'activated' : 'deactivated'} successfully`, 'success');
       if (selectedCategoryId) {
         await fetchServices(selectedCategoryId);
@@ -386,6 +417,7 @@ export default function UnifiedCatalogManager() {
     } catch (err: any) {
       addToast(err.message || 'Failed to update service state', 'error');
     } finally {
+      setTogglingSvcId(null);
       setDeactivatingService(null);
     }
   };
@@ -497,6 +529,7 @@ export default function UnifiedCatalogManager() {
                             Edit
                           </button>
                           <button
+                            disabled={togglingCatId === cat.id}
                             onClick={() => handleToggleCatActive(cat)}
                             style={{
                               background: 'transparent',
@@ -505,11 +538,22 @@ export default function UnifiedCatalogManager() {
                               color: cat.isActive ? '#ef4444' : '#10b981',
                               borderColor: cat.isActive ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)',
                               padding: '6px 12px',
-                              cursor: 'pointer',
+                              cursor: togglingCatId === cat.id ? 'not-allowed' : 'pointer',
                               fontSize: '13px',
+                              opacity: togglingCatId === cat.id ? 0.7 : 1,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
                             }}
                           >
-                            {cat.isActive ? 'Deactivate' : 'Activate'}
+                            {togglingCatId === cat.id && (
+                              <span className="spinner" style={{ width: '12px', height: '12px' }} />
+                            )}
+                            {togglingCatId === cat.id
+                              ? 'Processing...'
+                              : cat.isActive
+                              ? 'Deactivate'
+                              : 'Activate'}
                           </button>
                         </td>
                       </tr>
@@ -612,6 +656,7 @@ export default function UnifiedCatalogManager() {
                             Edit
                           </button>
                           <button
+                            disabled={togglingSvcId === srv.id}
                             onClick={() => handleToggleSvcActive(srv)}
                             style={{
                               background: 'transparent',
@@ -620,11 +665,22 @@ export default function UnifiedCatalogManager() {
                               color: srv.isActive ? '#ef4444' : '#10b981',
                               borderColor: srv.isActive ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)',
                               padding: '6px 12px',
-                              cursor: 'pointer',
+                              cursor: togglingSvcId === srv.id ? 'not-allowed' : 'pointer',
                               fontSize: '13px',
+                              opacity: togglingSvcId === srv.id ? 0.7 : 1,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
                             }}
                           >
-                            {srv.isActive ? 'Deactivate' : 'Activate'}
+                            {togglingSvcId === srv.id && (
+                              <span className="spinner" style={{ width: '12px', height: '12px' }} />
+                            )}
+                            {togglingSvcId === srv.id
+                              ? 'Processing...'
+                              : srv.isActive
+                              ? 'Deactivate'
+                              : 'Activate'}
                           </button>
                         </td>
                       </tr>
@@ -875,6 +931,7 @@ export default function UnifiedCatalogManager() {
       {/* Confirmation Modals */}
       <ConfirmModal
         isOpen={!!deactivatingCategory}
+        isLoading={togglingCatId === deactivatingCategory?.id}
         title={`Deactivate "${deactivatingCategory?.name}"?`}
         message="Customers will no longer see this category and its associated services."
         confirmText="Deactivate"
@@ -883,11 +940,16 @@ export default function UnifiedCatalogManager() {
             confirmToggleCatActive(deactivatingCategory, false);
           }
         }}
-        onCancel={() => setDeactivatingCategory(null)}
+        onCancel={() => {
+          if (togglingCatId !== deactivatingCategory?.id) {
+            setDeactivatingCategory(null);
+          }
+        }}
       />
 
       <ConfirmModal
         isOpen={!!deactivatingService}
+        isLoading={togglingSvcId === deactivatingService?.id}
         title={`Deactivate "${deactivatingService?.name}"?`}
         message="Customers will no longer see this service."
         confirmText="Deactivate"
@@ -896,7 +958,11 @@ export default function UnifiedCatalogManager() {
             confirmToggleSvcActive(deactivatingService, false);
           }
         }}
-        onCancel={() => setDeactivatingService(null)}
+        onCancel={() => {
+          if (togglingSvcId !== deactivatingService?.id) {
+            setDeactivatingService(null);
+          }
+        }}
       />
 
     </div>
