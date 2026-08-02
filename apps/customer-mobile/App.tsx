@@ -18,10 +18,20 @@ import BookingSummaryScreen from './src/screens/BookingSummaryScreen';
 import BookingConfirmationScreen from './src/screens/BookingConfirmationScreen';
 import MyBookingsScreen from './src/screens/MyBookingsScreen';
 import BookingDetailScreen from './src/screens/BookingDetailScreen';
+import NotificationSettingsScreen from './src/screens/NotificationSettingsScreen';
 import { setupNotificationListeners } from './src/services/notificationService';
 import * as storage from './src/utils/storage';
 
 const Stack = createStackNavigator<RootStackParamList>();
+
+const linking = {
+  prefixes: ['allcaremint://', 'exp://'],
+  config: {
+    screens: {
+      NotificationSettings: 'notifications/settings',
+    },
+  },
+};
 
 export default function App() {
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
@@ -57,7 +67,7 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer ref={navigationRef}>
+      <NavigationContainer ref={navigationRef} linking={linking}>
 
         <StatusBar style="light" />
         <Stack.Navigator
@@ -153,6 +163,11 @@ export default function App() {
             name="BookingDetail"
             component={BookingDetailScreen}
             options={{ title: 'Booking Details' }}
+          />
+          <Stack.Screen
+            name="NotificationSettings"
+            component={NotificationSettingsScreen}
+            options={{ headerShown: false }}
           />
         </Stack.Navigator>
       </NavigationContainer>

@@ -12,4 +12,5 @@ export type RootStackParamList = {
   BookingConfirmation: { bookingId: string; status: string };
   MyBookings: { toastMessage?: string } | undefined;
   BookingDetail: { bookingId: string };
+  NotificationSettings: undefined;
 };

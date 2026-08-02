@@ -43,6 +43,13 @@ export default function HomeScreen({ navigation }: Props) {
           >
             <Text style={styles.buttonText}>My Bookings</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, { marginTop: 12, backgroundColor: 'hsl(217, 32%, 17%)' }]}
+            onPress={() => navigation.navigate('NotificationSettings')}
+          >
+            <Text style={styles.buttonText}>🔔 Notification Settings</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>

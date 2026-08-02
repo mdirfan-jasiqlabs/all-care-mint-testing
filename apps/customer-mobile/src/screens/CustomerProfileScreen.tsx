@@ -210,6 +210,13 @@ export default function CustomerProfileScreen({ navigation }: Props) {
             )}
           </TouchableOpacity>
 
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: 'hsl(217, 32%, 17%)', marginTop: 12 }]}
+            onPress={() => navigation.navigate('NotificationSettings')}
+          >
+            <Text style={[styles.buttonText, { color: 'hsl(210, 40%, 98%)' }]}>🔔 Notification Settings</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.signOutButton} onPress={handleLogout}>
             <Text style={styles.signOutButtonText}>Sign Out</Text>
           </TouchableOpacity>
