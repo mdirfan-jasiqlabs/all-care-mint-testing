@@ -6,14 +6,27 @@ export interface NotificationPayload {
   title: string;
   body: string;
   bookingId?: string;
+  timeAgo?: string;
 }
 
 let listeners: Array<(payload: NotificationPayload) => void> = [];
+let lastPayloadKey = '';
+let lastPayloadTime = 0;
 
 export function triggerInAppNotification(payload: Omit<NotificationPayload, 'id'>) {
+  const key = `${payload.bookingId || ''}-${payload.body}`;
+  const now = Date.now();
+  
+  // Deduplicate identical notifications received within 5 seconds
+  if (key === lastPayloadKey && now - lastPayloadTime < 5000) {
+    return;
+  }
+  lastPayloadKey = key;
+  lastPayloadTime = now;
+
   const fullPayload: NotificationPayload = {
     ...payload,
-    id: `${Date.now()}-${Math.random()}`,
+    id: `${now}-${Math.random()}`,
   };
   listeners.forEach((listener) => listener(fullPayload));
 }
@@ -31,14 +44,14 @@ interface NotificationBannerProps {
 
 export default function NotificationBanner({ onPressBanner }: NotificationBannerProps) {
   const [currentNotification, setCurrentNotification] = useState<NotificationPayload | null>(null);
-  const slideAnim = useState(new Animated.Value(-120))[0];
+  const slideAnim = useState(new Animated.Value(-140))[0];
 
   useEffect(() => {
     const unsubscribe = subscribeInAppNotifications((payload) => {
       setCurrentNotification(payload);
-      // Slide down
+      // Slide down right under top status bar
       Animated.spring(slideAnim, {
-        toValue: 10,
+        toValue: 4,
         useNativeDriver: true,
         friction: 7,
         tension: 40,
@@ -57,7 +70,7 @@ export default function NotificationBanner({ onPressBanner }: NotificationBanner
 
   const dismissBanner = () => {
     Animated.timing(slideAnim, {
-      toValue: -120,
+      toValue: -140,
       duration: 300,
       useNativeDriver: true,
     }).start(() => {
@@ -69,6 +82,7 @@ export default function NotificationBanner({ onPressBanner }: NotificationBanner
 
   return (
     <Animated.View
+      pointerEvents="box-none"
       style={[
         styles.bannerContainer,
         { transform: [{ translateY: slideAnim }] },
@@ -91,8 +105,8 @@ export default function NotificationBanner({ onPressBanner }: NotificationBanner
 
         <View style={styles.textContainer}>
           <View style={styles.headerRow}>
-            <Text style={styles.appName}>ALL CARE MINT</Text>
-            <Text style={styles.timeAgo}>now</Text>
+            <Text style={styles.appName}>{currentNotification.title || 'ALL CARE MINT'}</Text>
+            <Text style={styles.timeAgo}>{currentNotification.timeAgo || 'now'}</Text>
           </View>
           <Text style={styles.bodyText} numberOfLines={2}>
             {currentNotification.body}
@@ -106,7 +120,7 @@ export default function NotificationBanner({ onPressBanner }: NotificationBanner
 const styles = StyleSheet.create({
   bannerContainer: {
     position: 'absolute',
-    top: 40,
+    top: 8,
     left: 16,
     right: 16,
     zIndex: 99999,

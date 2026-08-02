@@ -58,22 +58,11 @@ export default function ProviderDashboardScreen({ navigation }: any) {
     registerProviderPushToken();
     fetchJobs();
 
-    const timer = setTimeout(() => {
-      triggerInAppNotification({
-        title: 'ALL CARE MINT',
-        body: 'New Job Assignment: Deep Cleaning booking allocated to you!',
-        bookingId: 'ACM-ACM-20260803-PI9N',
-      });
-    }, 800);
-
     // Refresh list on focus
     const unsubscribe = navigation.addListener('focus', () => {
       fetchJobs();
     });
-    return () => {
-      clearTimeout(timer);
-      unsubscribe();
-    };
+    return unsubscribe;
   }, [activeTab]);
 
   useEffect(() => {
@@ -123,7 +112,7 @@ export default function ProviderDashboardScreen({ navigation }: any) {
       >
         <View style={{ flex: 1 }}>
           <View style={styles.cardHeader}>
-            <Text style={styles.refText}>ACM-{item.bookingReference}</Text>
+            <Text style={styles.refText}>{item.bookingReference?.startsWith('ACM-') ? item.bookingReference : `ACM-${item.bookingReference}`}</Text>
             <View
               style={[
                 styles.statusBadge,

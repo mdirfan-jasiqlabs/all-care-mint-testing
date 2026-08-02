@@ -34,8 +34,31 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
   const fetchJobDetails = async () => {
     try {
       setLoading(true);
-      const data = await apiClient.get(`/api/v1/providers/me/bookings/${bookingId}`);
-      if (data.success) {
+      let data: any = null;
+      try {
+        data = await apiClient.get(`/api/v1/providers/me/bookings/${bookingId}`);
+      } catch (e) {
+        // Fallback: search active jobs list if reference code or invalid UUID format was passed
+        try {
+          const activeList = await apiClient.get('/api/v1/providers/me/bookings?page=1&limit=50');
+          if (activeList.success && Array.isArray(activeList.data)) {
+            const match = activeList.data.find(
+              (b: any) =>
+                b.id === bookingId ||
+                b.bookingReference === bookingId ||
+                `ACM-${b.bookingReference}` === bookingId ||
+                (bookingId && bookingId.includes(b.bookingReference))
+            );
+            if (match) {
+              data = { success: true, data: match };
+            }
+          }
+        } catch (fallbackErr) {
+          // ignore fallback search errors
+        }
+      }
+
+      if (data?.success) {
         setBooking(data.data);
       } else {
         setBooking(null);
