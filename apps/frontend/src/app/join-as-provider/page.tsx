@@ -31,7 +31,8 @@ export default function JoinAsProviderPage() {
 
     try {
       setSubmitting(true);
-      const res = await fetch('/api/v1/provider-leads', {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
+      const res = await fetch(`${apiBase}/api/v1/provider-leads`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
