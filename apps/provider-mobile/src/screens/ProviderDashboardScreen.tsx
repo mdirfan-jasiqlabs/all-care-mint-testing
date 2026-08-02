@@ -152,7 +152,7 @@ export default function ProviderDashboardScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
       <NotificationBanner
         onPressBanner={(bookingId) => {
           if (bookingId) {
@@ -241,7 +241,9 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 4,
+    paddingBottom: 16,
     ...Platform.select({
       web: {
         position: 'absolute' as any,
@@ -269,7 +271,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
     marginBottom: 20,
-    marginTop: Platform.OS === 'android' ? 12 : 4,
+    marginTop: 4,
   },
   consoleCardTop: {
     flexDirection: 'row',
