@@ -9,6 +9,8 @@ import {
   Linking,
 } from 'react-native';
 
+import * as storage from '../utils/storage';
+
 export default function GatewayScreen({ navigation }: any) {
   const handleSelectCustomer = () => {
     // In dev environment, customer mobile runs on port 8081.
@@ -22,7 +24,12 @@ export default function GatewayScreen({ navigation }: any) {
   };
 
   const handleSelectProvider = () => {
-    navigation.navigate('ProviderLogin');
+    const token = storage.getAccessToken();
+    if (token) {
+      navigation.navigate('ProviderDashboard');
+    } else {
+      navigation.navigate('ProviderLogin');
+    }
   };
 
   return (

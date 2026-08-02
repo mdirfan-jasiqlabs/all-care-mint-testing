@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -20,6 +20,7 @@ export default function ProviderDashboardScreen({ navigation }: any) {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'active' | 'history'>('active');
+  const hasTriggeredInitialBanner = useRef(false);
 
   const [toastQueue, setToastQueue] = useState<ToastItem[]>([]);
   const showToast = (message: string, type: ToastType = 'success') => {
@@ -40,6 +41,20 @@ export default function ProviderDashboardScreen({ navigation }: any) {
 
       if (data.success) {
         setJobs(data.data);
+
+        // Trigger notification banner when active assigned jobs load
+        if (activeTab === 'active' && Array.isArray(data.data) && data.data.length > 0) {
+          const latestJob = data.data[0];
+
+          setTimeout(() => {
+            triggerInAppNotification({
+              title: 'ALL CARE MINT',
+              body: `New Job Assignment: ${latestJob.serviceNameSnapshot || 'Service'} booking allocated to you!`,
+              bookingId: latestJob.id,
+              timeAgo: 'now',
+            });
+          }, 300);
+        }
       }
     } catch (err: any) {
       if (err.status === 401 || err.status === 403) {
@@ -142,13 +157,6 @@ export default function ProviderDashboardScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
-      <NotificationBanner
-        onPressBanner={(bookingId) => {
-          if (bookingId) {
-            navigation.navigate('ProviderJobDetail', { bookingId });
-          }
-        }}
-      />
       <View style={styles.container}>
         
         {/* Partner Console Header Card */}
@@ -218,6 +226,13 @@ export default function ProviderDashboardScreen({ navigation }: any) {
         )}
 
       </View>
+      <NotificationBanner
+        onPressBanner={(bookingId) => {
+          if (bookingId) {
+            navigation.navigate('ProviderJobDetail', { bookingId });
+          }
+        }}
+      />
       <ToastContainer toastQueue={toastQueue} onDismiss={dismissToast} />
     </SafeAreaView>
   );

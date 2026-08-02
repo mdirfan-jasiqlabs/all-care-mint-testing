@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Animated } from 'react-native';
 
 export interface NotificationPayload {
@@ -17,8 +17,8 @@ export function triggerInAppNotification(payload: Omit<NotificationPayload, 'id'
   const key = `${payload.bookingId || ''}-${payload.body}`;
   const now = Date.now();
   
-  // Deduplicate identical notifications received within 5 seconds
-  if (key === lastPayloadKey && now - lastPayloadTime < 5000) {
+  // Deduplicate identical notifications received within 500ms
+  if (key === lastPayloadKey && now - lastPayloadTime < 500) {
     return;
   }
   lastPayloadKey = key;
@@ -44,34 +44,37 @@ interface NotificationBannerProps {
 
 export default function NotificationBanner({ onPressBanner }: NotificationBannerProps) {
   const [currentNotification, setCurrentNotification] = useState<NotificationPayload | null>(null);
-  const slideAnim = useState(new Animated.Value(-140))[0];
+  const slideAnim = useRef(new Animated.Value(-140)).current;
 
   useEffect(() => {
     const unsubscribe = subscribeInAppNotifications((payload) => {
       setCurrentNotification(payload);
-      // Slide down right under top status bar
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    if (currentNotification) {
+      slideAnim.setValue(-140);
       Animated.spring(slideAnim, {
-        toValue: 4,
+        toValue: 0,
         useNativeDriver: true,
         friction: 7,
         tension: 40,
       }).start();
 
-      // Auto dismiss after 5 seconds
       const timer = setTimeout(() => {
         dismissBanner();
       }, 5000);
 
       return () => clearTimeout(timer);
-    });
-
-    return unsubscribe;
-  }, []);
+    }
+  }, [currentNotification]);
 
   const dismissBanner = () => {
     Animated.timing(slideAnim, {
-      toValue: -140,
-      duration: 300,
+      toValue: -180,
+      duration: 200,
       useNativeDriver: true,
     }).start(() => {
       setCurrentNotification(null);
@@ -92,11 +95,11 @@ export default function NotificationBanner({ onPressBanner }: NotificationBanner
         activeOpacity={0.85}
         style={styles.bannerContent}
         onPress={() => {
-          const bookingId = currentNotification.bookingId;
-          dismissBanner();
+          const bId = currentNotification.bookingId;
           if (onPressBanner) {
-            onPressBanner(bookingId);
+            onPressBanner(bId);
           }
+          dismissBanner();
         }}
       >
         <View style={styles.iconContainer}>
@@ -120,7 +123,7 @@ export default function NotificationBanner({ onPressBanner }: NotificationBanner
 const styles = StyleSheet.create({
   bannerContainer: {
     position: 'absolute',
-    top: 8,
+    top: 68,
     left: 16,
     right: 16,
     zIndex: 99999,
