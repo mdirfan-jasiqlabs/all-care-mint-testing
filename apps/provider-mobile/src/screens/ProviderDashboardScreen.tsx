@@ -14,6 +14,7 @@ import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
 import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
 import { registerProviderPushToken } from '../services/notificationService';
+import NotificationBanner, { triggerInAppNotification } from '../components/NotificationBanner';
 
 export default function ProviderDashboardScreen({ navigation }: any) {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -56,12 +57,23 @@ export default function ProviderDashboardScreen({ navigation }: any) {
   useEffect(() => {
     registerProviderPushToken();
     fetchJobs();
-    
+
+    const timer = setTimeout(() => {
+      triggerInAppNotification({
+        title: 'ALL CARE MINT',
+        body: 'New Job Assignment: Deep Cleaning booking allocated to you!',
+        bookingId: 'ACM-ACM-20260803-PI9N',
+      });
+    }, 800);
+
     // Refresh list on focus
     const unsubscribe = navigation.addListener('focus', () => {
       fetchJobs();
     });
-    return unsubscribe;
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
+    };
   }, [activeTab]);
 
   useEffect(() => {
@@ -141,6 +153,13 @@ export default function ProviderDashboardScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <NotificationBanner
+        onPressBanner={(bookingId) => {
+          if (bookingId) {
+            navigation.navigate('ProviderJobDetail', { bookingId });
+          }
+        }}
+      />
       <View style={styles.container}>
         
         {/* Partner Console Header Card */}

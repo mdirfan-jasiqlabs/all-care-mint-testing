@@ -1,6 +1,7 @@
 import { Platform, Linking } from 'react-native';
 import apiClient from './api';
 import useProviderJobStore from '../store/providerJobStore';
+import { triggerInAppNotification } from '../components/NotificationBanner';
 
 let Notifications: any = null;
 try {
@@ -109,10 +110,19 @@ export function setupNotificationListeners(navigationRef?: any): () => void {
     });
   }
 
-  // 3. Register Notification Received Listener (Zustand Refresh)
+  // 3. Register Notification Received Listener (Zustand Refresh & In-App Banner)
   if (Notifications?.addNotificationReceivedListener) {
     const recSub = Notifications.addNotificationReceivedListener((notification: any) => {
       const data = notification?.request?.content?.data || {};
+      const title = notification?.request?.content?.title || 'All Care Mint';
+      const body = notification?.request?.content?.body || 'New job assignment received.';
+
+      triggerInAppNotification({
+        title,
+        body,
+        bookingId: data.booking_id || data.bookingId,
+      });
+
       if (data.type === 'new_assignment' || data.status === 'ASSIGNED' || data.booking_id) {
         useProviderJobStore.getState().fetchAssignedJobs().catch(() => {});
       }
