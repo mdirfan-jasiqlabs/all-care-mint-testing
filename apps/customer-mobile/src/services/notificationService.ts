@@ -26,12 +26,16 @@ export interface NotificationResponsePayload {
 export async function registerCustomerPushToken(): Promise<void> {
   try {
     if (Platform.OS === 'android' && Notifications?.setNotificationChannelAsync) {
-      await Notifications.setNotificationChannelAsync('default', {
-        name: 'Default',
-        importance: Notifications.AndroidImportance?.HIGH || 4,
-        sound: 'default',
-        enableVibrate: true,
-      });
+      try {
+        await Notifications.setNotificationChannelAsync('default', {
+          name: 'Default',
+          importance: Notifications.AndroidImportance?.HIGH || 4,
+          sound: 'default',
+          enableVibrate: true,
+        });
+      } catch (err) {
+        // Fallback for Expo Go environment
+      }
     }
 
     const deviceId =

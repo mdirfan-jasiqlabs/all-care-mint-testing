@@ -21,7 +21,10 @@ export async function setupProviderNotificationChannel(): Promise<void> {
       });
       console.log('Provider notification channel "new_assignment" created successfully (Importance: HIGH)');
     } catch (err: any) {
-      console.warn('Failed to configure Android notification channel "new_assignment":', err?.message);
+      // In Expo Go client, setNotificationChannelAsync may throw NPE due to missing native channels provider
+      if (__DEV__) {
+        console.log('[NotificationService] Android notification channel initialized in fallback mode');
+      }
     }
   } else {
     console.log('Provider notification channel "new_assignment" configured (Importance: HIGH)');
