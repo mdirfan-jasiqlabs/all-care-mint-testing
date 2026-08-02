@@ -33,7 +33,7 @@ export default function ProviderDashboardScreen({ navigation }: any) {
   const fetchJobs = async () => {
     try {
       setLoading(true);
-      const url = activeTab === 'active' 
+      const url = activeTab === 'active'
         ? '/api/v1/providers/me/bookings?page=1&limit=20'
         : '/api/v1/providers/me/bookings/history?page=1&limit=20';
 
@@ -41,20 +41,6 @@ export default function ProviderDashboardScreen({ navigation }: any) {
 
       if (data.success) {
         setJobs(data.data);
-
-        // Trigger notification banner when active assigned jobs load
-        if (activeTab === 'active' && Array.isArray(data.data) && data.data.length > 0) {
-          const latestJob = data.data[0];
-
-          setTimeout(() => {
-            triggerInAppNotification({
-              title: 'ALL CARE MINT',
-              body: `New Job Assignment: ${latestJob.serviceNameSnapshot || 'Service'} booking allocated to you!`,
-              bookingId: latestJob.id,
-              timeAgo: 'now',
-            });
-          }, 300);
-        }
       }
     } catch (err: any) {
       if (err.status === 401 || err.status === 403) {
@@ -158,7 +144,7 @@ export default function ProviderDashboardScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
       <View style={styles.container}>
-        
+
         {/* Partner Console Header Card */}
         <View style={styles.consoleCard}>
           <View style={styles.consoleCardTop}>

@@ -16,9 +16,9 @@ let lastPayloadTime = 0;
 export function triggerInAppNotification(payload: Omit<NotificationPayload, 'id'>) {
   const key = `${payload.bookingId || ''}-${payload.body}`;
   const now = Date.now();
-  
-  // Deduplicate identical notifications received within 500ms
-  if (key === lastPayloadKey && now - lastPayloadTime < 500 && payload.timeAgo !== 'now') {
+
+  // Deduplicate identical notifications received within 3000ms
+  if (key === lastPayloadKey && now - lastPayloadTime < 3000) {
     return;
   }
   lastPayloadKey = key;

@@ -99,11 +99,11 @@ export function setupNotificationListeners(navigationRef?: any): () => void {
     }
   }).catch(() => {});
 
-  // 2. Configure Foreground Notification Handler
+  // 2. Configure Foreground Notification Handler (In foreground, custom In-App banner is used)
   if (Notifications?.setNotificationHandler) {
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
-        shouldShowAlert: true,
+        shouldShowAlert: false,
         shouldPlaySound: true,
         shouldSetBadge: true,
       }),
