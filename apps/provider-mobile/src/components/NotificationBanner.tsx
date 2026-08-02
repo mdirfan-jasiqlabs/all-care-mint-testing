@@ -18,7 +18,7 @@ export function triggerInAppNotification(payload: Omit<NotificationPayload, 'id'
   const now = Date.now();
   
   // Deduplicate identical notifications received within 500ms
-  if (key === lastPayloadKey && now - lastPayloadTime < 500) {
+  if (key === lastPayloadKey && now - lastPayloadTime < 500 && payload.timeAgo !== 'now') {
     return;
   }
   lastPayloadKey = key;
