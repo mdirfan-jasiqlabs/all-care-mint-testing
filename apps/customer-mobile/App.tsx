@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ActivityIndicator, View, StyleSheet, Platform, TouchableOpacity, Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { RootStackParamList } from './src/navigation/root.types';
@@ -18,12 +18,14 @@ import BookingSummaryScreen from './src/screens/BookingSummaryScreen';
 import BookingConfirmationScreen from './src/screens/BookingConfirmationScreen';
 import MyBookingsScreen from './src/screens/MyBookingsScreen';
 import BookingDetailScreen from './src/screens/BookingDetailScreen';
+import { setupNotificationListeners } from './src/services/notificationService';
 import * as storage from './src/utils/storage';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 export default function App() {
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
+  const navigationRef = useNavigationContainerRef();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -40,6 +42,11 @@ export default function App() {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+    const cleanup = setupNotificationListeners(navigationRef);
+    return () => cleanup();
+  }, [navigationRef]);
+
   if (initialRoute === null) {
     return (
       <View style={styles.loading}>
@@ -50,7 +57,8 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
+
         <StatusBar style="light" />
         <Stack.Navigator
           initialRouteName={initialRoute}

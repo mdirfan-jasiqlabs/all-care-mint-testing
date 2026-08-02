@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/root.types';
+import { registerCustomerPushToken } from '../services/notificationService';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -10,6 +11,10 @@ interface Props {
 }
 
 export default function HomeScreen({ navigation }: Props) {
+  useEffect(() => {
+    registerCustomerPushToken();
+  }, []);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>

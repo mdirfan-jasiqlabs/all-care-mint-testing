@@ -13,6 +13,7 @@ import {
 import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
 import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
+import { registerProviderPushToken } from '../services/notificationService';
 
 export default function ProviderDashboardScreen({ navigation }: any) {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -53,6 +54,7 @@ export default function ProviderDashboardScreen({ navigation }: any) {
   };
 
   useEffect(() => {
+    registerProviderPushToken();
     fetchJobs();
     
     // Refresh list on focus
