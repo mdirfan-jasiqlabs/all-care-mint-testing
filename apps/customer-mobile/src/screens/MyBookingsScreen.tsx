@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
 import { useIsFocused } from '@react-navigation/native';
 import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
+import NotificationBanner, { triggerInAppNotification } from '../components/NotificationBanner';
 
 export default function MyBookingsScreen({ navigation, route }: any) {
   const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
@@ -23,26 +24,74 @@ export default function MyBookingsScreen({ navigation, route }: any) {
 
   const isFocused = useIsFocused();
 
+  const previousStatuses = useRef<Map<string, string>>(new Map());
+
   // Fetch bookings based on activeTab
-  const fetchBookings = async () => {
+  const fetchBookings = async (isPolling = false) => {
     try {
-      setLoading(true);
-      const data = await apiClient.get(`/api/v1/bookings?filter=${activeTab}&page=1&limit=50`);
-      if (data.success) {
-        setBookings(data.data || []);
-      }
+      if (!isPolling) setLoading(true);
+
+      const [currentRes, historyRes] = await Promise.all([
+        apiClient.get(`/api/v1/bookings?filter=current&page=1&limit=50`).catch(() => null),
+        apiClient.get(`/api/v1/bookings?filter=history&page=1&limit=50`).catch(() => null),
+      ]);
+
+      const currentList = currentRes?.success && Array.isArray(currentRes.data) ? currentRes.data : [];
+      const historyList = historyRes?.success && Array.isArray(historyRes.data) ? historyRes.data : [];
+      const allBookings = [...currentList, ...historyList];
+
+      allBookings.forEach((b: any) => {
+        const prevStatus = previousStatuses.current.get(b.id);
+        if (prevStatus && prevStatus !== b.status) {
+          let title = 'Booking Update';
+          let body = `${b.bookingReference}: Status changed to ${b.status}`;
+
+          if (b.status === 'ASSIGNED') {
+            title = '🎉 Provider Assigned!';
+            body = `A provider has been assigned for ${b.serviceNameSnapshot || 'your service'}.`;
+          } else if (b.status === 'ACCEPTED') {
+            title = '✅ Booking Accepted';
+            body = `Provider has accepted your booking (${b.bookingReference}).`;
+          } else if (b.status === 'ON_THE_WAY') {
+            title = '🚗 Provider On The Way';
+            body = `Your provider is on the way for ${b.serviceNameSnapshot}.`;
+          } else if (b.status === 'STARTED') {
+            title = '🛠️ Service Started';
+            body = `Your service (${b.serviceNameSnapshot}) has started.`;
+          } else if (b.status === 'COMPLETED') {
+            title = '⭐ Service Completed!';
+            body = `Your booking is completed. Please tap to leave a review!`;
+          } else if (b.status === 'CANCELLED') {
+            title = '❌ Booking Cancelled';
+            body = `Booking ${b.bookingReference} has been cancelled.`;
+          }
+
+          triggerInAppNotification({
+            title,
+            body,
+            bookingId: b.id,
+          });
+        }
+        previousStatuses.current.set(b.id, b.status);
+      });
+
+      setBookings(activeTab === 'current' ? currentList : historyList);
     } catch (err) {
-      console.error('Error fetching bookings:', err);
+      if (!isPolling) console.error('Error fetching bookings:', err);
     } finally {
-      setLoading(false);
+      if (!isPolling) setLoading(false);
     }
   };
 
-  // Fetch when screen is focused or tab changes
+  // Fetch when screen is focused or tab changes, plus 5s poll interval
   useEffect(() => {
-    if (isFocused) {
-      fetchBookings();
-    }
+    fetchBookings();
+
+    const pollInterval = setInterval(() => {
+      fetchBookings(true);
+    }, 5000);
+
+    return () => clearInterval(pollInterval);
   }, [isFocused, activeTab]);
 
   // Handle route params for toast notifications
@@ -184,6 +233,13 @@ export default function MyBookingsScreen({ navigation, route }: any) {
           </Animated.View>
         )}
       </View>
+      <NotificationBanner
+        onPressBanner={(bookingId) => {
+          if (bookingId) {
+            navigation.navigate('BookingDetail', { bookingId });
+          }
+        }}
+      />
     </SafeAreaView>
   );
 }

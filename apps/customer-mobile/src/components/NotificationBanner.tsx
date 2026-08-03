@@ -103,7 +103,7 @@ export default function NotificationBanner({ onPressBanner }: NotificationBanner
         }}
       >
         <View style={styles.iconContainer}>
-          <Text style={styles.iconText}>🔔</Text>
+          <Text style={styles.iconText}>✨</Text>
         </View>
 
         <View style={styles.textContainer}>
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   },
   bannerContent: {
     backgroundColor: 'hsl(222, 47%, 12%)',
-    borderColor: 'hsl(217, 32%, 22%)',
+    borderColor: 'hsl(150, 84%, 40%)',
     borderWidth: 1,
     borderRadius: 16,
     padding: 14,
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: 'hsl(210, 40%, 98%)',
+    color: '#10b981',
     letterSpacing: 0.5,
   },
   timeAgo: {

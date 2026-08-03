@@ -20,7 +20,8 @@ export default function ProviderDashboardScreen({ navigation }: any) {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'active' | 'history'>('active');
-  const hasTriggeredInitialBanner = useRef(false);
+  const previousJobIds = useRef<Set<string>>(new Set());
+  const isInitializedRef = useRef(false);
 
   const [toastQueue, setToastQueue] = useState<ToastItem[]>([]);
   const showToast = (message: string, type: ToastType = 'success') => {
@@ -30,16 +31,34 @@ export default function ProviderDashboardScreen({ navigation }: any) {
     setToastQueue((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (isPolling = false) => {
     try {
-      setLoading(true);
+      if (!isPolling) setLoading(true);
       const url = activeTab === 'active'
         ? '/api/v1/providers/me/bookings?page=1&limit=20'
         : '/api/v1/providers/me/bookings/history?page=1&limit=20';
 
       const data = await apiClient.get(url);
 
-      if (data.success) {
+      if (data.success && Array.isArray(data.data)) {
+        if (activeTab === 'active') {
+          const currentIds = new Set(data.data.map((j: any) => j.id));
+          const newlyAssigned = data.data.filter(
+            (j: any) => !previousJobIds.current.has(j.id)
+          );
+
+          if (isInitializedRef.current && newlyAssigned.length > 0) {
+            newlyAssigned.forEach((latest: any) => {
+              triggerInAppNotification({
+                title: '🔔 New Job Assigned!',
+                body: `${latest.bookingReference || 'Job'}: ${latest.serviceNameSnapshot || 'Service'} at ${latest.slotLabelSnapshot || ''}`,
+                bookingId: latest.id,
+              });
+            });
+          }
+          previousJobIds.current = currentIds;
+          isInitializedRef.current = true;
+        }
         setJobs(data.data);
       }
     } catch (err: any) {
@@ -49,9 +68,9 @@ export default function ProviderDashboardScreen({ navigation }: any) {
         navigation.replace('ProviderLogin');
         return;
       }
-      showToast('Failed to retrieve jobs.', 'error');
+      if (!isPolling) showToast('Failed to retrieve jobs.', 'error');
     } finally {
-      setLoading(false);
+      if (!isPolling) setLoading(false);
     }
   };
 
@@ -59,11 +78,18 @@ export default function ProviderDashboardScreen({ navigation }: any) {
     registerProviderPushToken();
     fetchJobs();
 
-    // Refresh list on focus
+    // 5-second poll interval for instant in-app assignment notification
+    const pollInterval = setInterval(() => {
+      fetchJobs(true);
+    }, 5000);
+
     const unsubscribe = navigation.addListener('focus', () => {
       fetchJobs();
     });
-    return unsubscribe;
+    return () => {
+      clearInterval(pollInterval);
+      unsubscribe();
+    };
   }, [activeTab]);
 
   useEffect(() => {

@@ -16,9 +16,18 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
     let isMounted = true;
     const fetchBadgeCounts = async () => {
       try {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') || localStorage.getItem('token') : null;
+        const token =
+          typeof window !== 'undefined'
+            ? sessionStorage.getItem('access_token') ||
+              localStorage.getItem('access_token') ||
+              localStorage.getItem('admin_token') ||
+              localStorage.getItem('token')
+            : null;
+
+        if (!token) return;
+
         const res = await fetch('/api/v1/admin/notifications/badge-counts', {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
           const json = await res.json();

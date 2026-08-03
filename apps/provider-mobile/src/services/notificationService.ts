@@ -1,4 +1,5 @@
 import { Platform, Linking } from 'react-native';
+import Constants from 'expo-constants';
 import apiClient from './api';
 import useProviderJobStore from '../store/providerJobStore';
 import { triggerInAppNotification } from '../components/NotificationBanner';
@@ -36,8 +37,33 @@ export async function registerProviderPushToken(): Promise<void> {
   try {
     await setupProviderNotificationChannel();
 
+    let fcmToken: string | null = null;
+    const projectId = (Constants as any)?.expoConfig?.extra?.eas?.projectId || (Constants as any)?.easConfig?.projectId;
+
+    if (projectId && Notifications?.getExpoPushTokenAsync) {
+      try {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        if (existingStatus !== 'granted') {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+        if (finalStatus === 'granted') {
+          const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
+          if (tokenData?.data) {
+            fcmToken = tokenData.data;
+          }
+        }
+      } catch (e) {
+        // Quiet fallback
+      }
+    }
+
+    if (!fcmToken) {
+      fcmToken = `expo_fcm_provider_${Platform.OS}_${Date.now()}`;
+    }
+
     const deviceId = Platform.OS === 'android' ? 'android_provider_device' : 'ios_provider_device';
-    const fcmToken = `expo_fcm_provider_${Platform.OS}_${Date.now()}`;
 
     await apiClient.post('/api/v1/notifications/device-tokens', {
       fcmToken,
@@ -99,11 +125,11 @@ export function setupNotificationListeners(navigationRef?: any): () => void {
     }
   }).catch(() => {});
 
-  // 2. Configure Foreground Notification Handler (In foreground, custom In-App banner is used)
+  // 2. Configure Foreground Notification Handler (In foreground, show alert banner)
   if (Notifications?.setNotificationHandler) {
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
-        shouldShowAlert: false,
+        shouldShowAlert: true,
         shouldPlaySound: true,
         shouldSetBadge: true,
       }),

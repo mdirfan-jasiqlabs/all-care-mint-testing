@@ -32,25 +32,33 @@ export default function App() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      await storage.initStorageFallback();
-      let token = storage.getAccessToken();
-      if (!token) {
-        try {
-          await apiClient.post('/api/v1/auth/otp/send', {
-            mobileNumber: '+919999999999',
-            role: 'PROVIDER',
-          });
-          const res = await apiClient.post('/api/v1/auth/otp/verify', {
-            mobileNumber: '+919999999999',
-            otp: '123456',
-            role: 'PROVIDER',
-          });
-          if (res.success && res.data?.accessToken) {
-            token = res.data.accessToken;
-            if (token) storage.setAccessToken(token);
-          }
-        } catch (e) {}
-      }
+      try {
+        await storage.initStorageFallback();
+        let token = storage.getAccessToken();
+        if (!token) {
+          try {
+            const sendPromise = apiClient.post('/api/v1/auth/otp/send', {
+              mobileNumber: '+919999999999',
+              role: 'PROVIDER',
+            });
+            const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 2000));
+            await Promise.race([sendPromise, timeoutPromise]);
+
+            const verifyRes: any = await Promise.race([
+              apiClient.post('/api/v1/auth/otp/verify', {
+                mobileNumber: '+919999999999',
+                otp: '123456',
+                role: 'PROVIDER',
+              }),
+              timeoutPromise,
+            ]);
+            if (verifyRes?.success && verifyRes.data?.accessToken) {
+              token = verifyRes.data.accessToken;
+              if (token) storage.setAccessToken(token);
+            }
+          } catch (e) {}
+        }
+      } catch (err) {}
       setInitialRoute('ProviderDashboard');
       registerProviderPushToken().catch(() => {});
     };

@@ -54,7 +54,37 @@ export class ExpoPushAdapter {
         this.logger.warn(`[Expo Push Gateway] Temporary rate limit encountered for Expo token: ${masked}`);
       } else {
         validTokens.push(token);
-        this.logger.log(`[Expo Push Gateway] Successfully dispatched to Expo token: ${masked}`);
+        this.logger.log(`[Expo Push Gateway] Successfully queued Expo token: ${masked}`);
+      }
+    }
+
+    if (validTokens.length > 0) {
+      const messages = validTokens.map((token) => ({
+        to: token,
+        sound: 'default',
+        title,
+        body,
+        data,
+      }));
+
+      try {
+        const response = await fetch('https://exp.host/--/api/v2/push/send', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Accept-encoding': 'gzip, deflate',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(messages),
+        });
+        const resJson = await response.json();
+        this.logger.log(
+          `[Expo Push Gateway] Response from Expo Push Service: ${JSON.stringify(resJson)}`,
+        );
+      } catch (err: any) {
+        this.logger.warn(
+          `[Expo Push Gateway] Network failure calling Expo Push API: ${err.message}`,
+        );
       }
     }
 
@@ -67,3 +97,4 @@ export class ExpoPushAdapter {
     };
   }
 }
+
