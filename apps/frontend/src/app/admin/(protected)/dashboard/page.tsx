@@ -1,168 +1,336 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+interface DashboardMetrics {
+  total_bookings_today: number;
+  revenue_today_inr: number;
+  unassigned_count: number;
+  active_providers_count: number;
+  avg_rating: number;
+}
+
+interface UnassignedBooking {
+  id: string;
+  bookingReference: string;
+  createdAt: string;
+  customerName: string;
+  serviceName: string;
+}
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [unassignedBookings, setUnassignedBookings] = useState<UnassignedBooking[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const fetchDashboardData = async () => {
+    try {
+      const token =
+        typeof window !== 'undefined'
+          ? sessionStorage.getItem('access_token') ||
+            localStorage.getItem('access_token') ||
+            localStorage.getItem('admin_token')
+          : null;
+
+      if (!token) return;
+
+      const headers = { Authorization: `Bearer ${token}` };
+
+      // Fetch 5 KPI metrics
+      const metricsRes = await fetch('/api/v1/admin/dashboard/metrics', { headers });
+      if (metricsRes.ok) {
+        const data = await metricsRes.json();
+        setMetrics(data);
+      }
+
+      // Fetch recent unassigned bookings for table
+      const bookingsRes = await fetch('/api/v1/admin/bookings?status=PENDING&limit=10', { headers });
+      if (bookingsRes.ok) {
+        const json = await bookingsRes.json();
+        const items = json.data || json.bookings || [];
+        setUnassignedBookings(
+          items.map((b: any) => ({
+            id: b.id,
+            bookingReference: b.bookingReference || b.id.substring(0, 8),
+            createdAt: b.createdAt
+              ? new Date(b.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              : 'Recently',
+            customerName: b.customer?.displayName || b.customer?.mobileNumber || 'Customer',
+            serviceName: b.serviceNameSnapshot || b.service?.name || 'Service',
+          })),
+        );
+      }
+    } catch (err) {
+      console.error('Error loading dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+
+    // 60-second auto-refresh
+    const interval = setInterval(() => {
+      fetchDashboardData();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       <div>
-        <h2 style={{ fontSize: '28px', fontWeight: 600, marginBottom: '8px' }}>
-          System Integrity & Overview
+        <h2 style={{ fontSize: '28px', fontWeight: 600, marginBottom: '8px', color: '#f8fafc' }}>
+          Operational Dashboard & Overview
         </h2>
         <p style={{ color: '#64748b' }}>
-          Real-time verification metrics and platform baseline operations.
+          Real-time metrics, provider occupancy, and immediate dispatch actions.
         </p>
       </div>
 
-      {/* Info Grid */}
+      {/* 5 KPI Grid */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: '24px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '20px',
         }}
       >
-        {/* Card 1 */}
+        {/* KPI 1: Total Bookings Today */}
         <div
           style={{
             background: 'rgba(30, 41, 59, 0.4)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '16px',
             padding: '24px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
           }}
         >
-          <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500, marginBottom: '12px' }}>
-            Active Customers
+          <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
+            Bookings Today
           </div>
-          <div style={{ fontSize: '36px', fontWeight: 700, color: '#fff' }}>2,840</div>
-          <div style={{ color: 'var(--primary)', fontSize: '13px', marginTop: '8px', fontWeight: 500 }}>
-            ↑ +12.4% this week
-          </div>
+          {loading ? (
+            <div style={{ height: '36px', background: '#334155', borderRadius: '8px' }} />
+          ) : (
+            <div style={{ fontSize: '32px', fontWeight: 700, color: '#10b981' }}>
+              {metrics?.total_bookings_today ?? 0}
+            </div>
+          )}
+          <div style={{ color: '#64748b', fontSize: '12px', marginTop: '6px' }}>Live system activity</div>
         </div>
 
-        {/* Card 2 */}
+        {/* KPI 2: Revenue Today */}
         <div
           style={{
             background: 'rgba(30, 41, 59, 0.4)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '16px',
             padding: '24px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
           }}
         >
-          <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500, marginBottom: '12px' }}>
-            Registered Providers
+          <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
+            Revenue Today (INR)
           </div>
-          <div style={{ fontSize: '36px', fontWeight: 700, color: '#fff' }}>420</div>
-          <div style={{ color: 'var(--primary)', fontSize: '13px', marginTop: '8px', fontWeight: 500 }}>
-            98 Approved & Active
-          </div>
+          {loading ? (
+            <div style={{ height: '36px', background: '#334155', borderRadius: '8px' }} />
+          ) : (
+            <div style={{ fontSize: '32px', fontWeight: 700, color: '#38bdf8' }}>
+              ₹{metrics?.revenue_today_inr?.toLocaleString() ?? 0}
+            </div>
+          )}
+          <div style={{ color: '#64748b', fontSize: '12px', marginTop: '6px' }}>Settled & online capture</div>
         </div>
 
-        {/* Card 3 */}
+        {/* KPI 3: Unassigned Bookings */}
         <div
           style={{
             background: 'rgba(30, 41, 59, 0.4)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '16px',
             padding: '24px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            position: 'relative',
           }}
         >
-          <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500, marginBottom: '12px' }}>
-            System Error Rate
+          <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500, marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>Unassigned Bookings</span>
+            {!loading && (metrics?.unassigned_count ?? 0) > 0 && (
+              <span
+                style={{
+                  background: '#ef4444',
+                  color: '#fff',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  padding: '2px 8px',
+                  borderRadius: '999px',
+                }}
+              >
+                Action Required
+              </span>
+            )}
           </div>
-          <div style={{ fontSize: '36px', fontWeight: 700, color: '#fff' }}>&lt; 0.18%</div>
-          <div style={{ color: 'var(--primary)', fontSize: '13px', marginTop: '8px', fontWeight: 500 }}>
-            Target benchmark &lt; 1.0%
-          </div>
+          {loading ? (
+            <div style={{ height: '36px', background: '#334155', borderRadius: '8px' }} />
+          ) : (
+            <div
+              style={{
+                fontSize: '32px',
+                fontWeight: 700,
+                color: (metrics?.unassigned_count ?? 0) > 0 ? '#f87171' : '#f8fafc',
+              }}
+            >
+              {metrics?.unassigned_count ?? 0}
+            </div>
+          )}
+          <div style={{ color: '#64748b', fontSize: '12px', marginTop: '6px' }}>Awaiting provider allocation</div>
         </div>
 
-        {/* Card 4 */}
+        {/* KPI 4: Active Providers */}
         <div
           style={{
             background: 'rgba(30, 41, 59, 0.4)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '16px',
             padding: '24px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
           }}
         >
-          <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: 500, marginBottom: '12px' }}>
-            Platform Uptime
+          <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
+            Active Providers
           </div>
-          <div style={{ fontSize: '36px', fontWeight: 700, color: 'var(--primary)' }}>99.98%</div>
-          <div style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '8px', fontWeight: 500 }}>
-            Continual health monitoring active
+          {loading ? (
+            <div style={{ height: '36px', background: '#334155', borderRadius: '8px' }} />
+          ) : (
+            <div style={{ fontSize: '32px', fontWeight: 700, color: '#a855f7' }}>
+              {metrics?.active_providers_count ?? 0}
+            </div>
+          )}
+          <div style={{ color: '#64748b', fontSize: '12px', marginTop: '6px' }}>Approved & on-duty fleet</div>
+        </div>
+
+        {/* KPI 5: Avg Rating */}
+        <div
+          style={{
+            background: 'rgba(30, 41, 59, 0.4)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '16px',
+            padding: '24px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          }}
+        >
+          <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
+            Average Rating
           </div>
+          {loading ? (
+            <div style={{ height: '36px', background: '#334155', borderRadius: '8px' }} />
+          ) : (
+            <div style={{ fontSize: '32px', fontWeight: 700, color: '#fbbf24' }}>
+              ★ {metrics?.avg_rating ? metrics.avg_rating.toFixed(2) : '5.00'}
+            </div>
+          )}
+          <div style={{ color: '#64748b', fontSize: '12px', marginTop: '6px' }}>Platform satisfaction metric</div>
         </div>
       </div>
 
-      {/* Security / System Logs Container */}
+      {/* Recent Unassigned Bookings Section */}
       <div
         style={{
-          background: 'var(--card-bg)',
-          border: '1px solid var(--card-border)',
-          borderRadius: '20px',
-          padding: '32px',
-          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.02)',
+          background: '#0f172a',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '16px',
+          padding: '24px',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: 600 }}>Active Lockouts & Audit Events</h3>
-          <span style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 500 }}>
-            ● Live Feed Active
-          </span>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '16px',
+          }}
+        >
+          <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#f8fafc' }}>
+            Recent Unassigned Bookings
+          </h3>
+          <button
+            onClick={() => router.push('/admin/bookings')}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#10b981',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            View All Bookings →
+          </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div
-            style={{
-              background: 'rgba(0, 0, 0, 0.2)',
-              borderRadius: '10px',
-              padding: '12px 16px',
-              fontSize: '13px',
-              fontFamily: 'monospace',
-              color: '#cbd5e1',
-              display: 'flex',
-              justifyContent: 'space-between',
-            }}
-          >
-            <span>[AUDIT] Platform & Auth Foundation database initialized</span>
-            <span style={{ color: 'var(--text-muted)' }}>Just now</span>
+        {loading ? (
+          <div style={{ padding: '24px', color: '#64748b', textAlign: 'center' }}>
+            Loading pending bookings...
           </div>
-          <div
-            style={{
-              background: 'rgba(0, 0, 0, 0.2)',
-              borderRadius: '10px',
-              padding: '12px 16px',
-              fontSize: '13px',
-              fontFamily: 'monospace',
-              color: '#cbd5e1',
-              display: 'flex',
-              justifyContent: 'space-between',
-            }}
-          >
-            <span>[INFO] Admin user authenticated via BFF session token</span>
-            <span style={{ color: 'var(--text-muted)' }}>1 min ago</span>
+        ) : unassignedBookings.length === 0 ? (
+          <div style={{ padding: '24px', color: '#64748b', textAlign: 'center' }}>
+            No unassigned bookings requiring immediate dispatch.
           </div>
-          <div
-            style={{
-              background: 'rgba(0, 0, 0, 0.2)',
-              borderRadius: '10px',
-              padding: '12px 16px',
-              fontSize: '13px',
-              fontFamily: 'monospace',
-              color: '#cbd5e1',
-              display: 'flex',
-              justifyContent: 'space-between',
-            }}
-          >
-            <span>[SEC] Zero active lockouts reported for admin accounts</span>
-            <span style={{ color: 'var(--text-muted)' }}>5 mins ago</span>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table
+              style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+                fontSize: '14px',
+                textAlign: 'left',
+              }}
+            >
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', color: '#64748b' }}>
+                  <th style={{ padding: '12px 16px' }}>Time</th>
+                  <th style={{ padding: '12px 16px' }}>Customer</th>
+                  <th style={{ padding: '12px 16px' }}>Service</th>
+                  <th style={{ padding: '12px 16px', textAlign: 'right' }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unassignedBookings.map((booking) => (
+                  <tr
+                    key={booking.id}
+                    style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}
+                  >
+                    <td style={{ padding: '12px 16px', color: '#94a3b8' }}>{booking.createdAt}</td>
+                    <td style={{ padding: '12px 16px', color: '#f8fafc', fontWeight: 500 }}>
+                      {booking.customerName}
+                    </td>
+                    <td style={{ padding: '12px 16px', color: '#cbd5e1' }}>{booking.serviceName}</td>
+                    <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                      <button
+                        onClick={() => router.push(`/admin/bookings/${booking.id}`)}
+                        style={{
+                          background: '#10b981',
+                          color: '#020617',
+                          border: 'none',
+                          padding: '6px 14px',
+                          borderRadius: '8px',
+                          fontWeight: 700,
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Assign
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

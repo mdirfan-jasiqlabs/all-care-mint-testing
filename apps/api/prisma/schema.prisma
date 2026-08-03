@@ -230,6 +230,7 @@ model Booking {
   @@index([providerId, status], map: "idx_bookings_provider_status")
   @@index([status, slotDate], map: "idx_bookings_status_slot_date")
   @@index([slotDate], map: "idx_bookings_slot_date")
+  @@index([createdAt], map: "idx_bookings_created_at")
   @@map("bookings")
 }
 
@@ -331,6 +332,7 @@ model PaymentOrder {
 
   @@index([customerId, status], map: "idx_payment_orders_customer_status")
   @@index([razorpayOrderId], map: "idx_payment_orders_razorpay_order")
+  @@index([bookingId], map: "idx_payment_orders_booking_id")
   @@map("payment_orders")
 }
 

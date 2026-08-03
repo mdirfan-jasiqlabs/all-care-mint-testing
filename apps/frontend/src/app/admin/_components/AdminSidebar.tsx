@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 
 interface AdminSidebarProps {
-  activePage?: 'dashboard' | 'catalog' | 'bookings' | 'users' | 'providers' | 'provider-leads';
+  activePage?: 'dashboard' | 'catalog' | 'bookings' | 'users' | 'providers' | 'provider-leads' | 'reports';
 }
 
 export default function AdminSidebar({ activePage: activePageProp }: AdminSidebarProps) {
@@ -68,6 +68,7 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
     if (pathname.startsWith('/admin/providers')) return 'providers';
     if (pathname.startsWith('/admin/payments')) return 'payments';
     if (pathname.startsWith('/admin/ratings')) return 'ratings';
+    if (pathname.startsWith('/admin/reports')) return 'reports';
     if (pathname.startsWith('/admin/users')) return 'users';
     if (pathname.startsWith('/dashboard/admin') || pathname.startsWith('/admin/dashboard')) return 'dashboard';
     return '';
@@ -191,6 +192,12 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
             style={getLinkStyle('ratings')}
           >
             Provider Ratings & Feedback
+          </button>
+          <button
+            onClick={() => handleNav('/admin/reports')}
+            style={getLinkStyle('reports')}
+          >
+            Analytics & Reports
           </button>
           <button
             style={getLinkStyle('users')}
