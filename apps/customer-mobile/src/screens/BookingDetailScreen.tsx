@@ -14,6 +14,8 @@ import {
 import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
 
+import RatingSubmissionModal from './rating/RatingSubmissionModal';
+
 export default function BookingDetailScreen({ navigation, route }: any) {
   const { bookingId } = route.params;
 
@@ -22,10 +24,10 @@ export default function BookingDetailScreen({ navigation, route }: any) {
   const [submitting, setSubmitting] = useState(false);
 
   // Rating & Review State
-  const [ratingScore, setRatingScore] = useState<number>(5);
+  const [ratingScore, setRatingScore] = useState<number>(0);
   const [reviewText, setReviewText] = useState<string>('');
   const [ratingSubmitted, setRatingSubmitted] = useState<boolean>(false);
-  const [submittingRating, setSubmittingRating] = useState<boolean>(false);
+  const [isRatingModalVisible, setIsRatingModalVisible] = useState<boolean>(false);
 
   const fetchBookingDetails = async () => {
     try {
@@ -48,14 +50,14 @@ export default function BookingDetailScreen({ navigation, route }: any) {
     try {
       const data = await apiClient.get(`/api/v1/ratings/booking/${bookingId}`);
       if (data.success && data.data) {
-        setRatingScore(data.data.rating_score);
-        setReviewText(data.data.review_text || '');
+        setRatingScore(data.data.rating_score || data.data.rating || 0);
+        setReviewText(data.data.review_text || data.data.comment || '');
         setRatingSubmitted(true);
         storage.setItem(
           `rating_${bookingId}`,
           JSON.stringify({
-            ratingScore: data.data.rating_score,
-            reviewText: data.data.review_text || '',
+            ratingScore: data.data.rating_score || data.data.rating || 0,
+            reviewText: data.data.review_text || data.data.comment || '',
           })
         );
       } else {
@@ -88,32 +90,18 @@ export default function BookingDetailScreen({ navigation, route }: any) {
     fetchBookingDetails();
   }, [bookingId]);
 
-  const handleRatingSubmit = async () => {
-    if (!booking) return;
-    try {
-      setSubmittingRating(true);
-      const data = await apiClient.post('/api/v1/ratings', {
-        bookingId: booking.id,
-        ratingScore,
-        reviewText: reviewText.trim() || undefined,
-      });
-
-      if (data.success) {
-        await fetchRatingDetails();
-        Alert.alert('Thank You!', 'Your rating and review have been submitted successfully.');
-      } else {
-        throw new Error(data.error?.message || 'Failed to submit rating.');
-      }
-    } catch (err: any) {
-      if (err.status === 409 || err.message?.includes('already')) {
-        await fetchRatingDetails();
-        Alert.alert('Notice', 'A rating has already been submitted for this booking.');
-      } else {
-        Alert.alert('Error', err.message || 'Failed to submit rating.');
-      }
-    } finally {
-      setSubmittingRating(false);
-    }
+  const handleRatingSuccess = (ratingData: { ratingScore: number; reviewText: string }) => {
+    setRatingScore(ratingData.ratingScore);
+    setReviewText(ratingData.reviewText);
+    setRatingSubmitted(true);
+    storage.setItem(
+      `rating_${bookingId}`,
+      JSON.stringify(ratingData)
+    );
+    // Navigate back to MyBookings with toast
+    navigation.navigate('MyBookings', {
+      toastMessage: 'Thank you! Your rating and review have been submitted successfully.',
+    });
   };
 
   const performCancellation = async () => {
@@ -244,42 +232,27 @@ export default function BookingDetailScreen({ navigation, route }: any) {
               </View>
             ) : (
               <View style={styles.ratingForm}>
-                <Text style={styles.ratingSubLabel}>How was your service experience?</Text>
-                <View style={styles.starPickerRow}>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <TouchableOpacity key={star} onPress={() => setRatingScore(star)} style={styles.starTouch}>
-                      <Text style={[styles.starPickerText, { color: star <= ratingScore ? '#f59e0b' : '#4b5563' }]}>
-                        ★
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-
-                <TextInput
-                  style={styles.reviewInput}
-                  placeholder="Write feedback for the service provider (optional)..."
-                  placeholderTextColor="#6b7280"
-                  multiline
-                  numberOfLines={3}
-                  value={reviewText}
-                  onChangeText={setReviewText}
-                />
-
+                <Text style={styles.ratingSubLabel}>Your feedback helps us improve provider service quality.</Text>
                 <TouchableOpacity
-                  style={[styles.submitRatingBtn, submittingRating && styles.btnDisabled]}
-                  onPress={handleRatingSubmit}
-                  disabled={submittingRating}
+                  style={styles.submitRatingBtn}
+                  onPress={() => setIsRatingModalVisible(true)}
+                  accessibilityLabel="Rate and Review Service"
+                  accessibilityRole="button"
                 >
-                  {submittingRating ? (
-                    <ActivityIndicator size="small" color="#ffffff" />
-                  ) : (
-                    <Text style={styles.submitRatingBtnText}>Submit Rating & Review</Text>
-                  )}
+                  <Text style={styles.submitRatingBtnText}>★ Rate & Review Service</Text>
                 </TouchableOpacity>
               </View>
             )}
           </View>
         )}
+
+        <RatingSubmissionModal
+          visible={isRatingModalVisible}
+          onClose={() => setIsRatingModalVisible(false)}
+          bookingId={booking.id}
+          serviceName={booking.serviceNameSnapshot}
+          onSuccess={handleRatingSuccess}
+        />
 
         {isCancellable && (
           <TouchableOpacity
