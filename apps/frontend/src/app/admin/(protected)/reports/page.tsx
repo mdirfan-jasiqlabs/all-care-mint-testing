@@ -84,26 +84,45 @@ export default function AdminReportsPage() {
     fetchReport();
   }, [type, dateFrom, dateTo]);
 
-  const handleExportCsv = () => {
+  const handleExportCsv = async () => {
     if (!validateDates(dateFrom, dateTo)) return;
 
-    const token =
-      typeof window !== 'undefined'
-        ? sessionStorage.getItem('access_token') ||
-          localStorage.getItem('access_token') ||
-          localStorage.getItem('admin_token')
-        : null;
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const token =
+        typeof window !== 'undefined'
+          ? sessionStorage.getItem('access_token') ||
+            localStorage.getItem('access_token') ||
+            localStorage.getItem('admin_token')
+          : null;
 
-    const url = `/api/v1/admin/reports?type=${type}&format=csv&date_from=${dateFrom}&date_to=${dateTo}&token=${token || ''}`;
+      const res = await fetch(
+        `/api/v1/admin/reports?type=${type}&format=csv&date_from=${dateFrom}&date_to=${dateTo}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
 
-    // Direct browser download
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    link.setAttribute('download', `report-${type}-${dateFrom}-${dateTo}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.message || 'Failed to export CSV file.');
+      }
+
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.setAttribute('download', `report-${type}-${dateFrom}-${dateTo}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to export CSV file.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -29,25 +29,25 @@ export class AnalyticsController {
     @Query('date_from') dateFrom: string,
     @Query('date_to') dateTo: string,
     @Query('format') format: string,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.analyticsService.getReports(type, dateFrom, dateTo, format);
 
-    if (format === 'csv' && result.csv) {
-      res.setHeader('Content-Type', 'text/csv');
+    if (format === 'csv' && result.csv !== undefined) {
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
       res.setHeader(
         'Content-Disposition',
         `attachment; filename="report-${type}-${dateFrom || 'all'}-${dateTo || 'all'}.csv"`,
       );
-      return res.status(HttpStatus.OK).send(result.csv);
+      return res.send(result.csv);
     }
 
-    return res.status(HttpStatus.OK).json({
+    return {
       type,
       date_from: dateFrom,
       date_to: dateTo,
       count: result.data.length,
       data: result.data,
-    });
+    };
   }
 }

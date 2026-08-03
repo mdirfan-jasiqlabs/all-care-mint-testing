@@ -30,6 +30,7 @@ describe('MOD-007 Operational Analytics Verification', () => {
         aggregate: jest.fn().mockResolvedValue({
           _sum: { amountPaise: 1499000 },
         }),
+        findMany: jest.fn().mockResolvedValue([]),
       },
       provider: {
         count: jest.fn().mockResolvedValue(45),

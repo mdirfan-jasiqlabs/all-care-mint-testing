@@ -65,6 +65,7 @@ describe('MOD-007 Operational Analytics Verification', () => {
         aggregate: jest.fn().mockResolvedValue({
           _sum: { amountPaise: 1499000 },
         }),
+        findMany: jest.fn().mockResolvedValue([]),
       },
       provider: {
         count: jest.fn().mockResolvedValue(45),
@@ -142,6 +143,41 @@ describe('MOD-007 Operational Analytics Verification', () => {
       await expect(
         analyticsService.getReports('revenue', '2026-08-01', '2026-07-01', 'json'),
       ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects invalid report type with HTTP 400', async () => {
+      await expect(
+        analyticsService.getReports('invalid_type', '2026-07-01', '2026-07-30', 'json'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects invalid report format with HTTP 400', async () => {
+      await expect(
+        analyticsService.getReports('booking', '2026-07-01', '2026-07-30', 'xml'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('sanitizes CSV values starting with =, +, -, or @ against formula injection', async () => {
+      prismaMock.booking.findMany.mockResolvedValueOnce([
+        {
+          id: 'b2222222-2222-2222-2222-222222222222',
+          bookingReference: '=HYPERLINK("http://malicious.com")',
+          serviceNameSnapshot: '+SUM(1,1)',
+          servicePriceSnapshot: 500,
+          paymentMethod: 'CASH_ON_SERVICE',
+          status: 'COMPLETED',
+          createdAt: new Date('2026-08-01T10:00:00Z'),
+          customer: { displayName: '@attacker', mobileNumber: '+919876543210' },
+          service: { name: '+SUM(1,1)' },
+          paymentOrders: [],
+        },
+      ]);
+
+      const report = await analyticsService.getReports('booking', '2026-07-01', '2026-07-30', 'csv');
+      expect(report.csv).toBeDefined();
+      expect(report.csv).toContain('"\'=HYPERLINK(""http://malicious.com"")"');
+      expect(report.csv).toContain('"\'@attacker"');
+      expect(report.csv).toContain('"\' +SUM(1,1)"'.replace(' ', ''));
     });
   });
 });

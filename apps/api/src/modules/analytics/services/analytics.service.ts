@@ -20,16 +20,37 @@ export interface ReportItemDto {
   status: string;
 }
 
+function sanitizeCsvCell(val: any): string {
+  if (val === null || val === undefined) return '""';
+  const str = String(val).replace(/"/g, '""');
+  if (/^[=+\-@]/.test(str)) {
+    return `"'${str}"`;
+  }
+  return `"${str}"`;
+}
+
 @Injectable()
 export class AnalyticsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getDashboardMetrics(): Promise<DashboardMetricsDto> {
+    // Consistent Asia/Kolkata (IST) day boundary calculation
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    const istParts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kolkata',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(now);
 
-    // 1. Total Bookings Today
+    const year = istParts.find((p) => p.type === 'year')?.value;
+    const month = istParts.find((p) => p.type === 'month')?.value;
+    const day = istParts.find((p) => p.type === 'day')?.value;
+
+    const startOfToday = new Date(`${year}-${month}-${day}T00:00:00.000+05:30`);
+    const endOfToday = new Date(`${year}-${month}-${day}T23:59:59.999+05:30`);
+
+    // 1. Total Bookings Today (created within IST today)
     const total_bookings_today = await this.prisma.booking.count({
       where: {
         createdAt: {
@@ -40,40 +61,50 @@ export class AnalyticsService {
     });
 
     // 2. Revenue Today (INR)
-    const successfulPaymentsToday = await this.prisma.paymentOrder.aggregate({
+    // Successful online payments updated today
+    const onlinePaymentsToday = await this.prisma.paymentOrder.aggregate({
       where: {
-        status: { in: ['PAYMENT_SUCCESS', 'CASH_SETTLED'] },
-        updatedAt: {
-          gte: startOfToday,
-          lte: endOfToday,
-        },
+        status: 'PAYMENT_SUCCESS',
+        updatedAt: { gte: startOfToday, lte: endOfToday },
       },
-      _sum: {
-        amountPaise: true,
-      },
+      _sum: { amountPaise: true },
     });
+    const onlineRevenueInr = (onlinePaymentsToday._sum.amountPaise || 0) / 100;
 
-    let revenue_today_inr = (successfulPaymentsToday._sum.amountPaise || 0) / 100;
+    // Settled cash payment orders updated today
+    const cashSettledPaymentsToday = await this.prisma.paymentOrder.findMany({
+      where: {
+        status: 'CASH_SETTLED',
+        updatedAt: { gte: startOfToday, lte: endOfToday },
+      },
+      select: { amountPaise: true, bookingId: true },
+    });
+    const cashSettledInr = cashSettledPaymentsToday.reduce(
+      (acc, p) => acc + p.amountPaise / 100,
+      0,
+    );
+    const settledBookingIds = cashSettledPaymentsToday
+      .map((p) => p.bookingId)
+      .filter((id): id is string => Boolean(id));
 
-    // Fallback/addition: Completed bookings today if payment orders table not used for cash
-    if (revenue_today_inr === 0) {
-      const completedBookingsToday = await this.prisma.booking.findMany({
-        where: {
-          status: 'COMPLETED',
-          updatedAt: {
-            gte: startOfToday,
-            lte: endOfToday,
-          },
-        },
-        select: {
-          servicePriceSnapshot: true,
-        },
-      });
-      revenue_today_inr = completedBookingsToday.reduce(
+    // Completed cash-on-service bookings completed today not in settledBookingIds
+    const completedCashBookingsToday = await this.prisma.booking.findMany({
+      where: {
+        status: 'COMPLETED',
+        paymentMethod: 'CASH_ON_SERVICE',
+        updatedAt: { gte: startOfToday, lte: endOfToday },
+        id: settledBookingIds.length > 0 ? { notIn: settledBookingIds } : undefined,
+      },
+      select: { servicePriceSnapshot: true, paymentMethod: true },
+    });
+    const completedCashInr = completedCashBookingsToday
+      .filter((b: any) => b.paymentMethod === 'CASH_ON_SERVICE')
+      .reduce(
         (acc, b) => acc + Number(b.servicePriceSnapshot || 0),
         0,
       );
-    }
+
+    const revenue_today_inr = Math.round((onlineRevenueInr + cashSettledInr + completedCashInr) * 100) / 100;
 
     // 3. Unassigned Bookings Count
     const unassigned_count = await this.prisma.booking.count({
@@ -115,6 +146,17 @@ export class AnalyticsService {
     dateTo?: string,
     format?: string,
   ): Promise<{ data: ReportItemDto[]; csv?: string }> {
+    // Parameter Allowlist Validation
+    const normalizedType = (type || 'booking').toLowerCase();
+    if (!['booking', 'revenue'].includes(normalizedType)) {
+      throw new BadRequestException(`Invalid report type '${type}'. Allowed values: booking, revenue`);
+    }
+
+    const normalizedFormat = format ? format.toLowerCase() : 'json';
+    if (!['json', 'csv'].includes(normalizedFormat)) {
+      throw new BadRequestException(`Invalid report format '${format}'. Allowed values: json, csv`);
+    }
+
     const now = new Date();
     const defaultFrom = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     
@@ -140,13 +182,22 @@ export class AnalyticsService {
     const adjustedToDate = new Date(toDate);
     adjustedToDate.setHours(23, 59, 59, 999);
 
-    const bookings = await this.prisma.booking.findMany({
-      where: {
-        createdAt: {
-          gte: fromDate,
-          lte: adjustedToDate,
-        },
+    const whereClause: any = {
+      createdAt: {
+        gte: fromDate,
+        lte: adjustedToDate,
       },
+    };
+
+    if (normalizedType === 'revenue') {
+      whereClause.OR = [
+        { status: 'COMPLETED' },
+        { paymentOrders: { some: { status: { in: ['PAYMENT_SUCCESS', 'CASH_SETTLED'] } } } },
+      ];
+    }
+
+    const bookings = await this.prisma.booking.findMany({
+      where: whereClause,
       include: {
         customer: true,
         service: true,
@@ -178,12 +229,12 @@ export class AnalyticsService {
       };
     });
 
-    if (format === 'csv') {
+    if (normalizedFormat === 'csv') {
       const header = 'Date,Booking ID,Customer Name,Service Name,Amount (INR),Payment Method,Status\n';
       const rows = reportItems
         .map(
           (item) =>
-            `"${item.date}","${item.booking_reference || item.booking_id}","${item.customer_name.replace(/"/g, '""')}","${item.service_name.replace(/"/g, '""')}",${item.amount_inr},"${item.payment_method}","${item.status}"`,
+            `${sanitizeCsvCell(item.date)},${sanitizeCsvCell(item.booking_reference || item.booking_id)},${sanitizeCsvCell(item.customer_name)},${sanitizeCsvCell(item.service_name)},${item.amount_inr},${sanitizeCsvCell(item.payment_method)},${sanitizeCsvCell(item.status)}`,
         )
         .join('\n');
 
