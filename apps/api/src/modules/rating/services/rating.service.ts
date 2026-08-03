@@ -7,7 +7,13 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { AdminRatingsQueryDto, CreateRatingDto } from '../dto/rating.dto';
+import {
+  AdminRatingsQueryDto,
+  CreateRatingDto,
+  resolveBookingId,
+  resolveRatingScore,
+  resolveReviewText,
+} from '../dto/rating.dto';
 
 @Injectable()
 export class RatingService {
@@ -83,11 +89,14 @@ export class RatingService {
 
     const formattedData = records.map((r) => ({
       id: r.id,
+      rating_id: r.id,
       date: r.createdAt.toISOString(),
       booking_id: r.booking?.bookingReference || r.bookingId,
       customer_name: r.customer?.displayName || 'Customer',
       provider_name: r.provider?.displayName || 'Provider',
+      rating: r.ratingScore,
       rating_score: r.ratingScore,
+      comment: r.reviewText,
       review_text: r.reviewText,
     }));
 
@@ -107,52 +116,82 @@ export class RatingService {
    * Submit rating for completed booking
    */
   async createRating(customerId: string, dto: CreateRatingDto) {
+    const bookingId = resolveBookingId(dto);
+    const ratingScore = resolveRatingScore(dto);
+    const reviewText = resolveReviewText(dto);
+
+    if (!bookingId) {
+      throw new BadRequestException('booking_id or bookingId is required');
+    }
+
+    if (!ratingScore || ratingScore < 1 || ratingScore > 5 || !Number.isInteger(ratingScore)) {
+      throw new BadRequestException('rating must be an integer between 1 and 5');
+    }
+
+    if (reviewText && reviewText.length > 500) {
+      throw new BadRequestException('comment must not exceed 500 characters');
+    }
+
     const booking = await this.prisma.booking.findUnique({
-      where: { id: dto.bookingId },
+      where: { id: bookingId },
     });
 
     if (!booking) {
-      throw new NotFoundException(`Booking not found: ${dto.bookingId}`);
+      throw new NotFoundException(`Booking not found: ${bookingId}`);
     }
 
-    // BOLA Ownership Check (AC-006-002)
+    // BOLA Ownership Check (AC-006-001 & AC-006-002: MUST return HTTP 403 Forbidden)
     if (booking.customerId !== customerId) {
-      throw new NotFoundException(`Booking not found or access denied: ${dto.bookingId}`);
+      throw new ForbiddenException('Access denied: You do not own this booking');
     }
 
-    // Submission Window Check (AC-006-001)
+    // Submission Window Check (AC-006-002: MUST return HTTP 409 Conflict)
     if (booking.status !== 'COMPLETED') {
-      throw new BadRequestException(`Rating only permitted for COMPLETED bookings (current status: ${booking.status})`);
+      throw new ConflictException({
+        statusCode: 409,
+        error: 'Rating can only be submitted for completed bookings',
+        message: 'Rating can only be submitted for completed bookings',
+      });
     }
 
-    // Check duplicate rating
+    // Check duplicate rating (AC-006-001: MUST return HTTP 409 Conflict)
     const existing = await this.prisma.rating.findUnique({
-      where: { bookingId: dto.bookingId },
+      where: { bookingId },
     });
     if (existing) {
-      throw new ConflictException(`Rating already submitted for booking: ${dto.bookingId}`);
+      throw new ConflictException(`Rating already submitted for booking: ${bookingId}`);
     }
 
     if (!booking.providerId) {
       throw new BadRequestException('Booking does not have an assigned provider to rate');
     }
 
-    const rating = await this.prisma.rating.create({
-      data: {
-        bookingId: dto.bookingId,
-        customerId,
-        providerId: booking.providerId,
-        ratingScore: dto.ratingScore,
-        reviewText: dto.reviewText || null,
-      },
+    // Atomic DB Transaction
+    const rating = await this.prisma.$transaction(async (tx) => {
+      return await tx.rating.create({
+        data: {
+          bookingId,
+          customerId,
+          providerId: booking.providerId!,
+          ratingScore,
+          reviewText: reviewText || null,
+        },
+      });
     });
 
     return {
       id: rating.id,
+      rating_id: rating.id,
       booking_id: rating.bookingId,
+      bookingId: rating.bookingId,
+      rating: rating.ratingScore,
       rating_score: rating.ratingScore,
+      ratingScore: rating.ratingScore,
+      comment: rating.reviewText,
       review_text: rating.reviewText,
+      reviewText: rating.reviewText,
       created_at: rating.createdAt,
+      createdAt: rating.createdAt,
     };
   }
 
@@ -171,10 +210,17 @@ export class RatingService {
 
     return {
       id: rating.id,
+      rating_id: rating.id,
       booking_id: rating.bookingId,
+      bookingId: rating.bookingId,
+      rating: rating.ratingScore,
       rating_score: rating.ratingScore,
+      ratingScore: rating.ratingScore,
+      comment: rating.reviewText,
       review_text: rating.reviewText,
+      reviewText: rating.reviewText,
       created_at: rating.createdAt,
+      createdAt: rating.createdAt,
     };
   }
 }

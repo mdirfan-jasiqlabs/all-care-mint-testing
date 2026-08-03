@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsInt, Min, Max } from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, Max, MaxLength } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class AdminRatingsQueryDto {
@@ -41,15 +41,47 @@ export class AdminRatingsQueryDto {
 }
 
 export class CreateRatingDto {
+  @IsOptional()
   @IsString()
-  bookingId!: string;
-
-  @IsInt()
-  @Min(1)
-  @Max(5)
-  ratingScore!: number;
+  bookingId?: string;
 
   @IsOptional()
   @IsString()
+  booking_id?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'rating must be an integer' })
+  @Min(1, { message: 'rating must not be less than 1' })
+  @Max(5, { message: 'rating must not be greater than 5' })
+  ratingScore?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'rating must be an integer' })
+  @Min(1, { message: 'rating must not be less than 1' })
+  @Max(5, { message: 'rating must not be greater than 5' })
+  rating?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500, { message: 'comment must not exceed 500 characters' })
   reviewText?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500, { message: 'comment must not exceed 500 characters' })
+  comment?: string;
+}
+
+export function resolveBookingId(dto: Partial<CreateRatingDto>): string {
+  return dto.bookingId || dto.booking_id || '';
+}
+
+export function resolveRatingScore(dto: Partial<CreateRatingDto>): number {
+  return dto.ratingScore ?? dto.rating ?? 0;
+}
+
+export function resolveReviewText(dto: Partial<CreateRatingDto>): string | undefined {
+  return dto.reviewText ?? dto.comment;
 }
