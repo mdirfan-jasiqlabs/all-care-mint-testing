@@ -118,6 +118,21 @@ describe('MOD-007 Operational Analytics Verification', () => {
       expect(report.data[0].amount_inr).toBe(1499);
     });
 
+    it('returns paginated report response', async () => {
+      const paginated = await analyticsService.getPaginatedReports(
+        'revenue',
+        '2026-07-01',
+        '2026-07-30',
+        1,
+        50,
+      );
+
+      expect(paginated.total).toBe(12);
+      expect(paginated.page).toBe(1);
+      expect(paginated.page_size).toBe(50);
+      expect(paginated.data).toBeDefined();
+    });
+
     it('formats CSV output with correct headers', async () => {
       const report = await analyticsService.getReports(
         'revenue',

@@ -4,7 +4,7 @@ import {
   Query,
   UseGuards,
   Res,
-  HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -29,25 +29,52 @@ export class AnalyticsController {
     @Query('date_from') dateFrom: string,
     @Query('date_to') dateTo: string,
     @Query('format') format: string,
-    @Res({ passthrough: true }) res: Response,
+    @Query('page') pageRaw?: string,
+    @Query('page_size') pageSizeRaw?: string,
+    @Res() res?: Response,
   ) {
-    const result = await this.analyticsService.getReports(type, dateFrom, dateTo, format);
-
-    if (format === 'csv' && result.csv !== undefined) {
-      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-      res.setHeader(
-        'Content-Disposition',
-        `attachment; filename="report-${type}-${dateFrom || 'all'}-${dateTo || 'all'}.csv"`,
-      );
-      return res.send(result.csv);
+    const normalizedFormat = format ? format.toLowerCase() : 'json';
+    if (!['json', 'csv'].includes(normalizedFormat)) {
+      throw new BadRequestException(`Invalid report format '${format}'. Allowed values: json, csv`);
     }
 
-    return {
+    if (normalizedFormat === 'csv') {
+      if (res) {
+        await this.analyticsService.streamCsvReport(res, type, dateFrom, dateTo);
+        return;
+      }
+      // Fallback if res is omitted (e.g. unit testing direct controller call)
+      const legacyResult = await this.analyticsService.getReports(type, dateFrom, dateTo, format);
+      return legacyResult;
+    }
+
+    let page = 1;
+    if (pageRaw !== undefined && pageRaw !== '') {
+      page = Number(pageRaw);
+      if (isNaN(page) || !Number.isInteger(page) || page < 1) {
+        throw new BadRequestException('page must be a positive integer greater than or equal to 1');
+      }
+    }
+
+    let pageSize = 50;
+    if (pageSizeRaw !== undefined && pageSizeRaw !== '') {
+      pageSize = Number(pageSizeRaw);
+      if (isNaN(pageSize) || !Number.isInteger(pageSize) || pageSize < 1 || pageSize > 500) {
+        throw new BadRequestException('page_size must be a positive integer between 1 and 500');
+      }
+    }
+
+    const result = await this.analyticsService.getPaginatedReports(
       type,
-      date_from: dateFrom,
-      date_to: dateTo,
-      count: result.data.length,
-      data: result.data,
-    };
+      dateFrom,
+      dateTo,
+      page,
+      pageSize,
+    );
+
+    if (res) {
+      return res.json(result);
+    }
+    return result;
   }
 }

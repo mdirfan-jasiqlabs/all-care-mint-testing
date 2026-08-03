@@ -1,4 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { Response } from 'express';
+import { Readable } from 'stream';
 import { PrismaService } from '../../../prisma/prisma.service';
 
 export interface DashboardMetricsDto {
@@ -18,6 +20,19 @@ export interface ReportItemDto {
   amount_inr: number;
   payment_method: string;
   status: string;
+}
+
+export interface PaginatedReportResponseDto {
+  type: string;
+  date_from: string;
+  date_to: string;
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+  count: number;
+  data: ReportItemDto[];
+  csv?: string;
 }
 
 function sanitizeCsvCell(val: any): string {
@@ -140,13 +155,12 @@ export class AnalyticsService {
     };
   }
 
-  async getReports(
-    type: string = 'booking',
+  private validateReportParams(
+    type: string,
     dateFrom?: string,
     dateTo?: string,
     format?: string,
-  ): Promise<{ data: ReportItemDto[]; csv?: string }> {
-    // Parameter Allowlist Validation
+  ): { normalizedType: string; normalizedFormat: string; fromDate: Date; adjustedToDate: Date } {
     const normalizedType = (type || 'booking').toLowerCase();
     if (!['booking', 'revenue'].includes(normalizedType)) {
       throw new BadRequestException(`Invalid report type '${type}'. Allowed values: booking, revenue`);
@@ -178,23 +192,207 @@ export class AnalyticsService {
       throw new BadRequestException('Date range cannot exceed 90 days');
     }
 
-    // Include full toDate day
     const adjustedToDate = new Date(toDate);
     adjustedToDate.setHours(23, 59, 59, 999);
 
+    return { normalizedType, normalizedFormat, fromDate, adjustedToDate };
+  }
+
+  private buildWhereClause(type: string, fromDate: Date, toDate: Date): any {
     const whereClause: any = {
       createdAt: {
         gte: fromDate,
-        lte: adjustedToDate,
+        lte: toDate,
       },
     };
 
-    if (normalizedType === 'revenue') {
+    if (type === 'revenue') {
       whereClause.OR = [
         { status: 'COMPLETED' },
         { paymentOrders: { some: { status: { in: ['PAYMENT_SUCCESS', 'CASH_SETTLED'] } } } },
       ];
     }
+
+    return whereClause;
+  }
+
+  async getPaginatedReports(
+    type: string = 'booking',
+    dateFrom?: string,
+    dateTo?: string,
+    page: number = 1,
+    pageSize: number = 50,
+  ): Promise<PaginatedReportResponseDto> {
+    const { normalizedType, fromDate, adjustedToDate } = this.validateReportParams(
+      type,
+      dateFrom,
+      dateTo,
+      'json',
+    );
+
+    if (page < 1) {
+      throw new BadRequestException('Page must be a positive integer greater than or equal to 1');
+    }
+    if (pageSize < 1 || pageSize > 500) {
+      throw new BadRequestException('Page size must be a positive integer between 1 and 500');
+    }
+
+    const whereClause = this.buildWhereClause(normalizedType, fromDate, adjustedToDate);
+    const skip = (page - 1) * pageSize;
+
+    const [total, bookings] = await Promise.all([
+      this.prisma.booking.count({ where: whereClause }),
+      this.prisma.booking.findMany({
+        where: whereClause,
+        include: {
+          customer: true,
+          service: true,
+          paymentOrders: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
+        },
+        orderBy: [
+          { createdAt: 'desc' },
+          { id: 'desc' },
+        ],
+        skip,
+        take: pageSize,
+      }),
+    ]);
+
+    const data: ReportItemDto[] = bookings.map((b) => {
+      const payment = b.paymentOrders[0];
+      const amountInr = payment
+        ? payment.amountPaise / 100
+        : Number(b.servicePriceSnapshot || 0);
+
+      return {
+        date: b.createdAt.toISOString().split('T')[0],
+        booking_id: b.id,
+        booking_reference: b.bookingReference,
+        customer_name: b.customer?.displayName || b.customer?.mobileNumber || 'Customer',
+        service_name: b.serviceNameSnapshot || b.service?.name || 'Service',
+        amount_inr: amountInr,
+        payment_method: b.paymentMethod,
+        status: b.status,
+      };
+    });
+
+    const totalPages = Math.ceil(total / pageSize);
+
+    return {
+      type: normalizedType,
+      date_from: dateFrom || fromDate.toISOString().split('T')[0],
+      date_to: dateTo || adjustedToDate.toISOString().split('T')[0],
+      page,
+      page_size: pageSize,
+      total,
+      total_pages: totalPages,
+      count: data.length,
+      data,
+    };
+  }
+
+  async streamCsvReport(
+    res: Response,
+    type: string = 'booking',
+    dateFrom?: string,
+    dateTo?: string,
+  ): Promise<void> {
+    const { normalizedType, fromDate, adjustedToDate } = this.validateReportParams(
+      type,
+      dateFrom,
+      dateTo,
+      'csv',
+    );
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="report-${normalizedType}-${dateFrom || 'all'}-${dateTo || 'all'}.csv"`,
+    );
+
+    const self = this;
+    const asyncGenerator = async function* () {
+      yield 'Date,Booking ID,Customer Name,Service Name,Amount (INR),Payment Method,Status\n';
+
+      const whereClause = self.buildWhereClause(normalizedType, fromDate, adjustedToDate);
+      const batchSize = 500;
+      let skip = 0;
+      let hasMore = true;
+
+      while (hasMore) {
+        if (res.writableEnded || res.destroyed) {
+          break;
+        }
+
+        const batch = await self.prisma.booking.findMany({
+          where: whereClause,
+          include: {
+            customer: true,
+            service: true,
+            paymentOrders: {
+              orderBy: { createdAt: 'desc' },
+              take: 1,
+            },
+          },
+          orderBy: [
+            { createdAt: 'desc' },
+            { id: 'desc' },
+          ],
+          skip,
+          take: batchSize,
+        });
+
+        if (batch.length === 0) {
+          hasMore = false;
+          break;
+        }
+
+        let chunk = '';
+        for (const b of batch) {
+          const payment = b.paymentOrders[0];
+          const amountInr = payment
+            ? payment.amountPaise / 100
+            : Number(b.servicePriceSnapshot || 0);
+
+          const dateStr = b.createdAt.toISOString().split('T')[0];
+          const refStr = b.bookingReference || b.id;
+          const custStr = b.customer?.displayName || b.customer?.mobileNumber || 'Customer';
+          const svcStr = b.serviceNameSnapshot || b.service?.name || 'Service';
+
+          chunk += `${sanitizeCsvCell(dateStr)},${sanitizeCsvCell(refStr)},${sanitizeCsvCell(custStr)},${sanitizeCsvCell(svcStr)},${amountInr},${sanitizeCsvCell(b.paymentMethod)},${sanitizeCsvCell(b.status)}\n`;
+        }
+
+        yield chunk;
+
+        skip += batch.length;
+        if (batch.length < batchSize) {
+          hasMore = false;
+        }
+      }
+    };
+
+    const csvStream = Readable.from(asyncGenerator());
+    csvStream.pipe(res);
+  }
+
+  // Maintained for backwards compatibility with existing callers/tests
+  async getReports(
+    type: string = 'booking',
+    dateFrom?: string,
+    dateTo?: string,
+    format?: string,
+  ): Promise<{ data: ReportItemDto[]; csv?: string }> {
+    const { normalizedType, normalizedFormat, fromDate, adjustedToDate } = this.validateReportParams(
+      type,
+      dateFrom,
+      dateTo,
+      format,
+    );
+
+    const whereClause = this.buildWhereClause(normalizedType, fromDate, adjustedToDate);
 
     const bookings = await this.prisma.booking.findMany({
       where: whereClause,
@@ -206,9 +404,10 @@ export class AnalyticsService {
           take: 1,
         },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: [
+        { createdAt: 'desc' },
+        { id: 'desc' },
+      ],
     });
 
     const reportItems: ReportItemDto[] = bookings.map((b) => {

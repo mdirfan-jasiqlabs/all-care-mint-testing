@@ -83,6 +83,39 @@ describe('MOD-007 Operational Analytics Verification', () => {
       expect(report.data[0].amount_inr).toBe(1499);
     });
 
+    it('returns paginated JSON report data with metadata and deterministic ordering', async () => {
+      const paginated = await analyticsService.getPaginatedReports(
+        'revenue',
+        '2026-07-01',
+        '2026-07-30',
+        1,
+        10,
+      );
+
+      expect(paginated.page).toBe(1);
+      expect(paginated.page_size).toBe(10);
+      expect(paginated.total).toBe(12);
+      expect(paginated.total_pages).toBe(2);
+      expect(paginated.data.length).toBe(1);
+      expect(prismaMock.booking.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: 0,
+          take: 10,
+          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        }),
+      );
+    });
+
+    it('rejects invalid page or page_size values', async () => {
+      await expect(
+        analyticsService.getPaginatedReports('revenue', '2026-07-01', '2026-07-30', 0, 10),
+      ).rejects.toThrow(BadRequestException);
+
+      await expect(
+        analyticsService.getPaginatedReports('revenue', '2026-07-01', '2026-07-30', 1, 1000),
+      ).rejects.toThrow(BadRequestException);
+    });
+
     it('formats CSV output with correct headers', async () => {
       const report = await analyticsService.getReports(
         'revenue',
