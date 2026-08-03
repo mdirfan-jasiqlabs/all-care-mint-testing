@@ -65,35 +65,62 @@ export class AnalyticsService {
     const startOfToday = new Date(`${year}-${month}-${day}T00:00:00.000+05:30`);
     const endOfToday = new Date(`${year}-${month}-${day}T23:59:59.999+05:30`);
 
-    // 1. Total Bookings Today (created within IST today)
-    const total_bookings_today = await this.prisma.booking.count({
-      where: {
-        createdAt: {
-          gte: startOfToday,
-          lte: endOfToday,
+    // Execute independent metrics queries concurrently via Promise.all for optimal SLA performance
+    const [
+      total_bookings_today,
+      onlinePaymentsToday,
+      cashSettledPaymentsToday,
+      unassigned_count,
+      active_providers_count,
+      ratingAggregate,
+    ] = await Promise.all([
+      // 1. Total Bookings Today
+      this.prisma.booking.count({
+        where: {
+          createdAt: {
+            gte: startOfToday,
+            lte: endOfToday,
+          },
         },
-      },
-    });
+      }),
+      // 2a. Revenue Today - Online Payments
+      this.prisma.paymentOrder.aggregate({
+        where: {
+          status: 'PAYMENT_SUCCESS',
+          updatedAt: { gte: startOfToday, lte: endOfToday },
+        },
+        _sum: { amountPaise: true },
+      }),
+      // 2b. Revenue Today - Settled Cash Payments
+      this.prisma.paymentOrder.findMany({
+        where: {
+          status: 'CASH_SETTLED',
+          updatedAt: { gte: startOfToday, lte: endOfToday },
+        },
+        select: { amountPaise: true, bookingId: true },
+      }),
+      // 3. Unassigned Bookings Count
+      this.prisma.booking.count({
+        where: {
+          status: 'PENDING',
+          providerId: null,
+        },
+      }),
+      // 4. Active Providers Count
+      this.prisma.provider.count({
+        where: {
+          status: 'APPROVED',
+        },
+      }),
+      // 5. Avg Rating
+      this.prisma.rating.aggregate({
+        _avg: {
+          ratingScore: true,
+        },
+      }),
+    ]);
 
-    // 2. Revenue Today (INR)
-    // Successful online payments updated today
-    const onlinePaymentsToday = await this.prisma.paymentOrder.aggregate({
-      where: {
-        status: 'PAYMENT_SUCCESS',
-        updatedAt: { gte: startOfToday, lte: endOfToday },
-      },
-      _sum: { amountPaise: true },
-    });
     const onlineRevenueInr = (onlinePaymentsToday._sum.amountPaise || 0) / 100;
-
-    // Settled cash payment orders updated today
-    const cashSettledPaymentsToday = await this.prisma.paymentOrder.findMany({
-      where: {
-        status: 'CASH_SETTLED',
-        updatedAt: { gte: startOfToday, lte: endOfToday },
-      },
-      select: { amountPaise: true, bookingId: true },
-    });
     const cashSettledInr = cashSettledPaymentsToday.reduce(
       (acc, p) => acc + p.amountPaise / 100,
       0,
@@ -120,29 +147,6 @@ export class AnalyticsService {
       );
 
     const revenue_today_inr = Math.round((onlineRevenueInr + cashSettledInr + completedCashInr) * 100) / 100;
-
-    // 3. Unassigned Bookings Count
-    const unassigned_count = await this.prisma.booking.count({
-      where: {
-        status: 'PENDING',
-        providerId: null,
-      },
-    });
-
-    // 4. Active Providers Count
-    const active_providers_count = await this.prisma.provider.count({
-      where: {
-        status: 'APPROVED',
-      },
-    });
-
-    // 5. Avg Rating
-    const ratingAggregate = await this.prisma.rating.aggregate({
-      _avg: {
-        ratingScore: true,
-      },
-    });
-
     const rawAvg = ratingAggregate._avg.ratingScore || 0;
     const avg_rating = Math.round(rawAvg * 100) / 100;
 

@@ -24,8 +24,15 @@ export default function AdminDashboardPage() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [unassignedBookings, setUnassignedBookings] = useState<UnassignedBooking[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isRetrying, setIsRetrying] = useState<boolean>(false);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (isManualRetry = false) => {
+    if (isManualRetry) {
+      setIsRetrying(true);
+      if (!metrics) setLoading(true);
+    }
+
     try {
       const token =
         typeof window !== 'undefined'
@@ -34,38 +41,73 @@ export default function AdminDashboardPage() {
             localStorage.getItem('admin_token')
           : null;
 
-      if (!token) return;
+      if (!token) {
+        setLoading(false);
+        setIsRetrying(false);
+        return;
+      }
 
       const headers = { Authorization: `Bearer ${token}` };
+      let fetchFailed = false;
+      let errorMessage = '';
 
       // Fetch 5 KPI metrics
-      const metricsRes = await fetch('/api/v1/admin/dashboard/metrics', { headers });
-      if (metricsRes.ok) {
-        const data = await metricsRes.json();
-        setMetrics(data);
+      try {
+        const metricsRes = await fetch('/api/v1/admin/dashboard/metrics', { headers });
+        if (metricsRes.ok) {
+          const data = await metricsRes.json();
+          setMetrics(data);
+        } else {
+          fetchFailed = true;
+          errorMessage = `Failed to fetch metrics (HTTP ${metricsRes.status})`;
+        }
+      } catch (err: any) {
+        fetchFailed = true;
+        errorMessage = err?.message || 'Network error fetching metrics';
       }
 
       // Fetch recent unassigned bookings for table
-      const bookingsRes = await fetch('/api/v1/admin/bookings?status=PENDING&limit=10', { headers });
-      if (bookingsRes.ok) {
-        const json = await bookingsRes.json();
-        const items = json.data || json.bookings || [];
-        setUnassignedBookings(
-          items.map((b: any) => ({
-            id: b.id,
-            bookingReference: b.bookingReference || b.id.substring(0, 8),
-            createdAt: b.createdAt
-              ? new Date(b.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-              : 'Recently',
-            customerName: b.customer?.displayName || b.customer?.mobileNumber || 'Customer',
-            serviceName: b.serviceNameSnapshot || b.service?.name || 'Service',
-          })),
-        );
+      try {
+        const bookingsRes = await fetch('/api/v1/admin/bookings?status=PENDING&limit=10', { headers });
+        if (bookingsRes.ok) {
+          const json = await bookingsRes.json();
+          const items = json.data || json.bookings || [];
+          setUnassignedBookings(
+            items.map((b: any) => ({
+              id: b.id,
+              bookingReference: b.bookingReference || b.id.substring(0, 8),
+              createdAt: b.createdAt
+                ? new Date(b.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                : 'Recently',
+              customerName: b.customer?.displayName || b.customer?.mobileNumber || 'Customer',
+              serviceName: b.serviceNameSnapshot || b.service?.name || 'Service',
+            })),
+          );
+        } else {
+          fetchFailed = true;
+          if (!errorMessage) {
+            errorMessage = `Failed to fetch recent bookings (HTTP ${bookingsRes.status})`;
+          }
+        }
+      } catch (err: any) {
+        fetchFailed = true;
+        if (!errorMessage) {
+          errorMessage = err?.message || 'Network error fetching recent bookings';
+        }
+      }
+
+      if (fetchFailed) {
+        setError(errorMessage || 'Failed to sync latest operational dashboard data');
+      } else {
+        // Clear error state on clean success
+        setError(null);
       }
     } catch (err) {
       console.error('Error loading dashboard data:', err);
+      setError('An unexpected error occurred while loading dashboard metrics.');
     } finally {
       setLoading(false);
+      setIsRetrying(false);
     }
   };
 
@@ -91,6 +133,55 @@ export default function AdminDashboardPage() {
         </p>
       </div>
 
+      {/* User-Friendly Error Banner */}
+      {error && (
+        <div
+          id="dashboard-error-banner"
+          role="alert"
+          style={{
+            background: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid rgba(239, 68, 68, 0.4)',
+            borderRadius: '16px',
+            padding: '16px 20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '16px',
+            color: '#fca5a5',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: '20px' }}>⚠️</span>
+            <div>
+              <div style={{ fontWeight: 700, color: '#f87171', fontSize: '14px', marginBottom: '2px' }}>
+                Dashboard Data Sync Issue
+              </div>
+              <div style={{ fontSize: '13px', color: '#cbd5e1' }}>
+                {error} {metrics ? '(Preserving last known successful dashboard metrics)' : ''}
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => fetchDashboardData(true)}
+            disabled={isRetrying}
+            style={{
+              background: '#ef4444',
+              color: '#ffffff',
+              border: 'none',
+              padding: '8px 18px',
+              borderRadius: '8px',
+              fontWeight: 700,
+              fontSize: '13px',
+              cursor: isRetrying ? 'not-allowed' : 'pointer',
+              opacity: isRetrying ? 0.7 : 1,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {isRetrying ? 'Retrying...' : 'Retry'}
+          </button>
+        </div>
+      )}
+
       {/* 5 KPI Grid */}
       <div
         style={{
@@ -112,7 +203,7 @@ export default function AdminDashboardPage() {
           <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
             Bookings Today
           </div>
-          {loading ? (
+          {loading && !metrics ? (
             <div style={{ height: '36px', background: '#334155', borderRadius: '8px' }} />
           ) : (
             <div style={{ fontSize: '32px', fontWeight: 700, color: '#10b981' }}>
@@ -135,7 +226,7 @@ export default function AdminDashboardPage() {
           <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
             Revenue Today (INR)
           </div>
-          {loading ? (
+          {loading && !metrics ? (
             <div style={{ height: '36px', background: '#334155', borderRadius: '8px' }} />
           ) : (
             <div style={{ fontSize: '32px', fontWeight: 700, color: '#38bdf8' }}>
@@ -158,7 +249,7 @@ export default function AdminDashboardPage() {
         >
           <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500, marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>Unassigned Bookings</span>
-            {!loading && (metrics?.unassigned_count ?? 0) > 0 && (
+            {(!loading || metrics) && (metrics?.unassigned_count ?? 0) > 0 && (
               <span
                 style={{
                   background: '#ef4444',
@@ -173,7 +264,7 @@ export default function AdminDashboardPage() {
               </span>
             )}
           </div>
-          {loading ? (
+          {loading && !metrics ? (
             <div style={{ height: '36px', background: '#334155', borderRadius: '8px' }} />
           ) : (
             <div
@@ -202,7 +293,7 @@ export default function AdminDashboardPage() {
           <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
             Active Providers
           </div>
-          {loading ? (
+          {loading && !metrics ? (
             <div style={{ height: '36px', background: '#334155', borderRadius: '8px' }} />
           ) : (
             <div style={{ fontSize: '32px', fontWeight: 700, color: '#a855f7' }}>
@@ -225,7 +316,7 @@ export default function AdminDashboardPage() {
           <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
             Average Rating
           </div>
-          {loading ? (
+          {loading && !metrics ? (
             <div style={{ height: '36px', background: '#334155', borderRadius: '8px' }} />
           ) : (
             <div style={{ fontSize: '32px', fontWeight: 700, color: '#fbbf24' }}>
@@ -271,7 +362,7 @@ export default function AdminDashboardPage() {
           </button>
         </div>
 
-        {loading ? (
+        {loading && unassignedBookings.length === 0 ? (
           <div style={{ padding: '24px', color: '#64748b', textAlign: 'center' }}>
             Loading pending bookings...
           </div>
