@@ -36,19 +36,32 @@ export class RatingService {
       where.providerId = query.provider_id;
     }
 
-    if (query.min_rating) {
+    if (query.min_rating || query.max_rating) {
       if (query.min_rating === 'LOW') {
         where.ratingScore = { lte: 2 };
-      } else if (query.min_rating === '5') {
+      } else if (query.min_rating === '5' && !query.max_rating) {
         where.ratingScore = 5;
-      } else if (query.min_rating === '4') {
+      } else if (query.min_rating === '4' && !query.max_rating) {
         where.ratingScore = { gte: 4 };
-      } else if (query.min_rating === '3') {
+      } else if (query.min_rating === '3' && !query.max_rating) {
         where.ratingScore = { lte: 3 };
       } else {
-        const num = Number(query.min_rating);
-        if (!isNaN(num)) {
-          where.ratingScore = { gte: num };
+        const minNum = query.min_rating !== undefined && query.min_rating !== '' ? Number(query.min_rating) : undefined;
+        const maxNum = query.max_rating !== undefined && query.max_rating !== '' ? Number(query.max_rating) : undefined;
+
+        if (minNum !== undefined && isNaN(minNum)) {
+          throw new BadRequestException('min_rating must be a valid number');
+        }
+        if (maxNum !== undefined && isNaN(maxNum)) {
+          throw new BadRequestException('max_rating must be a valid number');
+        }
+
+        where.ratingScore = {};
+        if (minNum !== undefined) {
+          where.ratingScore.gte = minNum;
+        }
+        if (maxNum !== undefined) {
+          where.ratingScore.lte = maxNum;
         }
       }
     }
@@ -56,10 +69,17 @@ export class RatingService {
     if (query.date_from || query.date_to) {
       where.createdAt = {};
       if (query.date_from) {
-        where.createdAt.gte = new Date(query.date_from);
+        const fromDate = new Date(query.date_from);
+        if (isNaN(fromDate.getTime())) {
+          throw new BadRequestException('date_from must be a valid ISO 8601 date string');
+        }
+        where.createdAt.gte = fromDate;
       }
       if (query.date_to) {
         const toDate = new Date(query.date_to);
+        if (isNaN(toDate.getTime())) {
+          throw new BadRequestException('date_to must be a valid ISO 8601 date string');
+        }
         toDate.setHours(23, 59, 59, 999);
         where.createdAt.lte = toDate;
       }
@@ -72,13 +92,25 @@ export class RatingService {
       ];
     }
 
+    const orderDirection = (query.order || 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc';
+    let orderBy: any = { createdAt: orderDirection };
+
+    if (query.sort_by) {
+      const field = query.sort_by;
+      if (field === 'rating' || field === 'ratingScore') {
+        orderBy = { ratingScore: orderDirection };
+      } else if (field === 'date' || field === 'createdAt') {
+        orderBy = { createdAt: orderDirection };
+      }
+    }
+
     const [total, records] = await Promise.all([
       this.prisma.rating.count({ where }),
       this.prisma.rating.findMany({
         where,
         skip,
         take: pageSize,
-        orderBy: { createdAt: 'desc' },
+        orderBy,
         include: {
           customer: { select: { displayName: true, mobileNumber: true } },
           provider: { select: { displayName: true, mobileNumber: true } },
@@ -167,32 +199,39 @@ export class RatingService {
     }
 
     // Atomic DB Transaction
-    const rating = await this.prisma.$transaction(async (tx) => {
-      return await tx.rating.create({
-        data: {
-          bookingId,
-          customerId,
-          providerId: booking.providerId!,
-          ratingScore,
-          reviewText: reviewText || null,
-        },
+    try {
+      const rating = await this.prisma.$transaction(async (tx) => {
+        return await tx.rating.create({
+          data: {
+            bookingId,
+            customerId,
+            providerId: booking.providerId!,
+            ratingScore,
+            reviewText: reviewText || null,
+          },
+        });
       });
-    });
 
-    return {
-      id: rating.id,
-      rating_id: rating.id,
-      booking_id: rating.bookingId,
-      bookingId: rating.bookingId,
-      rating: rating.ratingScore,
-      rating_score: rating.ratingScore,
-      ratingScore: rating.ratingScore,
-      comment: rating.reviewText,
-      review_text: rating.reviewText,
-      reviewText: rating.reviewText,
-      created_at: rating.createdAt,
-      createdAt: rating.createdAt,
-    };
+      return {
+        id: rating.id,
+        rating_id: rating.id,
+        booking_id: rating.bookingId,
+        bookingId: rating.bookingId,
+        rating: rating.ratingScore,
+        rating_score: rating.ratingScore,
+        ratingScore: rating.ratingScore,
+        comment: rating.reviewText,
+        review_text: rating.reviewText,
+        reviewText: rating.reviewText,
+        created_at: rating.createdAt,
+        createdAt: rating.createdAt,
+      };
+    } catch (error: any) {
+      if (error?.code === 'P2002') {
+        throw new ConflictException(`Rating already submitted for booking: ${bookingId}`);
+      }
+      throw error;
+    }
   }
 
   /**

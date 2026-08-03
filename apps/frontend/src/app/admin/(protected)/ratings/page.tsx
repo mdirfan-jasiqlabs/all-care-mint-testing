@@ -19,15 +19,27 @@ export default function AdminRatingsPage() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   
-  // Filters
+  // Filters & Sorting
   const [providerSearch, setProviderSearch] = useState('');
   const [minRatingFilter, setMinRatingFilter] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [sortBy, setSortBy] = useState('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const { addToast } = useToast();
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+    setPage(1);
+  };
 
   const fetchRatings = async () => {
     setLoading(true);
@@ -38,6 +50,8 @@ export default function AdminRatingsPage() {
       if (minRatingFilter) params.append('min_rating', minRatingFilter);
       if (dateFrom) params.append('date_from', dateFrom);
       if (dateTo) params.append('date_to', dateTo);
+      if (sortBy) params.append('sort_by', sortBy);
+      if (sortOrder) params.append('order', sortOrder);
       params.append('page', String(page));
       params.append('page_size', '20');
 
@@ -60,7 +74,7 @@ export default function AdminRatingsPage() {
 
   useEffect(() => {
     fetchRatings();
-  }, [providerSearch, minRatingFilter, dateFrom, dateTo, page]);
+  }, [providerSearch, minRatingFilter, dateFrom, dateTo, page, sortBy, sortOrder]);
 
   const renderStars = (score: number) => {
     const stars = [];
@@ -272,11 +286,39 @@ export default function AdminRatingsPage() {
           <table id="admin-ratings-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
-                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Date</th>
+                <th
+                  id="th-sort-date"
+                  onClick={() => handleSort('date')}
+                  style={{
+                    padding: '14px 16px',
+                    fontSize: '12px',
+                    color: sortBy === 'date' ? '#38bdf8' : '#94a3b8',
+                    textTransform: 'uppercase',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                  }}
+                  title="Click to sort by date"
+                >
+                  Date {sortBy === 'date' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
+                </th>
                 <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Customer</th>
                 <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Provider</th>
                 <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Booking ID</th>
-                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Rating</th>
+                <th
+                  id="th-sort-rating"
+                  onClick={() => handleSort('rating')}
+                  style={{
+                    padding: '14px 16px',
+                    fontSize: '12px',
+                    color: sortBy === 'rating' ? '#38bdf8' : '#94a3b8',
+                    textTransform: 'uppercase',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                  }}
+                  title="Click to sort by rating"
+                >
+                  Rating {sortBy === 'rating' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
+                </th>
                 <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Customer Review / Comment</th>
               </tr>
             </thead>

@@ -1,9 +1,9 @@
-import { IsOptional, IsString, IsInt, Min, Max, MaxLength } from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, Max, MaxLength, IsUUID, IsISO8601, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class AdminRatingsQueryDto {
   @IsOptional()
-  @IsString()
+  @IsUUID('4', { message: 'provider_id must be a valid UUID' })
   provider_id?: string;
 
   @IsOptional()
@@ -19,12 +19,20 @@ export class AdminRatingsQueryDto {
   max_rating?: string;
 
   @IsOptional()
-  @IsString()
+  @IsISO8601({}, { message: 'date_from must be a valid ISO 8601 date string' })
   date_from?: string;
 
   @IsOptional()
-  @IsString()
+  @IsISO8601({}, { message: 'date_to must be a valid ISO 8601 date string' })
   date_to?: string;
+
+  @IsOptional()
+  @IsIn(['createdAt', 'ratingScore', 'date', 'rating'], { message: 'sort_by must be one of: createdAt, ratingScore, date, rating' })
+  sort_by?: string;
+
+  @IsOptional()
+  @IsIn(['asc', 'desc', 'ASC', 'DESC'], { message: 'order must be asc or desc' })
+  order?: string;
 
   @IsOptional()
   @Type(() => Number)
@@ -42,10 +50,12 @@ export class AdminRatingsQueryDto {
 
 export class CreateRatingDto {
   @IsOptional()
+  @IsUUID('4', { message: 'bookingId must be a valid UUID' })
   @IsString()
   bookingId?: string;
 
   @IsOptional()
+  @IsUUID('4', { message: 'booking_id must be a valid UUID' })
   @IsString()
   booking_id?: string;
 

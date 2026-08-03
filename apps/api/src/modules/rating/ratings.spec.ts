@@ -243,4 +243,62 @@ describe('US-006-001 & MOD-006 Provider Ratings QA Audit Verification', () => {
       expect(result).toBeDefined();
     });
   });
+
+  describe('TC-006-006 & Admin Filters/Sorting Tests', () => {
+    it('TC-006-006: should filter by min_rating=1 and max_rating=2 in Prisma query', async () => {
+      prismaMock.rating.count.mockResolvedValue(2);
+      prismaMock.rating.findMany.mockResolvedValue([
+        {
+          id: 'r-1',
+          createdAt: new Date(),
+          bookingId: 'b-1',
+          ratingScore: 1,
+          reviewText: 'Poor',
+          customer: { displayName: 'Cust' },
+          provider: { displayName: 'Prov' },
+          booking: { bookingReference: 'ACM-1' },
+        },
+        {
+          id: 'r-2',
+          createdAt: new Date(),
+          bookingId: 'b-2',
+          ratingScore: 2,
+          reviewText: 'Bad',
+          customer: { displayName: 'Cust' },
+          provider: { displayName: 'Prov' },
+          booking: { bookingReference: 'ACM-2' },
+        },
+      ]);
+
+      const result = await ratingService.getAdminRatings({ min_rating: '1', max_rating: '2' });
+
+      expect(result.data).toHaveLength(2);
+      expect(prismaMock.rating.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            ratingScore: { gte: 1, lte: 2 },
+          }),
+        }),
+      );
+    });
+
+    it('should apply dynamic sort_by=ratingScore and order=asc in Prisma query', async () => {
+      prismaMock.rating.count.mockResolvedValue(1);
+      prismaMock.rating.findMany.mockResolvedValue([]);
+
+      await ratingService.getAdminRatings({ sort_by: 'ratingScore', order: 'asc' });
+
+      expect(prismaMock.rating.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orderBy: { ratingScore: 'asc' },
+        }),
+      );
+    });
+
+    it('should throw BadRequestException for invalid date_from format', async () => {
+      await expect(
+        ratingService.getAdminRatings({ date_from: 'invalid-date' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
 });

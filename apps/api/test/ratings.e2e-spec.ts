@@ -34,7 +34,7 @@ jest.mock('bullmq', () => {
 });
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { RatingService } from '../src/modules/rating/services/rating.service';
 import { PrismaService } from '../src/prisma/prisma.service';
 
@@ -54,6 +54,7 @@ describe('MOD-006 Provider Ratings Module Verification', () => {
         count: jest.fn(),
         create: jest.fn(),
       },
+      $transaction: jest.fn((callback) => callback(prismaMock)),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -98,7 +99,7 @@ describe('MOD-006 Provider Ratings Module Verification', () => {
   });
 
   describe('TC-006-007 / TC-006-009: BOLA Protection', () => {
-    it('should throw NotFoundException if customer does not own target booking', async () => {
+    it('should throw ForbiddenException if customer does not own target booking', async () => {
       const mockBooking = {
         id: 'booking-101',
         customerId: 'customer-OTHER',
@@ -112,12 +113,12 @@ describe('MOD-006 Provider Ratings Module Verification', () => {
           bookingId: 'booking-101',
           ratingScore: 4,
         }),
-      ).rejects.toThrow(NotFoundException);
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 
   describe('TC-006-004: Status Guard Check', () => {
-    it('should throw BadRequestException if booking status is not COMPLETED', async () => {
+    it('should throw ConflictException if booking status is not COMPLETED', async () => {
       const mockBooking = {
         id: 'booking-102',
         customerId: 'customer-001',
@@ -131,7 +132,7 @@ describe('MOD-006 Provider Ratings Module Verification', () => {
           bookingId: 'booking-102',
           ratingScore: 5,
         }),
-      ).rejects.toThrow(BadRequestException);
+      ).rejects.toThrow(ConflictException);
     });
   });
 
