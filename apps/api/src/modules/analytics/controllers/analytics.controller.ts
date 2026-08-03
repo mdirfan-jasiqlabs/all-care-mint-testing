@@ -31,7 +31,7 @@ export class AnalyticsController {
     @Query('format') format: string,
     @Query('page') pageRaw?: string,
     @Query('page_size') pageSizeRaw?: string,
-    @Res() res?: Response,
+    @Res({ passthrough: true }) res?: Response,
   ) {
     const normalizedFormat = format ? format.toLowerCase() : 'json';
     if (!['json', 'csv'].includes(normalizedFormat)) {
@@ -72,9 +72,6 @@ export class AnalyticsController {
       pageSize,
     );
 
-    if (res) {
-      return res.json(result);
-    }
     return result;
   }
 }

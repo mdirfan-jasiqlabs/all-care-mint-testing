@@ -207,7 +207,7 @@ export default function AdminDashboardPage() {
             <div style={{ height: '36px', background: '#334155', borderRadius: '8px' }} />
           ) : (
             <div style={{ fontSize: '32px', fontWeight: 700, color: '#10b981' }}>
-              {metrics?.total_bookings_today ?? 0}
+              {metrics ? metrics.total_bookings_today : '—'}
             </div>
           )}
           <div style={{ color: '#64748b', fontSize: '12px', marginTop: '6px' }}>Live system activity</div>
@@ -230,7 +230,7 @@ export default function AdminDashboardPage() {
             <div style={{ height: '36px', background: '#334155', borderRadius: '8px' }} />
           ) : (
             <div style={{ fontSize: '32px', fontWeight: 700, color: '#38bdf8' }}>
-              ₹{metrics?.revenue_today_inr?.toLocaleString() ?? 0}
+              {metrics ? `₹${metrics.revenue_today_inr.toLocaleString()}` : '—'}
             </div>
           )}
           <div style={{ color: '#64748b', fontSize: '12px', marginTop: '6px' }}>Settled & online capture</div>
@@ -249,7 +249,7 @@ export default function AdminDashboardPage() {
         >
           <div style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500, marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>Unassigned Bookings</span>
-            {(!loading || metrics) && (metrics?.unassigned_count ?? 0) > 0 && (
+            {metrics && metrics.unassigned_count > 0 && (
               <span
                 style={{
                   background: '#ef4444',
@@ -274,7 +274,7 @@ export default function AdminDashboardPage() {
                 color: (metrics?.unassigned_count ?? 0) > 0 ? '#f87171' : '#f8fafc',
               }}
             >
-              {metrics?.unassigned_count ?? 0}
+              {metrics ? metrics.unassigned_count : '—'}
             </div>
           )}
           <div style={{ color: '#64748b', fontSize: '12px', marginTop: '6px' }}>Awaiting provider allocation</div>
@@ -297,7 +297,7 @@ export default function AdminDashboardPage() {
             <div style={{ height: '36px', background: '#334155', borderRadius: '8px' }} />
           ) : (
             <div style={{ fontSize: '32px', fontWeight: 700, color: '#a855f7' }}>
-              {metrics?.active_providers_count ?? 0}
+              {metrics ? metrics.active_providers_count : '—'}
             </div>
           )}
           <div style={{ color: '#64748b', fontSize: '12px', marginTop: '6px' }}>Approved & on-duty fleet</div>
@@ -320,7 +320,7 @@ export default function AdminDashboardPage() {
             <div style={{ height: '36px', background: '#334155', borderRadius: '8px' }} />
           ) : (
             <div style={{ fontSize: '32px', fontWeight: 700, color: '#fbbf24' }}>
-              ★ {metrics?.avg_rating ? metrics.avg_rating.toFixed(2) : '5.00'}
+              {metrics ? `★ ${metrics.avg_rating.toFixed(2)}` : '—'}
             </div>
           )}
           <div style={{ color: '#64748b', fontSize: '12px', marginTop: '6px' }}>Platform satisfaction metric</div>
