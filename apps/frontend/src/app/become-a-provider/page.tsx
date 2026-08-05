@@ -1,31 +1,68 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 export default function BecomeAProviderPage() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
   const [interest, setInterest] = useState('');
-  const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [formAlert, setFormAlert] = useState<{ type: 'success' | 'error' | 'rate-limit'; message: string } | null>(null);
-  const [formErrors, setFormErrors] = useState<{ name?: boolean; phone?: boolean; city?: boolean; interest?: boolean }>({});
+  const [formAlert, setFormAlert] = useState<{ type: 'error' | 'rate-limit'; message: string } | null>(null);
+  const [formErrors, setFormErrors] = useState<{ name?: string; phone?: string }>({});
+  const [submittedData, setSubmittedData] = useState<{ name: string; mobile: string } | null>(null);
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState<boolean>(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+
+  const fetchCategories = useCallback(async () => {
+    setCategoriesLoading(true);
+    setCategoriesError(null);
+    try {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
+      const res = await fetch(`${apiBase}/api/v1/catalog/categories`);
+      if (!res.ok) {
+        throw new Error('Failed to load service categories.');
+      }
+      const json = await res.json();
+      const rawData = Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : [];
+      setCategories(rawData);
+    } catch (err: any) {
+      setCategoriesError(err.message || 'Error loading categories');
+    } finally {
+      setCategoriesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
+
     setFormAlert(null);
-    const errors: { name?: boolean; phone?: boolean; city?: boolean; interest?: boolean } = {};
+    const errors: { name?: string; phone?: string } = {};
 
     const cleanName = name.trim();
     const cleanPhone = phone.replace(/\D/g, '').slice(-10);
     const cleanCity = city.trim();
 
-    if (!cleanName) errors.name = true;
-    if (!cleanPhone || cleanPhone.length !== 10 || !/^[6-9][0-9]{9}$/.test(cleanPhone)) errors.phone = true;
-    if (!cleanCity) errors.city = true;
-    if (!interest) errors.interest = true;
+    if (!cleanName) {
+      errors.name = 'Full name is required.';
+    }
+
+    if (!cleanPhone || cleanPhone.length !== 10 || !/^[6-9][0-9]{9}$/.test(cleanPhone)) {
+      errors.phone = 'Please enter a valid 10-digit mobile number.';
+    }
 
     setFormErrors(errors);
 
@@ -34,16 +71,17 @@ export default function BecomeAProviderPage() {
     try {
       setSubmitting(true);
       const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
+      const payload: Record<string, string> = {
+        name: cleanName,
+        mobileNumber: cleanPhone,
+      };
+      if (cleanCity) payload.serviceArea = cleanCity;
+      if (interest) payload.serviceType = interest;
+
       const res = await fetch(`${apiBase}/api/v1/public/provider-leads`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: cleanName,
-          mobileNumber: cleanPhone,
-          serviceArea: cleanCity,
-          serviceType: interest,
-          message,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const json = await res.json().catch(() => null);
@@ -56,19 +94,14 @@ export default function BecomeAProviderPage() {
         return;
       }
 
-      if (!res.ok || !json?.success) {
+      if (!res.ok || json?.success === false) {
         throw new Error(json?.message || json?.error?.message || 'Failed to submit application lead.');
       }
 
-      setFormAlert({
-        type: 'success',
-        message: "Thank you! Your lead request has been recorded. Our partner team will reach out to you shortly.",
+      setSubmittedData({
+        name: cleanName,
+        mobile: cleanPhone,
       });
-      setName('');
-      setPhone('');
-      setCity('');
-      setInterest('');
-      setMessage('');
     } catch (err: any) {
       setFormAlert({
         type: 'error',
@@ -101,7 +134,7 @@ export default function BecomeAProviderPage() {
         </Link>
       </nav>
 
-      <main className="max-w-3xl mx-auto px-6 py-16 space-y-8 flex-1">
+      <main className="max-w-3xl mx-auto px-6 py-16 space-y-8 flex-1 w-full">
         <div className="text-center space-y-3">
           <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-4 py-1.5 rounded-full uppercase tracking-wider font-bold">
             PG-WEB-005 • Partner Onboarding Lead
@@ -112,101 +145,131 @@ export default function BecomeAProviderPage() {
           </p>
         </div>
 
-        <div className="bg-slate-900/30 border border-slate-900 p-8 rounded-3xl relative">
-          {formAlert && (
-            <div
-              className={`mb-6 p-4 rounded-xl text-xs flex justify-between items-center ${
-                formAlert.type === 'success'
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                  : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-              }`}
-            >
-              <span>{formAlert.message}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <label htmlFor="input-name" className="text-xs text-slate-400 font-medium">Full Name <span className="text-rose-500">*</span></label>
-              <input
-                type="text"
-                id="input-name"
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className={`w-full bg-slate-950 border ${formErrors.name ? 'border-rose-500' : 'border-slate-800'} rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-emerald-500`}
-              />
-              {formErrors.name && <span className="text-[10px] text-rose-500 font-mono mt-1 block">Full Name is required.</span>}
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="input-phone" className="text-xs text-slate-400 font-medium">Mobile Number (10-Digit) <span className="text-rose-500">*</span></label>
-              <input
-                type="tel"
-                id="input-phone"
-                maxLength={10}
-                placeholder="9876543210"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                className={`w-full bg-slate-950 border ${formErrors.phone ? 'border-rose-500' : 'border-slate-800'} rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-emerald-500`}
-              />
-              {formErrors.phone && <span className="text-[10px] text-rose-500 font-mono mt-1 block">Valid 10-digit Indian mobile number required.</span>}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label htmlFor="input-city" className="text-xs text-slate-400 font-medium">City / Area <span className="text-rose-500">*</span></label>
-                <input
-                  type="text"
-                  id="input-city"
-                  placeholder="Mumbai"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  className={`w-full bg-slate-950 border ${formErrors.city ? 'border-rose-500' : 'border-slate-800'} rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-emerald-500`}
-                />
-                {formErrors.city && <span className="text-[10px] text-rose-500 font-mono mt-1 block">City/Area is required.</span>}
+        <div className="bg-slate-900/30 border border-slate-900 p-8 rounded-3xl relative" aria-live="polite">
+          {submittedData ? (
+            <div id="success-container" className="text-center py-12 space-y-4">
+              <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold border border-emerald-500/30">
+                ✓
               </div>
-
-              <div className="space-y-1.5">
-                <label htmlFor="input-interest" className="text-xs text-slate-400 font-medium">Service Interest <span className="text-rose-500">*</span></label>
-                <select
-                  id="input-interest"
-                  value={interest}
-                  onChange={(e) => setInterest(e.target.value)}
-                  className={`w-full bg-slate-950 border ${formErrors.interest ? 'border-rose-500' : 'border-slate-800'} rounded-xl px-4 py-3 text-xs text-slate-300 outline-none focus:border-emerald-500 cursor-pointer`}
+              <h2 className="text-xl md:text-2xl font-bold text-white">Application Received</h2>
+              <p id="success-message" className="text-slate-300 text-sm max-w-md mx-auto leading-relaxed">
+                Thanks, {submittedData.name}! We&apos;ll review your application and contact you on {submittedData.mobile}.
+              </p>
+            </div>
+          ) : (
+            <>
+              {formAlert && (
+                <div
+                  className="mb-6 p-4 rounded-xl text-xs flex justify-between items-center bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                  role="alert"
                 >
-                  <option value="">Select Service Category</option>
-                  <option value="cleaning">Cleaning & Sanitization</option>
-                  <option value="electrical">Electrical Work</option>
-                  <option value="plumbing">Plumbing & Pipelines</option>
-                  <option value="appliance">Appliance Maintenance</option>
-                </select>
-                {formErrors.interest && <span className="text-[10px] text-rose-500 font-mono mt-1 block">Service Interest is required.</span>}
-              </div>
-            </div>
+                  <span>{formAlert.message}</span>
+                </div>
+              )}
 
-            <div className="space-y-1.5">
-              <label htmlFor="input-message" className="text-xs text-slate-400 font-medium">Brief Message <span className="text-slate-500">(Optional)</span></label>
-              <textarea
-                id="input-message"
-                rows={3}
-                maxLength={500}
-                placeholder="Tell us about your work experience..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-emerald-500 resize-none"
-              ></textarea>
-            </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label htmlFor="input-name" className="text-xs text-slate-400 font-medium">Full Name <span className="text-rose-500">*</span></label>
+                  <input
+                    type="text"
+                    id="input-name"
+                    placeholder="John Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    aria-invalid={!!formErrors.name}
+                    aria-describedby={formErrors.name ? "name-error" : undefined}
+                    className={`w-full bg-slate-950 border ${formErrors.name ? 'border-rose-500' : 'border-slate-800'} rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-emerald-500`}
+                  />
+                  {formErrors.name && <span id="name-error" className="text-[10px] text-rose-500 font-mono mt-1 block">{formErrors.name}</span>}
+                </div>
 
-            <button
-              type="submit"
-              id="btn-submit"
-              disabled={submitting}
-              className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold py-3.5 rounded-xl text-xs transition-all shadow-lg shadow-emerald-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {submitting ? 'Submitting Application...' : 'Submit Application'}
-            </button>
-          </form>
+                <div className="space-y-1.5">
+                  <label htmlFor="input-phone" className="text-xs text-slate-400 font-medium">Mobile Number (10-Digit) <span className="text-rose-500">*</span></label>
+                  <input
+                    type="tel"
+                    id="input-phone"
+                    maxLength={10}
+                    placeholder="9876543210"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                    aria-invalid={!!formErrors.phone}
+                    aria-describedby={formErrors.phone ? "phone-error" : undefined}
+                    className={`w-full bg-slate-950 border ${formErrors.phone ? 'border-rose-500' : 'border-slate-800'} rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-emerald-500`}
+                  />
+                  {formErrors.phone && <span id="phone-error" className="text-[10px] text-rose-500 font-mono mt-1 block">{formErrors.phone}</span>}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label htmlFor="input-city" className="text-xs text-slate-400 font-medium">City / Area <span className="text-slate-500">(Optional)</span></label>
+                    <input
+                      type="text"
+                      id="input-city"
+                      placeholder="e.g. Bhopal"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <label htmlFor="input-interest" className="text-xs text-slate-400 font-medium">Service Interest <span className="text-slate-500">(Optional)</span></label>
+                      {categoriesError && (
+                        <button
+                          type="button"
+                          onClick={fetchCategories}
+                          className="text-[10px] text-emerald-400 hover:underline cursor-pointer"
+                        >
+                          Retry Loading
+                        </button>
+                      )}
+                    </div>
+
+                    <select
+                      id="input-interest"
+                      value={interest}
+                      onChange={(e) => setInterest(e.target.value)}
+                      disabled={categoriesLoading}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-slate-300 outline-none focus:border-emerald-500 cursor-pointer disabled:opacity-50"
+                    >
+                      {categoriesLoading ? (
+                        <option value="">Loading categories...</option>
+                      ) : categoriesError ? (
+                        <option value="">Failed to load categories</option>
+                      ) : categories.length === 0 ? (
+                        <option value="">No categories available</option>
+                      ) : (
+                        <>
+                          <option value="">Select Service Category</option>
+                          {categories.map((cat) => (
+                            <option key={cat.id} value={cat.name}>
+                              {cat.name}
+                            </option>
+                          ))}
+                        </>
+                      )}
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  id="btn-submit"
+                  disabled={submitting}
+                  className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold py-3.5 rounded-xl text-xs transition-all shadow-lg shadow-emerald-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                >
+                  {submitting && (
+                    <svg className="animate-spin h-4 w-4 text-slate-950" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  )}
+                  <span>{submitting ? 'Submitting Application...' : 'Submit Application'}</span>
+                </button>
+              </form>
+            </>
+          )}
         </div>
       </main>
 

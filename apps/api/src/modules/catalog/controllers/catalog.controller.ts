@@ -36,7 +36,6 @@ export class CatalogController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('api/v1/catalog/categories')
   async getCategories(@Req() req: any, @Res({ passthrough: true }) res: any) {
     this.checkFeatureFlag();
