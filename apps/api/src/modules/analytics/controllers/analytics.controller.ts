@@ -19,8 +19,13 @@ export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
   @Get('dashboard/metrics')
-  async getDashboardMetrics() {
-    return this.analyticsService.getDashboardMetrics();
+  async getDashboardMetrics(
+    @Query('days') daysRaw?: string,
+    @Query('date_from') dateFrom?: string,
+    @Query('date_to') dateTo?: string,
+  ) {
+    const days = daysRaw ? Number(daysRaw) : undefined;
+    return this.analyticsService.getDashboardMetrics(days, dateFrom, dateTo);
   }
 
   @Get('reports')

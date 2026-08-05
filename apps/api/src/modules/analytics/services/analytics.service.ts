@@ -54,22 +54,38 @@ function sanitizeCsvCell(val: any): string {
 export class AnalyticsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getDashboardMetrics(): Promise<DashboardMetricsDto> {
-    // Consistent Asia/Kolkata (IST) day boundary calculation
+  async getDashboardMetrics(
+    days?: number,
+    dateFrom?: string,
+    dateTo?: string,
+  ): Promise<DashboardMetricsDto> {
     const now = new Date();
-    const istParts = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Asia/Kolkata',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }).formatToParts(now);
 
-    const year = istParts.find((p) => p.type === 'year')?.value;
-    const month = istParts.find((p) => p.type === 'month')?.value;
-    const day = istParts.find((p) => p.type === 'day')?.value;
+    let startDate: Date;
+    let endDate: Date;
 
-    const startOfToday = new Date(`${year}-${month}-${day}T00:00:00.000+05:30`);
-    const endOfToday = new Date(`${year}-${month}-${day}T23:59:59.999+05:30`);
+    if (days && !isNaN(days) && days > 0) {
+      startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+      endDate = now;
+    } else if (dateFrom && dateTo) {
+      startDate = new Date(dateFrom);
+      endDate = new Date(`${dateTo}T23:59:59.999Z`);
+    } else {
+      // Default: Consistent Asia/Kolkata (IST) day boundary calculation
+      const istParts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).formatToParts(now);
+
+      const year = istParts.find((p) => p.type === 'year')?.value;
+      const month = istParts.find((p) => p.type === 'month')?.value;
+      const day = istParts.find((p) => p.type === 'day')?.value;
+
+      startDate = new Date(`${year}-${month}-${day}T00:00:00.000+05:30`);
+      endDate = new Date(`${year}-${month}-${day}T23:59:59.999+05:30`);
+    }
 
     // Prepare last 5 months date ranges for dynamic monthly booking volume trend aggregation
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -96,28 +112,28 @@ export class AnalyticsService {
       ratingAggregate,
       ...monthlyCounts
     ] = await Promise.all([
-      // 1. Total Bookings Today
+      // 1. Total Bookings in Period
       this.prisma.booking.count({
         where: {
           createdAt: {
-            gte: startOfToday,
-            lte: endOfToday,
+            gte: startDate,
+            lte: endDate,
           },
         },
       }),
-      // 2a. Revenue Today - Online Payments
+      // 2a. Revenue in Period - Online Payments
       this.prisma.paymentOrder.aggregate({
         where: {
           status: 'PAYMENT_SUCCESS',
-          updatedAt: { gte: startOfToday, lte: endOfToday },
+          updatedAt: { gte: startDate, lte: endDate },
         },
         _sum: { amountPaise: true },
       }),
-      // 2b. Revenue Today - Settled Cash Payments
+      // 2b. Revenue in Period - Settled Cash Payments
       this.prisma.paymentOrder.findMany({
         where: {
           status: 'CASH_SETTLED',
-          updatedAt: { gte: startOfToday, lte: endOfToday },
+          updatedAt: { gte: startDate, lte: endDate },
         },
         select: { amountPaise: true, bookingId: true },
       }),
@@ -159,12 +175,12 @@ export class AnalyticsService {
       .map((p) => p.bookingId)
       .filter((id): id is string => Boolean(id));
 
-    // Completed cash-on-service bookings completed today not in settledBookingIds
+    // Completed cash-on-service bookings completed in period not in settledBookingIds
     const completedCashBookingsToday = await this.prisma.booking.findMany({
       where: {
         status: 'COMPLETED',
         paymentMethod: 'CASH_ON_SERVICE',
-        updatedAt: { gte: startOfToday, lte: endOfToday },
+        updatedAt: { gte: startDate, lte: endDate },
         id: settledBookingIds.length > 0 ? { notIn: settledBookingIds } : undefined,
       },
       select: { servicePriceSnapshot: true, paymentMethod: true },

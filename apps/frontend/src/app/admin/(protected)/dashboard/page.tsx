@@ -50,14 +50,8 @@ export default function AdminDashboardPage() {
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
   const [isExportingCsv, setIsExportingCsv] = useState<boolean>(false);
 
-  // Monthly Bar Chart Data (derived directly from API & database query aggregation)
-  const [monthlyBars, setMonthlyBars] = useState<MonthlyBarData[]>([
-    { month: 'Jan', count: 40, heightPx: 80 },
-    { month: 'Feb', count: 65, heightPx: 130 },
-    { month: 'Mar', count: 85, heightPx: 170 },
-    { month: 'Apr', count: 100, heightPx: 200 },
-    { month: 'May', count: 120, heightPx: 240 },
-  ]);
+  // Monthly Bar Chart Data (derived 100% live from API & database query aggregation)
+  const [monthlyBars, setMonthlyBars] = useState<MonthlyBarData[]>([]);
   const [hoveredBar, setHoveredBar] = useState<MonthlyBarData | null>(null);
 
   const fetchDashboardData = async (isManualRetry = false, periodOverride?: string) => {
@@ -84,24 +78,21 @@ export default function AdminDashboardPage() {
       let fetchFailed = false;
       let errorMessage = '';
 
+      const activePeriod = periodOverride || filterPeriod;
+      let queryParams = '';
+      if (activePeriod === '7' || activePeriod === '30' || activePeriod === '365') {
+        queryParams = `?days=${activePeriod}`;
+      } else if (activePeriod === 'custom' && startDate && endDate) {
+        queryParams = `?date_from=${startDate}&date_to=${endDate}`;
+      }
+
       // Fetch 5 KPI metrics + monthly_trend database aggregations
       try {
-        const metricsRes = await fetch('/api/v1/admin/dashboard/metrics', { headers });
+        const metricsRes = await fetch(`/api/v1/admin/dashboard/metrics${queryParams}`, { headers });
         if (metricsRes.ok) {
           const data = await metricsRes.json();
-          
-          // Compute period adjustments dynamically if non-default filter selected
-          const activePeriod = periodOverride || filterPeriod;
-          let adjusted = { ...data };
-          if (activePeriod === '7') {
-            adjusted.revenue_today_inr = Math.round(data.revenue_today_inr * 0.28) || 12400;
-            adjusted.total_bookings_today = Math.round(data.total_bookings_today * 0.27) || 32;
-          } else if (activePeriod === '365') {
-            adjusted.revenue_today_inr = (data.revenue_today_inr * 6.2) || 280000;
-            adjusted.total_bookings_today = (data.total_bookings_today * 6.0) || 720;
-          }
 
-          setMetrics(adjusted);
+          setMetrics(data);
 
           // Update Monthly Bar Chart representation dynamically from API monthly_trend data
           if (data.monthly_trend && Array.isArray(data.monthly_trend) && data.monthly_trend.length > 0) {
@@ -117,14 +108,7 @@ export default function AdminDashboardPage() {
               }),
             );
           } else {
-            const baseCount = adjusted.total_bookings_today || 120;
-            setMonthlyBars([
-              { month: 'Jan', count: Math.round(baseCount * 0.33), heightPx: 80 },
-              { month: 'Feb', count: Math.round(baseCount * 0.54), heightPx: 130 },
-              { month: 'Mar', count: Math.round(baseCount * 0.71), heightPx: 170 },
-              { month: 'Apr', count: Math.round(baseCount * 0.83), heightPx: 200 },
-              { month: 'May', count: baseCount, heightPx: 240 },
-            ]);
+            setMonthlyBars([]);
           }
 
         } else {
