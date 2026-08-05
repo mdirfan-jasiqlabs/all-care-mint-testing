@@ -157,7 +157,7 @@ export class CatalogController {
     };
   }
 
-  @Get('api/v1/public/categories')
+  @Get(['api/v1/public/categories', 'api/v1/public/catalog/categories'])
   async getPublicCategories(@Res({ passthrough: true }) res: any) {
     this.checkFeatureFlag();
     const categories = await this.catalogService.getActiveCategories();

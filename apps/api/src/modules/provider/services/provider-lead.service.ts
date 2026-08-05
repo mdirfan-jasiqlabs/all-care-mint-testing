@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { SubmitProviderLeadDto } from '../dto/provider.dto';
 
@@ -9,13 +9,32 @@ export class ProviderLeadService {
   constructor(private readonly prisma: PrismaService) {}
 
   async submitLead(dto: SubmitProviderLeadDto) {
-    const rawMobile = dto.mobileNumber || '';
+    const rawMobile = dto.mobileNumber || dto.mobile || '';
     const cleanMobile = rawMobile.replace(/\D/g, '').slice(-10);
-    const maskedMobile = cleanMobile.length >= 7
-      ? `${cleanMobile.slice(0, 3)}***${cleanMobile.slice(-4)}`
-      : '***';
+    const serviceArea = (dto.serviceArea || dto.service_area || 'General').trim();
 
-    this.logger.log(`Received public provider lead submission for area: ${dto.serviceArea}, mobile: ${maskedMobile}`);
+    if (!cleanMobile || cleanMobile.length !== 10 || !/^[6-9][0-9]{9}$/.test(cleanMobile)) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'ERR_INVALID_MOBILE',
+          message: 'Mobile number is required and must be a valid 10-digit Indian mobile number.',
+        },
+      });
+    }
+
+    if (!dto.name || !dto.name.trim()) {
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'ERR_MISSING_NAME',
+          message: 'Full name is required.',
+        },
+      });
+    }
+
+    const maskedMobile = `${cleanMobile.slice(0, 3)}***${cleanMobile.slice(-4)}`;
+    this.logger.log(`Received public provider lead submission for area: ${serviceArea}, mobile: ${maskedMobile}`);
 
     // Race-condition-safe duplicate submission check inside transaction
     const lead = await this.prisma.$transaction(async (tx) => {
@@ -37,7 +56,7 @@ export class ProviderLeadService {
         data: {
           name: dto.name.trim(),
           mobileNumber: cleanMobile,
-          serviceArea: dto.serviceArea.trim(),
+          serviceArea,
           isAcknowledged: false,
         },
       });
@@ -46,6 +65,7 @@ export class ProviderLeadService {
     return {
       id: lead.id,
       name: lead.name,
+      mobileNumber: lead.mobileNumber,
       serviceArea: lead.serviceArea,
       createdAt: lead.createdAt,
     };

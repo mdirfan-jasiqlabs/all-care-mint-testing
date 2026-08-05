@@ -47,13 +47,34 @@ export class SubmitProviderLeadDto {
   @MaxLength(150)
   name: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @Matches(/^[6-9][0-9]{9}$/, { message: 'Invalid 10-digit Indian mobile number format' })
-  mobileNumber: string;
+  mobileNumber?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
+  @Matches(/^[6-9][0-9]{9}$/, { message: 'Invalid 10-digit Indian mobile number format' })
+  mobile?: string;
+
+  @IsOptional()
+  @IsString()
   @MaxLength(100)
-  serviceArea: string;
+  serviceArea?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  service_area?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  serviceType?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  service_type?: string;
 }
+
