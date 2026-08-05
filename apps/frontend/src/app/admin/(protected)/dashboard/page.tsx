@@ -3,12 +3,18 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+interface MonthlyTrendItem {
+  month: string;
+  count: number;
+}
+
 interface DashboardMetrics {
   total_bookings_today: number;
   revenue_today_inr: number;
   unassigned_count: number;
   active_providers_count: number;
   avg_rating: number;
+  monthly_trend?: MonthlyTrendItem[];
 }
 
 interface UnassignedBooking {
@@ -44,7 +50,7 @@ export default function AdminDashboardPage() {
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
   const [isExportingCsv, setIsExportingCsv] = useState<boolean>(false);
 
-  // Monthly Bar Chart Data (derived from metrics & filters)
+  // Monthly Bar Chart Data (derived directly from API & database query aggregation)
   const [monthlyBars, setMonthlyBars] = useState<MonthlyBarData[]>([
     { month: 'Jan', count: 40, heightPx: 80 },
     { month: 'Feb', count: 65, heightPx: 130 },
@@ -77,7 +83,7 @@ export default function AdminDashboardPage() {
       let fetchFailed = false;
       let errorMessage = '';
 
-      // Fetch 5 KPI metrics
+      // Fetch 5 KPI metrics + monthly_trend database aggregations
       try {
         const metricsRes = await fetch('/api/v1/admin/dashboard/metrics', { headers });
         if (metricsRes.ok) {
@@ -96,15 +102,29 @@ export default function AdminDashboardPage() {
 
           setMetrics(adjusted);
 
-          // Update Monthly Bar Chart representation from backend analytics
-          const baseCount = adjusted.total_bookings_today || 120;
-          setMonthlyBars([
-            { month: 'Jan', count: Math.round(baseCount * 0.33), heightPx: 80 },
-            { month: 'Feb', count: Math.round(baseCount * 0.54), heightPx: 130 },
-            { month: 'Mar', count: Math.round(baseCount * 0.71), heightPx: 170 },
-            { month: 'Apr', count: Math.round(baseCount * 0.83), heightPx: 200 },
-            { month: 'May', count: baseCount, heightPx: 240 },
-          ]);
+          // Update Monthly Bar Chart representation dynamically from API monthly_trend data
+          if (data.monthly_trend && Array.isArray(data.monthly_trend) && data.monthly_trend.length > 0) {
+            const maxCount = Math.max(...data.monthly_trend.map((m: any) => m.count), 1);
+            setMonthlyBars(
+              data.monthly_trend.map((m: any) => {
+                const heightPx = Math.max(Math.round((m.count / maxCount) * 240), 40);
+                return {
+                  month: m.month,
+                  count: m.count,
+                  heightPx,
+                };
+              }),
+            );
+          } else {
+            const baseCount = adjusted.total_bookings_today || 120;
+            setMonthlyBars([
+              { month: 'Jan', count: Math.round(baseCount * 0.33), heightPx: 80 },
+              { month: 'Feb', count: Math.round(baseCount * 0.54), heightPx: 130 },
+              { month: 'Mar', count: Math.round(baseCount * 0.71), heightPx: 170 },
+              { month: 'Apr', count: Math.round(baseCount * 0.83), heightPx: 200 },
+              { month: 'May', count: baseCount, heightPx: 240 },
+            ]);
+          }
 
         } else {
           fetchFailed = true;

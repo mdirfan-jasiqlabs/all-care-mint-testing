@@ -3,12 +3,18 @@ import { Response } from 'express';
 import { Readable } from 'stream';
 import { PrismaService } from '../../../prisma/prisma.service';
 
+export interface MonthlyTrendDto {
+  month: string;
+  count: number;
+}
+
 export interface DashboardMetricsDto {
   total_bookings_today: number;
   revenue_today_inr: number;
   unassigned_count: number;
   active_providers_count: number;
   avg_rating: number;
+  monthly_trend: MonthlyTrendDto[];
 }
 
 export interface ReportItemDto {
@@ -65,7 +71,22 @@ export class AnalyticsService {
     const startOfToday = new Date(`${year}-${month}-${day}T00:00:00.000+05:30`);
     const endOfToday = new Date(`${year}-${month}-${day}T23:59:59.999+05:30`);
 
-    // Execute independent metrics queries concurrently via Promise.all for optimal SLA performance
+    // Prepare last 5 months date ranges for dynamic monthly booking volume trend aggregation
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentMonthIdx = now.getMonth();
+    const monthsToQuery = [];
+    for (let i = 4; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), currentMonthIdx - i, 1);
+      const startOfMonth = new Date(d.getFullYear(), d.getMonth(), 1, 0, 0, 0, 0);
+      const endOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+      monthsToQuery.push({
+        month: monthNames[d.getMonth()],
+        startOfMonth,
+        endOfMonth,
+      });
+    }
+
+    // Execute independent metrics & monthly trend queries concurrently via Promise.all
     const [
       total_bookings_today,
       onlinePaymentsToday,
@@ -73,6 +94,7 @@ export class AnalyticsService {
       unassigned_count,
       active_providers_count,
       ratingAggregate,
+      ...monthlyCounts
     ] = await Promise.all([
       // 1. Total Bookings Today
       this.prisma.booking.count({
@@ -118,6 +140,14 @@ export class AnalyticsService {
           ratingScore: true,
         },
       }),
+      // 6. Monthly Booking Volume Aggregations (Last 5 Months)
+      ...monthsToQuery.map((m) =>
+        this.prisma.booking.count({
+          where: {
+            createdAt: { gte: m.startOfMonth, lte: m.endOfMonth },
+          },
+        }),
+      ),
     ]);
 
     const onlineRevenueInr = (onlinePaymentsToday._sum.amountPaise || 0) / 100;
@@ -150,12 +180,18 @@ export class AnalyticsService {
     const rawAvg = ratingAggregate._avg.ratingScore || 0;
     const avg_rating = Math.round(rawAvg * 100) / 100;
 
+    const monthly_trend: MonthlyTrendDto[] = monthsToQuery.map((m, idx) => ({
+      month: m.month,
+      count: monthlyCounts[idx] || 0,
+    }));
+
     return {
       total_bookings_today,
       revenue_today_inr,
       unassigned_count,
       active_providers_count,
       avg_rating,
+      monthly_trend,
     };
   }
 
