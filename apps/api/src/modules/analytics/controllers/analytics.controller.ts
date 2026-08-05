@@ -31,7 +31,7 @@ export class AnalyticsController {
     @Query('format') format: string,
     @Query('page') pageRaw?: string,
     @Query('page_size') pageSizeRaw?: string,
-    @Res({ passthrough: true }) res?: Response,
+    @Res() res?: any,
   ) {
     const normalizedFormat = format ? format.toLowerCase() : 'json';
     if (!['json', 'csv'].includes(normalizedFormat)) {
@@ -40,8 +40,7 @@ export class AnalyticsController {
 
     if (normalizedFormat === 'csv') {
       if (res) {
-        await this.analyticsService.streamCsvReport(res, type, dateFrom, dateTo);
-        return;
+        return this.analyticsService.streamCsvReport(res, type, dateFrom, dateTo);
       }
       // Fallback if res is omitted (e.g. unit testing direct controller call)
       const legacyResult = await this.analyticsService.getReports(type, dateFrom, dateTo, format);

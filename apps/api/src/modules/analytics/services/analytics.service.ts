@@ -299,7 +299,7 @@ export class AnalyticsService {
   }
 
   async streamCsvReport(
-    res: Response,
+    res: any,
     type: string = 'booking',
     dateFrom?: string,
     dateTo?: string,
@@ -311,11 +311,7 @@ export class AnalyticsService {
       'csv',
     );
 
-    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="report-${normalizedType}-${dateFrom || 'all'}-${dateTo || 'all'}.csv"`,
-    );
+    const filename = `report-${normalizedType}-${dateFrom || 'all'}-${dateTo || 'all'}.csv`;
 
     const self = this;
     const asyncGenerator = async function* () {
@@ -327,7 +323,7 @@ export class AnalyticsService {
       let hasMore = true;
 
       while (hasMore) {
-        if (res.writableEnded || res.destroyed) {
+        if (res.writableEnded || res.destroyed || (res.raw && (res.raw.writableEnded || res.raw.destroyed))) {
           break;
         }
 
@@ -379,7 +375,22 @@ export class AnalyticsService {
     };
 
     const csvStream = Readable.from(asyncGenerator());
-    csvStream.pipe(res);
+
+    if (typeof res.header === 'function' && typeof res.send === 'function') {
+      // Fastify Reply
+      res.header('Content-Type', 'text/csv; charset=utf-8');
+      res.header('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.send(csvStream);
+    } else if (typeof res.setHeader === 'function') {
+      // Express Response
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      csvStream.pipe(res);
+    } else if (res.raw && typeof res.raw.setHeader === 'function') {
+      res.raw.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.raw.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      csvStream.pipe(res.raw);
+    }
   }
 
   // Maintained for backwards compatibility with existing callers/tests
