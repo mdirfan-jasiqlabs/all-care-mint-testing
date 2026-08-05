@@ -58,6 +58,7 @@ export default function AdminDashboardPage() {
     { month: 'Apr', count: 100, heightPx: 200 },
     { month: 'May', count: 120, heightPx: 240 },
   ]);
+  const [hoveredBar, setHoveredBar] = useState<MonthlyBarData | null>(null);
 
   const fetchDashboardData = async (isManualRetry = false, periodOverride?: string) => {
     if (isManualRetry) {
@@ -589,7 +590,13 @@ export default function AdminDashboardPage() {
             <h3 style={{ fontSize: '12px', fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>
               Booking Volume Distribution (Monthly)
             </h3>
-            <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>Units: counts</span>
+            {hoveredBar ? (
+              <span style={{ fontSize: '11px', color: '#10b981', fontFamily: 'monospace', fontWeight: 700, animation: 'fadeIn 0.2s ease-in-out' }}>
+                Active: {hoveredBar.month} → {hoveredBar.count.toLocaleString()} Total Bookings
+              </span>
+            ) : (
+              <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>Units: counts (Hover bar for details)</span>
+            )}
           </div>
 
           {/* Interactive Bar Chart Representation */}
@@ -625,56 +632,77 @@ export default function AdminDashboardPage() {
               </div>
             )}
 
-            {monthlyBars.map((bar) => (
-              <div
-                key={bar.month}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  flex: 1,
-                  position: 'relative',
-                  cursor: 'pointer',
-                }}
-                className="group"
-              >
-                {/* Tooltip on Hover */}
+            {monthlyBars.map((bar) => {
+              const isHovered = hoveredBar?.month === bar.month;
+              return (
                 <div
+                  key={bar.month}
+                  onMouseEnter={() => setHoveredBar(bar)}
+                  onMouseLeave={() => setHoveredBar(null)}
                   style={{
-                    display: 'none',
-                    position: 'absolute',
-                    top: '-32px',
-                    backgroundColor: '#1e293b',
-                    color: '#ffffff',
-                    fontSize: '10px',
-                    fontFamily: 'monospace',
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    whiteSpace: 'nowrap',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    flex: 1,
+                    position: 'relative',
+                    cursor: 'pointer',
                   }}
-                  className="group-hover:block"
                 >
-                  Total: {bar.count}
-                </div>
+                  {/* Premium Glowing Glassmorphism Tooltip */}
+                  {isHovered && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '-52px',
+                        backgroundColor: '#0f172a',
+                        border: '1px solid rgba(16, 185, 129, 0.5)',
+                        color: '#ffffff',
+                        fontSize: '11px',
+                        fontFamily: 'monospace',
+                        padding: '4px 10px',
+                        borderRadius: '8px',
+                        whiteSpace: 'nowrap',
+                        boxShadow: '0 8px 20px rgba(16, 185, 129, 0.3)',
+                        zIndex: 30,
+                        pointerEvents: 'none',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '2px',
+                      }}
+                    >
+                      <span style={{ fontWeight: 700, color: '#10b981' }}>{bar.month}</span>
+                      <span>{bar.count.toLocaleString()} Bookings</span>
+                    </div>
+                  )}
 
-                {/* Animated Bar */}
-                <div
-                  style={{
-                    width: '48px',
-                    height: `${bar.heightPx}px`,
-                    backgroundColor: 'rgba(16, 185, 129, 0.4)',
-                    borderTopLeftRadius: '4px',
-                    borderTopRightRadius: '4px',
-                    transition: 'all 0.3s ease',
-                  }}
-                  className="group-hover:bg-emerald-500"
-                />
-                <span style={{ fontSize: '11px', color: '#64748b', marginTop: '8px', fontWeight: 600 }}>
-                  {bar.month}
-                </span>
-              </div>
-            ))}
+                  {/* Smooth Animated Bar */}
+                  <div
+                    style={{
+                      width: '48px',
+                      height: `${bar.heightPx}px`,
+                      backgroundColor: isHovered ? '#10b981' : 'rgba(16, 185, 129, 0.45)',
+                      borderTopLeftRadius: '6px',
+                      borderTopRightRadius: '6px',
+                      transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                      transform: isHovered ? 'translateY(-6px) scaleX(1.08)' : 'none',
+                      boxShadow: isHovered ? '0 0 24px rgba(16, 185, 129, 0.7)' : '0 4px 6px rgba(0,0,0,0.2)',
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      color: isHovered ? '#10b981' : '#64748b',
+                      marginTop: '8px',
+                      fontWeight: isHovered ? 700 : 600,
+                      transition: 'color 0.2s ease',
+                    }}
+                  >
+                    {bar.month}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
