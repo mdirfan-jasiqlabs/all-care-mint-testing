@@ -71,6 +71,14 @@ export class AnalyticsController {
       pageSize,
     );
 
+    if (res) {
+      if (typeof res.send === 'function') {
+        return res.send(result);
+      } else if (typeof res.json === 'function') {
+        return res.json(result);
+      }
+    }
+
     return result;
   }
 }
