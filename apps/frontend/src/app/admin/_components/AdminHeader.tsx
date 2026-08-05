@@ -1,14 +1,25 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useCatalogETag } from '../catalog/CatalogETagContext';
 
 export default function AdminHeader() {
   const router = useRouter();
+  const pathname = usePathname() || '';
   const [loggingOut, setLoggingOut] = useState(false);
   const [csrfToken, setCsrfToken] = useState('');
   const { etag } = useCatalogETag();
+
+  const getModuleBadge = () => {
+    if (pathname.includes('/admin/reports') || pathname.includes('/admin/dashboard')) {
+      return 'MOD-007';
+    }
+    if (pathname.includes('/admin/catalog')) {
+      return 'MOD-001';
+    }
+    return 'MOD-007';
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -74,7 +85,7 @@ export default function AdminHeader() {
           </span>
         </div>
         <span style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.2)', fontSize: '12px', padding: '4px 12px', borderRadius: '20px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>
-          MOD-001
+          {getModuleBadge()}
         </span>
         <span style={{ background: '#1e293b', color: '#cbd5e1', fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600 }}>
           Admin Panel
