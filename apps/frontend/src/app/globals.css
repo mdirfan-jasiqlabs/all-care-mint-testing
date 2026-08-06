@@ -40,7 +40,7 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Premium Custom Dark Scrollbar */
+/* Premium Custom Green Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -51,18 +51,18 @@ html, body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #10b981;
   border-radius: 9999px;
   border: 2px solid #060a12;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #10b981;
+  background: #34d399;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #1e293b #060a12;
+  scrollbar-color: #10b981 #060a12;
 }
 
 /* Background mesh gradient */
