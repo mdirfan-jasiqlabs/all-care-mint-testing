@@ -276,28 +276,30 @@ export default function PublicHomePage() {
                 </Link>
               </div>
 
-              {/* App Download Row */}
-              <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-                <div className="flex items-center space-x-2 text-xs font-semibold text-slate-400">
-                  <span className="w-8 h-[1px] bg-slate-800" />
-                  <span>Also available on</span>
-                  <span className="w-8 h-[1px] bg-slate-800" />
+              {/* App Download Row (Text on top, button below) */}
+              <div className="pt-2 space-y-3">
+                <div className="flex items-center space-x-3 text-xs font-semibold text-slate-400">
+                  <span className="w-12 h-[1px] bg-slate-800" />
+                  <span className="text-[11px] text-slate-400 font-medium">Also available on</span>
+                  <span className="w-12 h-[1px] bg-slate-800" />
                 </div>
                 
                 {/* Official Google Play Badge */}
-                <button
-                  onClick={() => simulateDownload('Customer')}
-                  aria-label="Get it on Google Play"
-                  className="inline-flex items-center space-x-3 bg-slate-950 border border-slate-800 hover:border-slate-700 px-4 py-2 rounded-xl transition-all cursor-pointer shadow-md"
-                >
-                  <svg className="w-6 h-6 text-emerald-400 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M3 20.5v-17c0-.55.3-1.02.76-1.26L14.2 12 3.76 21.76c-.46-.24-.76-.71-.76-1.26zM15.6 13.4l2.76-2.76c.39-.39.39-1.02 0-1.41l-2.76-2.76-2.4 2.4 2.4 2.42zM4.94 1.55L14.2 10.8l-2.4 2.4L3.76 2.24c.3-.16.74-.18 1.18-.69zM4.94 22.45L11.8 15.6l2.4 2.4-9.26 9.25c-.44.51-.88.49-1.18.33z" />
-                  </svg>
-                  <div className="text-left leading-tight">
-                    <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold block">GET IT ON</span>
-                    <span className="text-xs font-black text-white block">Google Play</span>
-                  </div>
-                </button>
+                <div>
+                  <button
+                    onClick={() => simulateDownload('Customer')}
+                    aria-label="Get it on Google Play"
+                    className="inline-flex items-center space-x-3.5 bg-slate-950 border border-slate-800 hover:border-emerald-500/40 px-4 py-2.5 rounded-2xl transition-all cursor-pointer shadow-md group"
+                  >
+                    <svg className="w-6 h-6 text-emerald-400 fill-current group-hover:scale-105 transition-transform" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M3 20.5v-17c0-.55.3-1.02.76-1.26L14.2 12 3.76 21.76c-.46-.24-.76-.71-.76-1.26zM15.6 13.4l2.76-2.76c.39-.39.39-1.02 0-1.41l-2.76-2.76-2.4 2.4 2.4 2.42zM4.94 1.55L14.2 10.8l-2.4 2.4L3.76 2.24c.3-.16.74-.18 1.18-.69zM4.94 22.45L11.8 15.6l2.4 2.4-9.26 9.25c-.44.51-.88.49-1.18.33z" />
+                    </svg>
+                    <div className="text-left leading-tight">
+                      <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold block">GET IT ON</span>
+                      <span className="text-xs font-black text-white block">Google Play</span>
+                    </div>
+                  </button>
+                </div>
               </div>
 
               {/* Trust Features Row (4 Equal Glass Cards inside a single bar) */}
