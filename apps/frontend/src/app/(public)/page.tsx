@@ -176,8 +176,8 @@ export default function PublicHomePage() {
       )}
 
       {/* Background Ambient Glow & Vector Wave Lines */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-emerald-500/10 rounded-full blur-[160px] pointer-events-none -z-10" />
-      <div className="absolute bottom-0 right-0 w-[500px] h-[300px] opacity-15 pointer-events-none -z-10">
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none -z-10" />
+      <div className="absolute bottom-0 right-0 w-[450px] h-[250px] opacity-15 pointer-events-none -z-10">
         <svg viewBox="0 0 500 300" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M0 250C120 200 250 280 500 150V300H0V250Z" fill="url(#waveGrad)" />
           <defs>
@@ -190,66 +190,66 @@ export default function PublicHomePage() {
       </div>
 
       {/* Main Content Sections */}
-      <div className="space-y-20 pb-20">
+      <div className="space-y-16 pb-16">
 
-        {/* HERO SECTION */}
-        <section id="hero" className="relative pt-8 sm:pt-12 md:pt-16 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        {/* HERO SECTION (COMPACT & SLEEK) */}
+        <section id="hero" className="relative pt-6 sm:pt-8 md:pt-10 pb-6 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
 
           {/* Two-Column Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center">
             
             {/* LEFT COLUMN: Content */}
-            <div className="lg:col-span-7 space-y-8 text-left">
+            <div className="lg:col-span-7 space-y-5 text-left">
               
               {/* Trust Badge */}
-              <div className="inline-flex items-center space-x-2 bg-slate-900/90 border border-emerald-500/30 px-4 py-1.5 rounded-full backdrop-blur-md shadow-inner">
-                <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+              <div className="inline-flex items-center space-x-2 bg-slate-900/90 border border-emerald-500/30 px-3.5 py-1 rounded-full backdrop-blur-md shadow-inner">
+                <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-emerald-400">
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-emerald-400">
                   TRUSTED HOME SERVICES, ON DEMAND
                 </span>
               </div>
 
               {/* Main Heading */}
-              <div className="space-y-1">
-                <h1 className="text-4xl sm:text-5xl lg:text-[62px] font-black text-white leading-[1.08] tracking-tight">
+              <div>
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-[1.12] tracking-tight">
                   Home Services,<br />
                   Perfected.<br />
                   <span className="text-emerald-400 font-black relative inline-block">
                     At Your Doorstep.
-                    <svg className="absolute -bottom-2 left-0 w-full h-3 text-emerald-400/40" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true">
-                      <path d="M0 15 Q 50 0 100 15" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" />
+                    <svg className="absolute -bottom-1.5 left-0 w-full h-2.5 text-emerald-400/40" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true">
+                      <path d="M0 15 Q 50 0 100 15" stroke="currentColor" strokeWidth="3.5" fill="none" strokeLinecap="round" />
                     </svg>
                   </span>
                 </h1>
               </div>
 
               {/* Supporting Description */}
-              <p className="text-slate-300 text-base sm:text-lg max-w-xl font-normal leading-relaxed">
+              <p className="text-slate-300 text-sm sm:text-base max-w-lg font-normal leading-relaxed">
                 Book verified local professionals for cleaning, AC repair, plumbing, painting, and more—in{' '}
                 <span className="text-emerald-400 font-bold">less than 60 seconds</span>.
               </p>
 
               {/* Dual Action CTAs */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
                 {/* Primary CTA: Book a Service */}
                 <Link
                   href="/services"
-                  className="group relative flex items-center justify-between bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-6 py-3.5 rounded-2xl transition-all duration-200 shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:-translate-y-0.5"
+                  className="group relative flex items-center justify-between bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-5 py-3 rounded-xl transition-all duration-200 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:-translate-y-0.5"
                 >
-                  <div className="flex items-center space-x-3.5">
-                    <div className="w-10 h-10 bg-slate-950/15 rounded-xl flex items-center justify-center text-slate-950">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-slate-950/15 rounded-lg flex items-center justify-center text-slate-950">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </div>
                     <div className="text-left leading-tight">
-                      <span className="block text-sm font-black tracking-wide text-slate-950">BOOK A SERVICE</span>
-                      <span className="block text-xs font-semibold text-slate-900/90">Find a trusted professional</span>
+                      <span className="block text-xs font-black tracking-wide text-slate-950">BOOK A SERVICE</span>
+                      <span className="block text-[10px] font-semibold text-slate-900/90">Find a trusted professional</span>
                     </div>
                   </div>
-                  <svg className="w-5 h-5 ml-4 text-slate-950 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg className="w-4 h-4 ml-3 text-slate-950 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
@@ -257,32 +257,32 @@ export default function PublicHomePage() {
                 {/* Secondary CTA: Become a Service Partner */}
                 <Link
                   href="/become-a-provider"
-                  className="group flex items-center justify-between bg-slate-950/80 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 text-white px-6 py-3.5 rounded-2xl transition-all duration-200 shadow-lg hover:-translate-y-0.5"
+                  className="group flex items-center justify-between bg-slate-950/80 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 text-white px-5 py-3 rounded-xl transition-all duration-200 shadow-md hover:-translate-y-0.5"
                 >
-                  <div className="flex items-center space-x-3.5">
-                    <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                     </div>
                     <div className="text-left leading-tight">
-                      <span className="block text-sm font-bold tracking-wide text-white">BECOME A SERVICE PARTNER</span>
-                      <span className="block text-xs text-slate-400 font-normal">Join our professional network</span>
+                      <span className="block text-xs font-bold tracking-wide text-white">BECOME A SERVICE PARTNER</span>
+                      <span className="block text-[10px] text-slate-400 font-normal">Join our professional network</span>
                     </div>
                   </div>
-                  <svg className="w-5 h-5 ml-4 text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg className="w-4 h-4 ml-3 text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
               </div>
 
               {/* App Download Section (Centered text divider + official Google Play Badge below) */}
-              <div className="pt-2 space-y-3.5 max-w-sm">
+              <div className="pt-1 space-y-2.5 max-w-xs">
                 {/* Centered Divider with Text */}
-                <div className="flex items-center justify-center space-x-3">
-                  <span className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-slate-700 to-slate-700" />
-                  <span className="text-xs text-slate-300 font-medium tracking-wide">Also available on</span>
-                  <span className="flex-1 h-[1px] bg-gradient-to-l from-transparent via-slate-700 to-slate-700" />
+                <div className="flex items-center justify-center space-x-2.5">
+                  <span className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-slate-800 to-slate-800" />
+                  <span className="text-[11px] text-slate-400 font-medium tracking-wide">Also available on</span>
+                  <span className="flex-1 h-[1px] bg-gradient-to-l from-transparent via-slate-800 to-slate-800" />
                 </div>
                 
                 {/* Official Google Play Badge Button (Centered below divider) */}
@@ -290,10 +290,10 @@ export default function PublicHomePage() {
                   <button
                     onClick={() => simulateDownload('Customer')}
                     aria-label="Get it on Google Play"
-                    className="inline-flex items-center space-x-3 bg-black border border-slate-700/80 hover:border-slate-500 px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+                    className="inline-flex items-center space-x-2.5 bg-black border border-slate-800 hover:border-slate-600 px-4 py-2 rounded-xl transition-all cursor-pointer shadow-lg hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {/* Official Colorful Google Play Logo SVG */}
-                    <svg className="w-7 h-7 flex-shrink-0" viewBox="0 0 512 512" fill="none">
+                    <svg className="w-6 h-6 flex-shrink-0" viewBox="0 0 512 512" fill="none">
                       <path d="M32.5 17.5C30.2 19.8 29 23.2 29 27.5V484.5C29 488.8 30.2 492.2 32.5 494.5L33.7 495.7L276.7 252.7V249.3L33.7 6.3L32.5 17.5Z" fill="url(#gplay_a)" />
                       <path d="M357.7 333.7L276.7 252.7V249.3L357.7 168.3L359.1 169.1L455.1 223.7C482.5 239.3 482.5 264.7 455.1 280.3L359.1 334.9L357.7 333.7Z" fill="url(#gplay_b)" />
                       <path d="M359.1 334.9L276.7 252.7L32.5 494.5C40.6 503.1 53.6 504.2 68.7 495.7L359.1 334.9Z" fill="url(#gplay_c)" />
@@ -319,66 +319,66 @@ export default function PublicHomePage() {
                     </svg>
 
                     <div className="text-left leading-tight">
-                      <span className="text-[9px] font-bold tracking-wider text-white uppercase block">GET IT ON</span>
-                      <span className="text-base font-extrabold text-white tracking-tight block">Google Play</span>
+                      <span className="text-[8px] font-bold tracking-wider text-slate-400 uppercase block">GET IT ON</span>
+                      <span className="text-xs font-extrabold text-white tracking-tight block">Google Play</span>
                     </div>
                   </button>
                 </div>
               </div>
 
               {/* Trust Features Row (4 Equal Glass Cards inside a single bar) */}
-              <div className="pt-6">
-                <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 backdrop-blur-sm grid grid-cols-2 sm:grid-cols-4 gap-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-800/80">
+              <div className="pt-4">
+                <div className="bg-slate-900/40 border border-slate-800/80 rounded-xl p-3 backdrop-blur-sm grid grid-cols-2 sm:grid-cols-4 gap-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-800/80">
                   
                   {/* Card 1 */}
-                  <div className="space-y-2 pt-2 sm:pt-0 sm:px-3 first:pt-0 first:px-0">
-                    <div className="w-8 h-8 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <div className="space-y-1.5 pt-1.5 sm:pt-0 sm:px-2 first:pt-0 first:px-0">
+                    <div className="w-7 h-7 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg flex items-center justify-center">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                       </svg>
                     </div>
                     <div>
-                      <h4 className="text-xs font-extrabold text-white">Verified Professionals</h4>
-                      <p className="text-[11px] text-slate-400 leading-snug mt-0.5">Background verified & skilled experts</p>
+                      <h4 className="text-xs font-bold text-white">Verified Professionals</h4>
+                      <p className="text-[10px] text-slate-400 leading-snug">Background verified & skilled experts</p>
                     </div>
                   </div>
 
                   {/* Card 2 */}
-                  <div className="space-y-2 pt-2 sm:pt-0 sm:px-3">
-                    <div className="w-8 h-8 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <div className="space-y-1.5 pt-1.5 sm:pt-0 sm:px-2">
+                    <div className="w-7 h-7 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg flex items-center justify-center">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                       </svg>
                     </div>
                     <div>
-                      <h4 className="text-xs font-extrabold text-white">Top Rated Services</h4>
-                      <p className="text-[11px] text-slate-400 leading-snug mt-0.5">Loved by thousands of happy customers</p>
+                      <h4 className="text-xs font-bold text-white">Top Rated Services</h4>
+                      <p className="text-[10px] text-slate-400 leading-snug">Loved by thousands of happy customers</p>
                     </div>
                   </div>
 
                   {/* Card 3 */}
-                  <div className="space-y-2 pt-2 sm:pt-0 sm:px-3">
-                    <div className="w-8 h-8 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <div className="space-y-1.5 pt-1.5 sm:pt-0 sm:px-2">
+                    <div className="w-7 h-7 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg flex items-center justify-center">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
                     <div>
-                      <h4 className="text-xs font-extrabold text-white">Quick Booking</h4>
-                      <p className="text-[11px] text-slate-400 leading-snug mt-0.5">Book in less than 60 seconds</p>
+                      <h4 className="text-xs font-bold text-white">Quick Booking</h4>
+                      <p className="text-[10px] text-slate-400 leading-snug">Book in less than 60 seconds</p>
                     </div>
                   </div>
 
                   {/* Card 4 */}
-                  <div className="space-y-2 pt-2 sm:pt-0 sm:px-3">
-                    <div className="w-8 h-8 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <div className="space-y-1.5 pt-1.5 sm:pt-0 sm:px-2">
+                    <div className="w-7 h-7 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg flex items-center justify-center">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
                     </div>
                     <div>
-                      <h4 className="text-xs font-extrabold text-white">Secure & Reliable</h4>
-                      <p className="text-[11px] text-slate-400 leading-snug mt-0.5">Safe payments & dedicated support</p>
+                      <h4 className="text-xs font-bold text-white">Secure & Reliable</h4>
+                      <p className="text-[10px] text-slate-400 leading-snug">Safe payments & dedicated support</p>
                     </div>
                   </div>
 
@@ -388,95 +388,95 @@ export default function PublicHomePage() {
             </div>
 
             {/* RIGHT COLUMN: Smartphone Mockup with Branded Technician & Floating Service Chips */}
-            <div className="lg:col-span-5 relative flex items-center justify-center min-h-[480px] sm:min-h-[560px]">
+            <div className="lg:col-span-5 relative flex items-center justify-center min-h-[380px] sm:min-h-[440px]">
               
               {/* Radial Glowing Background Rings */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-72 h-72 sm:w-96 sm:h-96 rounded-full border border-emerald-500/25 animate-pulse" />
-                <div className="absolute w-96 h-96 sm:w-[480px] sm:h-[480px] rounded-full border border-emerald-500/10" />
-                <div className="absolute w-64 h-64 sm:w-80 sm:h-80 bg-emerald-500/15 rounded-full blur-3xl" />
+                <div className="w-60 h-60 sm:w-72 sm:h-72 rounded-full border border-emerald-500/20 animate-pulse" />
+                <div className="absolute w-80 h-80 sm:w-[380px] sm:h-[380px] rounded-full border border-emerald-500/10" />
+                <div className="absolute w-52 h-52 sm:w-64 sm:h-64 bg-emerald-500/15 rounded-full blur-2xl" />
               </div>
 
-              {/* Smartphone Frame Container */}
-              <div className="relative z-10 w-64 sm:w-72 md:w-80 rounded-[42px] border-4 border-emerald-500/40 bg-slate-950 shadow-2xl shadow-emerald-500/25 p-2 overflow-hidden">
+              {/* Smartphone Frame Container (Compact 250px-270px) */}
+              <div className="relative z-10 w-56 sm:w-64 md:w-68 rounded-[36px] border-4 border-emerald-500/40 bg-slate-950 shadow-xl shadow-emerald-500/20 p-1.5 overflow-hidden">
                 
                 {/* Smartphone Status Bar Mockup */}
-                <div className="bg-slate-900/90 rounded-t-[34px] px-6 py-2.5 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                <div className="bg-slate-900/90 rounded-t-[28px] px-5 py-2 flex items-center justify-between text-[10px] text-slate-400 font-mono">
                   <span>9:41</span>
-                  <div className="flex items-center space-x-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                    <svg className="w-3.5 h-3.5 text-slate-300" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center space-x-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    <svg className="w-3 h-3 text-slate-300" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 21l3.39-.62C9.28 20.73 10.6 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z" />
                     </svg>
                   </div>
                 </div>
 
                 {/* Smartphone Screen Image Content */}
-                <div className="relative rounded-[30px] overflow-hidden bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 flex flex-col items-center">
+                <div className="relative rounded-[26px] overflow-hidden bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 flex flex-col items-center">
                   
                   {/* Technician Image */}
                   <img
                     src="/technician_hero.png"
                     alt="All-Care MINT Verified Service Technician"
-                    className="w-full h-auto object-cover max-h-[480px] transform hover:scale-105 transition-transform duration-500"
+                    className="w-full h-auto object-cover max-h-[360px] transform hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
 
                   {/* Gradient Overlay at Bottom of Phone */}
-                  <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
                 </div>
               </div>
 
-              {/* FLOATING GLASS SERVICE CHIPS (POSITIONED AROUND SMARTPHONE) */}
+              {/* FLOATING GLASS SERVICE CHIPS (SLEEK & COMPACT) */}
 
               {/* Chip 1: AC Repair (Top Left) */}
-              <div className="absolute top-4 left-0 sm:-left-4 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-xl flex items-center space-x-2.5 hover:scale-105 transition-transform">
-                <div className="w-7 h-7 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+              <div className="absolute top-2 left-0 sm:-left-3 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-lg flex items-center space-x-2 hover:scale-105 transition-transform">
+                <div className="w-6 h-6 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18m9-9H3m15.364 6.364l-12.728-12.728m12.728 0L6.364 18.364" />
                   </svg>
                 </div>
-                <span className="text-xs font-bold text-white">AC Repair</span>
+                <span className="text-[11px] font-bold text-white">AC Repair</span>
               </div>
 
               {/* Chip 2: Cleaning (Middle/Bottom Left) */}
-              <div className="absolute bottom-16 left-2 sm:-left-6 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-xl flex items-center space-x-2.5 hover:scale-105 transition-transform">
-                <div className="w-7 h-7 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+              <div className="absolute bottom-12 left-1 sm:-left-5 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-lg flex items-center space-x-2 hover:scale-105 transition-transform">
+                <div className="w-6 h-6 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
                 </div>
-                <span className="text-xs font-bold text-white">Cleaning</span>
+                <span className="text-[11px] font-bold text-white">Cleaning</span>
               </div>
 
               {/* Chip 3: Plumbing (Top Right) */}
-              <div className="absolute top-10 right-0 sm:-right-4 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-xl flex items-center space-x-2.5 hover:scale-105 transition-transform">
-                <div className="w-7 h-7 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+              <div className="absolute top-8 right-0 sm:-right-3 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-lg flex items-center space-x-2 hover:scale-105 transition-transform">
+                <div className="w-6 h-6 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                   </svg>
                 </div>
-                <span className="text-xs font-bold text-white">Plumbing</span>
+                <span className="text-[11px] font-bold text-white">Plumbing</span>
               </div>
 
               {/* Chip 4: Painting (Middle Right) */}
-              <div className="absolute top-1/2 -translate-y-1/2 right-1 sm:-right-8 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-xl flex items-center space-x-2.5 hover:scale-105 transition-transform">
-                <div className="w-7 h-7 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+              <div className="absolute top-1/2 -translate-y-1/2 right-1 sm:-right-6 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-lg flex items-center space-x-2 hover:scale-105 transition-transform">
+                <div className="w-6 h-6 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                   </svg>
                 </div>
-                <span className="text-xs font-bold text-white">Painting</span>
+                <span className="text-[11px] font-bold text-white">Painting</span>
               </div>
 
               {/* Chip 5: Electrical (Bottom Right) */}
-              <div className="absolute bottom-12 right-2 sm:-right-4 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-xl flex items-center space-x-2.5 hover:scale-105 transition-transform">
-                <div className="w-7 h-7 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+              <div className="absolute bottom-8 right-2 sm:-right-3 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-lg flex items-center space-x-2 hover:scale-105 transition-transform">
+                <div className="w-6 h-6 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <span className="text-xs font-bold text-white">Electrical</span>
+                <span className="text-[11px] font-bold text-white">Electrical</span>
               </div>
 
             </div>
