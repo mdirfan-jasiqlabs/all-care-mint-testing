@@ -28,6 +28,10 @@ export interface SiteConfig {
   name: string;
   brandNameHighlight: string;
   tagline: string;
+  location: {
+    city: string;
+    state: string;
+  };
   logo: {
     src: string;
     alt: string;
@@ -45,43 +49,47 @@ export interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  name: "All Care",
-  brandNameHighlight: "Mint",
+  name: "All-Care",
+  brandNameHighlight: "MINT",
   tagline: "On-Demand Home Services Marketplace",
+  location: {
+    city: "Indore",
+    state: "MP",
+  },
   logo: {
     src: "/logo.png",
-    alt: "All Care Mint Logo",
+    alt: "All-Care MINT Logo",
   },
   mainNav: [
     { label: "Home", href: "/" },
-    { label: "About", href: "/about" },
     { label: "Services", href: "/services" },
     { label: "How It Works", href: "/how-it-works" },
-    { label: "Become a Provider", href: "/become-a-provider" },
-    { label: "Contact", href: "/contact" },
+    { label: "Why Us", href: "/about" },
+    { label: "Become a Partner", href: "/become-a-provider" },
+    { label: "Support", href: "/contact" },
   ],
   headerActions: [
+    {
+      label: "Book a Service",
+      href: "/services",
+      variant: "primary",
+    },
     {
       label: "Admin Login",
       href: "/admin/login",
       variant: "secondary",
     },
-    {
-      label: "Download App",
-      href: "/#download",
-      variant: "primary",
-    },
   ],
   footer: {
-    copyright: `© ${new Date().getFullYear()} All Care Mint Marketing Team`,
-    description: "Get verified, top-rated local service professionals for plumbing, electrical, cleaning, and appliance repair in under 60 seconds.",
+    copyright: `© ${new Date().getFullYear()} All-Care MINT. All rights reserved.`,
+    description: "Book verified local professionals for cleaning, AC repair, plumbing, painting, and more—in less than 60 seconds.",
     quickLinks: [
       { label: "Home", href: "/" },
-      { label: "About", href: "/about" },
       { label: "Services", href: "/services" },
       { label: "How It Works", href: "/how-it-works" },
-      { label: "Become a Provider", href: "/become-a-provider" },
-      { label: "Contact", href: "/contact" },
+      { label: "Why Us", href: "/about" },
+      { label: "Become a Partner", href: "/become-a-provider" },
+      { label: "Support", href: "/contact" },
     ],
     legalLinks: [
       { label: "Privacy Policy", href: "/privacy" },
@@ -90,7 +98,7 @@ export const siteConfig: SiteConfig = {
     contactInfo: {
       email: "support@allcaremint.com",
       phone: "+91 1800-ALL-CARE",
-      address: "All Care Mint HQ, Tech Park, Bengaluru, India",
+      address: "All-Care MINT HQ, Tech Park, India",
       supportHours: "24/7 Customer Assistance",
     },
     socialLinks: [
