@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import WhyChooseUs from '@/components/WhyChooseUs';
+import PartnerLeadSection from '@/components/partner/PartnerLeadSection';
+import ExploreServicesSection from '@/components/services/ExploreServicesSection';
 
 interface Category {
   id: string;
@@ -11,19 +14,7 @@ interface Category {
 }
 
 export default function PublicHomePage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loadingCategories, setLoadingCategories] = useState<boolean>(true);
   const [toastMessage, setToastMessage] = useState<{ title: string; desc: string; icon: string } | null>(null);
-
-  // Form State
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [city, setCity] = useState('');
-  const [interest, setInterest] = useState('');
-  const [message, setMessage] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [formAlert, setFormAlert] = useState<{ type: 'success' | 'error' | 'rate-limit'; message: string } | null>(null);
-  const [formErrors, setFormErrors] = useState<{ name?: boolean; phone?: boolean; city?: boolean; interest?: boolean }>({});
 
   // Policy Modal State
   const [policyType, setPolicyType] = useState<'privacy' | 'terms' | null>(null);
@@ -33,126 +24,6 @@ export default function PublicHomePage() {
     setTimeout(() => {
       setToastMessage(null);
     }, 4000);
-  };
-
-  const fetchCategories = async () => {
-    setLoadingCategories(true);
-    try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
-      const res = await fetch(`${apiBase}/api/v1/public/categories`);
-      if (res.ok) {
-        const json = await res.json();
-        if (json.data && Array.isArray(json.data) && json.data.length > 0) {
-          setCategories(json.data);
-        } else {
-          setCategories(defaultCategories);
-        }
-      } else {
-        setCategories(defaultCategories);
-      }
-    } catch {
-      setCategories(defaultCategories);
-    } finally {
-      setLoadingCategories(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const defaultCategories: Category[] = [
-    {
-      id: '1',
-      name: 'Cleaning & Sanitization',
-      description: 'Full apartment scrubbing, kitchen deep cleaning, and disinfecting.',
-    },
-    {
-      id: '2',
-      name: 'Electrical Work',
-      description: 'Fan installation, short circuit fixes, switchboard wiring, and backup repair.',
-    },
-    {
-      id: '3',
-      name: 'Plumbing & Pipelines',
-      description: 'Drain cleaning, tap replacements, geyser installation, and pipelines fixing.',
-    },
-    {
-      id: '4',
-      name: 'AC & Appliance Maintenance',
-      description: 'Geyser repairs, refrigerator gas refills, and AC duct filters sanitization.',
-    },
-  ];
-
-  const handleLeadSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormAlert(null);
-    const errors: { name?: boolean; phone?: boolean; city?: boolean; interest?: boolean } = {};
-
-    const cleanName = name.trim();
-    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
-    const cleanCity = city.trim();
-
-    if (!cleanName) errors.name = true;
-    if (!cleanPhone || cleanPhone.length !== 10 || !/^[6-9][0-9]{9}$/.test(cleanPhone)) errors.phone = true;
-    if (!cleanCity) errors.city = true;
-    if (!interest) errors.interest = true;
-
-    setFormErrors(errors);
-
-    if (Object.keys(errors).length > 0) {
-      showToast('Validation Error', 'Please fill in all required fields correctly.', '❌');
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
-      const res = await fetch(`${apiBase}/api/v1/public/provider-leads`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: cleanName,
-          mobileNumber: cleanPhone,
-          serviceArea: cleanCity,
-          serviceType: interest,
-          message,
-        }),
-      });
-
-      const json = await res.json().catch(() => null);
-
-      if (res.status === 429) {
-        setFormAlert({
-          type: 'rate-limit',
-          message: 'Rate Limited: Too many lead submissions. Maximum 5 submissions per hour allowed.',
-        });
-        return;
-      }
-
-      if (!res.ok || !json?.success) {
-        throw new Error(json?.message || json?.error?.message || 'Failed to submit lead request.');
-      }
-
-      setFormAlert({
-        type: 'success',
-        message: "Thank you! Your lead request has been recorded. Our partner team will reach out to you shortly.",
-      });
-      setName('');
-      setPhone('');
-      setCity('');
-      setInterest('');
-      setMessage('');
-      showToast('Lead Recorded', 'Provider application lead submitted successfully.', '✅');
-    } catch (err: any) {
-      setFormAlert({
-        type: 'error',
-        message: err.message || 'An error occurred while submitting your application.',
-      });
-      showToast('Submission Error', err.message || 'Failed to submit application lead.', '❌');
-    } finally {
-      setSubmitting(false);
-    }
   };
 
   const simulateDownload = (type: string) => {
@@ -190,7 +61,7 @@ export default function PublicHomePage() {
       </div>
 
       {/* Main Content Sections */}
-      <div className="space-y-16 pb-16">
+      <div className="space-y-6 sm:space-y-8 pb-12">
 
         {/* HERO SECTION (COMPACT & SLEEK) */}
         <section id="hero" className="relative pt-6 sm:pt-8 md:pt-10 pb-6 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
@@ -539,226 +410,17 @@ export default function PublicHomePage() {
           </div>
         </section>
 
-        {/* ABOUT SECTION */}
-        <section id="about" className="px-8 max-w-6xl mx-auto space-y-12">
-          <div className="text-center space-y-2">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-white">Why Choose All-Care MINT?</h2>
-            <p className="text-xs text-slate-400 max-w-md mx-auto">We connect you with qualified service professionals safely and transparently.</p>
-          </div>
+        {/* WHY CHOOSE US SECTION */}
+        <WhyChooseUs />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-slate-900/30 border border-slate-900 p-6 rounded-2xl space-y-3">
-              <div className="w-10 h-10 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">100% Verified Partners</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">Every professional goes through rigorous background verification and certifications checks before joining the directory.</p>
-            </div>
-
-            <div className="bg-slate-900/30 border border-slate-900 p-6 rounded-2xl space-y-3">
-              <div className="w-10 h-10 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">Fixed Pricing Model</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">No hidden charges or surprise fees. See clear pricing lists directly in-app before booking service slots.</p>
-            </div>
-
-            <div className="bg-slate-900/30 border border-slate-900 p-6 rounded-2xl space-y-3">
-              <div className="w-10 h-10 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">Swift Local Dispatch</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">System algorithms locate nearby active professionals to assign booking jobs quickly.</p>
-            </div>
-          </div>
-        </section>
 
         {/* SERVICES CATEGORIES SECTION */}
-        <section id="services" className="px-8 max-w-6xl mx-auto space-y-12">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="space-y-1">
-              <h2 className="text-2xl md:text-3xl font-extrabold text-white">Explore Our Services</h2>
-              <p className="text-xs text-slate-400">Dynamic category options loaded directly from public catalog listings API.</p>
-            </div>
-            <button
-              onClick={() => {
-                fetchCategories();
-                showToast('Categories Updated', 'Service catalog listings refreshed successfully.', '🔄');
-              }}
-              className="bg-slate-900 border border-slate-800 hover:border-slate-700 px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer"
-            >
-              Refresh List
-            </button>
-          </div>
+        <ExploreServicesSection onShowToast={showToast} />
 
-          <div className="relative min-h-[160px]">
-            {loadingCategories && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="bg-slate-900/40 border border-slate-900/60 p-6 rounded-2xl space-y-3 animate-pulse">
-                    <div className="w-10 h-10 bg-slate-800 rounded-xl"></div>
-                    <div className="h-4 bg-slate-800 rounded w-2/3"></div>
-                    <div className="h-3 bg-slate-800 rounded w-full"></div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {!loadingCategories && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {categories.map((cat) => (
-                  <div key={cat.id} className="bg-slate-900/30 border border-slate-900 p-6 rounded-2xl space-y-3 hover:border-emerald-500/30 transition-all">
-                    <div className="w-10 h-10 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                      </svg>
-                    </div>
-                    <h3 className="text-base font-bold text-white">{cat.name}</h3>
-                    <p className="text-xs text-slate-400 leading-relaxed">{cat.description || 'Professional on-demand home service category.'}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
 
         {/* BECOME A PROVIDER (LEAD CAPTURE FORM) */}
-        <section id="partner" className="px-8 max-w-4xl mx-auto space-y-8">
-          <div className="bg-slate-900/40 border border-slate-900 p-8 rounded-3xl space-y-8">
-            <div className="text-center space-y-2">
-              <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-3.5 py-1 rounded-full uppercase tracking-wider font-bold">
-                Partner Lead Form
-              </span>
-              <h2 className="text-2xl md:text-3xl font-extrabold text-white">Join As A Service Partner</h2>
-              <p className="text-xs text-slate-400 max-w-md mx-auto">
-                Are you a skilled electrician, plumber, or appliance technician? Register your interest below to receive client bookings.
-              </p>
-            </div>
+        <PartnerLeadSection onShowToast={showToast} />
 
-            {formAlert && (
-              <div
-                className={`p-4 rounded-xl text-xs font-semibold ${
-                  formAlert.type === 'success'
-                    ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
-                    : formAlert.type === 'rate-limit'
-                    ? 'bg-amber-500/10 border border-amber-500/30 text-amber-300'
-                    : 'bg-rose-500/10 border border-rose-500/30 text-rose-300'
-                }`}
-              >
-                {formAlert.message}
-              </div>
-            )}
-
-            <form onSubmit={handleLeadSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {/* Full Name */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
-                    Full Name <span className="text-rose-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Rahul Sharma"
-                    className={`w-full bg-slate-950 border ${
-                      formErrors.name ? 'border-rose-500' : 'border-slate-800 focus:border-emerald-500'
-                    } rounded-xl px-4 py-2.5 text-xs text-white outline-none transition-colors`}
-                  />
-                  {formErrors.name && <span className="text-[10px] text-rose-400 font-medium">Name is required.</span>}
-                </div>
-
-                {/* Mobile Number */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
-                    10-Digit Mobile Phone <span className="text-rose-400">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    maxLength={10}
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                    placeholder="e.g. 9876543210"
-                    className={`w-full bg-slate-950 border ${
-                      formErrors.phone ? 'border-rose-500' : 'border-slate-800 focus:border-emerald-500'
-                    } rounded-xl px-4 py-2.5 text-xs text-white outline-none transition-colors`}
-                  />
-                  {formErrors.phone && <span className="text-[10px] text-rose-400 font-medium">Enter valid 10-digit Indian mobile number.</span>}
-                </div>
-
-                {/* City Location */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
-                    City / Primary Service Area <span className="text-rose-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="e.g. Indore / Bengaluru"
-                    className={`w-full bg-slate-950 border ${
-                      formErrors.city ? 'border-rose-500' : 'border-slate-800 focus:border-emerald-500'
-                    } rounded-xl px-4 py-2.5 text-xs text-white outline-none transition-colors`}
-                  />
-                  {formErrors.city && <span className="text-[10px] text-rose-400 font-medium">City location is required.</span>}
-                </div>
-
-                {/* Service Interest */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
-                    Primary Trade / Skill <span className="text-rose-400">*</span>
-                  </label>
-                  <select
-                    value={interest}
-                    onChange={(e) => setInterest(e.target.value)}
-                    className={`w-full bg-slate-950 border ${
-                      formErrors.interest ? 'border-rose-500' : 'border-slate-800 focus:border-emerald-500'
-                    } rounded-xl px-4 py-2.5 text-xs text-white outline-none transition-colors`}
-                  >
-                    <option value="">-- Select Service Trade --</option>
-                    <option value="Plumbing">Plumbing & Pipelines</option>
-                    <option value="Electrical">Electrical Work</option>
-                    <option value="Cleaning">Cleaning & Sanitization</option>
-                    <option value="Appliance">AC & Appliance Repair</option>
-                    <option value="Painting">Home Painting Services</option>
-                    <option value="Other">Other Skilled Service</option>
-                  </select>
-                  {formErrors.interest && <span className="text-[10px] text-rose-400 font-medium">Please select a service trade.</span>}
-                </div>
-              </div>
-
-              {/* Message Optional */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
-                  Additional Notes (Optional)
-                </label>
-                <textarea
-                  rows={3}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Mention your years of experience, tools owned, or certifications..."
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-2.5 text-xs text-white outline-none transition-colors resize-none"
-                />
-              </div>
-
-              <div className="text-center pt-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 text-slate-950 font-black px-8 py-3 rounded-xl text-xs transition-all shadow-lg shadow-emerald-500/10 cursor-pointer"
-                >
-                  {submitting ? 'Submitting Application...' : 'Submit Lead Interest Application'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </section>
 
       </div>
 
