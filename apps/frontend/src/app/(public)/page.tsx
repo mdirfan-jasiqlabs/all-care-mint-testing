@@ -175,28 +175,7 @@ export default function PublicHomePage() {
         </div>
       )}
 
-      {/* Navigation Bar */}
-      <nav className="bg-slate-950/90 border-b border-slate-900 px-6 py-4 flex justify-between items-center sticky top-0 backdrop-blur-md z-40">
-        <Link href="/" className="flex items-center space-x-3 text-emerald-400 font-bold text-xl cursor-pointer">
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          <span className="tracking-tight text-white font-extrabold">All Care <span className="text-emerald-400 font-medium">Mint</span></span>
-        </Link>
 
-        <div className="hidden md:flex items-center space-x-6 text-sm font-semibold">
-          <Link href="/" className="text-white hover:text-emerald-400 transition-colors">Home</Link>
-          <Link href="/about" className="text-slate-300 hover:text-white transition-colors">About</Link>
-          <Link href="/services" className="text-slate-300 hover:text-white transition-colors">Services</Link>
-          <Link href="/how-it-works" className="text-slate-300 hover:text-white transition-colors">How It Works</Link>
-          <Link href="/become-a-provider" className="text-slate-300 hover:text-white transition-colors">Become a Provider</Link>
-          <Link href="/contact" className="text-slate-300 hover:text-white transition-colors">Contact</Link>
-        </div>
-
-        <a href="#download" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-5 py-2 rounded-lg text-xs transition-all shadow-md shadow-emerald-500/10">
-          Download App
-        </a>
-      </nav>
 
       {/* Main Content Sections */}
       <div className="space-y-24 pb-20">
@@ -547,15 +526,7 @@ export default function PublicHomePage() {
         </div>
       )}
 
-      {/* FOOTER */}
-      <footer className="bg-slate-950 border-t border-slate-900 px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-        <span>© 2026 All Care Mint Marketing Team</span>
-        <div className="flex space-x-6">
-          <button onClick={() => setPolicyType('privacy')} className="hover:text-slate-400 cursor-pointer">Privacy Policy</button>
-          <button onClick={() => setPolicyType('terms')} className="hover:text-slate-400 cursor-pointer">Terms & Conditions</button>
-          <Link href="/admin/login" className="hover:text-slate-400 cursor-pointer">Admin Login</Link>
-        </div>
-      </footer>
+
     </div>
   );
 }

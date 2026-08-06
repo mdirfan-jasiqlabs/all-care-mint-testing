@@ -286,12 +286,6 @@ export default function JoinAsProviderPage() {
             </button>
           </form>
         )}
-
-        <div style={{ textAlign: 'center', marginTop: '24px' }}>
-          <Link href="/admin/login" style={{ fontSize: '12px', color: '#64748b', textDecoration: 'none' }}>
-            Admin Console Login →
-          </Link>
-        </div>
       </div>
     </div>
   );
