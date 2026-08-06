@@ -160,7 +160,7 @@ export default function PublicHomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between overflow-x-hidden bg-[#060a12] text-slate-100 font-sans relative">
+    <div className="w-full flex-1 flex flex-col justify-between bg-[#060a12] text-slate-100 font-sans relative">
       
       {/* Toast Notification */}
       {toastMessage && (
