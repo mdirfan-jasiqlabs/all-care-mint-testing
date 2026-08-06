@@ -17,7 +17,7 @@ export const SectionContainer: React.FC<SectionContainerProps> = ({
     <section
       id={id}
       aria-labelledby="download-cta-heading"
-      className={`relative w-full py-6 sm:py-8 md:py-10 px-4 sm:px-6 lg:px-8 select-none ${className}`}
+      className={`relative w-full py-3 sm:py-4 md:py-5 px-4 sm:px-6 lg:px-8 select-none ${className}`}
     >
       {children}
     </section>

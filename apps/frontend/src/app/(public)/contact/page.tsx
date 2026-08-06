@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function ContactPage() {
   return (
-    <div className="max-w-4xl mx-auto px-6 py-16 space-y-12 flex-1 w-full text-center">
+    <div className="max-w-4xl mx-auto px-6 py-6 sm:py-8 space-y-6 flex-1 w-full text-center">
         <div className="space-y-4">
           <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-4 py-1.5 rounded-full uppercase tracking-wider font-bold">
             PG-WEB-006 • Support & Contact

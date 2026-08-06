@@ -61,10 +61,10 @@ export default function PublicHomePage() {
       </div>
 
       {/* Main Content Sections */}
-      <div className="space-y-6 sm:space-y-8 pb-12">
+      <div className="space-y-3 sm:space-y-4 pb-6">
 
         {/* HERO SECTION (COMPACT & SLEEK) */}
-        <section id="hero" className="relative pt-6 sm:pt-8 md:pt-10 pb-6 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <section id="hero" className="relative pt-3 sm:pt-4 md:pt-5 pb-3 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
 
           {/* Two-Column Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center">

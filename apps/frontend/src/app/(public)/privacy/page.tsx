@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function PrivacyPage() {
   return (
-    <div className="max-w-3xl mx-auto px-6 py-16 space-y-8 flex-1 w-full">
+    <div className="max-w-3xl mx-auto px-6 py-6 sm:py-8 space-y-5 flex-1 w-full">
         <div className="space-y-3 border-b border-slate-900 pb-6">
           <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-4 py-1.5 rounded-full uppercase tracking-wider font-bold">
             PG-WEB-007 • Google Play Store Compliance

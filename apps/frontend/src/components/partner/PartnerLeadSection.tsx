@@ -117,9 +117,9 @@ export const PartnerLeadSection: React.FC<PartnerLeadSectionProps> = ({ onShowTo
   ];
 
   return (
-    <section id="partner" aria-labelledby="partner-heading" className="py-4 sm:py-8 px-3 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+    <section id="partner" aria-labelledby="partner-heading" className="py-2 sm:py-4 px-3 sm:px-6 lg:px-8 max-w-5xl mx-auto">
       {/* OUTER GLASS CARD CONTAINER */}
-      <div className="group relative bg-[#060c18]/90 border border-[#14263b] rounded-3xl p-5 sm:p-10 backdrop-blur-xl shadow-2xl space-y-8 overflow-hidden">
+      <div className="group relative bg-[#060c18]/90 border border-[#14263b] rounded-3xl p-4 sm:p-6 backdrop-blur-xl shadow-2xl space-y-5 overflow-hidden">
         
         {/* Top-Left Decorative 5x4 Dot Grid Pattern */}
         <div className="absolute top-6 left-6 grid grid-cols-5 gap-1.5 opacity-20 pointer-events-none" aria-hidden="true">

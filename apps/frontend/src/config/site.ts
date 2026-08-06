@@ -24,6 +24,20 @@ export interface ContactInfo {
   supportHours: string;
 }
 
+export interface TrustIndicator {
+  id: string;
+  label: string;
+  subtitle: string;
+  icon: 'shield' | 'clock' | 'lock';
+}
+
+export interface FooterCTAConfig {
+  title: string;
+  description: string;
+  buttonLabel: string;
+  appDownloadUrl?: string;
+}
+
 export interface SiteConfig {
   name: string;
   brandNameHighlight: string;
@@ -41,6 +55,9 @@ export interface SiteConfig {
   footer: {
     copyright: string;
     description: string;
+    brandStatement: string;
+    trustIndicators: TrustIndicator[];
+    cta: FooterCTAConfig;
     quickLinks: NavItem[];
     legalLinks: NavItem[];
     contactInfo: ContactInfo;
@@ -81,8 +98,34 @@ export const siteConfig: SiteConfig = {
     },
   ],
   footer: {
-    copyright: `© ${new Date().getFullYear()} All-Care MINT. All rights reserved.`,
-    description: "Book verified local professionals for cleaning, AC repair, plumbing, painting, and more—in less than 60 seconds.",
+    copyright: `© 2026 All-Care MINT. All rights reserved.`,
+    description: "Trusted home services,\ndelivered by verified professionals.",
+    brandStatement: "We care for your home, like it's our own.",
+    trustIndicators: [
+      {
+        id: "verified",
+        label: "Verified",
+        subtitle: "Background verified pros",
+        icon: "shield",
+      },
+      {
+        id: "fast",
+        label: "Fast",
+        subtitle: "Quick booking in minutes",
+        icon: "clock",
+      },
+      {
+        id: "secure",
+        label: "Secure",
+        subtitle: "Your data is always safe",
+        icon: "lock",
+      },
+    ],
+    cta: {
+      title: "Book a Service on the Go",
+      description: "Download our Customer App\nfor a seamless experience.",
+      buttonLabel: "GET IT ON Google Play",
+    },
     quickLinks: [
       { label: "Home", href: "/" },
       { label: "Services", href: "/services" },
@@ -101,11 +144,6 @@ export const siteConfig: SiteConfig = {
       address: "All-Care MINT HQ, Tech Park, India",
       supportHours: "24/7 Customer Assistance",
     },
-    socialLinks: [
-      { platform: "Twitter", url: "https://twitter.com/allcaremint", iconName: "twitter" },
-      { platform: "Facebook", url: "https://facebook.com/allcaremint", iconName: "facebook" },
-      { platform: "Instagram", url: "https://instagram.com/allcaremint", iconName: "instagram" },
-      { platform: "LinkedIn", url: "https://linkedin.com/company/allcaremint", iconName: "linkedin" },
-    ],
+    socialLinks: [],
   },
 };

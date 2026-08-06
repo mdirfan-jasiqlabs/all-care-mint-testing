@@ -118,7 +118,7 @@ export default function WhyChooseUs() {
     <section
       id="about"
       aria-labelledby="why-choose-heading"
-      className="relative py-4 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-8 sm:space-y-10"
+      className="relative py-2 sm:py-4 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-5 sm:space-y-6"
     >
       {/* SECTION HEADER */}
       <div className="text-center space-y-3 max-w-2xl mx-auto">
