@@ -497,3 +497,70 @@ body::before {
   }
 }
 
+/* Floating Animations for Landing Page Hero Cards */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes floatReverse {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes floatSubtle {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.02);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.06);
+  }
+}
+
+.animate-float-1 {
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+.animate-float-2 {
+  animation: floatReverse 4.5s ease-in-out infinite 0.4s;
+}
+
+.animate-float-3 {
+  animation: floatSubtle 5s ease-in-out infinite 0.8s;
+}
+
+.animate-float-4 {
+  animation: floatSlow 4.8s ease-in-out infinite 1.2s;
+}
+
+.animate-float-5 {
+  animation: floatReverse 5.2s ease-in-out infinite 1.6s;
+}
+
+.animate-float-6 {
+  animation: floatSubtle 4.2s ease-in-out infinite 0.6s;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3.5s ease-in-out infinite;
+}
+

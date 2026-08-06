@@ -214,9 +214,8 @@ export default function PublicHomePage() {
               {/* Main Heading */}
               <div>
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-[1.12] tracking-tight">
-                  Home Services,<br />
-                  Perfected.<br />
-                  <span className="text-emerald-400 font-black relative inline-block">
+                  Home Services, Perfected.<br />
+                  <span className="text-emerald-400 font-black relative inline-block mt-1">
                     At Your Doorstep.
                     <svg className="absolute -bottom-1.5 left-0 w-full h-2.5 text-emerald-400/40" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true">
                       <path d="M0 15 Q 50 0 100 15" stroke="currentColor" strokeWidth="3.5" fill="none" strokeLinecap="round" />
@@ -388,95 +387,151 @@ export default function PublicHomePage() {
             </div>
 
             {/* RIGHT COLUMN: Smartphone Mockup with Branded Technician & Floating Service Chips */}
-            <div className="lg:col-span-5 relative flex items-center justify-center min-h-[380px] sm:min-h-[440px]">
+            <div className="lg:col-span-5 relative flex items-center justify-center min-h-[480px] sm:min-h-[540px] select-none py-4">
               
-              {/* Radial Glowing Background Rings */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-60 h-60 sm:w-72 sm:h-72 rounded-full border border-emerald-500/20 animate-pulse" />
-                <div className="absolute w-80 h-80 sm:w-[380px] sm:h-[380px] rounded-full border border-emerald-500/10" />
-                <div className="absolute w-52 h-52 sm:w-64 sm:h-64 bg-emerald-500/15 rounded-full blur-2xl" />
+              {/* Dotted Grid Pattern Background (Top-Left) */}
+              <div className="absolute top-0 left-0 grid grid-cols-6 gap-2.5 opacity-25 pointer-events-none z-0">
+                {[...Array(36)].map((_, i) => (
+                  <div key={i} className="w-1 h-1 rounded-full bg-emerald-400" />
+                ))}
               </div>
 
-              {/* Smartphone Frame Container (Compact 250px-270px) */}
-              <div className="relative z-10 w-56 sm:w-64 md:w-68 rounded-[36px] border-4 border-emerald-500/40 bg-slate-950 shadow-xl shadow-emerald-500/20 p-1.5 overflow-hidden">
+              {/* Concentric Orbit Rings & Node Connectors (SVG Layer) */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                <svg className="w-full h-full max-w-[520px] max-h-[520px]" viewBox="0 0 520 520" fill="none">
+                  {/* Outer Orbit Circle */}
+                  <circle cx="260" cy="260" r="220" stroke="#10b981" strokeOpacity="0.25" strokeWidth="1.5" strokeDasharray="6 6" />
+                  {/* Inner Orbit Circle */}
+                  <circle cx="260" cy="260" r="160" stroke="#10b981" strokeOpacity="0.35" strokeWidth="1.5" />
+                  {/* Innermost Ambient Ring */}
+                  <circle cx="260" cy="260" r="110" stroke="#10b981" strokeOpacity="0.15" strokeWidth="3" />
+                  
+                  {/* Glowing Orbit Nodes (Dots on rings matching card anchors) */}
+                  <circle cx="115" cy="170" r="4.5" fill="#10b981" className="animate-pulse" />
+                  <circle cx="85" cy="260" r="4.5" fill="#10b981" className="animate-pulse" />
+                  <circle cx="405" cy="170" r="4.5" fill="#10b981" className="animate-pulse" />
+                  <circle cx="435" cy="260" r="4.5" fill="#10b981" className="animate-pulse" />
+                  <circle cx="405" cy="350" r="4.5" fill="#10b981" className="animate-pulse" />
+
+                  {/* Connecting dashed lines from nodes to outer bounds */}
+                  <path d="M 115 170 L 150 170" stroke="#10b981" strokeOpacity="0.4" strokeWidth="1" strokeDasharray="3 3" />
+                  <path d="M 85 260 L 125 260" stroke="#10b981" strokeOpacity="0.4" strokeWidth="1" strokeDasharray="3 3" />
+                  <path d="M 405 170 L 370 170" stroke="#10b981" strokeOpacity="0.4" strokeWidth="1" strokeDasharray="3 3" />
+                  <path d="M 435 260 L 395 260" stroke="#10b981" strokeOpacity="0.4" strokeWidth="1" strokeDasharray="3 3" />
+                  <path d="M 405 350 L 370 350" stroke="#10b981" strokeOpacity="0.4" strokeWidth="1" strokeDasharray="3 3" />
+                </svg>
+
+                {/* Center Radial Emerald Glow */}
+                <div className="absolute w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
+              </div>
+
+              {/* Smartphone Frame Container */}
+              <div className="relative z-10 w-[250px] sm:w-[280px] h-[480px] sm:h-[530px]">
                 
-                {/* Smartphone Status Bar Mockup */}
-                <div className="bg-slate-900/90 rounded-t-[28px] px-5 py-2 flex items-center justify-between text-[10px] text-slate-400 font-mono">
-                  <span>9:41</span>
-                  <div className="flex items-center space-x-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                    <svg className="w-3 h-3 text-slate-300" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 21l3.39-.62C9.28 20.73 10.6 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z" />
-                    </svg>
+                {/* Smartphone Glowing Outer Border & Frame */}
+                <div className="absolute inset-0 rounded-[46px] border-[3.5px] border-emerald-400 bg-[#060c18] shadow-[0_0_55px_rgba(16,185,129,0.4)] overflow-hidden flex flex-col justify-between z-10 pointer-events-none">
+                  
+                  {/* Top Notch & Status Bar */}
+                  <div className="relative z-40 pt-3 px-6 flex items-center justify-between text-[11px] text-slate-200 font-semibold tracking-tight">
+                    <span>9:41</span>
+                    
+                    {/* Notch / Dynamic Island */}
+                    <div className="w-20 h-4 bg-black border border-slate-800 rounded-full absolute left-1/2 -translate-x-1/2 top-2.5 flex items-center justify-end px-2">
+                      <div className="w-2 h-2 rounded-full bg-slate-900 border border-slate-700" />
+                    </div>
+
+                    {/* Signal, WiFi, Battery Icons */}
+                    <div className="flex items-center space-x-1.5 text-white">
+                      {/* Signal */}
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 3v18M6 9v12M18 15v6M2 14v7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                      </svg>
+                      {/* WiFi */}
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.14 0M1.393 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+                      </svg>
+                      {/* Battery */}
+                      <div className="w-5 h-2.5 border border-white rounded-sm p-0.5 flex items-center">
+                        <div className="w-full h-full bg-white rounded-xs" />
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Screen Inner Background Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#0b172a] via-[#060d1b] to-[#040712] z-10" />
+
+                  {/* Subtle Glow at Bottom of Phone Screen */}
+                  <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-emerald-500/30 via-emerald-500/10 to-transparent z-20 pointer-events-none" />
                 </div>
 
-                {/* Smartphone Screen Image Content */}
-                <div className="relative rounded-[26px] overflow-hidden bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 flex flex-col items-center">
-                  
-                  {/* Technician Image */}
+                {/* OVERFLOWING TECHNICIAN IMAGE (Transparent PNG cutout, enlarged & blended seamlessly at bottom) */}
+                <div className="absolute -inset-x-12 -top-12 -bottom-4 z-20 flex items-center justify-center pointer-events-none overflow-visible">
                   <img
                     src="/technician_hero.png"
-                    alt="All-Care MINT Verified Service Technician"
-                    className="w-full h-auto object-cover max-h-[360px] transform hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
+                    alt="All-Care MINT Technician"
+                    className="w-full h-full object-contain transform scale-115 sm:scale-120 filter drop-shadow-[0_20px_35px_rgba(0,0,0,0.9)] [mask-image:linear-gradient(to_bottom,black_75%,transparent_98%)] [-webkit-mask-image:linear-gradient(to_bottom,black_75%,transparent_98%)]"
+                    loading="eager"
                   />
-
-                  {/* Gradient Overlay at Bottom of Phone */}
-                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
                 </div>
+
               </div>
 
-              {/* FLOATING GLASS SERVICE CHIPS (SLEEK & COMPACT) */}
+              {/* FLOATING GLASS SERVICE CHIPS (WITH ASYNCHRONOUS FLOATING ANIMATIONS) */}
 
               {/* Chip 1: AC Repair (Top Left) */}
-              <div className="absolute top-2 left-0 sm:-left-3 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-lg flex items-center space-x-2 hover:scale-105 transition-transform">
-                <div className="w-6 h-6 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18m9-9H3m15.364 6.364l-12.728-12.728m12.728 0L6.364 18.364" />
+              <div className="absolute top-[12%] left-[-10px] sm:left-[-35px] z-30 bg-[#081220]/95 border border-emerald-500/40 backdrop-blur-md px-4 py-2 rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.6)] flex items-center space-x-3 hover:scale-105 transition-all duration-300 animate-float-1">
+                <div className="w-9 h-9 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                  {/* Snowflake Icon */}
+                  <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 2v20m-7-3.5l14-13m0 13L5 5.5M17 12H3m14-5l-3.5 3.5M7 17l3.5-3.5M17 17l-3.5-3.5M7 7l3.5 3.5" />
                   </svg>
                 </div>
-                <span className="text-[11px] font-bold text-white">AC Repair</span>
+                <span className="text-xs sm:text-sm font-bold text-white tracking-wide">AC Repair</span>
               </div>
 
-              {/* Chip 2: Cleaning (Middle/Bottom Left) */}
-              <div className="absolute bottom-12 left-1 sm:-left-5 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-lg flex items-center space-x-2 hover:scale-105 transition-transform">
-                <div className="w-6 h-6 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              {/* Chip 2: Cleaning (Middle Left) */}
+              <div className="absolute top-[48%] -translate-y-1/2 left-[-18px] sm:left-[-50px] z-30 bg-[#081220]/95 border border-emerald-500/40 backdrop-blur-md px-4 py-2 rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.6)] flex items-center space-x-3 hover:scale-105 transition-all duration-300 animate-float-2">
+                <div className="w-9 h-9 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                  {/* Broom Icon */}
+                  <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 21l8-8m0 0l-3-3m3 3l3 3m-3-3L18.5 5.5a2.121 2.121 0 013 3L11 18.5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l4 4" />
                   </svg>
                 </div>
-                <span className="text-[11px] font-bold text-white">Cleaning</span>
+                <span className="text-xs sm:text-sm font-bold text-white tracking-wide">Cleaning</span>
               </div>
 
-              {/* Chip 3: Plumbing (Top Right) */}
-              <div className="absolute top-8 right-0 sm:-right-3 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-lg flex items-center space-x-2 hover:scale-105 transition-transform">
-                <div className="w-6 h-6 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              {/* Chip 4: Plumbing (Top Right) */}
+              <div className="absolute top-[14%] right-[-10px] sm:right-[-35px] z-30 bg-[#081220]/95 border border-emerald-500/40 backdrop-blur-md px-4 py-2 rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.6)] flex items-center space-x-3 hover:scale-105 transition-all duration-300 animate-float-4">
+                <div className="w-9 h-9 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                  {/* Water Tap / Faucet Icon */}
+                  <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v4m0 0H8a2 2 0 00-2 2v2h12v-2a2 2 0 00-2-2h-4zm-4 8v3a2 2 0 002 2h4a2 2 0 002-2v-3" />
                   </svg>
                 </div>
-                <span className="text-[11px] font-bold text-white">Plumbing</span>
+                <span className="text-xs sm:text-sm font-bold text-white tracking-wide">Plumbing</span>
               </div>
 
-              {/* Chip 4: Painting (Middle Right) */}
-              <div className="absolute top-1/2 -translate-y-1/2 right-1 sm:-right-6 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-lg flex items-center space-x-2 hover:scale-105 transition-transform">
-                <div className="w-6 h-6 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+              {/* Chip 5: Painting (Middle Right) */}
+              <div className="absolute top-[46%] -translate-y-1/2 right-[-18px] sm:right-[-50px] z-30 bg-[#081220]/95 border border-emerald-500/40 backdrop-blur-md px-4 py-2 rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.6)] flex items-center space-x-3 hover:scale-105 transition-all duration-300 animate-float-5">
+                <div className="w-9 h-9 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                  {/* Paint Roller Icon */}
+                  <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4h14a2 2 0 012 2v3a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm14 7v3a2 2 0 01-2 2h-5v5h-2v-5H4" />
                   </svg>
                 </div>
-                <span className="text-[11px] font-bold text-white">Painting</span>
+                <span className="text-xs sm:text-sm font-bold text-white tracking-wide">Painting</span>
               </div>
 
-              {/* Chip 5: Electrical (Bottom Right) */}
-              <div className="absolute bottom-8 right-2 sm:-right-3 z-20 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-lg flex items-center space-x-2 hover:scale-105 transition-transform">
-                <div className="w-6 h-6 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+              {/* Chip 6: Electrical (Bottom Right) */}
+              <div className="absolute bottom-[16%] right-[-10px] sm:right-[-35px] z-30 bg-[#081220]/95 border border-emerald-500/40 backdrop-blur-md px-4 py-2 rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.6)] flex items-center space-x-3 hover:scale-105 transition-all duration-300 animate-float-6">
+                <div className="w-9 h-9 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                  {/* Lightning Bolt Icon */}
+                  <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <span className="text-[11px] font-bold text-white">Electrical</span>
+                <span className="text-xs sm:text-sm font-bold text-white tracking-wide">Electrical</span>
               </div>
 
             </div>
