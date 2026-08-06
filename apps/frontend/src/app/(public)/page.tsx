@@ -160,7 +160,7 @@ export default function PublicHomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between overflow-x-hidden bg-slate-950 text-slate-100 font-sans">
+    <div className="min-h-screen flex flex-col justify-between overflow-x-hidden bg-[#060a12] text-slate-100 font-sans relative">
       
       {/* Toast Notification */}
       {toastMessage && (
@@ -175,13 +175,25 @@ export default function PublicHomePage() {
         </div>
       )}
 
+      {/* Background Ambient Glow & Vector Wave Lines */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-emerald-500/10 rounded-full blur-[160px] pointer-events-none -z-10" />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[300px] opacity-15 pointer-events-none -z-10">
+        <svg viewBox="0 0 500 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 250C120 200 250 280 500 150V300H0V250Z" fill="url(#waveGrad)" />
+          <defs>
+            <linearGradient id="waveGrad" x1="0" y1="0" x2="500" y2="300" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#10b981" stopOpacity="0.2" />
+              <stop offset="1" stopColor="#060a12" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
       {/* Main Content Sections */}
       <div className="space-y-20 pb-20">
 
         {/* HERO SECTION */}
         <section id="hero" className="relative pt-8 sm:pt-12 md:pt-16 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          {/* Background Ambient Glow */}
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] bg-emerald-500/10 rounded-full blur-[150px] pointer-events-none -z-10" />
 
           {/* Two-Column Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
@@ -200,12 +212,15 @@ export default function PublicHomePage() {
               </div>
 
               {/* Main Heading */}
-              <div className="space-y-2">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.08] tracking-tight">
+              <div className="space-y-1">
+                <h1 className="text-4xl sm:text-5xl lg:text-[62px] font-black text-white leading-[1.08] tracking-tight">
                   Home Services,<br />
                   Perfected.<br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400">
+                  <span className="text-emerald-400 font-black relative inline-block">
                     At Your Doorstep.
+                    <svg className="absolute -bottom-2 left-0 w-full h-3 text-emerald-400/40" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true">
+                      <path d="M0 15 Q 50 0 100 15" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" />
+                    </svg>
                   </span>
                 </h1>
               </div>
@@ -221,7 +236,7 @@ export default function PublicHomePage() {
                 {/* Primary CTA: Book a Service */}
                 <Link
                   href="/services"
-                  className="group relative flex items-center justify-between bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-3.5 rounded-2xl transition-all duration-200 shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:-translate-y-0.5"
+                  className="group relative flex items-center justify-between bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-6 py-3.5 rounded-2xl transition-all duration-200 shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:-translate-y-0.5"
                 >
                   <div className="flex items-center space-x-3.5">
                     <div className="w-10 h-10 bg-slate-950/15 rounded-xl flex items-center justify-center text-slate-950">
@@ -231,10 +246,10 @@ export default function PublicHomePage() {
                     </div>
                     <div className="text-left leading-tight">
                       <span className="block text-sm font-black tracking-wide text-slate-950">BOOK A SERVICE</span>
-                      <span className="block text-xs font-semibold text-slate-900/80">Find a trusted professional</span>
+                      <span className="block text-xs font-semibold text-slate-900/90">Find a trusted professional</span>
                     </div>
                   </div>
-                  <svg className="w-5 h-5 ml-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg className="w-5 h-5 ml-4 text-slate-950 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
@@ -242,7 +257,7 @@ export default function PublicHomePage() {
                 {/* Secondary CTA: Become a Service Partner */}
                 <Link
                   href="/become-a-provider"
-                  className="group flex items-center justify-between bg-slate-900/80 hover:bg-slate-900 border border-slate-800 hover:border-emerald-500/40 text-white px-6 py-3.5 rounded-2xl transition-all duration-200 shadow-lg hover:-translate-y-0.5"
+                  className="group flex items-center justify-between bg-slate-950/80 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 text-white px-6 py-3.5 rounded-2xl transition-all duration-200 shadow-lg hover:-translate-y-0.5"
                 >
                   <div className="flex items-center space-x-3.5">
                     <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center">
@@ -255,7 +270,7 @@ export default function PublicHomePage() {
                       <span className="block text-xs text-slate-400 font-normal">Join our professional network</span>
                     </div>
                   </div>
-                  <svg className="w-5 h-5 ml-4 text-slate-400 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg className="w-5 h-5 ml-4 text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
@@ -273,7 +288,7 @@ export default function PublicHomePage() {
                 <button
                   onClick={() => simulateDownload('Customer')}
                   aria-label="Get it on Google Play"
-                  className="inline-flex items-center space-x-3 bg-slate-900/90 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 px-4 py-2 rounded-xl transition-all cursor-pointer shadow-md"
+                  className="inline-flex items-center space-x-3 bg-slate-950 border border-slate-800 hover:border-slate-700 px-4 py-2 rounded-xl transition-all cursor-pointer shadow-md"
                 >
                   <svg className="w-6 h-6 text-emerald-400 fill-current" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M3 20.5v-17c0-.55.3-1.02.76-1.26L14.2 12 3.76 21.76c-.46-.24-.76-.71-.76-1.26zM15.6 13.4l2.76-2.76c.39-.39.39-1.02 0-1.41l-2.76-2.76-2.4 2.4 2.4 2.42zM4.94 1.55L14.2 10.8l-2.4 2.4L3.76 2.24c.3-.16.74-.18 1.18-.69zM4.94 22.45L11.8 15.6l2.4 2.4-9.26 9.25c-.44.51-.88.49-1.18.33z" />
@@ -285,58 +300,62 @@ export default function PublicHomePage() {
                 </button>
               </div>
 
-              {/* Trust Features Row (4 Equal Glass Cards) */}
-              <div className="pt-6 grid grid-cols-2 sm:grid-cols-4 gap-3.5 border-t border-slate-900">
-                {/* Card 1 */}
-                <div className="bg-slate-900/40 border border-slate-800/80 p-3.5 rounded-2xl space-y-2 backdrop-blur-sm hover:border-emerald-500/30 transition-colors">
-                  <div className="w-8 h-8 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
+              {/* Trust Features Row (4 Equal Glass Cards inside a single bar) */}
+              <div className="pt-6">
+                <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 backdrop-blur-sm grid grid-cols-2 sm:grid-cols-4 gap-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-800/80">
+                  
+                  {/* Card 1 */}
+                  <div className="space-y-2 pt-2 sm:pt-0 sm:px-3 first:pt-0 first:px-0">
+                    <div className="w-8 h-8 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-extrabold text-white">Verified Professionals</h4>
+                      <p className="text-[11px] text-slate-400 leading-snug mt-0.5">Background verified & skilled experts</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-extrabold text-white">Verified Professionals</h4>
-                    <p className="text-[11px] text-slate-400 leading-snug mt-0.5">Background verified & skilled experts</p>
-                  </div>
-                </div>
 
-                {/* Card 2 */}
-                <div className="bg-slate-900/40 border border-slate-800/80 p-3.5 rounded-2xl space-y-2 backdrop-blur-sm hover:border-emerald-500/30 transition-colors">
-                  <div className="w-8 h-8 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                    </svg>
+                  {/* Card 2 */}
+                  <div className="space-y-2 pt-2 sm:pt-0 sm:px-3">
+                    <div className="w-8 h-8 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-extrabold text-white">Top Rated Services</h4>
+                      <p className="text-[11px] text-slate-400 leading-snug mt-0.5">Loved by thousands of happy customers</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-extrabold text-white">Top Rated Services</h4>
-                    <p className="text-[11px] text-slate-400 leading-snug mt-0.5">Loved by thousands of happy customers</p>
-                  </div>
-                </div>
 
-                {/* Card 3 */}
-                <div className="bg-slate-900/40 border border-slate-800/80 p-3.5 rounded-2xl space-y-2 backdrop-blur-sm hover:border-emerald-500/30 transition-colors">
-                  <div className="w-8 h-8 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                  {/* Card 3 */}
+                  <div className="space-y-2 pt-2 sm:pt-0 sm:px-3">
+                    <div className="w-8 h-8 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-extrabold text-white">Quick Booking</h4>
+                      <p className="text-[11px] text-slate-400 leading-snug mt-0.5">Book in less than 60 seconds</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-extrabold text-white">Quick Booking</h4>
-                    <p className="text-[11px] text-slate-400 leading-snug mt-0.5">Book in less than 60 seconds</p>
-                  </div>
-                </div>
 
-                {/* Card 4 */}
-                <div className="bg-slate-900/40 border border-slate-800/80 p-3.5 rounded-2xl space-y-2 backdrop-blur-sm hover:border-emerald-500/30 transition-colors">
-                  <div className="w-8 h-8 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
+                  {/* Card 4 */}
+                  <div className="space-y-2 pt-2 sm:pt-0 sm:px-3">
+                    <div className="w-8 h-8 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-extrabold text-white">Secure & Reliable</h4>
+                      <p className="text-[11px] text-slate-400 leading-snug mt-0.5">Safe payments & dedicated support</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-extrabold text-white">Secure & Reliable</h4>
-                    <p className="text-[11px] text-slate-400 leading-snug mt-0.5">Safe payments & dedicated support</p>
-                  </div>
+
                 </div>
               </div>
 
@@ -651,7 +670,7 @@ export default function PublicHomePage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-black px-8 py-3 rounded-xl text-xs transition-all shadow-lg shadow-emerald-500/10 cursor-pointer"
+                  className="bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 text-slate-950 font-black px-8 py-3 rounded-xl text-xs transition-all shadow-lg shadow-emerald-500/10 cursor-pointer"
                 >
                   {submitting ? 'Submitting Application...' : 'Submit Lead Interest Application'}
                 </button>

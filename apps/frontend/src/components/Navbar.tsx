@@ -28,8 +28,9 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md bg-slate-950/90 border-b border-slate-900/80">
+    <header className="sticky top-0 z-50 bg-[#060a12]/95 backdrop-blur-md border-b border-slate-900/60">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex justify-between items-center" aria-label="Main Navigation">
+        
         {/* Brand Logo */}
         <Link href="/" className="flex items-center space-x-3 text-emerald-400 font-bold text-xl cursor-pointer group">
           <img
@@ -38,19 +39,19 @@ export default function Navbar() {
             className="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-lg border border-emerald-500/30 group-hover:border-emerald-400/60 transition-all shadow-sm"
           />
           <span className="tracking-tight text-white font-black text-lg sm:text-xl">
-            {siteConfig.name}-<span className="text-emerald-400 font-bold">{siteConfig.brandNameHighlight}</span>
+            {siteConfig.name}-<span className="text-emerald-400 font-extrabold">{siteConfig.brandNameHighlight}</span>
           </span>
         </Link>
 
         {/* Desktop Main Navigation Links */}
-        <div className="hidden lg:flex items-center space-x-7 text-xs xl:text-sm font-semibold">
+        <div className="hidden lg:flex items-center space-x-8 text-xs xl:text-sm font-semibold">
           {siteConfig.mainNav.map((link) => {
             const active = isActiveRoute(link.href);
             return (
               <Link
                 key={link.label}
                 href={link.href}
-                className={`transition-all duration-150 relative py-1 ${
+                className={`transition-all duration-150 relative py-1.5 ${
                   active
                     ? 'text-emerald-400 font-bold'
                     : 'text-slate-300 hover:text-white'
@@ -58,7 +59,7 @@ export default function Navbar() {
               >
                 {link.label}
                 {active && (
-                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-400 rounded-full animate-fadeIn" />
+                  <span className="absolute bottom-0 left-0 w-full h-[2.5px] bg-emerald-400 rounded-full" />
                 )}
               </Link>
             );
@@ -67,16 +68,17 @@ export default function Navbar() {
 
         {/* Header Action Controls (Desktop) */}
         <div className="hidden md:flex items-center space-x-3 sm:space-x-4">
+          
           {/* Location Selector Pill */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setIsLocationMenuOpen(!isLocationMenuOpen)}
-              className="flex items-center space-x-2 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-semibold px-3 py-2 rounded-xl transition-all"
+              className="flex items-center space-x-2 bg-slate-900/90 hover:bg-slate-900 border border-slate-800 text-slate-200 text-xs font-semibold px-3.5 py-2 rounded-xl transition-all"
               aria-expanded={isLocationMenuOpen}
               aria-label="Select location"
             >
-              <svg className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+              <svg className="w-3.5 h-3.5 text-slate-300 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
@@ -113,7 +115,7 @@ export default function Navbar() {
           {/* Primary CTA: Book a Service */}
           <Link
             href="/services"
-            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-4 sm:px-5 py-2 rounded-xl text-xs transition-all shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98]"
+            className="bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black px-4 sm:px-5 py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98]"
           >
             Book a Service
           </Link>
@@ -121,7 +123,7 @@ export default function Navbar() {
           {/* Secondary CTA: Admin Login */}
           <Link
             href="/admin/login"
-            className="border border-slate-800 hover:border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-300 hover:text-white font-bold px-3.5 py-2 rounded-xl text-xs transition-all"
+            className="border border-slate-800 hover:border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-300 hover:text-white font-bold px-3.5 py-2.5 rounded-xl text-xs transition-all"
           >
             Admin Login
           </Link>
@@ -148,7 +150,6 @@ export default function Navbar() {
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-slate-950/98 border-b border-slate-900 px-5 py-4 space-y-4 shadow-2xl backdrop-blur-xl">
-          {/* Location Selector Mobile */}
           <div className="pb-3 border-b border-slate-900 flex items-center justify-between">
             <span className="text-xs text-slate-400 font-medium">Location:</span>
             <div className="flex items-center space-x-1.5 text-xs text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-lg">
@@ -183,7 +184,7 @@ export default function Navbar() {
             <Link
               href="/services"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full text-center bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2.5 rounded-xl text-xs shadow-md shadow-emerald-500/10"
+              className="w-full text-center bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black py-2.5 rounded-xl text-xs shadow-md shadow-emerald-500/10"
             >
               Book a Service
             </Link>
