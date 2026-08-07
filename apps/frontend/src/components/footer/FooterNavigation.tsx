@@ -8,7 +8,7 @@ export const FooterNavigation: React.FC = () => {
   const { quickLinks } = siteConfig.footer;
 
   return (
-    <div className="space-y-3 text-left w-full max-w-[220px] mx-auto md:ml-auto">
+    <div className="space-y-3 text-left w-full lg:max-w-[240px] lg:ml-auto">
       <div>
         <h4 className="text-sm font-bold text-white tracking-wide">
           Quick Links
