@@ -126,23 +126,25 @@ export default function HowItWorksSteps() {
             <li key={step.number} className="relative">
               <ProcessStepCard step={step} />
 
-              {/* Desktop Horizontal Connectors between cards (spanning the exact gap between cards at icon height) */}
+              {/* Desktop Horizontal Connectors between cards (centered vertically at card mid-height, larger dotted line with attached arrowhead) */}
               {index < steps.length - 1 && (
                 <div 
-                  className="hidden lg:flex items-center justify-between absolute top-[78px] left-full w-8 lg:w-10 xl:w-12 z-20 pointer-events-none px-0.5"
+                  className="hidden lg:flex items-center absolute top-1/2 -translate-y-1/2 left-full w-10 xl:w-12 z-20 pointer-events-none px-1 lg:px-1.5 xl:px-2"
                   aria-hidden="true"
                 >
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.9)] flex-shrink-0" />
-                  <div className="flex-1 border-t-2 border-dashed border-emerald-500/50 mx-1" />
-                  <svg
-                    className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
+                  <div className="w-full flex items-center">
+                    {/* Dotted Line */}
+                    <div className="flex-1 border-t-2 border-dashed border-emerald-400/70" />
+                    
+                    {/* Seamlessly Attached Larger Arrowhead */}
+                    <svg 
+                      className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 -ml-[3px]" 
+                      viewBox="0 0 12 12" 
+                      fill="currentColor"
+                    >
+                      <path d="M1.5 2 L10 6 L1.5 10 Z" />
+                    </svg>
+                  </div>
                 </div>
               )}
 

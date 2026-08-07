@@ -85,10 +85,10 @@ export default function BookServiceCTA() {
           </div>
 
           {/* Right Area: CTA Button & Timer helper */}
-          <div className="flex flex-col items-center md:items-end flex-shrink-0 space-y-2.5">
+          <div className="flex flex-col items-center flex-shrink-0 space-y-2.5">
             <Link
               href="/services"
-              className="inline-flex items-center space-x-2 bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black px-6 sm:px-7 py-3.5 rounded-xl text-sm sm:text-base transition-all shadow-btn-mint-glow hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center justify-center space-x-2 bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black px-6 sm:px-7 py-3.5 rounded-xl text-sm sm:text-base transition-all shadow-btn-mint-glow hover:scale-[1.02] active:scale-[0.98]"
             >
               <span>Book a Service</span>
               <svg className="w-4 h-4 sm:w-5 sm:h-5 text-slate-950" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
@@ -96,8 +96,8 @@ export default function BookServiceCTA() {
               </svg>
             </Link>
 
-            <div className="flex items-center space-x-1.5 text-slate-400 text-xs font-medium">
-              <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+            <div className="flex items-center justify-center space-x-1.5 text-slate-400 text-xs font-medium w-full text-center">
+              <svg className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>Takes less than 2 minutes</span>
