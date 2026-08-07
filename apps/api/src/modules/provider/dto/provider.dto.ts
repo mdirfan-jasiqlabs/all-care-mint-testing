@@ -76,5 +76,15 @@ export class SubmitProviderLeadDto {
   @IsString()
   @MaxLength(100)
   service_type?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  message?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  notes?: string;
 }
 

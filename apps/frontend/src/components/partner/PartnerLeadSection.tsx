@@ -55,16 +55,20 @@ export const PartnerLeadSection: React.FC<PartnerLeadSectionProps> = ({ onShowTo
     try {
       setSubmitting(true);
       const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
+      const payload: Record<string, string> = {
+        name: cleanName,
+        mobileNumber: cleanPhone,
+        serviceArea: cleanCity,
+        serviceType: trade,
+      };
+      if (notes.trim()) {
+        payload.message = notes.trim();
+      }
+
       const res = await fetch(`${apiBase}/api/v1/public/provider-leads`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: cleanName,
-          mobileNumber: cleanPhone,
-          serviceArea: cleanCity,
-          serviceType: trade,
-          message: notes,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const json = await res.json().catch(() => null);
