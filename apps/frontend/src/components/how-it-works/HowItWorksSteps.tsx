@@ -2,6 +2,8 @@
 
 import React from 'react';
 import ProcessStepCard, { StepItem } from './ProcessStepCard';
+import MotionStagger from '@/components/motion/MotionStagger';
+import MotionCard from '@/components/motion/MotionCard';
 
 export default function HowItWorksSteps() {
   const steps: StepItem[] = [
@@ -119,14 +121,16 @@ export default function HowItWorksSteps() {
         </p>
       </div>
 
-      {/* Steps Container (3 columns on desktop lg+, 1 column on mobile/tablet to avoid 2+1 layout) */}
+      {/* Steps Container */}
       <div className="relative">
-        <ol className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10 xl:gap-12 relative z-10 list-none p-0 m-0">
+        <MotionStagger className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10 xl:gap-12 relative z-10 list-none p-0 m-0">
           {steps.map((step, index) => (
             <li key={step.number} className="relative">
-              <ProcessStepCard step={step} />
+              <MotionCard>
+                <ProcessStepCard step={step} />
+              </MotionCard>
 
-              {/* Desktop Horizontal Connectors between cards (centered vertically at card mid-height, larger dotted line with attached arrowhead) */}
+              {/* Desktop Horizontal Connectors between cards */}
               {index < steps.length - 1 && (
                 <div 
                   className="hidden lg:flex items-center absolute top-1/2 -translate-y-1/2 left-full w-10 xl:w-12 z-20 pointer-events-none px-1 lg:px-1.5 xl:px-2"
@@ -159,8 +163,9 @@ export default function HowItWorksSteps() {
               )}
             </li>
           ))}
-        </ol>
+        </MotionStagger>
       </div>
     </section>
   );
 }
+

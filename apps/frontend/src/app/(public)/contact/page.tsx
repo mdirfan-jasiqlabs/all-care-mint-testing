@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { siteConfig } from '@/config/site';
+import MotionStagger from '@/components/motion/MotionStagger';
+import MotionCard from '@/components/motion/MotionCard';
 
 // Inline SVG Icon Helper Components
 const MailIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
@@ -95,94 +97,91 @@ export default function ContactPage() {
         </section>
 
         {/* PRIMARY SUPPORT CHANNELS (3 Equal Height Cards) */}
-        <section 
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 items-stretch"
-          aria-label="Primary Support Channels"
-        >
-          
-          {/* CARD 1 — EMAIL SUPPORT */}
-          <div className="bg-[#060d19]/90 border border-emerald-500/20 p-8 rounded-2xl sm:rounded-3xl flex flex-col items-center text-center justify-between shadow-lg hover:shadow-mint-glow hover:border-emerald-500/40 transition-all duration-300 group">
-            <div className="flex flex-col items-center w-full">
-              {/* Circular Outlined Icon */}
-              <div className="w-14 h-14 rounded-full border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-5 shadow-[0_0_15px_rgba(16,185,129,0.15)] group-hover:scale-105 group-hover:bg-emerald-500/20 transition-all">
-                <MailIcon className="w-6 h-6" />
+        <section aria-label="Primary Support Channels">
+          <MotionStagger className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+            {/* CARD 1 — EMAIL SUPPORT */}
+            <MotionCard className="bg-[#060d19]/90 border border-emerald-500/20 p-8 rounded-2xl sm:rounded-3xl flex flex-col items-center text-center justify-between shadow-lg hover:shadow-mint-glow hover:border-emerald-500/40 transition-all duration-300 group">
+              <div className="flex flex-col items-center w-full">
+                {/* Circular Outlined Icon */}
+                <div className="w-14 h-14 rounded-full border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-5 shadow-[0_0_15px_rgba(16,185,129,0.15)] group-hover:scale-105 group-hover:bg-emerald-500/20 transition-all">
+                  <MailIcon className="w-6 h-6" />
+                </div>
+                
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">
+                  EMAIL SUPPORT
+                </span>
+                
+                <a
+                  href={`mailto:${supportEmail}`}
+                  aria-label={`Email All Care Mint support at ${supportEmail}`}
+                  className="text-white text-base sm:text-lg font-bold hover:text-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-md transition-colors cursor-pointer break-all"
+                >
+                  {supportEmail}
+                </a>
+
+                {/* Mint Divider */}
+                <div className="w-8 h-[2px] bg-emerald-500/40 rounded-full my-4" aria-hidden="true" />
               </div>
-              
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">
-                EMAIL SUPPORT
-              </span>
-              
-              <a
-                href={`mailto:${supportEmail}`}
-                aria-label={`Email All Care Mint support at ${supportEmail}`}
-                className="text-white text-base sm:text-lg font-bold hover:text-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-md transition-colors cursor-pointer break-all"
-              >
-                {supportEmail}
-              </a>
 
-              {/* Mint Divider */}
-              <div className="w-8 h-[2px] bg-emerald-500/40 rounded-full my-4" aria-hidden="true" />
-            </div>
-
-            <p className="text-slate-400 text-sm font-medium">
-              Response time within 24 hours
-            </p>
-          </div>
-
-          {/* CARD 2 — PHONE SUPPORT */}
-          <div className="bg-[#060d19]/90 border border-emerald-500/20 p-8 rounded-2xl sm:rounded-3xl flex flex-col items-center text-center justify-between shadow-lg hover:shadow-mint-glow hover:border-emerald-500/40 transition-all duration-300 group">
-            <div className="flex flex-col items-center w-full">
-              {/* Circular Outlined Icon */}
-              <div className="w-14 h-14 rounded-full border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-5 shadow-[0_0_15px_rgba(16,185,129,0.15)] group-hover:scale-105 group-hover:bg-emerald-500/20 transition-all">
-                <PhoneIcon className="w-6 h-6" />
-              </div>
-              
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">
-                PHONE SUPPORT
-              </span>
-              
-              <a
-                href="tel:+9118002552273"
-                aria-label={`Call All Care Mint support hotline at ${supportPhone}`}
-                className="text-white text-base sm:text-lg font-bold hover:text-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-md transition-colors cursor-pointer"
-              >
-                {supportPhone}
-              </a>
-
-              {/* Mint Divider */}
-              <div className="w-8 h-[2px] bg-emerald-500/40 rounded-full my-4" aria-hidden="true" />
-            </div>
-
-            <p className="text-slate-400 text-sm font-medium">
-              Customer hotline
-            </p>
-          </div>
-
-          {/* CARD 3 — HEADQUARTERS */}
-          <div className="bg-[#060d19]/90 border border-emerald-500/20 p-8 rounded-2xl sm:rounded-3xl flex flex-col items-center text-center justify-between shadow-lg hover:shadow-mint-glow hover:border-emerald-500/40 transition-all duration-300 group">
-            <div className="flex flex-col items-center w-full">
-              {/* Circular Outlined Icon */}
-              <div className="w-14 h-14 rounded-full border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-5 shadow-[0_0_15px_rgba(16,185,129,0.15)] group-hover:scale-105 group-hover:bg-emerald-500/20 transition-all">
-                <BuildingIcon className="w-6 h-6" />
-              </div>
-              
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">
-                HEADQUARTERS
-              </span>
-              
-              <p className="text-white text-base sm:text-lg font-bold leading-snug">
-                {supportAddress}
+              <p className="text-slate-400 text-sm font-medium">
+                Response time within 24 hours
               </p>
+            </MotionCard>
 
-              {/* Mint Divider */}
-              <div className="w-8 h-[2px] bg-emerald-500/40 rounded-full my-4" aria-hidden="true" />
-            </div>
+            {/* CARD 2 — PHONE SUPPORT */}
+            <MotionCard className="bg-[#060d19]/90 border border-emerald-500/20 p-8 rounded-2xl sm:rounded-3xl flex flex-col items-center text-center justify-between shadow-lg hover:shadow-mint-glow hover:border-emerald-500/40 transition-all duration-300 group">
+              <div className="flex flex-col items-center w-full">
+                {/* Circular Outlined Icon */}
+                <div className="w-14 h-14 rounded-full border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-5 shadow-[0_0_15px_rgba(16,185,129,0.15)] group-hover:scale-105 group-hover:bg-emerald-500/20 transition-all">
+                  <PhoneIcon className="w-6 h-6" />
+                </div>
+                
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">
+                  PHONE SUPPORT
+                </span>
+                
+                <a
+                  href="tel:+9118002552273"
+                  aria-label={`Call All Care Mint support hotline at ${supportPhone}`}
+                  className="text-white text-base sm:text-lg font-bold hover:text-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-md transition-colors cursor-pointer"
+                >
+                  {supportPhone}
+                </a>
 
-            <p className="text-slate-400 text-sm font-medium">
-              Operating Hours: Mon - Sat, 9 AM - 8 PM IST
-            </p>
-          </div>
+                {/* Mint Divider */}
+                <div className="w-8 h-[2px] bg-emerald-500/40 rounded-full my-4" aria-hidden="true" />
+              </div>
 
+              <p className="text-slate-400 text-sm font-medium">
+                Customer hotline
+              </p>
+            </MotionCard>
+
+            {/* CARD 3 — HEADQUARTERS */}
+            <MotionCard className="bg-[#060d19]/90 border border-emerald-500/20 p-8 rounded-2xl sm:rounded-3xl flex flex-col items-center text-center justify-between shadow-lg hover:shadow-mint-glow hover:border-emerald-500/40 transition-all duration-300 group">
+              <div className="flex flex-col items-center w-full">
+                {/* Circular Outlined Icon */}
+                <div className="w-14 h-14 rounded-full border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-5 shadow-[0_0_15px_rgba(16,185,129,0.15)] group-hover:scale-105 group-hover:bg-emerald-500/20 transition-all">
+                  <BuildingIcon className="w-6 h-6" />
+                </div>
+                
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">
+                  HEADQUARTERS
+                </span>
+                
+                <p className="text-white text-base sm:text-lg font-bold leading-snug">
+                  {supportAddress}
+                </p>
+
+                {/* Mint Divider */}
+                <div className="w-8 h-[2px] bg-emerald-500/40 rounded-full my-4" aria-hidden="true" />
+              </div>
+
+              <p className="text-slate-400 text-sm font-medium">
+                Operating Hours: Mon - Sat, 9 AM - 8 PM IST
+              </p>
+            </MotionCard>
+          </MotionStagger>
         </section>
 
         {/* SECTION 2 — IMMEDIATE ASSISTANCE CTA */}

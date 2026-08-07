@@ -3,6 +3,8 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api';
+import SkeletonCard from '@/components/ui/skeleton/SkeletonCard';
+import CategoryGridSkeleton from '@/components/ui/skeleton/CategoryGridSkeleton';
 
 interface Service {
   id: string;
@@ -167,20 +169,9 @@ function CatalogServicesContent() {
 
         {/* Service Cards List */}
         {loading ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {[1, 2].map((i) => (
-              <div
-                key={i}
-                className="glass-card"
-                style={{
-                  height: '110px',
-                  borderRadius: '16px',
-                  background: 'rgba(15, 23, 42, 0.45)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  animation: 'pulse 1.5s infinite',
-                }}
-              />
-            ))}
+          <div className="flex flex-col gap-4">
+            <SkeletonCard hasIcon={false} hasCta={true} />
+            <SkeletonCard hasIcon={false} hasCta={true} />
           </div>
         ) : error ? (
           <div className="alert-error" style={{ textAlign: 'center' }}>
@@ -303,7 +294,14 @@ function CatalogServicesContent() {
 
 export default function CatalogServicesPage() {
   return (
-    <Suspense fallback={<div style={{ color: '#fff', padding: '40px', textAlign: 'center' }}>Loading Services...</div>}>
+    <Suspense
+      fallback={
+        <div className="max-w-2xl mx-auto p-8 space-y-4">
+          <SkeletonCard hasIcon={false} hasCta={true} />
+          <SkeletonCard hasIcon={false} hasCta={true} />
+        </div>
+      }
+    >
       <CatalogServicesContent />
     </Suspense>
   );

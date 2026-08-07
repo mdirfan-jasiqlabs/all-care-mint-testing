@@ -4,9 +4,11 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import SectionHeader from './SectionHeader';
 import GridContainer from './GridContainer';
 import CategoryCard, { CategoryData } from './CategoryCard';
-import SkeletonCard from './SkeletonCard';
+import CategoryGridSkeleton from '@/components/ui/skeleton/CategoryGridSkeleton';
 import EmptyState from './EmptyState';
 import ErrorState from './ErrorState';
+import MotionStagger from '@/components/motion/MotionStagger';
+import MotionCard from '@/components/motion/MotionCard';
 
 export interface ExploreServicesSectionProps {
   onShowToast?: (title: string, desc: string, icon?: string) => void;
@@ -149,13 +151,7 @@ export const ExploreServicesSection: React.FC<ExploreServicesSectionProps> = ({
       {/* CATEGORY GRID CONTAINER / STATES */}
       <div className="relative min-h-[300px]">
         {/* Loading Skeleton State */}
-        {loading && (
-          <GridContainer>
-            {[1, 2, 3, 4].map((idx) => (
-              <SkeletonCard key={idx} />
-            ))}
-          </GridContainer>
-        )}
+        {loading && <CategoryGridSkeleton count={4} />}
 
         {/* Error State */}
         {!loading && error && activeCategoriesList.length === 0 && (
@@ -169,11 +165,13 @@ export const ExploreServicesSection: React.FC<ExploreServicesSectionProps> = ({
 
         {/* Category Grid Display */}
         {!loading && activeCategoriesList.length > 0 && (
-          <GridContainer>
+          <MotionStagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full">
             {activeCategoriesList.map((category) => (
-              <CategoryCard key={category.id} category={category} />
+              <MotionCard key={category.id}>
+                <CategoryCard category={category} />
+              </MotionCard>
             ))}
-          </GridContainer>
+          </MotionStagger>
         )}
       </div>
     </section>

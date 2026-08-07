@@ -2,6 +2,8 @@
 
 import React from 'react';
 import Image from 'next/image';
+import MotionStagger from '@/components/motion/MotionStagger';
+import MotionCard from '@/components/motion/MotionCard';
 
 interface TeamDepartment {
   code: string;
@@ -113,11 +115,11 @@ export default function OurTeam() {
         </div>
 
         {/* 3 DEPARTMENT CARDS GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-7">
+        <MotionStagger className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-7">
           {departments.map((dept) => (
-            <div
+            <MotionCard
               key={dept.code}
-              className="bg-[#040812]/90 border border-emerald-500/20 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300 hover:-translate-y-0.5 shadow-[0_10px_30px_rgba(0,0,0,0.5)] group"
+              className="bg-[#040812]/90 border border-emerald-500/20 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] group"
             >
               {/* CONTEXTUAL CARD IMAGE */}
               <div className="relative w-full aspect-[16/7.5] overflow-hidden bg-slate-950">
@@ -153,9 +155,9 @@ export default function OurTeam() {
                   </p>
                 </div>
               </div>
-            </div>
+            </MotionCard>
           ))}
-        </div>
+        </MotionStagger>
       </div>
     </section>
   );

@@ -564,3 +564,56 @@ body::before {
   animation: pulseGlow 3.5s ease-in-out infinite;
 }
 
+/* ========================================
+   All Care Mint — Skeleton Shimmer & Motion System
+   ======================================== */
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(15, 23, 42, 0.8) 0%,
+    rgba(16, 185, 129, 0.1) 30%,
+    rgba(30, 41, 59, 0.9) 50%,
+    rgba(16, 185, 129, 0.1) 70%,
+    rgba(15, 23, 42, 0.8) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Respect user prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-skeleton-shimmer,
+  .animate-float-1,
+  .animate-float-2,
+  .animate-float-3,
+  .animate-float-4,
+  .animate-float-5,
+  .animate-float-6,
+  .animate-pulse-glow,
+  .spinner {
+    animation: none !important;
+  }
+
+  .animate-skeleton-shimmer {
+    background: rgba(30, 41, 59, 0.6) !important;
+  }
+  
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+

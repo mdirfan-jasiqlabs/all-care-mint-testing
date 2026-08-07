@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api';
+import CategoryGridSkeleton from '@/components/ui/skeleton/CategoryGridSkeleton';
 
 interface Category {
   id: string;
@@ -112,21 +113,7 @@ export default function CatalogCategoriesPage() {
 
         {/* Categories Grid */}
         {loading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="glass-card"
-                style={{
-                  height: '140px',
-                  borderRadius: '16px',
-                  background: 'rgba(15, 23, 42, 0.45)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  animation: 'pulse 1.5s infinite',
-                }}
-              />
-            ))}
-          </div>
+          <CategoryGridSkeleton count={4} />
         ) : error ? (
           <div className="alert-error" style={{ textAlign: 'center' }}>
             <span>{error}</span>
@@ -141,14 +128,13 @@ export default function CatalogCategoriesPage() {
               <div
                 key={cat.id}
                 onClick={() => handleCategoryClick(cat)}
-                className="category-card"
+                className="category-card hover:scale-[1.02] transition-all"
                 style={{
                   backgroundColor: 'rgba(17, 24, 39, 0.7)',
                   borderRadius: '16px',
                   padding: '20px',
                   border: '1px solid rgba(255, 255, 255, 0.08)',
                   cursor: 'pointer',
-                  transition: 'transform 0.2s, border-color 0.2s',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '12px',
