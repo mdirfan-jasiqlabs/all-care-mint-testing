@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { siteConfig } from '@/config/site';
@@ -10,6 +10,19 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(`${siteConfig.location.city}, ${siteConfig.location.state}`);
   const [isLocationMenuOpen, setIsLocationMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const locations = [
     'Indore, MP',
@@ -28,7 +41,13 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-[#060a12]/95 backdrop-blur-md border-b border-slate-900/60">
+    <header
+      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+        isScrolled
+          ? 'bg-[#060a12]/90 backdrop-blur-xl border-b border-emerald-500/20 shadow-2xl shadow-black/60'
+          : 'bg-[#060a12]/95 backdrop-blur-md border-b border-slate-900/60 shadow-md'
+      }`}
+    >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex justify-between items-center" aria-label="Main Navigation">
         
         {/* Brand Logo */}
