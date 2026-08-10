@@ -8,8 +8,6 @@ import { siteConfig } from '@/config/site';
 export default function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState(`${siteConfig.location.city}, ${siteConfig.location.state}`);
-  const [isLocationMenuOpen, setIsLocationMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -23,15 +21,6 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const locations = [
-    'Indore, MP',
-    'Bhopal, MP',
-    'Bengaluru, KA',
-    'Mumbai, MH',
-    'Delhi NCR',
-    'Hyderabad, TS',
-  ];
 
   const isActiveRoute = (href: string) => {
     if (href === '/') {
@@ -87,50 +76,6 @@ export default function Navbar() {
 
         {/* Header Action Controls (Desktop) */}
         <div className="hidden md:flex items-center space-x-3 sm:space-x-4">
-          
-          {/* Location Selector Pill */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setIsLocationMenuOpen(!isLocationMenuOpen)}
-              className="flex items-center space-x-2 bg-slate-900/90 hover:bg-slate-900 border border-slate-800 text-slate-200 text-xs font-semibold px-3.5 py-2 rounded-xl transition-all"
-              aria-expanded={isLocationMenuOpen}
-              aria-label="Select location"
-            >
-              <svg className="w-3.5 h-3.5 text-slate-300 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <span>{selectedLocation}</span>
-              <svg className={`w-3 h-3 text-slate-400 transition-transform ${isLocationMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {/* Location Dropdown Menu */}
-            {isLocationMenuOpen && (
-              <div className="absolute right-0 mt-2 w-44 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl py-1.5 z-50 animate-fadeIn">
-                <div className="px-3 py-1 text-[10px] uppercase font-bold tracking-wider text-slate-500 border-b border-slate-800">
-                  Select City
-                </div>
-                {locations.map((loc) => (
-                  <button
-                    key={loc}
-                    onClick={() => {
-                      setSelectedLocation(loc);
-                      setIsLocationMenuOpen(false);
-                    }}
-                    className={`w-full text-left px-3 py-1.5 text-xs font-medium transition-colors hover:bg-slate-800 ${
-                      selectedLocation === loc ? 'text-emerald-400 font-bold bg-emerald-500/10' : 'text-slate-300'
-                    }`}
-                  >
-                    {loc}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
           {/* Primary CTA: Book a Service */}
           <Link
             href="/services"
@@ -169,16 +114,6 @@ export default function Navbar() {
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-slate-950/98 border-b border-slate-900 px-5 py-4 space-y-4 shadow-2xl backdrop-blur-xl">
-          <div className="pb-3 border-b border-slate-900 flex items-center justify-between">
-            <span className="text-xs text-slate-400 font-medium">Location:</span>
-            <div className="flex items-center space-x-1.5 text-xs text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-lg">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              </svg>
-              <span>{selectedLocation}</span>
-            </div>
-          </div>
-
           <div className="flex flex-col space-y-2 font-semibold text-sm">
             {siteConfig.mainNav.map((link) => {
               const active = isActiveRoute(link.href);

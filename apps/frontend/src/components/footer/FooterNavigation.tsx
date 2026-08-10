@@ -1,31 +1,37 @@
 'use client';
 
 import React from 'react';
-import { siteConfig } from '@/config/site';
+import { NavItem } from '@/config/site';
 import FooterLink from './FooterLink';
 
-export const FooterNavigation: React.FC = () => {
-  const { quickLinks } = siteConfig.footer;
+export interface FooterNavColumnProps {
+  title: string;
+  links: NavItem[];
+  ariaLabel?: string;
+}
 
+export const FooterNavColumn: React.FC<FooterNavColumnProps> = ({ title, links, ariaLabel }) => {
   return (
-    <div className="space-y-3 text-left w-full lg:max-w-[240px] lg:ml-auto">
+    <div className="space-y-3.5 text-left w-full">
       <div>
-        <h4 className="text-sm font-bold text-white tracking-wide">
-          Quick Links
-        </h4>
-        {/* Mint Accent Underline */}
-        <div className="w-6 h-0.5 bg-emerald-400 rounded-full mt-1.5" />
+        <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+          {title}
+        </h3>
+        {/* Small Mint Accent Underline Bar */}
+        <div className="w-6 h-[2.5px] bg-emerald-400 rounded-full mt-1.5" />
       </div>
 
-      <ul className="space-y-1 pt-1" aria-label="Quick Links">
-        {quickLinks.map((link) => (
-          <li key={link.href}>
-            <FooterLink item={link} />
-          </li>
-        ))}
-      </ul>
+      <nav aria-label={ariaLabel || title}>
+        <ul className="space-y-1.5 pt-1">
+          {links.map((link) => (
+            <li key={link.href + link.label}>
+              <FooterLink item={link} />
+            </li>
+          ))}
+        </ul>
+      </nav>
     </div>
   );
 };
 
-export default FooterNavigation;
+export default FooterNavColumn;

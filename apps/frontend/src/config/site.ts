@@ -58,6 +58,8 @@ export interface SiteConfig {
     brandStatement: string;
     trustIndicators: TrustIndicator[];
     cta: FooterCTAConfig;
+    exploreLinks: NavItem[];
+    companyLinks: NavItem[];
     quickLinks: NavItem[];
     legalLinks: NavItem[];
     contactInfo: ContactInfo;
@@ -66,8 +68,8 @@ export interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  name: "All-Care",
-  brandNameHighlight: "MINT",
+  name: "All care",
+  brandNameHighlight: "mint",
   tagline: "On-Demand Home Services Marketplace",
   location: {
     city: "Indore",
@@ -75,7 +77,7 @@ export const siteConfig: SiteConfig = {
   },
   logo: {
     src: "/logo.png",
-    alt: "All-Care MINT Logo",
+    alt: "All care mint Logo",
   },
   mainNav: [
     { label: "Home", href: "/" },
@@ -98,34 +100,47 @@ export const siteConfig: SiteConfig = {
     },
   ],
   footer: {
-    copyright: `© 2026 All-Care MINT. All rights reserved.`,
+    copyright: `© 2026 All care mint. All rights reserved.`,
     description: "Trusted home services,\ndelivered by verified professionals.",
     brandStatement: "We care for your home, like it's our own.",
     trustIndicators: [
       {
         id: "verified",
-        label: "Verified",
-        subtitle: "Background verified pros",
+        label: "Verified Professionals",
+        subtitle: "Background verified & trusted",
         icon: "shield",
       },
       {
         id: "fast",
-        label: "Fast",
-        subtitle: "Quick booking in minutes",
+        label: "Quick Booking",
+        subtitle: "Book your service in minutes",
         icon: "clock",
       },
       {
         id: "secure",
-        label: "Secure",
-        subtitle: "Your data is always safe",
+        label: "Secure & Reliable",
+        subtitle: "Your data and privacy are safe",
         icon: "lock",
       },
     ],
     cta: {
-      title: "Book a Service on the Go",
-      description: "Download our Customer App\nfor a seamless experience.",
+      title: "Get the All care mint App",
+      description: "Book services on the go\nanytime, anywhere.",
       buttonLabel: "GET IT ON Google Play",
     },
+    exploreLinks: [
+      { label: "Home", href: "/" },
+      { label: "Services", href: "/services" },
+      { label: "How It Works", href: "/how-it-works" },
+      { label: "Why Us", href: "/about" },
+      { label: "Become a Partner", href: "/become-a-provider" },
+    ],
+    companyLinks: [
+      { label: "About Us", href: "/about" },
+      { label: "Support", href: "/contact" },
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms & Conditions", href: "/terms" },
+    ],
     quickLinks: [
       { label: "Home", href: "/" },
       { label: "Services", href: "/services" },
@@ -141,9 +156,14 @@ export const siteConfig: SiteConfig = {
     contactInfo: {
       email: "support@allcaremint.com",
       phone: "+91 1800-ALL-CARE",
-      address: "All-Care MINT HQ, Tech Park, India",
+      address: "All care mint HQ, Tech Park, India",
       supportHours: "24/7 Customer Assistance",
     },
-    socialLinks: [],
+    socialLinks: [
+      { platform: "Facebook", url: "https://facebook.com", iconName: "facebook" },
+      { platform: "Instagram", url: "https://instagram.com", iconName: "instagram" },
+      { platform: "WhatsApp", url: "https://whatsapp.com", iconName: "whatsapp" },
+      { platform: "YouTube", url: "https://youtube.com", iconName: "youtube" },
+    ],
   },
 };

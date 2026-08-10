@@ -1,4 +1,7 @@
 'use client';
 
 import AdminLoginPage from '../../admin/login/page';
-export default AdminLoginPage;
+
+export default function LoginAdminRoute() {
+  return <AdminLoginPage />;
+}
