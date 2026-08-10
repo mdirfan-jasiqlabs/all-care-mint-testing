@@ -1,27 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useCatalogETag } from '../catalog/CatalogETagContext';
-
+import { useRouter } from 'next/navigation';
 import BrandLogo from '@/components/BrandLogo';
 
 export default function AdminHeader() {
   const router = useRouter();
-  const pathname = usePathname() || '';
   const [loggingOut, setLoggingOut] = useState(false);
   const [csrfToken, setCsrfToken] = useState('');
-  const { etag } = useCatalogETag();
-
-  const getModuleBadge = () => {
-    if (pathname.includes('/admin/reports') || pathname.includes('/admin/dashboard')) {
-      return 'MOD-007';
-    }
-    if (pathname.includes('/admin/catalog')) {
-      return 'MOD-001';
-    }
-    return 'MOD-007';
-  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -56,10 +42,11 @@ export default function AdminHeader() {
   return (
     <header
       style={{
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        backgroundColor: 'rgba(2, 6, 23, 0.8)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+        backgroundColor: 'rgba(2, 6, 23, 0.85)',
         backdropFilter: 'blur(12px)',
-        padding: '16px 32px',
+        height: '76px',
+        padding: '0 32px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -69,54 +56,79 @@ export default function AdminHeader() {
         width: '100%',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <BrandLogo size="md" />
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <BrandLogo href="/admin/dashboard" size="md" alt="All care mint Admin" />
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
-          <span style={{ fontSize: '10px', color: '#10b981', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'monospace' }}>
-            ETag Header active
-          </span>
-          <span id="etag-val" style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace' }}>
-            {etag}
-          </span>
-        </div>
-        <span style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.2)', fontSize: '12px', padding: '4px 12px', borderRadius: '20px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>
-          {getModuleBadge()}
-        </span>
-        <span style={{ background: '#1e293b', color: '#cbd5e1', fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 600 }}>
-          Admin Panel
-        </span>
+
+      <div style={{ display: 'flex', alignItems: 'center' }}>
         <button
+          type="button"
           onClick={handleLogout}
           disabled={loggingOut}
+          aria-label="Log out"
+          title="Log out"
           style={{
-            background: 'transparent',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '8px',
-            color: '#94a3b8',
-            padding: '8px 16px',
+            height: '44px',
+            padding: '0 20px',
+            borderRadius: '12px',
             fontSize: '14px',
             fontWeight: 500,
-            cursor: 'pointer',
-            display: 'flex',
+            cursor: loggingOut ? 'not-allowed' : 'pointer',
+            display: 'inline-flex',
             alignItems: 'center',
-            gap: '6px',
-            transition: 'all 0.2s',
+            gap: '8px',
+            transition: 'all 0.2s ease-in-out',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.25)',
+            color: '#f87171',
+            opacity: loggingOut ? 0.6 : 1,
+            outline: 'none',
+          }}
+          onMouseEnter={(e) => {
+            if (!loggingOut) {
+              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+              e.currentTarget.style.color = '#fca5a5';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!loggingOut) {
+              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+              e.currentTarget.style.color = '#f87171';
+            }
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.5)';
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.boxShadow = 'none';
           }}
         >
           {loggingOut ? (
-            <span className="spinner" style={{ width: '14px', height: '14px' }}></span>
+            <span
+              style={{
+                width: '16px',
+                height: '16px',
+                border: '2px solid #f87171',
+                borderTopColor: 'transparent',
+                borderRadius: '50%',
+                display: 'inline-block',
+                animation: 'spin 1s linear infinite',
+              }}
+            />
           ) : (
             <svg
-              width="14"
-              height="14"
+              width="16"
+              height="16"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="currentColor"
+              stroke="#f87171"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              aria-hidden="true"
+              style={{ flexShrink: 0 }}
             >
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
               <polyline points="16 17 21 12 16 7" />
@@ -129,3 +141,4 @@ export default function AdminHeader() {
     </header>
   );
 }
+
