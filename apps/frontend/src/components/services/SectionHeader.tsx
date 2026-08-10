@@ -15,7 +15,7 @@ export interface SectionHeaderProps {
 }
 
 export const SectionHeader: React.FC<SectionHeaderProps> = ({
-  code = 'PG-WEB-003',
+  code,
   badgeLabel = 'CATALOG BROWSER',
   titlePrefix = 'Service',
   titleHighlight = 'Categories',

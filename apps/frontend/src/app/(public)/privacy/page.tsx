@@ -8,7 +8,7 @@ export default function PrivacyPage() {
     <div className="max-w-3xl mx-auto px-6 py-6 sm:py-8 space-y-5 flex-1 w-full">
         <div className="space-y-3 border-b border-slate-900 pb-6">
           <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-4 py-1.5 rounded-full uppercase tracking-wider font-bold">
-            PG-WEB-007 • Google Play Store Compliance
+            Google Play Store Compliance
           </span>
           <h1 className="text-3xl font-extrabold text-white">Privacy Policy</h1>
           <p className="text-sm text-slate-400">Last Updated: July 23, 2026</p>

@@ -138,7 +138,6 @@ export const ExploreServicesSection: React.FC<ExploreServicesSectionProps> = ({
     >
       {/* SECTION HEADER */}
       <SectionHeader
-        code="PG-WEB-003"
         badgeLabel="CATALOG BROWSER"
         titlePrefix="Service"
         titleHighlight="Categories"

@@ -9,7 +9,7 @@ export interface BadgeProps {
 }
 
 export const Badge: React.FC<BadgeProps> = ({
-  code = 'PG-WEB-003',
+  code,
   label = 'CATALOG BROWSER',
 }) => {
   return (
@@ -30,7 +30,7 @@ export const Badge: React.FC<BadgeProps> = ({
         />
       </svg>
       <span>
-        {code} • {label}
+        {code ? `${code} • ${label}` : label}
       </span>
     </div>
   );
