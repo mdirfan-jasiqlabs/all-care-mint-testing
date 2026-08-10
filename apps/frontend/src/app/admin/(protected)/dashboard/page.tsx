@@ -415,6 +415,8 @@ export default function AdminDashboardPage() {
                   borderRadius: '8px',
                   padding: '6px 10px',
                   color: '#f8fafc',
+                  colorScheme: 'dark',
+                  cursor: 'pointer',
                   outline: 'none',
                 }}
               />
@@ -430,6 +432,8 @@ export default function AdminDashboardPage() {
                   borderRadius: '8px',
                   padding: '6px 10px',
                   color: '#f8fafc',
+                  colorScheme: 'dark',
+                  cursor: 'pointer',
                   outline: 'none',
                 }}
               />

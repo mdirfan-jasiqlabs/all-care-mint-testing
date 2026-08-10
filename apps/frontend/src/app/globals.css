@@ -65,6 +65,21 @@ html, body {
   scrollbar-color: #10b981 #060a12;
 }
 
+/* Fix native calendar picker icon visibility on dark backgrounds */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.2);
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+input[type="date"] {
+  color-scheme: dark;
+}
+
 /* Background mesh gradient */
 body::before {
   content: '';
