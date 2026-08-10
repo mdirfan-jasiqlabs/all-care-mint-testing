@@ -37,14 +37,14 @@ export default function PartnerBenefitsSection() {
   ];
 
   return (
-    <section aria-labelledby="partner-benefits-heading" className="py-8 sm:py-12">
+    <section aria-labelledby="partner-benefits-heading" className="py-4 sm:py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Dark Elevated Outer Container */}
         <div className="bg-[#070b16]/90 border border-slate-800/80 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl backdrop-blur-xl">
           
           {/* Section Header */}
-          <div className="text-center space-y-3 mb-10">
+          <div className="text-center space-y-3 mb-6">
             <span className="text-emerald-400 text-xs font-bold uppercase tracking-widest inline-block border-b border-emerald-500/30 pb-1">
               WHY PARTNER WITH US
             </span>

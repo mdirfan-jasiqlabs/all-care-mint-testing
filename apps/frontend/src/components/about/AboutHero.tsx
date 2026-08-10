@@ -4,7 +4,7 @@ import React from 'react';
 
 export default function AboutHero() {
   return (
-    <section aria-labelledby="about-heading" className="relative w-full overflow-hidden bg-[#060a12] pt-12 pb-24 sm:pt-16 sm:pb-28 lg:pt-20 lg:pb-36">
+    <section aria-labelledby="about-heading" className="relative w-full overflow-hidden bg-[#060a12] pt-6 pb-12 sm:pt-8 sm:pb-16 lg:pt-10 lg:pb-20">
       {/* FULL-BLEED HERO BACKGROUND IMAGE */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <img

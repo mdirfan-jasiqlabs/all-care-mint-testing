@@ -71,7 +71,7 @@ export default function PlatformValues() {
   return (
     <section
       aria-labelledby="values-heading"
-      className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 sm:-mt-14 lg:-mt-16 pb-16"
+      className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2 sm:mt-4 pb-8"
     >
       <div className="bg-[#060d19]/95 border border-emerald-500/20 rounded-[28px] p-6 sm:p-10 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl">
         {/* HEADER & COPY */}

@@ -96,10 +96,10 @@ export default function HowItWorksSteps() {
   return (
     <section 
       aria-labelledby="how-it-works-heading" 
-      className="relative py-10 sm:py-12 lg:py-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto"
+      className="relative py-6 sm:py-8 lg:py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto"
     >
       {/* Section Header */}
-      <div className="text-center space-y-3 max-w-2xl mx-auto mb-10 sm:mb-12">
+      <div className="text-center space-y-3 max-w-2xl mx-auto mb-6 sm:mb-8">
         {/* Eyebrow badge */}
         <div className="inline-flex items-center space-x-2 text-emerald-400 text-xs font-bold uppercase tracking-widest relative">
           <span className="w-6 h-[1.5px] bg-emerald-500/50 rounded-full" />

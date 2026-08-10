@@ -62,8 +62,8 @@ export default function CatalogCategoriesPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'hsl(224, 71%, 4%)', color: '#f8fafc', padding: '40px 24px' }}>
-      <div style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'hsl(224, 71%, 4%)', color: '#f8fafc', padding: '24px 16px' }}>
+      <div style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
         {/* Header */}
         <div style={{ textAlign: 'center' }}>

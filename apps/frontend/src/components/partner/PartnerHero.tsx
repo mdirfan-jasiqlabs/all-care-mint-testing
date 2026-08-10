@@ -40,7 +40,7 @@ export default function PartnerHero() {
   ];
 
   return (
-    <section aria-labelledby="partner-heading" className="relative py-8 sm:py-12 lg:py-16 overflow-hidden">
+    <section aria-labelledby="partner-heading" className="relative py-4 sm:py-6 lg:py-8 overflow-hidden">
       
       {/* Subtle Background Glows */}
       <div className="absolute top-1/4 left-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -z-10" />

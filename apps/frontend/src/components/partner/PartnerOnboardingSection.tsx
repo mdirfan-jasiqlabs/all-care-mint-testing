@@ -37,11 +37,11 @@ export default function PartnerOnboardingSection() {
   ];
 
   return (
-    <section aria-labelledby="partner-onboarding-heading" className="py-8 sm:py-12 lg:py-16">
+    <section aria-labelledby="partner-onboarding-heading" className="py-4 sm:py-6 lg:py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center space-y-3 mb-12 sm:mb-16">
+        <div className="text-center space-y-3 mb-6 sm:mb-8">
           <span className="text-emerald-400 text-xs font-bold uppercase tracking-widest inline-block border-b border-emerald-500/30 pb-1">
             HOW PARTNER ONBOARDING WORKS
           </span>

@@ -46,7 +46,7 @@ export default function BookServiceCTA() {
   return (
     <section 
       aria-label="Book a Service CTA"
-      className="relative pb-10 sm:pb-12 pt-2 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6"
+      className="relative pb-6 sm:pb-8 pt-2 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6"
     >
       {/* Main Horizontal CTA Card Container */}
       <div className="relative bg-dark-surface border border-emerald-500/30 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-cta-card-glow overflow-hidden space-y-10">

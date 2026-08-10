@@ -70,14 +70,14 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="w-full flex-1 flex flex-col justify-between py-10 sm:py-14 px-4 sm:px-6 lg:px-8 relative overflow-hidden select-none">
+    <div className="w-full flex-1 flex flex-col justify-between py-6 sm:py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden select-none">
       {/* Background Ambient Lighting Glow */}
       <div 
         className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-emerald-500/5 rounded-full blur-3xl pointer-events-none -z-10" 
         aria-hidden="true"
       />
 
-      <div className="max-w-6xl mx-auto w-full space-y-12 sm:space-y-16">
+      <div className="max-w-6xl mx-auto w-full space-y-6 sm:space-y-8">
         
         {/* SECTION 1 — CONTACT HERO */}
         <section className="text-center space-y-4 max-w-3xl mx-auto">

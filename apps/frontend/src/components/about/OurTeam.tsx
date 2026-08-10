@@ -95,7 +95,7 @@ export default function OurTeam() {
   return (
     <section
       aria-labelledby="team-heading"
-      className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 lg:pb-24"
+      className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 lg:pb-12"
     >
       <div className="bg-[#060d19]/95 border border-emerald-500/20 rounded-[28px] p-6 sm:p-10 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl">
         {/* SECTION HEADER */}

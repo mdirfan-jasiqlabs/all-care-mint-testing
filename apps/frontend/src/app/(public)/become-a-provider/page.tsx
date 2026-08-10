@@ -7,7 +7,7 @@ import PartnerOnboardingSection from '@/components/partner/PartnerOnboardingSect
 
 export default function BecomeAProviderPage() {
   return (
-    <main className="w-full flex-1 bg-[#060a12] text-slate-100 font-sans space-y-4 sm:space-y-8 pb-12">
+    <main className="w-full flex-1 bg-[#060a12] text-slate-100 font-sans space-y-2 sm:space-y-4 pb-6">
       {/* Section 1: Hero + Partner Application Form */}
       <PartnerHero />
 
