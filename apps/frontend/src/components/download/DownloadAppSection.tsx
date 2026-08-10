@@ -36,7 +36,7 @@ export const DownloadAppSection: React.FC<DownloadAppSectionProps> = ({
     if (onShowToast) {
       onShowToast(
         'Downloading Customer App',
-        'Initiating APK download for All-Care MINT Customer Mobile Application.',
+        'Initiating APK download for All care mint Customer Mobile Application.',
         '📲'
       );
     }
@@ -56,7 +56,7 @@ export const DownloadAppSection: React.FC<DownloadAppSectionProps> = ({
     if (onShowToast) {
       onShowToast(
         'Google Play Store',
-        'Redirecting to Google Play Store listing for All-Care MINT Customer App.',
+        'Redirecting to Google Play Store listing for All care mint Customer App.',
         '▶️'
       );
     }

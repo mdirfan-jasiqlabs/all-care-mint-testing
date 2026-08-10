@@ -137,7 +137,7 @@ export default function WhyChooseUs() {
         >
           Why Choose{' '}
           <span className="text-emerald-400 font-black">
-            All-Care MINT
+            All care mint
           </span>
           ?
         </h2>

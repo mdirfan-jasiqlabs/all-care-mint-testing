@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { siteConfig } from '@/config/site';
 
+import BrandLogo from './BrandLogo';
+
 export default function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -39,17 +41,8 @@ export default function Navbar() {
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex justify-between items-center" aria-label="Main Navigation">
         
-        {/* Brand Logo */}
-        <Link href="/" className="flex items-center space-x-3 text-emerald-400 font-bold text-xl cursor-pointer group">
-          <img
-            src={siteConfig.logo.src}
-            alt={siteConfig.logo.alt}
-            className="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-lg border border-emerald-500/30 group-hover:border-emerald-400/60 transition-all shadow-sm"
-          />
-          <span className="tracking-tight text-white font-black text-lg sm:text-xl">
-            {siteConfig.name}-<span className="text-emerald-400 font-extrabold">{siteConfig.brandNameHighlight}</span>
-          </span>
-        </Link>
+        {/* Official Brand Logo */}
+        <BrandLogo size="md" priority={true} />
 
         {/* Desktop Main Navigation Links */}
         <div className="hidden lg:flex items-center space-x-8 text-xs xl:text-sm font-semibold">

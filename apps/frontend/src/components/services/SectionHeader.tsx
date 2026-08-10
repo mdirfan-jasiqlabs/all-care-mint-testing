@@ -19,7 +19,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   badgeLabel = 'CATALOG BROWSER',
   titlePrefix = 'Service',
   titleHighlight = 'Categories',
-  subtitleLine1 = 'Browse active service categories available on All-Care MINT.',
+  subtitleLine1 = 'Browse active service categories available on All care mint.',
   subtitleLine2 = 'Book instantly inside our Customer Mobile App.',
   onRefresh,
   isRefreshing = false,

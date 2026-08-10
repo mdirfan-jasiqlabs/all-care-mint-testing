@@ -27,7 +27,7 @@ export default function PublicHomePage() {
   };
 
   const simulateDownload = (type: string) => {
-    showToast('App Store Link', `Redirecting to Google Play Store download target for All-Care MINT ${type} Application.`, '📲');
+    showToast('App Store Link', `Redirecting to Google Play Store download target for All care mint ${type} Application.`, '📲');
   };
 
   return (
@@ -443,7 +443,7 @@ export default function PublicHomePage() {
               {policyType === 'privacy' ? (
                 <>
                   <p><strong>Last Updated: July 23, 2026</strong></p>
-                  <p>This Privacy Policy describes how All-Care MINT collects, uses, and shares your personal information when you use our public marketing website and our home services marketplace platform.</p>
+                  <p>This Privacy Policy describes how All care mint collects, uses, and shares your personal information when you use our public marketing website and our home services marketplace platform.</p>
                   <p><strong>1. Information We Collect</strong><br />We collect personal identifiers such as name, phone number, and city location when you submit forms on our website expressing interest to join as a service partner (Become a Provider form). We collect these to evaluate applicant profiles.</p>
                   <p><strong>2. How We Use Information</strong><br />We use collected provider leads data to verify partner applications, schedule interviews, and establish communication loops. Lead information is saved securely inside the provider_leads database.</p>
                   <p><strong>3. Security Practices</strong><br />We implement server-side validation, cross-site scripting (XSS) input sanitization guards, and SSL encryption. Lead form endpoints are rate-limited to avoid automation spam attacks.</p>
@@ -451,10 +451,10 @@ export default function PublicHomePage() {
               ) : (
                 <>
                   <p><strong>Last Updated: July 23, 2026</strong></p>
-                  <p>Please read these Terms and Conditions carefully before browsing the All-Care MINT marketing website or applying to join our network of service partners.</p>
+                  <p>Please read these Terms and Conditions carefully before browsing the All care mint marketing website or applying to join our network of service partners.</p>
                   <p><strong>1. Acceptance of Terms</strong><br />By browsing our marketing website, you acknowledge that you have read and understood these Terms. Booking services requires the use of our official mobile application client.</p>
                   <p><strong>2. Provider Leads Submissions</strong><br />Submitting interest via the "Become a Provider" form represents a lead registration. It does NOT guarantee onboarding, account creation, or employment contract terms. All applicants go through separate screening loops.</p>
-                  <p><strong>3. Intellectual Property</strong><br />All-Care MINT logo, design tokens, layout structures, and text materials are owned solely by All-Care MINT. Reproduction without written consent is forbidden.</p>
+                  <p><strong>3. Intellectual Property</strong><br />All care mint logo, design tokens, layout structures, and text materials are owned solely by All care mint. Reproduction without written consent is forbidden.</p>
                 </>
               )}
             </div>

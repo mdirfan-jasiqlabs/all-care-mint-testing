@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useCatalogETag } from '../catalog/CatalogETagContext';
 
+import BrandLogo from '@/components/BrandLogo';
+
 export default function AdminHeader() {
   const router = useRouter();
   const pathname = usePathname() || '';
@@ -68,10 +70,7 @@ export default function AdminHeader() {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <img src="/logo.png" alt="All Care Mint Logo" style={{ width: '32px', height: '32px', objectFit: 'contain', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.3)' }} />
-        <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.5px', margin: 0 }}>
-          All Care <span style={{ color: '#10b981', fontWeight: 500 }}>Mint</span>
-        </h1>
+        <BrandLogo size="md" />
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>

@@ -65,7 +65,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
 
           {/* Category Description */}
           <p className="text-xs sm:text-sm text-slate-300/90 leading-relaxed font-normal">
-            {category.description || `Professional ${category.name.toLowerCase()} services available on All-Care MINT.`}
+            {category.description || `Professional ${category.name.toLowerCase()} services available on All care mint.`}
           </p>
         </div>
 

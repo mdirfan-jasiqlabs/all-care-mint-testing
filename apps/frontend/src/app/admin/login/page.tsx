@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import BrandLogo from '@/components/BrandLogo';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -142,8 +143,8 @@ export default function AdminLoginPage() {
           {/* HEADER BAR */}
           <div className="admin-header">
             <div className="admin-header-left">
-              <img src="/logo.png" alt="All Care Mint Logo" style={{ width: '32px', height: '32px', objectFit: 'contain', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.3)' }} />
-              <span className="admin-header-title">All Care Mint — Admin Portal</span>
+              <BrandLogo size="md" />
+              <span className="admin-header-title" style={{ marginLeft: '8px' }}>— Admin Portal</span>
             </div>
             <span className="admin-header-tag">SECURE CONSOLE</span>
           </div>
