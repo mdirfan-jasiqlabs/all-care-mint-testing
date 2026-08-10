@@ -34,7 +34,7 @@ export const TrustItem: React.FC<TrustItemProps> = ({ item }) => {
   };
 
   return (
-    <div className="flex items-start space-x-3 text-left">
+    <div className="flex items-start space-x-4 text-left">
       <div className="mt-0.5 flex-shrink-0">
         {renderIcon()}
       </div>
@@ -42,7 +42,7 @@ export const TrustItem: React.FC<TrustItemProps> = ({ item }) => {
         <h4 className="text-sm font-bold text-white leading-snug">
           {item.label}
         </h4>
-        <p className="text-xs text-slate-400 font-normal leading-relaxed mt-0.5">
+        <p className="text-xs text-slate-400 font-normal leading-relaxed mt-1">
           {item.subtitle}
         </p>
       </div>

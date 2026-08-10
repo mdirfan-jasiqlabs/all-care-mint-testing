@@ -40,7 +40,7 @@ export const FooterBottomBar: React.FC = () => {
   };
 
   return (
-    <div className="border-t border-white/[0.06] pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-400">
+    <div className="border-t border-white/[0.06] mt-11 lg:mt-12 pt-6 lg:pt-7 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-400">
       {/* Left: Copyright */}
       <div className="text-center sm:text-left">
         <span>
@@ -49,7 +49,7 @@ export const FooterBottomBar: React.FC = () => {
       </div>
 
       {/* Right: Social Media Icons */}
-      <div className="flex items-center space-x-6">
+      <div className="flex items-center space-x-6 sm:space-x-7">
         {socialLinks.map((social) => (
           <a
             key={social.platform}

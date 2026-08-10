@@ -12,17 +12,17 @@ export interface FooterNavColumnProps {
 
 export const FooterNavColumn: React.FC<FooterNavColumnProps> = ({ title, links, ariaLabel }) => {
   return (
-    <div className="space-y-3.5 text-left w-full">
+    <div className="text-left w-full">
       <div>
         <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
           {title}
         </h3>
         {/* Small Mint Accent Underline Bar */}
-        <div className="w-6 h-[2.5px] bg-emerald-400 rounded-full mt-1.5" />
+        <div className="w-6 h-[2.5px] bg-emerald-400 rounded-full mt-2.5" />
       </div>
 
-      <nav aria-label={ariaLabel || title}>
-        <ul className="space-y-1.5 pt-1">
+      <nav aria-label={ariaLabel || title} className="mt-7">
+        <ul className="space-y-2">
           {links.map((link) => (
             <li key={link.href + link.label}>
               <FooterLink item={link} />
