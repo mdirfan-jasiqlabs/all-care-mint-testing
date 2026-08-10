@@ -595,7 +595,7 @@ export default function UnifiedCatalogManager() {
             <TableSkeleton rows={4} columns={6} />
           ) : (
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--card-border)', color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase' }}>
                     <th
@@ -717,10 +717,11 @@ export default function UnifiedCatalogManager() {
               height: '100%',
               background: 'var(--background)',
               borderLeft: '1px solid var(--card-border)',
-              padding: '32px',
+              padding: '24px 20px',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
+              overflowY: 'auto',
             }}
             onClick={(e) => e.stopPropagation()}
           >

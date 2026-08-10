@@ -149,7 +149,7 @@ export default function AdminReportsPage() {
           alignItems: 'flex-end',
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1, minWidth: '200px' }}>
           <label style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500 }}>Report Type</label>
           <select
             value={type}
@@ -162,6 +162,7 @@ export default function AdminReportsPage() {
               borderRadius: '8px',
               fontSize: '14px',
               fontWeight: 500,
+              minHeight: '44px',
             }}
           >
             <option value="revenue">Revenue & Settlements Report</option>
@@ -169,7 +170,7 @@ export default function AdminReportsPage() {
           </select>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1, minWidth: '150px' }}>
           <label style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500 }}>Start Date</label>
           <input
             type="date"
@@ -182,11 +183,12 @@ export default function AdminReportsPage() {
               padding: '10px 16px',
               borderRadius: '8px',
               fontSize: '14px',
+              minHeight: '44px',
             }}
           />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1, minWidth: '150px' }}>
           <label style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500 }}>End Date (Max 90 days)</label>
           <input
             type="date"
@@ -199,11 +201,12 @@ export default function AdminReportsPage() {
               padding: '10px 16px',
               borderRadius: '8px',
               fontSize: '14px',
+              minHeight: '44px',
             }}
           />
         </div>
 
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: '12px' }}>
+        <div className="w-full sm:w-auto" style={{ display: 'flex', gap: '12px' }}>
           <button
             onClick={handleExportCsv}
             disabled={loading || !!errorMsg}
@@ -218,7 +221,10 @@ export default function AdminReportsPage() {
               cursor: loading || !!errorMsg ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '8px',
+              minHeight: '44px',
+              width: '100%',
             }}
           >
             📥 Export CSV
@@ -276,6 +282,7 @@ export default function AdminReportsPage() {
             <table
               style={{
                 width: '100%',
+                minWidth: '600px',
                 borderCollapse: 'collapse',
                 fontSize: '14px',
                 textAlign: 'left',

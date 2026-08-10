@@ -5,9 +5,11 @@ import { useRouter, usePathname } from 'next/navigation';
 
 interface AdminSidebarProps {
   activePage?: 'dashboard' | 'catalog' | 'bookings' | 'users' | 'providers' | 'provider-leads' | 'reports';
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export default function AdminSidebar({ activePage: activePageProp }: AdminSidebarProps) {
+export default function AdminSidebar({ activePage: activePageProp, isOpen = false, onClose }: AdminSidebarProps) {
   const router = useRouter();
   const pathname = usePathname() || '';
   const [badgeCount, setBadgeCount] = React.useState<number>(0);
@@ -60,6 +62,17 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
     };
   }, []);
 
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && onClose) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   const getActivePage = (): string => {
     if (activePageProp) return activePageProp;
     if (pathname.startsWith('/admin/catalog')) return 'catalog';
@@ -77,6 +90,7 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
   const activePage = getActivePage();
 
   const handleNav = (path: string) => {
+    if (onClose) onClose();
     router.push(path);
   };
 
@@ -96,117 +110,185 @@ export default function AdminSidebar({ activePage: activePageProp }: AdminSideba
       textAlign: 'left' as const,
       width: '100%',
       transition: 'all 0.2s ease',
+      minHeight: '44px',
     };
   };
 
-  return (
-    <aside
-      id="admin-sidebar"
-      style={{
-        width: '240px',
-        backgroundColor: '#020617',
-        borderRight: '1px solid rgba(255, 255, 255, 0.08)',
-        padding: '24px 16px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '24px',
-        flexShrink: 0,
-        overflowY: 'auto',
-      }}
-    >
-      <div>
-        <div
-          style={{
-            fontSize: '10px',
-            color: '#64748b',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-            marginBottom: '12px',
-            paddingLeft: '8px',
-          }}
+  const navContent = (
+    <div>
+      <div
+        style={{
+          fontSize: '10px',
+          color: '#64748b',
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '1px',
+          marginBottom: '12px',
+          paddingLeft: '8px',
+        }}
+      >
+        Console Navigation
+      </div>
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <button
+          onClick={() => handleNav('/admin/dashboard')}
+          style={getLinkStyle('dashboard')}
         >
-          Console Navigation
-        </div>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <button
-            onClick={() => handleNav('/admin/dashboard')}
-            style={getLinkStyle('dashboard')}
+          Dashboard
+        </button>
+        <button
+          onClick={() => handleNav('/admin/catalog/categories')}
+          style={getLinkStyle('catalog')}
+        >
+          Service Catalog
+        </button>
+        <button
+          onClick={() => handleNav('/admin/bookings')}
+          style={getLinkStyle('bookings')}
+        >
+          Manage Bookings
+        </button>
+        <button
+          onClick={() => handleNav('/admin/providers')}
+          style={getLinkStyle('providers')}
+        >
+          Providers Directory
+        </button>
+        <button
+          onClick={() => handleNav('/admin/providers/leads')}
+          style={getLinkStyle('provider-leads')}
+          aria-live="polite"
+        >
+          <span>Provider Application Leads</span>
+          {badgeCount > 0 && (
+            <span
+              id="provider-leads-badge"
+              aria-label={`${badgeCount} unread provider leads`}
+              style={{
+                marginLeft: 'auto',
+                backgroundColor: '#ef4444',
+                color: '#ffffff',
+                borderRadius: '9999px',
+                padding: '2px 8px',
+                fontSize: '11px',
+                fontWeight: 700,
+                boxShadow: '0 0 8px rgba(239, 68, 68, 0.6)',
+              }}
+            >
+              {badgeCount > 99 ? '99+' : badgeCount}
+              <span style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', borderWidth: 0 }}>
+                unread provider leads
+              </span>
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => handleNav('/admin/payments')}
+          style={getLinkStyle('payments')}
+        >
+          Payments & Cash Ledger
+        </button>
+        <button
+          onClick={() => handleNav('/admin/ratings')}
+          style={getLinkStyle('ratings')}
+        >
+          Provider Ratings & Feedback
+        </button>
+        <button
+          onClick={() => handleNav('/admin/reports')}
+          style={getLinkStyle('reports')}
+        >
+          Analytics & Reports
+        </button>
+        <button
+          style={{ ...getLinkStyle('users'), opacity: 0.5, cursor: 'not-allowed' }}
+          disabled
+        >
+          Users & Access
+        </button>
+      </nav>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Permanent Sidebar */}
+      <aside
+        id="admin-sidebar"
+        className="hidden lg:flex"
+        style={{
+          width: '240px',
+          backgroundColor: '#020617',
+          borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+          padding: '24px 16px',
+          flexDirection: 'column',
+          gap: '24px',
+          flexShrink: 0,
+          overflowY: 'auto',
+        }}
+      >
+        {navContent}
+      </aside>
+
+      {/* Mobile / Tablet Drawer Overlay */}
+      {isOpen && (
+        <div className="lg:hidden" style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex' }}>
+          {/* Backdrop */}
+          <div
+            onClick={onClose}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: 'rgba(2, 6, 23, 0.75)',
+              backdropFilter: 'blur(4px)',
+            }}
+          />
+
+          {/* Drawer Panel */}
+          <div
+            style={{
+              position: 'relative',
+              width: '280px',
+              maxWidth: '85vw',
+              backgroundColor: '#020617',
+              borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+              height: '100%',
+              padding: '20px 16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
+              zIndex: 51,
+              boxShadow: '8px 0 24px rgba(0, 0, 0, 0.5)',
+              overflowY: 'auto',
+            }}
           >
-            Dashboard
-          </button>
-          <button
-            onClick={() => handleNav('/admin/catalog/categories')}
-            style={getLinkStyle('catalog')}
-          >
-            Service Catalog *
-          </button>
-          <button
-            onClick={() => handleNav('/admin/bookings')}
-            style={getLinkStyle('bookings')}
-          >
-            Manage Bookings
-          </button>
-          <button
-            onClick={() => handleNav('/admin/providers')}
-            style={getLinkStyle('providers')}
-          >
-            Providers Directory
-          </button>
-          <button
-            onClick={() => handleNav('/admin/providers/leads')}
-            style={getLinkStyle('provider-leads')}
-            aria-live="polite"
-          >
-            <span>Provider Application Leads</span>
-            {badgeCount > 0 && (
-              <span
-                id="provider-leads-badge"
-                aria-label={`${badgeCount} unread provider leads`}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '12px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <span style={{ fontSize: '14px', fontWeight: 700, color: '#10b981' }}>Navigation</span>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close navigation menu"
                 style={{
-                  marginLeft: 'auto',
-                  backgroundColor: '#ef4444',
-                  color: '#ffffff',
-                  borderRadius: '9999px',
-                  padding: '2px 8px',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  boxShadow: '0 0 8px rgba(239, 68, 68, 0.6)',
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: '#94a3b8',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
                 }}
               >
-                {badgeCount > 99 ? '99+' : badgeCount}
-                <span style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', borderWidth: 0 }}>
-                  unread provider leads
-                </span>
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => handleNav('/admin/payments')}
-            style={getLinkStyle('payments')}
-          >
-            Payments & Cash Ledger
-          </button>
-          <button
-            onClick={() => handleNav('/admin/ratings')}
-            style={getLinkStyle('ratings')}
-          >
-            Provider Ratings & Feedback
-          </button>
-          <button
-            onClick={() => handleNav('/admin/reports')}
-            style={getLinkStyle('reports')}
-          >
-            Analytics & Reports
-          </button>
-          <button
-            style={getLinkStyle('users')}
-            disabled
-          >
-            Users & Access
-          </button>
-        </nav>
-      </div>
-    </aside>
+                ✕
+              </button>
+            </div>
+            {navContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
+

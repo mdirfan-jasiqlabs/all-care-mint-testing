@@ -261,7 +261,7 @@ export default function AdminBookingsPage() {
       </div>
 
       {/* HORIZONTAL STATUS TABS */}
-      <div style={{ display: 'flex', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', gap: '24px' }}>
+      <div className="overflow-x-auto" style={{ display: 'flex', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', gap: '24px', whiteSpace: 'nowrap' }}>
         {[
           { id: 'ALL', label: 'All Bookings' },
           { id: 'PENDING', label: 'Pending' },
@@ -286,6 +286,8 @@ export default function AdminBookingsPage() {
                 fontSize: '13px',
                 fontWeight: isActive ? 700 : 500,
                 cursor: 'pointer',
+                minHeight: '44px',
+                flexShrink: 0,
               }}
             >
               {tab.label}
@@ -301,14 +303,14 @@ export default function AdminBookingsPage() {
       )}
 
       {/* BOOKINGS TABLE CONTAINER */}
-      <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.45)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '24px' }}>
+      <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.45)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '16px' }}>
         {loading ? (
           <div style={{ padding: '48px', textAlign: 'center' }}>
             <div style={{ border: '3px solid rgba(255,255,255,0.1)', borderTop: '3px solid #10b981', borderRadius: '50%', width: '32px', height: '32px', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
           </div>
         ) : (
-          <>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+          <div className="overflow-x-auto">
+            <table style={{ width: '100%', minWidth: '640px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', color: '#64748b', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.5px' }}>
                   <th style={{ padding: '12px' }}>Booking ID</th>
@@ -396,31 +398,38 @@ export default function AdminBookingsPage() {
                 </button>
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
 
       {/* INLINE RIGHT SLIDE-OUT DETAIL DRAWER (`#drawer-details`) */}
       {drawerOpen && drawerBooking && (
-        <aside
-          id="drawer-details"
-          style={{
-            position: 'fixed',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            width: '420px',
-            backgroundColor: '#020617',
-            borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
-            padding: '28px',
-            boxShadow: '-10px 0 30px rgba(0,0,0,0.5)',
-            zIndex: 50,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            overflowY: 'auto',
-          }}
-        >
+        <>
+          <div
+            onClick={closeDrawer}
+            style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(2, 6, 23, 0.6)', backdropFilter: 'blur(4px)', zIndex: 45 }}
+          />
+          <aside
+            id="drawer-details"
+            style={{
+              position: 'fixed',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: '100%',
+              maxWidth: '420px',
+              backgroundColor: '#020617',
+              borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
+              padding: '24px 20px',
+              boxShadow: '-10px 0 30px rgba(0,0,0,0.5)',
+              zIndex: 50,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              overflowY: 'auto',
+            }}
+          >
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* Drawer Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '16px' }}>
@@ -593,6 +602,7 @@ export default function AdminBookingsPage() {
             </button>
           </div>
         </aside>
+      </>
       )}
 
       {/* Top-Center Accessible Toast Notification Queue */}

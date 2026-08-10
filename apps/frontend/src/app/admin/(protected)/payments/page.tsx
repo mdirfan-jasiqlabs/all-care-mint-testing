@@ -242,7 +242,7 @@ export default function AdminPaymentsPage() {
           alignItems: 'center',
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '140px' }}>
           <label htmlFor="method-filter-select" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
             Payment Method
           </label>
@@ -260,6 +260,7 @@ export default function AdminPaymentsPage() {
               border: '1px solid #334155',
               borderRadius: '6px',
               fontSize: '14px',
+              minHeight: '44px',
             }}
           >
             <option value="">All Methods</option>
@@ -268,7 +269,7 @@ export default function AdminPaymentsPage() {
           </select>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '160px' }}>
           <label htmlFor="status-filter-select" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
             Payment Status
           </label>
@@ -286,6 +287,7 @@ export default function AdminPaymentsPage() {
               border: '1px solid #334155',
               borderRadius: '6px',
               fontSize: '14px',
+              minHeight: '44px',
             }}
           >
             <option value="">All Statuses</option>
@@ -298,7 +300,7 @@ export default function AdminPaymentsPage() {
           </select>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '140px' }}>
           <label htmlFor="date-from-input" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
             From Date
           </label>
@@ -317,11 +319,12 @@ export default function AdminPaymentsPage() {
               border: '1px solid #334155',
               borderRadius: '6px',
               fontSize: '14px',
+              minHeight: '44px',
             }}
           />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '140px' }}>
           <label htmlFor="date-to-input" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
             To Date
           </label>
@@ -340,6 +343,7 @@ export default function AdminPaymentsPage() {
               border: '1px solid #334155',
               borderRadius: '6px',
               fontSize: '14px',
+              minHeight: '44px',
             }}
           />
         </div>
@@ -388,7 +392,7 @@ export default function AdminPaymentsPage() {
         )}
 
         <div style={{ overflowX: 'auto' }}>
-          <table id="admin-payments-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <table id="admin-payments-table" style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
                 <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Date</th>

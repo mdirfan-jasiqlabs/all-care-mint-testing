@@ -264,8 +264,8 @@ function ProviderLeadsPageContent() {
             </button>
           </div>
         ) : (
-          <>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+          <div className="overflow-x-auto">
+            <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', color: '#64748b', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.5px' }}>
                   <th style={{ padding: '12px' }}>Applicant Name</th>
@@ -327,7 +327,7 @@ function ProviderLeadsPageContent() {
 
             {/* PAGINATION */}
             {total > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '16px', flexWrap: 'wrap', gap: '12px' }}>
                 <span style={{ fontSize: '12px', color: '#64748b' }}>
                   Page {page} of {totalPages} (Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} leads)
                 </span>
@@ -365,7 +365,7 @@ function ProviderLeadsPageContent() {
                 </div>
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>

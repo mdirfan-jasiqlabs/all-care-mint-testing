@@ -256,16 +256,16 @@ export default function AdminBookingDetailPage() {
       </div>
 
       {/* Split Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: '24px', alignItems: 'start' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" style={{ alignItems: 'start' }}>
         
         {/* Left Panel: Details & Timeline */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="lg:col-span-7" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Booking Details Card */}
-          <div className="glass-card" style={{ maxWidth: '100%', padding: '32px' }}>
+          <div className="glass-card" style={{ maxWidth: '100%', padding: '24px' }}>
             <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '12px' }}>
               Service Information
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
                 <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Booked Service</div>
                 <div style={{ fontSize: '16px', fontWeight: 600, marginTop: '4px' }}>{booking.serviceNameSnapshot}</div>
@@ -349,7 +349,7 @@ export default function AdminBookingDetailPage() {
         </div>
 
         {/* Right Panel: Assignment Dropdown & Actions */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="lg:col-span-5" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div className="glass-card" style={{ maxWidth: '100%', padding: '32px' }}>
             <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '20px' }}>Provider Assignment</h3>
             

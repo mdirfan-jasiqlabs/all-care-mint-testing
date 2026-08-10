@@ -309,7 +309,7 @@ function ProvidersPageContent() {
           />
         </div>
 
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="overflow-x-auto" style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
           {['ALL', 'PENDING_REVIEW', 'APPROVED', 'SUSPENDED', 'REJECTED'].map((status) => (
             <button
               key={status}
@@ -327,6 +327,8 @@ function ProvidersPageContent() {
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.2s',
+                whiteSpace: 'nowrap',
+                minHeight: '44px',
               }}
             >
               {status.replace('_', ' ')}
@@ -336,7 +338,7 @@ function ProvidersPageContent() {
       </div>
 
       {/* TABLE CONTAINER */}
-      <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.45)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '24px' }}>
+      <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.45)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '16px' }}>
         {loading ? (
           <TableSkeleton rows={5} columns={5} />
         ) : fetchError ? (
@@ -360,8 +362,8 @@ function ProvidersPageContent() {
             </button>
           </div>
         ) : (
-          <>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+          <div className="overflow-x-auto">
+            <table style={{ width: '100%', minWidth: '640px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', color: '#64748b', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.5px' }}>
                   <th style={{ padding: '12px' }}>Provider Name</th>
@@ -445,7 +447,7 @@ function ProvidersPageContent() {
 
             {/* PAGINATION */}
             {total > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '16px', flexWrap: 'wrap', gap: '12px' }}>
                 <span style={{ fontSize: '12px', color: '#64748b' }}>
                   Page {page} of {totalPages} (Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} providers)
                 </span>
@@ -483,7 +485,7 @@ function ProvidersPageContent() {
                 </div>
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
 
@@ -502,6 +504,7 @@ function ProvidersPageContent() {
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 999,
+            padding: '16px',
           }}
         >
           <div
@@ -509,9 +512,11 @@ function ProvidersPageContent() {
               backgroundColor: '#0b0f19',
               border: '1px solid rgba(255, 255, 255, 0.08)',
               borderRadius: '16px',
-              padding: '32px',
+              padding: '24px 20px',
               width: '100%',
               maxWidth: '480px',
+              maxHeight: 'calc(100vh - 40px)',
+              overflowY: 'auto',
               boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
             }}
           >

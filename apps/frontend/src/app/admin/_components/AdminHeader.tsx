@@ -4,7 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import BrandLogo from '@/components/BrandLogo';
 
-export default function AdminHeader() {
+interface AdminHeaderProps {
+  onMenuClick?: () => void;
+}
+
+export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
   const [csrfToken, setCsrfToken] = useState('');
@@ -46,17 +50,44 @@ export default function AdminHeader() {
         backgroundColor: 'rgba(2, 6, 23, 0.85)',
         backdropFilter: 'blur(12px)',
         height: '76px',
-        padding: '0 32px',
+        padding: '0 20px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         position: 'sticky',
         top: 0,
-        zIndex: 20,
+        zIndex: 30,
         width: '100%',
+        boxSizing: 'border-box',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Hamburger Toggle Button: ONLY visible on screens < 1024px (lg:hidden) */}
+        <button
+          type="button"
+          onClick={onMenuClick}
+          aria-label="Open menu"
+          title="Open menu"
+          className="flex lg:hidden items-center justify-center"
+          style={{
+            height: '44px',
+            width: '44px',
+            borderRadius: '10px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            color: '#f8fafc',
+            cursor: 'pointer',
+            padding: 0,
+            outline: 'none',
+          }}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+
         <BrandLogo href="/admin/dashboard" size="md" alt="All care mint Admin" />
       </div>
 
@@ -67,15 +98,16 @@ export default function AdminHeader() {
           disabled={loggingOut}
           aria-label="Log out"
           title="Log out"
+          className="px-3 sm:px-5"
           style={{
             height: '44px',
-            padding: '0 20px',
             borderRadius: '12px',
             fontSize: '14px',
             fontWeight: 500,
             cursor: loggingOut ? 'not-allowed' : 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '8px',
             transition: 'all 0.2s ease-in-out',
             backgroundColor: 'rgba(239, 68, 68, 0.1)',
@@ -119,8 +151,8 @@ export default function AdminHeader() {
             />
           ) : (
             <svg
-              width="16"
-              height="16"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="#f87171"
@@ -135,10 +167,11 @@ export default function AdminHeader() {
               <line x1="21" y1="12" x2="9" y2="12" />
             </svg>
           )}
-          <span>Log Out</span>
+          <span className="hidden sm:inline">Log Out</span>
         </button>
       </div>
     </header>
   );
 }
+
 

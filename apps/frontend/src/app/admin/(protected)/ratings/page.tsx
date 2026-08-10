@@ -140,7 +140,7 @@ export default function AdminRatingsPage() {
           alignItems: 'center',
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '180px' }}>
           <label htmlFor="provider-search-input" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
             Search Provider / Customer
           </label>
@@ -160,12 +160,13 @@ export default function AdminRatingsPage() {
               border: '1px solid #334155',
               borderRadius: '6px',
               fontSize: '14px',
-              width: '200px',
+              width: '100%',
+              minHeight: '44px',
             }}
           />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '160px' }}>
           <label htmlFor="min-rating-select" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
             Filter by Rating
           </label>
@@ -183,6 +184,7 @@ export default function AdminRatingsPage() {
               border: '1px solid #334155',
               borderRadius: '6px',
               fontSize: '14px',
+              minHeight: '44px',
             }}
           >
             <option value="">All Ratings</option>
@@ -193,7 +195,7 @@ export default function AdminRatingsPage() {
           </select>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '140px' }}>
           <label htmlFor="date-from-input" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
             From Date
           </label>
@@ -212,11 +214,12 @@ export default function AdminRatingsPage() {
               border: '1px solid #334155',
               borderRadius: '6px',
               fontSize: '14px',
+              minHeight: '44px',
             }}
           />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '140px' }}>
           <label htmlFor="date-to-input" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
             To Date
           </label>
@@ -235,12 +238,13 @@ export default function AdminRatingsPage() {
               border: '1px solid #334155',
               borderRadius: '6px',
               fontSize: '14px',
+              minHeight: '44px',
             }}
           />
         </div>
       </div>
 
-      {/* Main Table */}
+      {/* Main Table Container */}
       <div
         style={{
           backgroundColor: '#0f172a',
@@ -283,7 +287,7 @@ export default function AdminRatingsPage() {
         )}
 
         <div style={{ overflowX: 'auto' }}>
-          <table id="admin-ratings-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <table id="admin-ratings-table" style={{ width: '100%', minWidth: '640px', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
                 <th

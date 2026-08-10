@@ -22,16 +22,20 @@ export default function CatalogTabs() {
       cursor: 'pointer',
       transition: 'all 0.2s ease',
       outline: 'none',
+      minHeight: '44px',
+      flexShrink: 0,
     };
   };
 
   return (
     <div
+      className="overflow-x-auto"
       style={{
         display: 'flex',
         borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         marginBottom: '24px',
         gap: '8px',
+        whiteSpace: 'nowrap',
       }}
     >
       <button

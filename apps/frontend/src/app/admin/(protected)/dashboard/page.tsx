@@ -409,13 +409,7 @@ export default function AdminDashboardPage() {
       )}
 
       {/* 5 KPI Metric Cards Grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '20px',
-        }}
-      >
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
         {/* KPI 1: Total Revenue */}
         <div
           style={{
@@ -555,12 +549,12 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* 2-Column Grid: Time-Series Bar Chart + CSV Export Panel */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left Section: Time-Series Bar Chart (Monthly Volume Distribution) */}
         <div
+          className="lg:col-span-2"
           style={{
-            gridColumn: 'span 2 / span 2',
             backgroundColor: 'rgba(2, 6, 23, 0.4)',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '16px',
@@ -570,7 +564,7 @@ export default function AdminDashboardPage() {
             gap: '16px',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
             <h3 style={{ fontSize: '12px', fontWeight: 700, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>
               Booking Volume Distribution (Monthly)
             </h3>
@@ -584,114 +578,119 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Interactive Bar Chart Representation */}
-          <div
-            style={{
-              height: '256px',
-              border: '1px solid rgba(255, 255, 255, 0.05)',
-              borderRadius: '12px',
-              backgroundColor: 'rgba(2, 6, 23, 0.8)',
-              padding: '24px',
-              display: 'flex',
-              alignItems: 'flex-end',
-              justifyContent: 'space-between',
-              position: 'relative',
-            }}
-          >
-            {isRecalculating && (
-              <div
-                id="spinner-chart"
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  backgroundColor: 'rgba(2, 6, 23, 0.9)',
-                  backdropFilter: 'blur(4px)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: 20,
-                  borderRadius: '12px',
-                }}
-              >
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Recalculating...</span>
-              </div>
-            )}
-
-            {monthlyBars.map((bar) => {
-              const isHovered = hoveredBar?.month === bar.month;
-              return (
+          <div className="overflow-x-auto">
+            <div
+              style={{
+                height: '256px',
+                minWidth: '320px',
+                border: '1px solid rgba(255, 255, 255, 0.05)',
+                borderRadius: '12px',
+                backgroundColor: 'rgba(2, 6, 23, 0.8)',
+                padding: '24px',
+                display: 'flex',
+                alignItems: 'flex-end',
+                justifyContent: 'space-between',
+                position: 'relative',
+              }}
+            >
+              {isRecalculating && (
                 <div
-                  key={bar.month}
-                  onMouseEnter={() => setHoveredBar(bar)}
-                  onMouseLeave={() => setHoveredBar(null)}
+                  id="spinner-chart"
                   style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundColor: 'rgba(2, 6, 23, 0.9)',
+                    backdropFilter: 'blur(4px)',
                     display: 'flex',
-                    flexDirection: 'column',
                     alignItems: 'center',
-                    flex: 1,
-                    position: 'relative',
-                    cursor: 'pointer',
+                    justifyContent: 'center',
+                    zIndex: 20,
+                    borderRadius: '12px',
                   }}
                 >
-                  {/* Premium Glowing Glassmorphism Tooltip */}
-                  {isHovered && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '-52px',
-                        backgroundColor: '#0f172a',
-                        border: '1px solid rgba(16, 185, 129, 0.5)',
-                        color: '#ffffff',
-                        fontSize: '11px',
-                        fontFamily: 'monospace',
-                        padding: '4px 10px',
-                        borderRadius: '8px',
-                        whiteSpace: 'nowrap',
-                        boxShadow: '0 8px 20px rgba(16, 185, 129, 0.3)',
-                        zIndex: 30,
-                        pointerEvents: 'none',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '2px',
-                      }}
-                    >
-                      <span style={{ fontWeight: 700, color: '#10b981' }}>{bar.month}</span>
-                      <span>{bar.count.toLocaleString()} Bookings</span>
-                    </div>
-                  )}
+                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>Recalculating...</span>
+                </div>
+              )}
 
-                  {/* Smooth Animated Bar */}
+              {monthlyBars.map((bar) => {
+                const isHovered = hoveredBar?.month === bar.month;
+                return (
                   <div
+                    key={bar.month}
+                    onMouseEnter={() => setHoveredBar(bar)}
+                    onMouseLeave={() => setHoveredBar(null)}
                     style={{
-                      width: '48px',
-                      height: `${bar.heightPx}px`,
-                      backgroundColor: isHovered ? '#10b981' : 'rgba(16, 185, 129, 0.45)',
-                      borderTopLeftRadius: '6px',
-                      borderTopRightRadius: '6px',
-                      transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                      transform: isHovered ? 'translateY(-6px) scaleX(1.08)' : 'none',
-                      boxShadow: isHovered ? '0 0 24px rgba(16, 185, 129, 0.7)' : '0 4px 6px rgba(0,0,0,0.2)',
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: '11px',
-                      color: isHovered ? '#10b981' : '#64748b',
-                      marginTop: '8px',
-                      fontWeight: isHovered ? 700 : 600,
-                      transition: 'color 0.2s ease',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      flex: 1,
+                      position: 'relative',
+                      cursor: 'pointer',
                     }}
                   >
-                    {bar.month}
-                  </span>
-                </div>
-              );
-            })}
+                    {/* Premium Glowing Glassmorphism Tooltip */}
+                    {isHovered && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '-52px',
+                          backgroundColor: '#0f172a',
+                          border: '1px solid rgba(16, 185, 129, 0.5)',
+                          color: '#ffffff',
+                          fontSize: '11px',
+                          fontFamily: 'monospace',
+                          padding: '4px 10px',
+                          borderRadius: '8px',
+                          whiteSpace: 'nowrap',
+                          boxShadow: '0 8px 20px rgba(16, 185, 129, 0.3)',
+                          zIndex: 30,
+                          pointerEvents: 'none',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: '2px',
+                        }}
+                      >
+                        <span style={{ fontWeight: 700, color: '#10b981' }}>{bar.month}</span>
+                        <span>{bar.count.toLocaleString()} Bookings</span>
+                      </div>
+                    )}
+
+                    {/* Smooth Animated Bar */}
+                    <div
+                      style={{
+                        width: '36px',
+                        maxWidth: '48px',
+                        height: `${bar.heightPx}px`,
+                        backgroundColor: isHovered ? '#10b981' : 'rgba(16, 185, 129, 0.45)',
+                        borderTopLeftRadius: '6px',
+                        borderTopRightRadius: '6px',
+                        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                        transform: isHovered ? 'translateY(-6px) scaleX(1.08)' : 'none',
+                        boxShadow: isHovered ? '0 0 24px rgba(16, 185, 129, 0.7)' : '0 4px 6px rgba(0,0,0,0.2)',
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        color: isHovered ? '#10b981' : '#64748b',
+                        marginTop: '8px',
+                        fontWeight: isHovered ? 700 : 600,
+                        transition: 'color 0.2s ease',
+                      }}
+                    >
+                      {bar.month}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
         {/* Right Section: Reports & CSV Export Panel */}
         <div
+          className="lg:col-span-1"
           style={{
             backgroundColor: 'rgba(2, 6, 23, 0.4)',
             border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -740,6 +739,7 @@ export default function AdminDashboardPage() {
                 cursor: isExportingCsv ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
                 boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)',
+                minHeight: '44px',
               }}
             >
               {isExportingCsv ? 'Compiling ledger file (READ COMMITTED)...' : 'Export Ledger to CSV'}
