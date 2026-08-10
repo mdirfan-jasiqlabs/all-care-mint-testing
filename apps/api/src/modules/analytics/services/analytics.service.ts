@@ -15,6 +15,10 @@ export interface DashboardMetricsDto {
   active_providers_count: number;
   avg_rating: number;
   monthly_trend: MonthlyTrendDto[];
+  comparison_label?: string;
+  revenue_trend_percent?: number | null;
+  bookings_trend_percent?: number | null;
+  unassigned_trend_percent?: number | null;
 }
 
 export interface ReportItemDto {
@@ -87,6 +91,21 @@ export class AnalyticsService {
       endDate = new Date(`${year}-${month}-${day}T23:59:59.999+05:30`);
     }
 
+    let comparison_label = 'vs previous 30 days';
+    if (days === 7) {
+      comparison_label = 'vs previous 7 days';
+    } else if (days === 30) {
+      comparison_label = 'vs previous 30 days';
+    } else if (days === 365) {
+      comparison_label = 'vs previous year';
+    } else if (dateFrom && dateTo) {
+      comparison_label = 'vs previous period';
+    }
+
+    const periodDurationMs = endDate.getTime() - startDate.getTime();
+    const prevEndDate = new Date(startDate.getTime() - 1);
+    const prevStartDate = new Date(prevEndDate.getTime() - periodDurationMs);
+
     // Prepare last 5 months date ranges for dynamic monthly booking volume trend aggregation
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const currentMonthIdx = now.getMonth();
@@ -102,7 +121,7 @@ export class AnalyticsService {
       });
     }
 
-    // Execute independent metrics & monthly trend queries concurrently via Promise.all
+    // Execute independent metrics, previous-period comparisons & monthly trend queries concurrently via Promise.all
     const [
       total_bookings_today,
       onlinePaymentsToday,
@@ -110,6 +129,10 @@ export class AnalyticsService {
       unassigned_count,
       active_providers_count,
       ratingAggregate,
+      total_bookings_prev,
+      onlinePaymentsPrev,
+      cashSettledPaymentsPrev,
+      unassigned_count_prev,
       ...monthlyCounts
     ] = await Promise.all([
       // 1. Total Bookings in Period
@@ -156,7 +179,40 @@ export class AnalyticsService {
           ratingScore: true,
         },
       }),
-      // 6. Monthly Booking Volume Aggregations (Last 5 Months)
+      // 6. Total Bookings in Previous Period
+      this.prisma.booking.count({
+        where: {
+          createdAt: {
+            gte: prevStartDate,
+            lte: prevEndDate,
+          },
+        },
+      }),
+      // 7a. Revenue in Previous Period - Online Payments
+      this.prisma.paymentOrder.aggregate({
+        where: {
+          status: 'PAYMENT_SUCCESS',
+          updatedAt: { gte: prevStartDate, lte: prevEndDate },
+        },
+        _sum: { amountPaise: true },
+      }),
+      // 7b. Revenue in Previous Period - Settled Cash Payments
+      this.prisma.paymentOrder.findMany({
+        where: {
+          status: 'CASH_SETTLED',
+          updatedAt: { gte: prevStartDate, lte: prevEndDate },
+        },
+        select: { amountPaise: true, bookingId: true },
+      }),
+      // 8. Unassigned Bookings Count in Previous Period
+      this.prisma.booking.count({
+        where: {
+          status: 'PENDING',
+          providerId: null,
+          createdAt: { gte: prevStartDate, lte: prevEndDate },
+        },
+      }),
+      // 9. Monthly Booking Volume Aggregations (Last 5 Months)
       ...monthsToQuery.map((m) =>
         this.prisma.booking.count({
           where: {
@@ -193,6 +249,34 @@ export class AnalyticsService {
       );
 
     const revenue_today_inr = Math.round((onlineRevenueInr + cashSettledInr + completedCashInr) * 100) / 100;
+
+    // Calculate Previous Period Revenue
+    const onlineRevenuePrevInr = (onlinePaymentsPrev._sum.amountPaise || 0) / 100;
+    const cashSettledPrevInr = cashSettledPaymentsPrev.reduce(
+      (acc, p) => acc + p.amountPaise / 100,
+      0,
+    );
+    const prevSettledBookingIds = cashSettledPaymentsPrev
+      .map((p) => p.bookingId)
+      .filter((id): id is string => Boolean(id));
+
+    const completedCashBookingsPrev = await this.prisma.booking.findMany({
+      where: {
+        status: 'COMPLETED',
+        paymentMethod: 'CASH_ON_SERVICE',
+        updatedAt: { gte: prevStartDate, lte: prevEndDate },
+        id: prevSettledBookingIds.length > 0 ? { notIn: prevSettledBookingIds } : undefined,
+      },
+      select: { servicePriceSnapshot: true, paymentMethod: true },
+    });
+    const completedCashPrevInr = completedCashBookingsPrev
+      .filter((b: any) => b.paymentMethod === 'CASH_ON_SERVICE')
+      .reduce(
+        (acc, b) => acc + Number(b.servicePriceSnapshot || 0),
+        0,
+      );
+    const revenue_prev_inr = Math.round((onlineRevenuePrevInr + cashSettledPrevInr + completedCashPrevInr) * 100) / 100;
+
     const rawAvg = ratingAggregate._avg.ratingScore || 0;
     const avg_rating = Math.round(rawAvg * 100) / 100;
 
@@ -201,6 +285,20 @@ export class AnalyticsService {
       count: monthlyCounts[idx] || 0,
     }));
 
+    // Dynamic Trend Percentage Calculation
+    const calcTrend = (curr: number, prev: number): number | null => {
+      if (prev === 0) {
+        if (curr === 0) return 0;
+        return 100;
+      }
+      const change = ((curr - prev) / prev) * 100;
+      return Math.round(change * 10) / 10;
+    };
+
+    const revenue_trend_percent = calcTrend(revenue_today_inr, revenue_prev_inr);
+    const bookings_trend_percent = calcTrend(total_bookings_today, total_bookings_prev);
+    const unassigned_trend_percent = calcTrend(unassigned_count, unassigned_count_prev);
+
     return {
       total_bookings_today,
       revenue_today_inr,
@@ -208,6 +306,10 @@ export class AnalyticsService {
       active_providers_count,
       avg_rating,
       monthly_trend,
+      comparison_label,
+      revenue_trend_percent,
+      bookings_trend_percent,
+      unassigned_trend_percent,
     };
   }
 

@@ -12,6 +12,8 @@ import {
   Download,
   ArrowUpRight,
   TrendingUp,
+  TrendingDown,
+  Minus,
   FileText,
   AlertCircle,
   CheckCircle2,
@@ -30,6 +32,10 @@ interface DashboardMetrics {
   active_providers_count: number;
   avg_rating: number;
   monthly_trend?: MonthlyTrendItem[];
+  comparison_label?: string;
+  revenue_trend_percent?: number | null;
+  bookings_trend_percent?: number | null;
+  unassigned_trend_percent?: number | null;
 }
 
 interface UnassignedBooking {
@@ -482,38 +488,61 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* 5 KPI Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      {/* 4 KPI Metric Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1: Total Revenue */}
         <div
           style={{
             backgroundColor: '#0c1421',
-            border: '1px solid rgba(255, 255, 255, 0.07)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '16px',
             padding: '20px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            minHeight: '130px',
+            minHeight: '150px',
             position: 'relative',
+            opacity: isRecalculating ? 0.6 : 1,
+            transition: 'opacity 0.2s ease',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ backgroundColor: 'rgba(168, 85, 247, 0.12)', padding: '8px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+            <div style={{ backgroundColor: 'rgba(168, 85, 247, 0.12)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <IndianRupee size={18} color="#c084fc" />
             </div>
-            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
               TOTAL REVENUE
             </span>
           </div>
           <div style={{ marginTop: '16px' }}>
-            <div id="val-revenue" style={{ fontSize: '22px', fontWeight: 700, color: '#f8fafc', letterSpacing: '-0.5px' }}>
-              {metrics ? `₹${metrics.revenue_today_inr.toLocaleString()}` : '₹2,438,289.12'}
+            <div id="val-revenue" style={{ fontSize: '24px', fontWeight: 700, color: '#f8fafc', letterSpacing: '-0.5px' }}>
+              {metrics ? `₹${metrics.revenue_today_inr.toLocaleString()}` : '₹0'}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
-              <TrendingUp size={14} />
-              <span>↑ 12.4% vs last 30 days</span>
-            </div>
+            {(() => {
+              const label = metrics?.comparison_label || (filterPeriod === '7' ? 'vs previous 7 days' : filterPeriod === '30' ? 'vs previous 30 days' : filterPeriod === '365' ? 'vs previous year' : 'vs previous period');
+              const percent = metrics?.revenue_trend_percent;
+              if (percent !== undefined && percent !== null && percent > 0) {
+                return (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
+                    <TrendingUp size={14} />
+                    <span>↗ {percent}% {label}</span>
+                  </div>
+                );
+              } else if (percent !== undefined && percent !== null && percent < 0) {
+                return (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#f87171', fontWeight: 600 }}>
+                    <TrendingDown size={14} />
+                    <span>↘ {Math.abs(percent)}% {label}</span>
+                  </div>
+                );
+              }
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>
+                  <Minus size={14} />
+                  <span>→ 0.0% {label}</span>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
@@ -521,31 +550,54 @@ export default function AdminDashboardPage() {
         <div
           style={{
             backgroundColor: '#0c1421',
-            border: '1px solid rgba(255, 255, 255, 0.07)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '16px',
             padding: '20px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            minHeight: '130px',
+            minHeight: '150px',
+            opacity: isRecalculating ? 0.6 : 1,
+            transition: 'opacity 0.2s ease',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.12)', padding: '8px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+            <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.12)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <CalendarDays size={18} color="#34d399" />
             </div>
-            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
               TOTAL BOOKINGS
             </span>
           </div>
           <div style={{ marginTop: '16px' }}>
-            <div id="val-bookings" style={{ fontSize: '22px', fontWeight: 700, color: '#f8fafc', letterSpacing: '-0.5px' }}>
-              {metrics ? metrics.total_bookings_today.toLocaleString() : '1,385'}
+            <div id="val-bookings" style={{ fontSize: '24px', fontWeight: 700, color: '#f8fafc', letterSpacing: '-0.5px' }}>
+              {metrics ? metrics.total_bookings_today.toLocaleString() : '0'}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
-              <TrendingUp size={14} />
-              <span>↑ 8.2% vs last 30 days</span>
-            </div>
+            {(() => {
+              const label = metrics?.comparison_label || (filterPeriod === '7' ? 'vs previous 7 days' : filterPeriod === '30' ? 'vs previous 30 days' : filterPeriod === '365' ? 'vs previous year' : 'vs previous period');
+              const percent = metrics?.bookings_trend_percent;
+              if (percent !== undefined && percent !== null && percent > 0) {
+                return (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
+                    <TrendingUp size={14} />
+                    <span>↗ {percent}% {label}</span>
+                  </div>
+                );
+              } else if (percent !== undefined && percent !== null && percent < 0) {
+                return (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#f87171', fontWeight: 600 }}>
+                    <TrendingDown size={14} />
+                    <span>↘ {Math.abs(percent)}% {label}</span>
+                  </div>
+                );
+              }
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>
+                  <Minus size={14} />
+                  <span>→ 0.0% {label}</span>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
@@ -553,38 +605,64 @@ export default function AdminDashboardPage() {
         <div
           style={{
             backgroundColor: '#0c1421',
-            border: '1px solid rgba(255, 255, 255, 0.07)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '16px',
             padding: '20px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            minHeight: '130px',
+            minHeight: '150px',
+            opacity: isRecalculating ? 0.6 : 1,
+            transition: 'opacity 0.2s ease',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ backgroundColor: 'rgba(244, 63, 94, 0.12)', padding: '8px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+            <div style={{ backgroundColor: 'rgba(244, 63, 94, 0.12)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <UserRoundX size={18} color="#fb7185" />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-              <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
                 UNASSIGNED BOOKINGS
               </span>
-              {(metrics?.unassigned_count ?? 8) > 0 && (
-                <span style={{ backgroundColor: 'rgba(239, 68, 68, 0.18)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)', fontSize: '10px', fontWeight: 600, padding: '2px 8px', borderRadius: '999px' }}>
+              {metrics && metrics.unassigned_count > 0 && (
+                <span style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)', fontSize: '10px', fontWeight: 600, padding: '2px 8px', borderRadius: '999px', whiteSpace: 'nowrap' }}>
                   Action Required
                 </span>
               )}
             </div>
           </div>
           <div style={{ marginTop: '16px' }}>
-            <div id="val-occupancy" style={{ fontSize: '22px', fontWeight: 700, color: '#f8fafc', letterSpacing: '-0.5px' }}>
-              {metrics ? metrics.unassigned_count : '8'}
+            <div id="val-occupancy" style={{ fontSize: '24px', fontWeight: 700, color: '#f8fafc', letterSpacing: '-0.5px' }}>
+              {metrics ? metrics.unassigned_count : '0'}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
-              <TrendingUp size={14} />
-              <span>↑ 2.1% vs last 30 days</span>
-            </div>
+            {(() => {
+              const label = metrics?.comparison_label || (filterPeriod === '7' ? 'vs previous 7 days' : filterPeriod === '30' ? 'vs previous 30 days' : filterPeriod === '365' ? 'vs previous year' : 'vs previous period');
+              const percent = metrics?.unassigned_trend_percent;
+              // REVERSED SEMANTIC COLORING (Requirement 12):
+              // Unassigned increase (>0) is BAD -> RED
+              // Unassigned decrease (<0) is GOOD -> GREEN
+              if (percent !== undefined && percent !== null && percent > 0) {
+                return (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#f87171', fontWeight: 600 }}>
+                    <TrendingUp size={14} />
+                    <span>↗ {percent}% {label}</span>
+                  </div>
+                );
+              } else if (percent !== undefined && percent !== null && percent < 0) {
+                return (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
+                    <TrendingDown size={14} />
+                    <span>↘ {Math.abs(percent)}% {label}</span>
+                  </div>
+                );
+              }
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>
+                  <Minus size={14} />
+                  <span>→ 0.0% {label}</span>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
@@ -592,60 +670,32 @@ export default function AdminDashboardPage() {
         <div
           style={{
             backgroundColor: '#0c1421',
-            border: '1px solid rgba(255, 255, 255, 0.07)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '16px',
             padding: '20px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            minHeight: '130px',
+            minHeight: '150px',
+            opacity: isRecalculating ? 0.6 : 1,
+            transition: 'opacity 0.2s ease',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ backgroundColor: 'rgba(59, 130, 246, 0.12)', padding: '8px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+            <div style={{ backgroundColor: 'rgba(59, 130, 246, 0.12)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <UsersRound size={18} color="#60a5fa" />
             </div>
-            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
               ACTIVE PROVIDERS
             </span>
           </div>
           <div style={{ marginTop: '16px' }}>
-            <div id="val-providers" style={{ fontSize: '22px', fontWeight: 700, color: '#f8fafc', letterSpacing: '-0.5px' }}>
-              {metrics ? metrics.active_providers_count : '14'}
+            <div id="val-providers" style={{ fontSize: '24px', fontWeight: 700, color: '#f8fafc', letterSpacing: '-0.5px' }}>
+              {metrics ? metrics.active_providers_count : '0'}
             </div>
-            <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 500, marginTop: '6px' }}>
-              Steady
-            </div>
-          </div>
-        </div>
-
-        {/* KPI 5: Average Rating */}
-        <div
-          style={{
-            backgroundColor: '#0c1421',
-            border: '1px solid rgba(255, 255, 255, 0.07)',
-            borderRadius: '16px',
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            minHeight: '130px',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ backgroundColor: 'rgba(245, 158, 11, 0.12)', padding: '8px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Star size={18} color="#fbbf24" fill="#fbbf24" />
-            </div>
-            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              AVERAGE RATING
-            </span>
-          </div>
-          <div style={{ marginTop: '16px' }}>
-            <div style={{ fontSize: '22px', fontWeight: 700, color: '#f8fafc', letterSpacing: '-0.5px' }}>
-              {metrics ? metrics.avg_rating.toFixed(2) : '3.94'}
-            </div>
-            <div style={{ fontSize: '12px', color: '#10b981', fontWeight: 600, marginTop: '6px' }}>
-              Top Tier
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>
+              <Minus size={14} />
+              <span>Steady</span>
             </div>
           </div>
         </div>
