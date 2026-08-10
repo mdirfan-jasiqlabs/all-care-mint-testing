@@ -14,6 +14,7 @@ import { useIsFocused } from '@react-navigation/native';
 import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
 import NotificationBanner, { triggerInAppNotification } from '../components/NotificationBanner';
+import BottomNavBar from '../components/BottomNavBar';
 
 export default function MyBookingsScreen({ navigation, route }: any) {
   const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
@@ -240,6 +241,7 @@ export default function MyBookingsScreen({ navigation, route }: any) {
           }
         }}
       />
+      <BottomNavBar activeTab="MyBookings" navigation={navigation} />
     </SafeAreaView>
   );
 }

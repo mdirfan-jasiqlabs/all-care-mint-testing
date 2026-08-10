@@ -14,6 +14,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/root.types';
 import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
+import BottomNavBar from '../components/BottomNavBar';
 
 type CustomerProfileScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -210,18 +211,12 @@ export default function CustomerProfileScreen({ navigation }: Props) {
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: 'hsl(217, 32%, 17%)', marginTop: 12 }]}
-            onPress={() => navigation.navigate('NotificationSettings')}
-          >
-            <Text style={[styles.buttonText, { color: 'hsl(210, 40%, 98%)' }]}>🔔 Notification Settings</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity style={styles.signOutButton} onPress={handleLogout}>
             <Text style={styles.signOutButtonText}>Sign Out</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <BottomNavBar activeTab="Profile" navigation={navigation} />
     </SafeAreaView>
   );
 }

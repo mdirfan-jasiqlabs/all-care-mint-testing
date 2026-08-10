@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useCatalogStore, Category, Service } from '../stores/catalogStore';
 import * as storage from '../utils/storage';
+import BottomNavBar from '../components/BottomNavBar';
 
 // Premium Magnifier Icon made from native Views (No emojis or dependencies)
 const SearchIcon = () => (
@@ -338,6 +339,7 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
           </TouchableOpacity>
         </View>
       )}
+      <BottomNavBar activeTab="Services" navigation={navigation} />
     </View>
   );
 };
