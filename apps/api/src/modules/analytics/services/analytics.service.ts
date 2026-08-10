@@ -2,10 +2,18 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { Response } from 'express';
 import { Readable } from 'stream';
 import { PrismaService } from '../../../prisma/prisma.service';
+import {
+  getStartOfBusinessDay,
+  getEndOfBusinessDay,
+  getPreviousPeriod,
+  getISTDateParts,
+  BUSINESS_TZ_OFFSET,
+} from '../../../common/utils/date.util';
 
 export interface MonthlyTrendDto {
   month: string;
   count: number;
+  revenue: number;
 }
 
 export interface DashboardMetricsDto {
@@ -58,6 +66,49 @@ function sanitizeCsvCell(val: any): string {
 export class AnalyticsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async getPeriodRevenue(startDate: Date, endDate: Date): Promise<number> {
+    const [onlinePayments, cashSettledPayments] = await Promise.all([
+      this.prisma.paymentOrder.aggregate({
+        where: {
+          status: 'PAYMENT_SUCCESS',
+          updatedAt: { gte: startDate, lte: endDate },
+        },
+        _sum: { amountPaise: true },
+      }),
+      this.prisma.paymentOrder.findMany({
+        where: {
+          status: 'CASH_SETTLED',
+          updatedAt: { gte: startDate, lte: endDate },
+        },
+        select: { amountPaise: true, bookingId: true },
+      }),
+    ]);
+
+    const onlineRevenueInr = (onlinePayments._sum.amountPaise || 0) / 100;
+    const cashSettledInr = cashSettledPayments.reduce(
+      (acc, p) => acc + p.amountPaise / 100,
+      0,
+    );
+    const settledBookingIds = cashSettledPayments
+      .map((p) => p.bookingId)
+      .filter((id): id is string => Boolean(id));
+
+    const completedCashBookings = await this.prisma.booking.findMany({
+      where: {
+        status: 'COMPLETED',
+        paymentMethod: 'CASH_ON_SERVICE',
+        updatedAt: { gte: startDate, lte: endDate },
+        id: settledBookingIds.length > 0 ? { notIn: settledBookingIds } : undefined,
+      },
+      select: { servicePriceSnapshot: true, paymentMethod: true },
+    });
+    const completedCashInr = completedCashBookings
+      .filter((b: any) => b.paymentMethod === 'CASH_ON_SERVICE')
+      .reduce((acc, b) => acc + Number(b.servicePriceSnapshot || 0), 0);
+
+    return Math.round((onlineRevenueInr + cashSettledInr + completedCashInr) * 100) / 100;
+  }
+
   async getDashboardMetrics(
     days?: number,
     dateFrom?: string,
@@ -72,23 +123,11 @@ export class AnalyticsService {
       startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
       endDate = now;
     } else if (dateFrom && dateTo) {
-      startDate = new Date(dateFrom);
-      endDate = new Date(`${dateTo}T23:59:59.999Z`);
+      startDate = getStartOfBusinessDay(dateFrom);
+      endDate = getEndOfBusinessDay(dateTo);
     } else {
-      // Default: Consistent Asia/Kolkata (IST) day boundary calculation
-      const istParts = new Intl.DateTimeFormat('en-US', {
-        timeZone: 'Asia/Kolkata',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      }).formatToParts(now);
-
-      const year = istParts.find((p) => p.type === 'year')?.value;
-      const month = istParts.find((p) => p.type === 'month')?.value;
-      const day = istParts.find((p) => p.type === 'day')?.value;
-
-      startDate = new Date(`${year}-${month}-${day}T00:00:00.000+05:30`);
-      endDate = new Date(`${year}-${month}-${day}T23:59:59.999+05:30`);
+      startDate = getStartOfBusinessDay(undefined, now);
+      endDate = getEndOfBusinessDay(undefined, now);
     }
 
     let comparison_label = 'vs previous 30 days';
@@ -102,38 +141,45 @@ export class AnalyticsService {
       comparison_label = 'vs previous period';
     }
 
-    const periodDurationMs = endDate.getTime() - startDate.getTime();
-    const prevEndDate = new Date(startDate.getTime() - 1);
-    const prevStartDate = new Date(prevEndDate.getTime() - periodDurationMs);
+    const { prevStartDate, prevEndDate } = getPreviousPeriod(startDate, endDate);
 
-    // Prepare last 5 months date ranges for dynamic monthly booking volume trend aggregation
+    // Prepare last 6 months date ranges for dynamic monthly booking volume & revenue trend aggregation
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const currentMonthIdx = now.getMonth();
-    const monthsToQuery = [];
-    for (let i = 4; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), currentMonthIdx - i, 1);
-      const startOfMonth = new Date(d.getFullYear(), d.getMonth(), 1, 0, 0, 0, 0);
-      const endOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+    const { year: currentYear, month: currentMonthNum } = getISTDateParts(now);
+    const currentMonthIdx = currentMonthNum - 1;
+    const monthsToQuery: { month: string; startOfMonth: Date; endOfMonth: Date }[] = [];
+
+    for (let i = 5; i >= 0; i--) {
+      let mIdx = currentMonthIdx - i;
+      let y = currentYear;
+      if (mIdx < 0) {
+        mIdx += 12;
+        y -= 1;
+      }
+      const mStr = String(mIdx + 1).padStart(2, '0');
+      const lastDay = new Date(y, mIdx + 1, 0).getDate();
+      const lastDayStr = String(lastDay).padStart(2, '0');
+
+      const startOfMonth = new Date(`${y}-${mStr}-01T00:00:00.000${BUSINESS_TZ_OFFSET}`);
+      const endOfMonth = new Date(`${y}-${mStr}-${lastDayStr}T23:59:59.999${BUSINESS_TZ_OFFSET}`);
+
       monthsToQuery.push({
-        month: monthNames[d.getMonth()],
+        month: monthNames[mIdx],
         startOfMonth,
         endOfMonth,
       });
     }
 
-    // Execute independent metrics, previous-period comparisons & monthly trend queries concurrently via Promise.all
     const [
       total_bookings_today,
-      onlinePaymentsToday,
-      cashSettledPaymentsToday,
+      revenue_today_inr,
       unassigned_count,
       active_providers_count,
       ratingAggregate,
       total_bookings_prev,
-      onlinePaymentsPrev,
-      cashSettledPaymentsPrev,
+      revenue_prev_inr,
       unassigned_count_prev,
-      ...monthlyCounts
+      monthlyTrendData,
     ] = await Promise.all([
       // 1. Total Bookings in Period
       this.prisma.booking.count({
@@ -144,27 +190,14 @@ export class AnalyticsService {
           },
         },
       }),
-      // 2a. Revenue in Period - Online Payments
-      this.prisma.paymentOrder.aggregate({
-        where: {
-          status: 'PAYMENT_SUCCESS',
-          updatedAt: { gte: startDate, lte: endDate },
-        },
-        _sum: { amountPaise: true },
-      }),
-      // 2b. Revenue in Period - Settled Cash Payments
-      this.prisma.paymentOrder.findMany({
-        where: {
-          status: 'CASH_SETTLED',
-          updatedAt: { gte: startDate, lte: endDate },
-        },
-        select: { amountPaise: true, bookingId: true },
-      }),
-      // 3. Unassigned Bookings Count
+      // 2. Revenue in Period
+      this.getPeriodRevenue(startDate, endDate),
+      // 3. Unassigned Bookings Count (period scoped)
       this.prisma.booking.count({
         where: {
           status: 'PENDING',
           providerId: null,
+          createdAt: { gte: startDate, lte: endDate },
         },
       }),
       // 4. Active Providers Count
@@ -188,22 +221,8 @@ export class AnalyticsService {
           },
         },
       }),
-      // 7a. Revenue in Previous Period - Online Payments
-      this.prisma.paymentOrder.aggregate({
-        where: {
-          status: 'PAYMENT_SUCCESS',
-          updatedAt: { gte: prevStartDate, lte: prevEndDate },
-        },
-        _sum: { amountPaise: true },
-      }),
-      // 7b. Revenue in Previous Period - Settled Cash Payments
-      this.prisma.paymentOrder.findMany({
-        where: {
-          status: 'CASH_SETTLED',
-          updatedAt: { gte: prevStartDate, lte: prevEndDate },
-        },
-        select: { amountPaise: true, bookingId: true },
-      }),
+      // 7. Revenue in Previous Period
+      this.getPeriodRevenue(prevStartDate, prevEndDate),
       // 8. Unassigned Bookings Count in Previous Period
       this.prisma.booking.count({
         where: {
@@ -212,78 +231,24 @@ export class AnalyticsService {
           createdAt: { gte: prevStartDate, lte: prevEndDate },
         },
       }),
-      // 9. Monthly Booking Volume Aggregations (Last 5 Months)
-      ...monthsToQuery.map((m) =>
-        this.prisma.booking.count({
-          where: {
-            createdAt: { gte: m.startOfMonth, lte: m.endOfMonth },
-          },
+      // 9. Monthly Booking Volume & Revenue Aggregations (Last 6 Months)
+      Promise.all(
+        monthsToQuery.map(async (m) => {
+          const [count, revenue] = await Promise.all([
+            this.prisma.booking.count({
+              where: { createdAt: { gte: m.startOfMonth, lte: m.endOfMonth } },
+            }),
+            this.getPeriodRevenue(m.startOfMonth, m.endOfMonth),
+          ]);
+          return { month: m.month, count, revenue };
         }),
       ),
     ]);
 
-    const onlineRevenueInr = (onlinePaymentsToday._sum.amountPaise || 0) / 100;
-    const cashSettledInr = cashSettledPaymentsToday.reduce(
-      (acc, p) => acc + p.amountPaise / 100,
-      0,
-    );
-    const settledBookingIds = cashSettledPaymentsToday
-      .map((p) => p.bookingId)
-      .filter((id): id is string => Boolean(id));
-
-    // Completed cash-on-service bookings completed in period not in settledBookingIds
-    const completedCashBookingsToday = await this.prisma.booking.findMany({
-      where: {
-        status: 'COMPLETED',
-        paymentMethod: 'CASH_ON_SERVICE',
-        updatedAt: { gte: startDate, lte: endDate },
-        id: settledBookingIds.length > 0 ? { notIn: settledBookingIds } : undefined,
-      },
-      select: { servicePriceSnapshot: true, paymentMethod: true },
-    });
-    const completedCashInr = completedCashBookingsToday
-      .filter((b: any) => b.paymentMethod === 'CASH_ON_SERVICE')
-      .reduce(
-        (acc, b) => acc + Number(b.servicePriceSnapshot || 0),
-        0,
-      );
-
-    const revenue_today_inr = Math.round((onlineRevenueInr + cashSettledInr + completedCashInr) * 100) / 100;
-
-    // Calculate Previous Period Revenue
-    const onlineRevenuePrevInr = (onlinePaymentsPrev._sum.amountPaise || 0) / 100;
-    const cashSettledPrevInr = cashSettledPaymentsPrev.reduce(
-      (acc, p) => acc + p.amountPaise / 100,
-      0,
-    );
-    const prevSettledBookingIds = cashSettledPaymentsPrev
-      .map((p) => p.bookingId)
-      .filter((id): id is string => Boolean(id));
-
-    const completedCashBookingsPrev = await this.prisma.booking.findMany({
-      where: {
-        status: 'COMPLETED',
-        paymentMethod: 'CASH_ON_SERVICE',
-        updatedAt: { gte: prevStartDate, lte: prevEndDate },
-        id: prevSettledBookingIds.length > 0 ? { notIn: prevSettledBookingIds } : undefined,
-      },
-      select: { servicePriceSnapshot: true, paymentMethod: true },
-    });
-    const completedCashPrevInr = completedCashBookingsPrev
-      .filter((b: any) => b.paymentMethod === 'CASH_ON_SERVICE')
-      .reduce(
-        (acc, b) => acc + Number(b.servicePriceSnapshot || 0),
-        0,
-      );
-    const revenue_prev_inr = Math.round((onlineRevenuePrevInr + cashSettledPrevInr + completedCashPrevInr) * 100) / 100;
-
     const rawAvg = ratingAggregate._avg.ratingScore || 0;
     const avg_rating = Math.round(rawAvg * 100) / 100;
 
-    const monthly_trend: MonthlyTrendDto[] = monthsToQuery.map((m, idx) => ({
-      month: m.month,
-      count: monthlyCounts[idx] || 0,
-    }));
+    const monthly_trend: MonthlyTrendDto[] = monthlyTrendData;
 
     // Dynamic Trend Percentage Calculation
     const calcTrend = (curr: number, prev: number): number | null => {

@@ -22,7 +22,7 @@ import {
 interface MonthlyTrendItem {
   month: string;
   count: number;
-  revenue?: number;
+  revenue: number;
 }
 
 interface DashboardMetrics {
@@ -88,7 +88,12 @@ export default function AdminDashboardPage() {
   // Interactive Chart state
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
 
-  const fetchDashboardData = async (isManualRetry = false, periodOverride?: string) => {
+  const fetchDashboardData = async (
+    isManualRetry = false,
+    periodOverride?: string,
+    customStartOverride?: string,
+    customEndOverride?: string,
+  ) => {
     if (isManualRetry) {
       setIsRetrying(true);
       if (!metrics) setLoading(true);
@@ -113,11 +118,14 @@ export default function AdminDashboardPage() {
       let errorMessage = '';
 
       const activePeriod = periodOverride || filterPeriod;
+      const activeStart = customStartOverride !== undefined ? customStartOverride : startDate;
+      const activeEnd = customEndOverride !== undefined ? customEndOverride : endDate;
+
       let queryParams = '';
       if (activePeriod === '7' || activePeriod === '30' || activePeriod === '365') {
         queryParams = `?days=${activePeriod}`;
-      } else if (activePeriod === 'custom' && startDate && endDate) {
-        queryParams = `?date_from=${startDate}&date_to=${endDate}`;
+      } else if (activePeriod === 'custom' && activeStart && activeEnd) {
+        queryParams = `?date_from=${activeStart}&date_to=${activeEnd}`;
       }
 
       // Fetch 5 KPI metrics + monthly_trend database aggregations
@@ -209,7 +217,7 @@ export default function AdminDashboardPage() {
     } else {
       setDateValidationError(false);
       setIsRecalculating(true);
-      fetchDashboardData(false, 'custom');
+      fetchDashboardData(false, 'custom', start, end);
     }
   };
 
@@ -265,24 +273,20 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Derived dynamic trend data for modern dual-series SVG chart
-  const defaultMonths = ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
+  // Derived dynamic trend data for modern dual-series SVG chart using actual DB monthly metrics
   const trendData = metrics?.monthly_trend && metrics.monthly_trend.length > 0
-    ? metrics.monthly_trend.map((t, idx) => {
-        const count = t.count;
-        const avgVal = metrics.revenue_today_inr > 0 && metrics.total_bookings_today > 0
-          ? Math.round(metrics.revenue_today_inr / metrics.total_bookings_today)
-          : 1760;
-        const revenue = t.revenue || Math.round(count * avgVal * (1 + (idx % 3) * 0.15));
-        return { month: t.month, count, revenue };
-      })
+    ? metrics.monthly_trend.map((t) => ({
+        month: t.month,
+        count: t.count,
+        revenue: t.revenue,
+      }))
     : [
-        { month: 'Mar', count: 650, revenue: 820000 },
-        { month: 'Apr', count: 1100, revenue: 1450000 },
-        { month: 'May', count: 1550, revenue: 1980000 },
-        { month: 'Jun', count: 1800, revenue: 2320000 },
-        { month: 'Jul', count: 2450, revenue: 3120000 },
-        { month: 'Aug', count: 1250, revenue: 1650000 },
+        { month: 'Mar', count: 0, revenue: 0 },
+        { month: 'Apr', count: 0, revenue: 0 },
+        { month: 'May', count: 1360, revenue: 2197534 },
+        { month: 'Jun', count: 1650, revenue: 2830112 },
+        { month: 'Jul', count: 1715, revenue: 2983013 },
+        { month: 'Aug', count: 275, revenue: 479900 },
       ];
 
   // SVG Chart Dimensions & Calculations
@@ -296,8 +300,8 @@ export default function AdminDashboardPage() {
   const graphW = chartWidth - paddingLeft - paddingRight;
   const graphH = chartHeight - paddingTop - paddingBottom;
 
-  const maxBookingsVal = Math.max(...trendData.map((d) => d.count), 3000);
-  const maxRevenueVal = Math.max(...trendData.map((d) => d.revenue), 3600000);
+  const maxBookingsVal = Math.max(...trendData.map((d) => d.count || 0), 3000);
+  const maxRevenueVal = Math.max(...trendData.map((d) => d.revenue || 0), 3600000);
 
   const pointsBookings = trendData.map((d, i) => {
     const x = paddingLeft + (i / Math.max(trendData.length - 1, 1)) * graphW;
@@ -525,21 +529,21 @@ export default function AdminDashboardPage() {
                 return (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
                     <TrendingUp size={14} />
-                    <span>↗ {percent}% {label}</span>
+                    <span>+{percent}% {label}</span>
                   </div>
                 );
               } else if (percent !== undefined && percent !== null && percent < 0) {
                 return (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#f87171', fontWeight: 600 }}>
                     <TrendingDown size={14} />
-                    <span>↘ {Math.abs(percent)}% {label}</span>
+                    <span>{percent}% {label}</span>
                   </div>
                 );
               }
               return (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>
                   <Minus size={14} />
-                  <span>→ 0.0% {label}</span>
+                  <span>0.0% {label}</span>
                 </div>
               );
             })()}
@@ -580,21 +584,21 @@ export default function AdminDashboardPage() {
                 return (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
                     <TrendingUp size={14} />
-                    <span>↗ {percent}% {label}</span>
+                    <span>+{percent}% {label}</span>
                   </div>
                 );
               } else if (percent !== undefined && percent !== null && percent < 0) {
                 return (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#f87171', fontWeight: 600 }}>
                     <TrendingDown size={14} />
-                    <span>↘ {Math.abs(percent)}% {label}</span>
+                    <span>{percent}% {label}</span>
                   </div>
                 );
               }
               return (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>
                   <Minus size={14} />
-                  <span>→ 0.0% {label}</span>
+                  <span>0.0% {label}</span>
                 </div>
               );
             })()}
@@ -638,28 +642,28 @@ export default function AdminDashboardPage() {
             {(() => {
               const label = metrics?.comparison_label || (filterPeriod === '7' ? 'vs previous 7 days' : filterPeriod === '30' ? 'vs previous 30 days' : filterPeriod === '365' ? 'vs previous year' : 'vs previous period');
               const percent = metrics?.unassigned_trend_percent;
-              // REVERSED SEMANTIC COLORING (Requirement 12):
+              // REVERSED SEMANTIC COLORING:
               // Unassigned increase (>0) is BAD -> RED
               // Unassigned decrease (<0) is GOOD -> GREEN
               if (percent !== undefined && percent !== null && percent > 0) {
                 return (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#f87171', fontWeight: 600 }}>
                     <TrendingUp size={14} />
-                    <span>↗ {percent}% {label}</span>
+                    <span>+{percent}% {label}</span>
                   </div>
                 );
               } else if (percent !== undefined && percent !== null && percent < 0) {
                 return (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
                     <TrendingDown size={14} />
-                    <span>↘ {Math.abs(percent)}% {label}</span>
+                    <span>{percent}% {label}</span>
                   </div>
                 );
               }
               return (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>
                   <Minus size={14} />
-                  <span>→ 0.0% {label}</span>
+                  <span>0.0% {label}</span>
                 </div>
               );
             })()}
