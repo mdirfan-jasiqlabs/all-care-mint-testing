@@ -67,8 +67,8 @@ const departments: TeamDepartment[] = [
     title: 'Operations & Strategy',
     subtitle: 'Partner Onboarding & Quality',
     description: 'Oversees provider vetting, background checks, and service guarantee compliance.',
-    image: '/images/team/team-operations.png',
-    altText: 'Operations team reviewing service quality and onboarding plans',
+    image: '/images/team/operations-strategy.webp',
+    altText: 'Service provider onboarding and quality verification',
     icon: TargetIcon,
   },
   {
@@ -76,8 +76,8 @@ const departments: TeamDepartment[] = [
     title: 'Engineering & Product',
     subtitle: 'Platform Infrastructure',
     description: 'Builds real-time matching algorithms, mobile apps, and secure booking engines.',
-    image: '/images/team/team-engineering.png',
-    altText: 'Software engineer working on the All Care Mint service platform',
+    image: '/images/team/engineering-product.webp',
+    altText: 'Engineering team working on the All care mint booking platform',
     icon: CodeMonitorIcon,
   },
   {
@@ -85,8 +85,8 @@ const departments: TeamDepartment[] = [
     title: 'Customer Support',
     subtitle: 'Trust & Resident Advocacy',
     description: 'Ensures 24/7 resolution support for customers and service providers alike.',
-    image: '/images/team/team-support.png',
-    altText: 'Customer support representative assisting customers',
+    image: '/images/team/customer-support.webp',
+    altText: 'Customer support specialist resolving a home service booking',
     icon: HeadphonesIcon,
   },
 ];
