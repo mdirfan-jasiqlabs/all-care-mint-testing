@@ -2,6 +2,17 @@
 
 import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import {
+  House,
+  LayoutGrid,
+  CalendarDays,
+  Users,
+  ClipboardCheck,
+  Wallet,
+  Star,
+  ChartNoAxesCombined,
+  UsersRound,
+} from 'lucide-react';
 
 interface AdminSidebarProps {
   activePage?: 'dashboard' | 'catalog' | 'bookings' | 'users' | 'providers' | 'provider-leads' | 'reports';
@@ -99,114 +110,142 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
     return {
       display: 'flex',
       alignItems: 'center',
-      padding: '12px 16px',
-      borderRadius: '8px',
+      gap: '12px',
+      padding: '10px 14px',
+      borderRadius: '10px',
       color: isActive ? '#10b981' : '#94a3b8',
-      backgroundColor: isActive ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
-      border: 'none',
-      fontSize: '14px',
-      fontWeight: isActive ? 700 : 500,
+      backgroundColor: isActive ? 'rgba(16, 185, 129, 0.12)' : 'transparent',
+      border: isActive ? '1px solid rgba(16, 185, 129, 0.25)' : '1px solid transparent',
+      fontSize: '13px',
+      fontWeight: isActive ? 600 : 500,
       cursor: 'pointer',
       textAlign: 'left' as const,
       width: '100%',
-      transition: 'all 0.2s ease',
-      minHeight: '44px',
+      transition: 'all 0.15s ease',
+      minHeight: '42px',
     };
   };
 
   const navContent = (
-    <div>
-      <div
-        style={{
-          fontSize: '10px',
-          color: '#64748b',
-          fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
-          marginBottom: '12px',
-          paddingLeft: '8px',
-        }}
-      >
-        Console Navigation
-      </div>
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        <button
-          onClick={() => handleNav('/admin/dashboard')}
-          style={getLinkStyle('dashboard')}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* Section 1: CONSOLE NAVIGATION */}
+      <div>
+        <div
+          style={{
+            fontSize: '11px',
+            color: '#64748b',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.8px',
+            marginBottom: '12px',
+            paddingLeft: '4px',
+          }}
         >
-          Dashboard
-        </button>
-        <button
-          onClick={() => handleNav('/admin/catalog/categories')}
-          style={getLinkStyle('catalog')}
-        >
-          Service Catalog
-        </button>
-        <button
-          onClick={() => handleNav('/admin/bookings')}
-          style={getLinkStyle('bookings')}
-        >
-          Manage Bookings
-        </button>
-        <button
-          onClick={() => handleNav('/admin/providers')}
-          style={getLinkStyle('providers')}
-        >
-          Providers Directory
-        </button>
-        <button
-          onClick={() => handleNav('/admin/providers/leads')}
-          style={getLinkStyle('provider-leads')}
-          aria-live="polite"
-        >
-          <span>Provider Application Leads</span>
-          {badgeCount > 0 && (
-            <span
-              id="provider-leads-badge"
-              aria-label={`${badgeCount} unread provider leads`}
-              style={{
-                marginLeft: 'auto',
-                backgroundColor: '#ef4444',
-                color: '#ffffff',
-                borderRadius: '9999px',
-                padding: '2px 8px',
-                fontSize: '11px',
-                fontWeight: 700,
-                boxShadow: '0 0 8px rgba(239, 68, 68, 0.6)',
-              }}
-            >
-              {badgeCount > 99 ? '99+' : badgeCount}
-              <span style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', borderWidth: 0 }}>
-                unread provider leads
+          CONSOLE NAVIGATION
+        </div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <button
+            onClick={() => handleNav('/admin/dashboard')}
+            style={getLinkStyle('dashboard')}
+          >
+            <House size={18} color={activePage === 'dashboard' ? '#10b981' : '#94a3b8'} />
+            <span>Dashboard</span>
+          </button>
+          <button
+            onClick={() => handleNav('/admin/catalog/categories')}
+            style={getLinkStyle('catalog')}
+          >
+            <LayoutGrid size={18} color={activePage === 'catalog' ? '#10b981' : '#94a3b8'} />
+            <span>Service Catalog</span>
+          </button>
+          <button
+            onClick={() => handleNav('/admin/bookings')}
+            style={getLinkStyle('bookings')}
+          >
+            <CalendarDays size={18} color={activePage === 'bookings' ? '#10b981' : '#94a3b8'} />
+            <span>Manage Bookings</span>
+          </button>
+          <button
+            onClick={() => handleNav('/admin/providers')}
+            style={getLinkStyle('providers')}
+          >
+            <Users size={18} color={activePage === 'providers' ? '#10b981' : '#94a3b8'} />
+            <span>Providers Directory</span>
+          </button>
+          <button
+            onClick={() => handleNav('/admin/providers/leads')}
+            style={getLinkStyle('provider-leads')}
+            aria-live="polite"
+          >
+            <ClipboardCheck size={18} color={activePage === 'provider-leads' ? '#10b981' : '#94a3b8'} />
+            <span style={{ flex: 1 }}>Provider Application Leads</span>
+            {badgeCount > 0 && (
+              <span
+                id="provider-leads-badge"
+                aria-label={`${badgeCount} unread provider leads`}
+                style={{
+                  backgroundColor: '#ef4444',
+                  color: '#ffffff',
+                  borderRadius: '9999px',
+                  padding: '2px 8px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  boxShadow: '0 0 8px rgba(239, 68, 68, 0.6)',
+                }}
+              >
+                {badgeCount > 99 ? '99+' : badgeCount}
               </span>
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => handleNav('/admin/payments')}
-          style={getLinkStyle('payments')}
+            )}
+          </button>
+          <button
+            onClick={() => handleNav('/admin/payments')}
+            style={getLinkStyle('payments')}
+          >
+            <Wallet size={18} color={activePage === 'payments' ? '#10b981' : '#94a3b8'} />
+            <span>Payments & Cash Ledger</span>
+          </button>
+          <button
+            onClick={() => handleNav('/admin/ratings')}
+            style={getLinkStyle('ratings')}
+          >
+            <Star size={18} color={activePage === 'ratings' ? '#10b981' : '#94a3b8'} />
+            <span>Provider Ratings & Feedback</span>
+          </button>
+          <button
+            onClick={() => handleNav('/admin/reports')}
+            style={getLinkStyle('reports')}
+          >
+            <ChartNoAxesCombined size={18} color={activePage === 'reports' ? '#10b981' : '#94a3b8'} />
+            <span>Analytics & Reports</span>
+          </button>
+        </nav>
+      </div>
+
+      {/* Section 2: USERS & ACCESS */}
+      <div>
+        <div
+          style={{
+            fontSize: '11px',
+            color: '#64748b',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.8px',
+            marginBottom: '12px',
+            paddingLeft: '4px',
+          }}
         >
-          Payments & Cash Ledger
-        </button>
-        <button
-          onClick={() => handleNav('/admin/ratings')}
-          style={getLinkStyle('ratings')}
-        >
-          Provider Ratings & Feedback
-        </button>
-        <button
-          onClick={() => handleNav('/admin/reports')}
-          style={getLinkStyle('reports')}
-        >
-          Analytics & Reports
-        </button>
-        <button
-          style={{ ...getLinkStyle('users'), opacity: 0.5, cursor: 'not-allowed' }}
-          disabled
-        >
-          Users & Access
-        </button>
-      </nav>
+          USERS & ACCESS
+        </div>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <button
+            onClick={() => handleNav('/admin/users')}
+            style={{ ...getLinkStyle('users'), opacity: 0.55 }}
+          >
+            <UsersRound size={18} color={activePage === 'users' ? '#10b981' : '#94a3b8'} />
+            <span>Users & Access</span>
+          </button>
+        </nav>
+      </div>
     </div>
   );
 
@@ -217,9 +256,9 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
         id="admin-sidebar"
         className="hidden lg:flex"
         style={{
-          width: '240px',
-          backgroundColor: '#020617',
-          borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+          width: '260px',
+          backgroundColor: '#060b13',
+          borderRight: '1px solid rgba(255, 255, 255, 0.06)',
           padding: '24px 16px',
           flexDirection: 'column',
           gap: '24px',

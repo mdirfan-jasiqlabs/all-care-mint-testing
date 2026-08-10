@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import BrandLogo from '@/components/BrandLogo';
+import { LogOut, Menu } from 'lucide-react';
 
 interface AdminHeaderProps {
   onMenuClick?: () => void;
@@ -46,11 +47,10 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   return (
     <header
       style={{
-        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-        backgroundColor: 'rgba(2, 6, 23, 0.85)',
-        backdropFilter: 'blur(12px)',
-        height: '76px',
-        padding: '0 20px',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+        backgroundColor: '#060b13',
+        height: '72px',
+        padding: '0 24px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -70,9 +70,9 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           title="Open menu"
           className="flex lg:hidden items-center justify-center"
           style={{
-            height: '44px',
-            width: '44px',
-            borderRadius: '10px',
+            height: '40px',
+            width: '40px',
+            borderRadius: '8px',
             backgroundColor: 'rgba(255, 255, 255, 0.05)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             color: '#f8fafc',
@@ -81,11 +81,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
             outline: 'none',
           }}
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
+          <Menu size={20} />
         </button>
 
         <BrandLogo href="/admin/dashboard" size="md" alt="All care mint Admin" />
@@ -98,51 +94,45 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           disabled={loggingOut}
           aria-label="Log out"
           title="Log out"
-          className="px-3 sm:px-5"
+          className="px-4 py-2"
           style={{
-            height: '44px',
-            borderRadius: '12px',
-            fontSize: '14px',
-            fontWeight: 500,
+            height: '40px',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: 600,
             cursor: loggingOut ? 'not-allowed' : 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px',
             transition: 'all 0.2s ease-in-out',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.25)',
-            color: '#f87171',
+            backgroundColor: 'rgba(239, 68, 68, 0.08)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            color: '#ef4444',
             opacity: loggingOut ? 0.6 : 1,
             outline: 'none',
           }}
           onMouseEnter={(e) => {
             if (!loggingOut) {
-              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
-              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
-              e.currentTarget.style.color = '#fca5a5';
+              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.18)';
+              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+              e.currentTarget.style.color = '#f87171';
             }
           }}
           onMouseLeave={(e) => {
             if (!loggingOut) {
-              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
-              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.25)';
-              e.currentTarget.style.color = '#f87171';
+              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.08)';
+              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+              e.currentTarget.style.color = '#ef4444';
             }
-          }}
-          onFocus={(e) => {
-            e.currentTarget.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.5)';
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.boxShadow = 'none';
           }}
         >
           {loggingOut ? (
             <span
               style={{
-                width: '16px',
-                height: '16px',
-                border: '2px solid #f87171',
+                width: '14px',
+                height: '14px',
+                border: '2px solid #ef4444',
                 borderTopColor: 'transparent',
                 borderRadius: '50%',
                 display: 'inline-block',
@@ -150,24 +140,9 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
               }}
             />
           ) : (
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#f87171"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-              style={{ flexShrink: 0 }}
-            >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
+            <LogOut size={16} color="#ef4444" />
           )}
-          <span className="hidden sm:inline">Log Out</span>
+          <span>Log Out</span>
         </button>
       </div>
     </header>
