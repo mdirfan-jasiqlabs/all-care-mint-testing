@@ -67,18 +67,42 @@ html, body {
 
 /* Fix native calendar picker icon visibility on dark backgrounds */
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1) brightness(1.8) !important;
+  filter: brightness(0) invert(0.85) !important;
   cursor: pointer !important;
-  opacity: 0.9 !important;
+  opacity: 0.85 !important;
+  transition: opacity 0.15s ease, filter 0.15s ease;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1 !important;
-  filter: invert(1) brightness(2) !important;
+  filter: brightness(0) invert(1) !important;
 }
 
 input[type="date"] {
   color-scheme: dark !important;
+}
+
+/* Skeleton Loading Animations */
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+.skeleton-box {
+  background-color: rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  animation: skeletonPulse 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-box {
+    animation: none !important;
+    opacity: 0.4 !important;
+  }
 }
 
 /* Background mesh gradient */

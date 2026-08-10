@@ -64,6 +64,120 @@ function getBezierPath(points: { x: number; y: number }[]) {
   return path;
 }
 
+function DashboardSkeleton() {
+  return (
+    <div
+      aria-busy="true"
+      aria-label="Loading dashboard analytics data"
+      style={{ display: 'flex', flexDirection: 'column', gap: '28px', width: '100%' }}
+    >
+      {/* 4 KPI Cards Grid Skeleton */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            aria-hidden="true"
+            style={{
+              backgroundColor: '#0c1421',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '16px',
+              padding: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              minHeight: '150px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="skeleton-box" style={{ width: '38px', height: '38px', borderRadius: '12px' }} />
+              <div className="skeleton-box" style={{ width: '100px', height: '12px', borderRadius: '4px' }} />
+            </div>
+            <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div className="skeleton-box" style={{ width: '140px', height: '28px', borderRadius: '6px' }} />
+              <div className="skeleton-box" style={{ width: '110px', height: '14px', borderRadius: '4px' }} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Booking Volume Distribution Chart Skeleton */}
+      <div
+        aria-hidden="true"
+        style={{
+          backgroundColor: '#0c1421',
+          border: '1px solid rgba(255, 255, 255, 0.07)',
+          borderRadius: '18px',
+          padding: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px',
+          width: '100%',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="skeleton-box" style={{ width: '260px', height: '16px', borderRadius: '4px' }} />
+          <div className="skeleton-box" style={{ width: '90px', height: '28px', borderRadius: '8px' }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', margin: '4px 0' }}>
+          <div className="skeleton-box" style={{ width: '90px', height: '14px', borderRadius: '4px' }} />
+          <div className="skeleton-box" style={{ width: '110px', height: '14px', borderRadius: '4px' }} />
+        </div>
+        <div style={{ position: 'relative', width: '100%', minHeight: '260px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '10px 0' }}>
+          {[1, 2, 3, 4].map((gridIdx) => (
+            <div key={gridIdx} style={{ width: '100%', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.04)' }} />
+          ))}
+          <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-end', height: '180px', padding: '0 20px' }}>
+            {[1, 2, 3, 4, 5, 6].map((barIdx) => (
+              <div key={barIdx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                <div className="skeleton-box" style={{ width: '40px', height: `${50 + (barIdx % 3) * 45}px`, borderRadius: '6px' }} />
+                <div className="skeleton-box" style={{ width: '32px', height: '12px', borderRadius: '4px' }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Unassigned Bookings Table Skeleton */}
+      <div
+        aria-hidden="true"
+        style={{
+          backgroundColor: '#0c1421',
+          border: '1px solid rgba(255, 255, 255, 0.07)',
+          borderRadius: '18px',
+          padding: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="skeleton-box" style={{ width: '220px', height: '18px', borderRadius: '4px' }} />
+          <div className="skeleton-box" style={{ width: '120px', height: '14px', borderRadius: '4px' }} />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
+          {[1, 2, 3, 4].map((rowIdx) => (
+            <div
+              key={rowIdx}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '12px 14px',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+              }}
+            >
+              <div className="skeleton-box" style={{ width: '70px', height: '14px' }} />
+              <div className="skeleton-box" style={{ width: '120px', height: '14px' }} />
+              <div className="skeleton-box" style={{ width: '140px', height: '14px' }} />
+              <div className="skeleton-box" style={{ width: '64px', height: '24px', borderRadius: '6px' }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboardPage() {
   const router = useRouter();
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
@@ -502,7 +616,11 @@ export default function AdminDashboardPage() {
       )}
 
       {/* 4 KPI Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {(loading && !metrics) || isRecalculating ? (
+        <DashboardSkeleton />
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1: Total Revenue */}
         <div
           style={{
@@ -1048,6 +1166,8 @@ export default function AdminDashboardPage() {
           </div>
         )}
       </div>
+        </>
+      )}
     </div>
   );
 }
