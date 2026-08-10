@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   IndianRupee,
+  Calendar,
   CalendarDays,
   UserRoundX,
   UsersRound,
@@ -404,39 +405,43 @@ export default function AdminDashboardPage() {
 
           {filterPeriod === 'custom' && (
             <div id="custom-date-container" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px' }}>
-              <input
-                type="date"
-                id="start-date"
-                value={startDate}
-                onChange={handleStartDateChange}
-                style={{
-                  backgroundColor: '#0c1421',
-                  border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
-                  borderRadius: '8px',
-                  padding: '6px 10px',
-                  color: '#f8fafc',
-                  colorScheme: 'dark',
-                  cursor: 'pointer',
-                  outline: 'none',
-                }}
-              />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input
+                  type="date"
+                  id="start-date"
+                  value={startDate}
+                  onChange={handleStartDateChange}
+                  style={{
+                    backgroundColor: '#0c1421',
+                    border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '8px',
+                    padding: '6px 10px',
+                    color: '#f8fafc',
+                    colorScheme: 'dark',
+                    cursor: 'pointer',
+                    outline: 'none',
+                  }}
+                />
+              </div>
               <span style={{ color: '#64748b' }}>to</span>
-              <input
-                type="date"
-                id="end-date"
-                value={endDate}
-                onChange={handleEndDateChange}
-                style={{
-                  backgroundColor: '#0c1421',
-                  border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
-                  borderRadius: '8px',
-                  padding: '6px 10px',
-                  color: '#f8fafc',
-                  colorScheme: 'dark',
-                  cursor: 'pointer',
-                  outline: 'none',
-                }}
-              />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input
+                  type="date"
+                  id="end-date"
+                  value={endDate}
+                  onChange={handleEndDateChange}
+                  style={{
+                    backgroundColor: '#0c1421',
+                    border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '8px',
+                    padding: '6px 10px',
+                    color: '#f8fafc',
+                    colorScheme: 'dark',
+                    cursor: 'pointer',
+                    outline: 'none',
+                  }}
+                />
+              </div>
             </div>
           )}
 
