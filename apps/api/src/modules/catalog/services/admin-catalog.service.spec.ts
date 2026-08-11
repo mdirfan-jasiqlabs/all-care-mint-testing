@@ -106,4 +106,32 @@ describe('AdminCatalogService', () => {
       ).rejects.toThrow(InvalidPriceException);
     });
   });
+
+  describe('updateService', () => {
+    it('should update service details successfully', async () => {
+      mockCatalogRepo.findServiceById.mockResolvedValue({
+        id: 'svc-1',
+        name: 'Old Name',
+        fixedPrice: '100.00',
+      });
+      mockCatalogRepo.updateService.mockResolvedValue({
+        id: 'svc-1',
+        name: 'New Name',
+        fixedPrice: '150.00',
+      });
+
+      const result = await service.updateService(
+        'svc-1',
+        { name: 'New Name', fixedPrice: '150' },
+        'admin-123',
+        'ADMIN',
+      );
+
+      expect(result.name).toBe('New Name');
+      expect(mockCatalogRepo.updateService).toHaveBeenCalledWith('svc-1', {
+        name: 'New Name',
+        fixedPrice: '150.00',
+      });
+    });
+  });
 });

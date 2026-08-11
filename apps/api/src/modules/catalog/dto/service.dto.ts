@@ -36,6 +36,11 @@ export class CreateServiceDto {
 export class UpdateServiceDto {
   @IsString()
   @IsOptional()
+  @IsUUID()
+  categoryId?: string;
+
+  @IsString()
+  @IsOptional()
   @MaxLength(150)
   name?: string;
 

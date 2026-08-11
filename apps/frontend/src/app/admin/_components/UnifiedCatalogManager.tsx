@@ -326,7 +326,8 @@ export default function UnifiedCatalogManager() {
         : `/api/v1/admin/catalog/services`;
 
       if (editingService) {
-        await apiClient.patch(path, svcFormData);
+        const { categoryId, ...updatePayload } = svcFormData;
+        await apiClient.patch(path, updatePayload);
       } else {
         await apiClient.post(path, svcFormData);
       }
@@ -715,6 +716,7 @@ export default function UnifiedCatalogManager() {
               width: '100%',
               maxWidth: '440px',
               height: '100%',
+              maxHeight: '100vh',
               background: 'var(--background)',
               borderLeft: '1px solid var(--card-border)',
               padding: '24px 20px',
@@ -824,12 +826,14 @@ export default function UnifiedCatalogManager() {
               width: '100%',
               maxWidth: '440px',
               height: '100%',
+              maxHeight: '100vh',
               background: 'var(--background)',
               borderLeft: '1px solid var(--card-border)',
-              padding: '32px',
+              padding: '32px 24px',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
+              overflowY: 'auto',
             }}
             onClick={(e) => e.stopPropagation()}
           >
