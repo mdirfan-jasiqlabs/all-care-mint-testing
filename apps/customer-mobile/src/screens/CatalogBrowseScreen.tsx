@@ -315,10 +315,10 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
 
       {/* Sticky Bottom Cart Banner */}
       {cart.length > 0 && (
-        <View style={styles.cartBanner}>
+        <View style={styles.cartBanner} testID="cart-banner">
           <View style={styles.cartInfo}>
             <Text style={styles.cartLabel}>TOTAL ADDED ITEMS</Text>
-            <Text style={styles.cartCountText}>
+            <Text style={styles.cartCountText} testID="cart-count">
               {cart.length} {cart.length === 1 ? 'Item' : 'Items'} (₹{getCartTotal()})
             </Text>
           </View>
@@ -329,6 +329,7 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
               styles.checkoutButton,
               isOffline ? styles.checkoutButtonDisabled : styles.checkoutButtonEnabled
             ]}
+            testID="btn-book-now-bottom"
           >
             <Text style={[
               styles.checkoutButtonText,
@@ -661,7 +662,7 @@ const styles = StyleSheet.create({
   },
   cartBanner: {
     position: 'absolute',
-    bottom: 0,
+    bottom: Platform.OS === 'ios' ? 80 : 64,
     left: 0,
     right: 0,
     backgroundColor: '#10b981',
@@ -669,9 +670,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 14,
     borderTopWidth: 1,
     borderTopColor: 'rgba(16, 185, 129, 0.2)',
+    zIndex: 100,
+    elevation: 100,
   },
   cartInfo: {
     flexDirection: 'column',

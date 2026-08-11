@@ -197,6 +197,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
   const [showRazorpayModal, setShowRazorpayModal] = useState(false);
   const [razorpayOrderData, setRazorpayOrderData] = useState<any>(null);
   const [isPolling, setIsPolling] = useState(false);
+  const [paymentActionLoading, setPaymentActionLoading] = useState<'fail' | 'complete' | null>(null);
   const [pollingStatusMessage, setPollingStatusMessage] = useState('');
   const [paymentFailedState, setPaymentFailedState] = useState(false);
   const [failedOrderId, setFailedOrderId] = useState<string | null>(null);
@@ -872,12 +873,14 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
               ) : (
                 <View style={styles.modalBtnRow}>
                   <TouchableOpacity
-                    style={styles.modalCancelBtn}
+                    style={[styles.modalCancelBtn, paymentActionLoading !== null && styles.btnDisabled]}
+                    disabled={paymentActionLoading !== null}
                     onPress={() => {
                       if (pollTimerRef.current) clearInterval(pollTimerRef.current);
                       setIsPolling(false);
                       setShowRazorpayModal(false);
                       setSubmitting(false);
+                      setPaymentActionLoading(null);
                       showToast('Payment cancelled by customer.', 'warning');
                     }}
                   >
@@ -885,9 +888,11 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={styles.modalFailBtn}
+                    style={[styles.modalFailBtn, paymentActionLoading !== null && styles.btnDisabled]}
+                    disabled={paymentActionLoading !== null}
                     onPress={async () => {
-                      if (!razorpayOrderData?.razorpay_order_id) return;
+                      if (!razorpayOrderData?.razorpay_order_id || paymentActionLoading !== null) return;
+                      setPaymentActionLoading('fail');
                       try {
                         const orderId = razorpayOrderData.razorpay_order_id;
                         const mockPayId = `pay_fail_${Date.now()}`;
@@ -918,17 +923,25 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                         });
                       } catch (err) {
                         // ignore error and start polling
+                      } finally {
+                        setPaymentActionLoading(null);
                       }
                       startPaymentPolling(razorpayOrderData.razorpay_order_id);
                     }}
                   >
-                    <Text style={styles.modalFailBtnText}>Fail Payment</Text>
+                    {paymentActionLoading === 'fail' ? (
+                      <ActivityIndicator size="small" color="#ffffff" />
+                    ) : (
+                      <Text style={styles.modalFailBtnText}>Fail Payment</Text>
+                    )}
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={styles.modalSaveBtn}
+                    style={[styles.modalSaveBtn, paymentActionLoading !== null && styles.btnDisabled]}
+                    disabled={paymentActionLoading !== null}
                     onPress={async () => {
-                      if (!razorpayOrderData?.razorpay_order_id) return;
+                      if (!razorpayOrderData?.razorpay_order_id || paymentActionLoading !== null) return;
+                      setPaymentActionLoading('complete');
                       try {
                         const orderId = razorpayOrderData.razorpay_order_id;
                         const mockPayId = `pay_mobile_${Date.now()}`;
@@ -956,11 +969,17 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                         });
                       } catch (err) {
                         // ignore error and start polling
+                      } finally {
+                        setPaymentActionLoading(null);
                       }
                       startPaymentPolling(razorpayOrderData.razorpay_order_id);
                     }}
                   >
-                    <Text style={styles.modalSaveBtnText}>Complete</Text>
+                    {paymentActionLoading === 'complete' ? (
+                      <ActivityIndicator size="small" color="#020617" />
+                    ) : (
+                      <Text style={styles.modalSaveBtnText}>Complete</Text>
+                    )}
                   </TouchableOpacity>
                 </View>
               )}

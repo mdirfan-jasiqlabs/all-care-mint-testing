@@ -272,6 +272,7 @@ function CatalogServicesContent() {
             </span>
           </div>
           <button
+            id="btn-book-now-bottom"
             onClick={handleCheckout}
             style={{
               backgroundColor: 'hsl(224, 71%, 4%)',
@@ -284,7 +285,7 @@ function CatalogServicesContent() {
               cursor: 'pointer',
             }}
           >
-            Confirm Booking
+            Book Now ➔
           </button>
         </div>
       )}
