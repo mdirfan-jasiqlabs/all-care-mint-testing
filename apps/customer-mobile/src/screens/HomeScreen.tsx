@@ -7,10 +7,10 @@ import {
   ScrollView,
   ActivityIndicator,
   useWindowDimensions,
-  SafeAreaView,
   StatusBar,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../navigation/root.types';
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#060b13',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    paddingTop: Platform.OS === 'android' ? 8 : 0,
   },
   container: {
     flex: 1,
