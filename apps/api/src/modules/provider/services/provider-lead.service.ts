@@ -52,7 +52,7 @@ export class ProviderLeadService {
         return existingRecent;
       }
 
-      return tx.providerLead.create({
+      const createdLead = await tx.providerLead.create({
         data: {
           name: dto.name.trim(),
           mobileNumber: cleanMobile,
@@ -60,6 +60,29 @@ export class ProviderLeadService {
           isAcknowledged: false,
         },
       });
+
+      const dbMobileNumber = '+91' + cleanMobile;
+      const existingProvider = await tx.provider.findFirst({
+        where: {
+          OR: [
+            { mobileNumber: dbMobileNumber },
+            { mobileNumber: cleanMobile },
+          ],
+        },
+      });
+
+      if (!existingProvider) {
+        await tx.provider.create({
+          data: {
+            displayName: dto.name.trim(),
+            mobileNumber: dbMobileNumber,
+            serviceArea,
+            status: 'PENDING_REVIEW',
+          },
+        });
+      }
+
+      return createdLead;
     });
 
     return {

@@ -104,12 +104,48 @@ export class ProviderService {
     return updated;
   }
 
+  private async syncLeadsToProviders() {
+    try {
+      const leads = await this.prisma.providerLead.findMany();
+      if (!leads || leads.length === 0) return;
+
+      for (const lead of leads) {
+        const cleanMobile = lead.mobileNumber.replace(/\D/g, '').slice(-10);
+        if (!cleanMobile || cleanMobile.length !== 10) continue;
+        const dbMobileNumber = '+91' + cleanMobile;
+
+        const existing = await this.prisma.provider.findFirst({
+          where: {
+            OR: [
+              { mobileNumber: dbMobileNumber },
+              { mobileNumber: cleanMobile },
+            ],
+          },
+        });
+
+        if (!existing) {
+          await this.prisma.provider.create({
+            data: {
+              displayName: lead.name,
+              mobileNumber: dbMobileNumber,
+              serviceArea: lead.serviceArea || 'General',
+              status: ProviderStatusEnum.PENDING_REVIEW,
+            },
+          });
+        }
+      }
+    } catch (err) {
+      // Ignore sync errors gracefully
+    }
+  }
+
   async listProviders(query: {
     status?: ProviderStatusEnum;
     search?: string;
     page?: number;
     limit?: number;
   }): Promise<{ data: ProviderDetails[]; total: number }> {
+    await this.syncLeadsToProviders();
     const page = query.page ? parseInt(query.page as any, 10) : 1;
     const limit = query.limit ? parseInt(query.limit as any, 10) : 20;
     return this.providerRepo.findProviders({
