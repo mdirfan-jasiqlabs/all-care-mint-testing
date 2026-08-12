@@ -129,4 +129,22 @@ export class PrismaProviderRepository implements IProviderRepository {
     });
     return provider?.categories.map(c => c.id) || [];
   }
+
+  async getProviderSummary(): Promise<{ total: number; pending: number; approved: number; suspended: number; rejected: number }> {
+    const grouped = await this.prisma.provider.groupBy({
+      by: ['status'],
+      _count: { _all: true },
+    });
+
+    const summary = { total: 0, pending: 0, approved: 0, suspended: 0, rejected: 0 };
+    for (const item of grouped) {
+      const count = item._count._all;
+      summary.total += count;
+      if (item.status === 'PENDING_REVIEW') summary.pending = count;
+      if (item.status === 'APPROVED') summary.approved = count;
+      if (item.status === 'SUSPENDED') summary.suspended = count;
+      if (item.status === 'REJECTED') summary.rejected = count;
+    }
+    return summary;
+  }
 }

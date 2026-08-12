@@ -26,4 +26,5 @@ export interface IProviderRepository {
   addCategoryMapping(providerId: string, categoryId: string): Promise<void>;
   removeCategoryMapping(providerId: string, categoryId: string): Promise<void>;
   findCategoryMappings(providerId: string): Promise<string[]>;
+  getProviderSummary(): Promise<{ total: number; pending: number; approved: number; suspended: number; rejected: number }>;
 }

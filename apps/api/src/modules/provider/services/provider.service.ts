@@ -145,7 +145,6 @@ export class ProviderService {
     page?: number;
     limit?: number;
   }): Promise<{ data: ProviderDetails[]; total: number }> {
-    await this.syncLeadsToProviders();
     const page = query.page ? parseInt(query.page as any, 10) : 1;
     const limit = query.limit ? parseInt(query.limit as any, 10) : 20;
     return this.providerRepo.findProviders({
@@ -232,5 +231,9 @@ export class ProviderService {
         },
       });
     }
+  }
+
+  async getProviderSummary(): Promise<{ total: number; pending: number; approved: number; suspended: number; rejected: number }> {
+    return this.providerRepo.getProviderSummary();
   }
 }

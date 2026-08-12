@@ -27,6 +27,12 @@ import {
 export class AdminProviderController {
   constructor(private readonly providerService: ProviderService) {}
 
+  @Get('summary')
+  async getSummary() {
+    const summary = await this.providerService.getProviderSummary();
+    return { success: true, data: summary };
+  }
+
   @Post()
   async onboardProvider(@Req() req: any, @Body() dto: CreateProviderDto) {
     const provider = await this.providerService.onboardProvider(dto, req.user.id);
