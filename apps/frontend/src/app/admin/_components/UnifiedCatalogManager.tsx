@@ -643,7 +643,13 @@ export default function UnifiedCatalogManager() {
     };
   }, [categories]);
 
-  const totalServices = useMemo(() => services.length, [services.length]);
+  const totalServices = useMemo(() => {
+    const counts = Object.values(categoryCounts);
+    if (counts.length > 0) {
+      return counts.reduce((sum, val) => sum + val, 0);
+    }
+    return services.length;
+  }, [categoryCounts, services.length]);
 
   const filteredCategories = useMemo(
     () => getFilteredAndSortedCategories(),
@@ -806,37 +812,37 @@ export default function UnifiedCatalogManager() {
             backgroundColor: '#0d1424',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '14px',
-            padding: '20px',
+            padding: '18px 20px',
             display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
           }}
         >
-          <div
-            style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '12px',
-              backgroundColor: 'rgba(16, 185, 129, 0.12)',
-              border: '1px solid rgba(16, 185, 129, 0.25)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#10b981',
-              flexShrink: 0,
-            }}
-          >
-            <Folder size={22} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Total Categories</span>
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#10b981',
+                flexShrink: 0,
+              }}
+            >
+              <Folder size={18} />
+            </div>
           </div>
           <div>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
               {totalCategories}
             </div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginTop: '4px' }}>
-              Total Categories
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
               All categories in catalog
             </div>
           </div>
@@ -848,37 +854,37 @@ export default function UnifiedCatalogManager() {
             backgroundColor: '#0d1424',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '14px',
-            padding: '20px',
+            padding: '18px 20px',
             display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
           }}
         >
-          <div
-            style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '12px',
-              backgroundColor: 'rgba(59, 130, 246, 0.12)',
-              border: '1px solid rgba(59, 130, 246, 0.25)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#3b82f6',
-              flexShrink: 0,
-            }}
-          >
-            <ShieldCheck size={22} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Active Categories</span>
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                border: '1px solid rgba(59, 130, 246, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#3b82f6',
+                flexShrink: 0,
+              }}
+            >
+              <ShieldCheck size={18} />
+            </div>
           </div>
           <div>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
               {activeCategories}
             </div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginTop: '4px' }}>
-              Active Categories
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
               Currently active
             </div>
           </div>
@@ -890,37 +896,37 @@ export default function UnifiedCatalogManager() {
             backgroundColor: '#0d1424',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '14px',
-            padding: '20px',
+            padding: '18px 20px',
             display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
           }}
         >
-          <div
-            style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '12px',
-              backgroundColor: 'rgba(245, 158, 11, 0.12)',
-              border: '1px solid rgba(245, 158, 11, 0.25)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#f59e0b',
-              flexShrink: 0,
-            }}
-          >
-            <PauseCircle size={22} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Inactive Categories</span>
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                border: '1px solid rgba(245, 158, 11, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#f59e0b',
+                flexShrink: 0,
+              }}
+            >
+              <PauseCircle size={18} />
+            </div>
           </div>
           <div>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
               {inactiveCategories}
             </div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginTop: '4px' }}>
-              Inactive Categories
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
               Not active
             </div>
           </div>
@@ -932,38 +938,38 @@ export default function UnifiedCatalogManager() {
             backgroundColor: '#0d1424',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '14px',
-            padding: '20px',
+            padding: '18px 20px',
             display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
           }}
         >
-          <div
-            style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '12px',
-              backgroundColor: 'rgba(139, 92, 246, 0.12)',
-              border: '1px solid rgba(139, 92, 246, 0.25)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#a78bfa',
-              flexShrink: 0,
-            }}
-          >
-            <Package size={22} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Total Services</span>
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                backgroundColor: 'rgba(139, 92, 246, 0.12)',
+                border: '1px solid rgba(139, 92, 246, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#a78bfa',
+                flexShrink: 0,
+              }}
+            >
+              <Package size={18} />
+            </div>
           </div>
           <div>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
               {totalServices}
             </div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginTop: '4px' }}>
-              Total Services
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-              Across selected category
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+              Across all catalog categories
             </div>
           </div>
         </div>
