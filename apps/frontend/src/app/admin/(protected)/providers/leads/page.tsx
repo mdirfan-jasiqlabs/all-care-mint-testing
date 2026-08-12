@@ -172,20 +172,20 @@ function ProviderLeadsPageContent() {
   };
 
   return (
-    <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* 1. Header & Quick Link CTA */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-            <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.5px', margin: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+            <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.5px', margin: 0 }}>
               Provider Application Leads
             </h1>
             <div style={{ color: '#10b981', display: 'flex', alignItems: 'center' }}>
-              <CheckCircle2 size={22} className="text-[#10b981]" />
+              <CheckCircle2 size={18} className="text-[#10b981]" />
             </div>
           </div>
-          <p style={{ color: '#94a3b8', fontSize: '14px', maxWidth: '640px', lineHeight: '1.5', margin: 0 }}>
-            Review incoming registration applications submitted by prospective service providers across all locations.
+          <p style={{ color: '#94a3b8', fontSize: '13px', maxWidth: '640px', lineHeight: '1.4', margin: 0 }}>
+            Review incoming registration applications submitted by prospective service providers.
           </p>
         </div>
 
@@ -195,20 +195,20 @@ function ProviderLeadsPageContent() {
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
-            padding: '10px 18px',
-            borderRadius: '10px',
+            gap: '6px',
+            padding: '8px 14px',
+            borderRadius: '8px',
             backgroundColor: 'rgba(255, 255, 255, 0.06)',
             color: '#ffffff',
             border: '1px solid rgba(255, 255, 255, 0.12)',
             fontWeight: 600,
-            fontSize: '13px',
+            fontSize: '12px',
             textDecoration: 'none',
-            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.2)',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.15)',
             transition: 'all 0.2s ease',
           }}
         >
-          <ExternalLink size={16} style={{ color: '#38bdf8' }} />
+          <ExternalLink size={14} style={{ color: '#38bdf8' }} />
           <span>Public Application Form</span>
         </Link>
       </div>
@@ -218,54 +218,54 @@ function ProviderLeadsPageContent() {
         style={{
           display: 'flex',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          gap: '24px',
+          gap: '20px',
           paddingBottom: '2px',
         }}
       >
         <Link
           href="/admin/providers"
           style={{
-            padding: '10px 4px 14px 4px',
-            fontSize: '15px',
+            padding: '8px 4px 10px 4px',
+            fontSize: '14px',
             fontWeight: 500,
             color: '#94a3b8',
             borderBottom: '2px solid transparent',
             textDecoration: 'none',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '6px',
             transition: 'all 0.2s ease',
           }}
         >
-          <Users size={18} />
+          <Users size={16} />
           <span>Registered Providers Directory</span>
         </Link>
         <Link
           href="/admin/providers/leads"
           style={{
-            padding: '10px 4px 14px 4px',
-            fontSize: '15px',
+            padding: '8px 4px 10px 4px',
+            fontSize: '14px',
             fontWeight: 700,
             color: '#10b981',
             borderBottom: '2px solid #10b981',
             textDecoration: 'none',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '6px',
             transition: 'all 0.2s ease',
           }}
         >
-          <UserPlus size={18} />
+          <UserPlus size={16} />
           <span>Provider Application Leads</span>
           {stats.newLeads > 0 && (
             <span
               style={{
                 backgroundColor: '#ef4444',
                 color: '#ffffff',
-                fontSize: '11px',
+                fontSize: '10px',
                 fontWeight: 800,
-                borderRadius: '10px',
-                padding: '2px 8px',
+                borderRadius: '8px',
+                padding: '2px 6px',
                 lineHeight: 1,
               }}
             >
@@ -275,12 +275,12 @@ function ProviderLeadsPageContent() {
         </Link>
       </div>
 
-      {/* 3. Summary KPI Metric Cards */}
+      {/* 3. High-Density Summary KPI Cards */}
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-          gap: '16px',
+          gap: '12px',
         }}
       >
         {/* KPI 1: Total Leads */}
@@ -288,21 +288,21 @@ function ProviderLeadsPageContent() {
           style={{
             backgroundColor: '#0d1424',
             border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '12px',
+            padding: '12px 16px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.15)',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Total Applications</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8' }}>Total Applications</span>
             <div
               style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
                 backgroundColor: 'rgba(59, 130, 246, 0.12)',
                 border: '1px solid rgba(59, 130, 246, 0.25)',
                 display: 'flex',
@@ -312,14 +312,14 @@ function ProviderLeadsPageContent() {
                 flexShrink: 0,
               }}
             >
-              <UserPlus size={18} />
+              <UserPlus size={15} />
             </div>
           </div>
           <div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
               {stats.total}
             </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
               All prospective provider leads
             </div>
           </div>
@@ -330,21 +330,21 @@ function ProviderLeadsPageContent() {
           style={{
             backgroundColor: '#0d1424',
             border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '12px',
+            padding: '12px 16px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.15)',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>New / Pending Review</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8' }}>New / Pending</span>
             <div
               style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
                 backgroundColor: 'rgba(239, 68, 68, 0.12)',
                 border: '1px solid rgba(239, 68, 68, 0.25)',
                 display: 'flex',
@@ -354,14 +354,14 @@ function ProviderLeadsPageContent() {
                 flexShrink: 0,
               }}
             >
-              <ShieldAlert size={18} />
+              <ShieldAlert size={15} />
             </div>
           </div>
           <div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
               {stats.newLeads}
             </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
               Require initial admin review
             </div>
           </div>
@@ -372,21 +372,21 @@ function ProviderLeadsPageContent() {
           style={{
             backgroundColor: '#0d1424',
             border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '12px',
+            padding: '12px 16px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.15)',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Acknowledged</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8' }}>Acknowledged</span>
             <div
               style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
                 backgroundColor: 'rgba(16, 185, 129, 0.12)',
                 border: '1px solid rgba(16, 185, 129, 0.25)',
                 display: 'flex',
@@ -396,14 +396,14 @@ function ProviderLeadsPageContent() {
                 flexShrink: 0,
               }}
             >
-              <UserCheck size={18} />
+              <UserCheck size={15} />
             </div>
           </div>
           <div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
               {stats.acknowledged}
             </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
               Reviewed by admin team
             </div>
           </div>
@@ -414,21 +414,21 @@ function ProviderLeadsPageContent() {
           style={{
             backgroundColor: '#0d1424',
             border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '12px',
+            padding: '12px 16px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.15)',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Service Areas</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8' }}>Service Areas</span>
             <div
               style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
                 backgroundColor: 'rgba(139, 92, 246, 0.12)',
                 border: '1px solid rgba(139, 92, 246, 0.25)',
                 display: 'flex',
@@ -438,14 +438,14 @@ function ProviderLeadsPageContent() {
                 flexShrink: 0,
               }}
             >
-              <MapPin size={18} />
+              <MapPin size={15} />
             </div>
           </div>
           <div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
               {stats.uniqueAreas}
             </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
               Distinct locations represented
             </div>
           </div>
@@ -459,18 +459,18 @@ function ProviderLeadsPageContent() {
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '12px',
+          gap: '10px',
           backgroundColor: '#0d1424',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: '12px',
-          padding: '12px 16px',
+          padding: '10px 14px',
         }}
       >
         {/* Search Input */}
-        <div style={{ position: 'relative', flex: '1', minWidth: '240px', maxWidth: '420px' }}>
+        <div style={{ position: 'relative', flex: '1', minWidth: '220px', maxWidth: '380px' }}>
           <Search
-            size={16}
-            style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
+            size={14}
+            style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
           />
           <input
             type="text"
@@ -482,9 +482,9 @@ function ProviderLeadsPageContent() {
               backgroundColor: 'rgba(255, 255, 255, 0.04)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: '8px',
-              padding: '8px 32px 8px 36px',
+              padding: '6px 30px 6px 32px',
               color: '#ffffff',
-              fontSize: '13px',
+              fontSize: '12px',
               outline: 'none',
               boxSizing: 'border-box',
             }}
@@ -494,7 +494,7 @@ function ProviderLeadsPageContent() {
               onClick={() => setSearch('')}
               style={{
                 position: 'absolute',
-                right: '10px',
+                right: '8px',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 background: 'none',
@@ -503,14 +503,14 @@ function ProviderLeadsPageContent() {
                 cursor: 'pointer',
               }}
             >
-              <X size={14} />
+              <X size={12} />
             </button>
           )}
         </div>
 
         {/* Status Filter Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <Filter size={14} style={{ color: '#64748b', marginRight: '4px' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <Filter size={13} style={{ color: '#64748b', marginRight: '2px' }} />
           {[
             { id: 'ALL', label: 'All Leads' },
             { id: 'UNACKNOWLEDGED', label: 'New Leads' },
@@ -528,15 +528,15 @@ function ProviderLeadsPageContent() {
                   backgroundColor: isActive ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.04)',
                   border: isActive ? '1px solid #10b981' : '1px solid rgba(255, 255, 255, 0.08)',
                   color: isActive ? '#10b981' : '#94a3b8',
-                  borderRadius: '8px',
-                  padding: '7px 14px',
-                  fontSize: '12px',
+                  borderRadius: '6px',
+                  padding: '5px 10px',
+                  fontSize: '11px',
                   fontWeight: isActive ? 700 : 500,
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px',
+                  gap: '4px',
                 }}
               >
                 <span>{filter.label}</span>
@@ -556,33 +556,33 @@ function ProviderLeadsPageContent() {
         </div>
       </div>
 
-      {/* 5. Main Data Table Card */}
+      {/* 5. Main High-Density Data Table Card */}
       <div
         style={{
           backgroundColor: '#0d1424',
           border: '1px solid rgba(255, 255, 255, 0.08)',
-          borderRadius: '16px',
-          boxShadow: '0 4px 24px rgba(0, 0, 0, 0.25)',
+          borderRadius: '14px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
           overflow: 'hidden',
         }}
       >
         {loading ? (
-          <div style={{ padding: '24px' }}>
-            <TableSkeleton rows={5} columns={5} />
+          <div style={{ padding: '20px' }}>
+            <TableSkeleton rows={5} columns={6} />
           </div>
         ) : fetchError ? (
-          <div style={{ textAlign: 'center', padding: '48px 24px', color: '#f87171' }}>
-            <div style={{ fontSize: '15px', fontWeight: 600, marginBottom: '12px' }}>{fetchError}</div>
+          <div style={{ textAlign: 'center', padding: '36px 20px', color: '#f87171' }}>
+            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '10px' }}>{fetchError}</div>
             <button
               onClick={fetchLeads}
               style={{
                 backgroundColor: '#10b981',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '8px',
-                padding: '8px 20px',
+                borderRadius: '6px',
+                padding: '6px 16px',
                 fontWeight: 700,
-                fontSize: '13px',
+                fontSize: '12px',
                 cursor: 'pointer',
               }}
             >
@@ -591,35 +591,35 @@ function ProviderLeadsPageContent() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table style={{ width: '100%', minWidth: '750px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
               <thead>
                 <tr
                   style={{
                     backgroundColor: 'rgba(255, 255, 255, 0.02)',
                     borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
                     color: '#64748b',
-                    fontSize: '11px',
+                    fontSize: '10px',
                     fontWeight: 700,
                     textTransform: 'uppercase',
-                    letterSpacing: '0.6px',
+                    letterSpacing: '0.5px',
                   }}
                 >
-                  <th style={{ padding: '14px 20px' }}>APPLICANT NAME</th>
-                  <th style={{ padding: '14px 20px' }}>MOBILE NUMBER</th>
-                  <th style={{ padding: '14px 20px' }}>SERVICE AREA</th>
-                  <th style={{ padding: '14px 20px' }}>STATUS BADGE</th>
-                  <th style={{ padding: '14px 20px' }}>SUBMITTED DATE</th>
-                  <th style={{ padding: '14px 20px', textAlign: 'right' }}>ACTIONS</th>
+                  <th style={{ padding: '10px 14px', width: '25%' }}>APPLICANT NAME</th>
+                  <th style={{ padding: '10px 14px', width: '16%', whiteSpace: 'nowrap' }}>MOBILE NUMBER</th>
+                  <th style={{ padding: '10px 14px', width: '15%', whiteSpace: 'nowrap' }}>SERVICE AREA</th>
+                  <th style={{ padding: '10px 14px', width: '14%', whiteSpace: 'nowrap' }}>STATUS BADGE</th>
+                  <th style={{ padding: '10px 14px', width: '18%', whiteSpace: 'nowrap' }}>SUBMITTED DATE</th>
+                  <th style={{ padding: '10px 14px', width: '12%', textAlign: 'right', whiteSpace: 'nowrap' }}>ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
                 {leads.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ padding: '48px 20px', textAlign: 'center', color: '#64748b' }}>
-                      <div style={{ fontSize: '15px', fontWeight: 600, color: '#94a3b8', marginBottom: '4px' }}>
+                    <td colSpan={6} style={{ padding: '36px 14px', textAlign: 'center', color: '#64748b' }}>
+                      <div style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8', marginBottom: '2px' }}>
                         No provider application leads found
                       </div>
-                      <div style={{ fontSize: '13px' }}>
+                      <div style={{ fontSize: '12px' }}>
                         Try clearing your search terms or changing your status filter.
                       </div>
                     </td>
@@ -628,23 +628,24 @@ function ProviderLeadsPageContent() {
                   leads.map((lead, idx) => {
                     const avatarStyle = getApplicantAvatarStyle(lead.name, idx);
                     const initials = getInitials(lead.name);
+                    const formattedDate = `${new Date(lead.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} • ${new Date(lead.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`;
 
                     return (
                       <tr
                         key={lead.id}
                         style={{
                           borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
-                          transition: 'background-color 0.15s ease',
+                          transition: 'background-color 0.12s ease',
                         }}
                       >
-                        {/* Applicant Name with Deterministic Avatar */}
-                        <td style={{ padding: '16px 20px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        {/* Applicant Name with Compact Avatar */}
+                        <td style={{ padding: '10px 14px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <div
                               style={{
-                                width: '40px',
-                                height: '40px',
-                                borderRadius: '10px',
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '8px',
                                 backgroundColor: avatarStyle.bg,
                                 border: `1px solid ${avatarStyle.border}`,
                                 display: 'flex',
@@ -652,45 +653,46 @@ function ProviderLeadsPageContent() {
                                 justifyContent: 'center',
                                 color: avatarStyle.color,
                                 fontWeight: 800,
-                                fontSize: '14px',
+                                fontSize: '12px',
                                 flexShrink: 0,
                               }}
                             >
                               {initials}
                             </div>
-                            <div>
-                              <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span>{lead.name}</span>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{lead.name}</span>
                                 {!lead.isAcknowledged && (
                                   <span
                                     style={{
                                       backgroundColor: 'rgba(239, 68, 68, 0.2)',
                                       color: '#f87171',
                                       border: '1px solid rgba(239, 68, 68, 0.3)',
-                                      fontSize: '10px',
+                                      fontSize: '9px',
                                       fontWeight: 800,
                                       borderRadius: '4px',
-                                      padding: '1px 6px',
+                                      padding: '1px 5px',
+                                      lineHeight: 1,
                                     }}
                                   >
                                     NEW
                                   </span>
                                 )}
                               </div>
-                              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-                                ID: {lead.id.substring(0, 8)}...
+                              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '1px' }}>
+                                ID: {lead.id.substring(0, 8)}
                               </div>
                             </div>
                           </div>
                         </td>
 
                         {/* Mobile Number */}
-                        <td style={{ padding: '16px 20px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Phone size={14} style={{ color: '#34d399' }} />
+                        <td style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Phone size={12} style={{ color: '#34d399' }} />
                             <a
                               href={`tel:${lead.mobileNumber}`}
-                              style={{ color: '#cbd5e1', textDecoration: 'none', fontWeight: 600, fontFamily: 'monospace' }}
+                              style={{ color: '#cbd5e1', textDecoration: 'none', fontWeight: 600, fontFamily: 'monospace', fontSize: '12px' }}
                             >
                               {lead.mobileNumber}
                             </a>
@@ -707,42 +709,42 @@ function ProviderLeadsPageContent() {
                                 alignItems: 'center',
                               }}
                             >
-                              <Copy size={12} />
+                              <Copy size={11} />
                             </button>
                           </div>
                         </td>
 
                         {/* Service Area */}
-                        <td style={{ padding: '16px 20px' }}>
+                        <td style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>
                           <span
                             style={{
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: '6px',
-                              padding: '5px 12px',
-                              borderRadius: '8px',
+                              gap: '4px',
+                              padding: '3px 8px',
+                              borderRadius: '6px',
                               backgroundColor: 'rgba(59, 130, 246, 0.1)',
                               border: '1px solid rgba(59, 130, 246, 0.2)',
                               color: '#60a5fa',
-                              fontSize: '12px',
+                              fontSize: '11px',
                               fontWeight: 600,
                             }}
                           >
-                            <MapPin size={12} />
+                            <MapPin size={11} />
                             <span>{lead.serviceArea || 'Not specified'}</span>
                           </span>
                         </td>
 
                         {/* Status Badge */}
-                        <td style={{ padding: '16px 20px' }}>
+                        <td style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>
                           <span
                             style={{
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: '6px',
-                              padding: '4px 10px',
-                              borderRadius: '12px',
-                              fontSize: '11px',
+                              gap: '5px',
+                              padding: '3px 8px',
+                              borderRadius: '10px',
+                              fontSize: '10px',
                               fontWeight: 700,
                               textTransform: 'uppercase',
                               backgroundColor: lead.isAcknowledged ? 'rgba(100, 116, 139, 0.15)' : 'rgba(239, 68, 68, 0.15)',
@@ -752,8 +754,8 @@ function ProviderLeadsPageContent() {
                           >
                             <span
                               style={{
-                                width: '6px',
-                                height: '6px',
+                                width: '5px',
+                                height: '5px',
                                 borderRadius: '50%',
                                 backgroundColor: lead.isAcknowledged ? '#94a3b8' : '#ef4444',
                               }}
@@ -763,37 +765,35 @@ function ProviderLeadsPageContent() {
                         </td>
 
                         {/* Submitted Date */}
-                        <td style={{ padding: '16px 20px', color: '#94a3b8', fontSize: '12px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Clock size={12} style={{ color: '#64748b' }} />
-                            <span>{new Date(lead.createdAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}</span>
-                          </div>
-                          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', marginLeft: '18px' }}>
-                            {new Date(lead.createdAt).toLocaleTimeString(undefined, { timeStyle: 'short' })}
+                        <td style={{ padding: '10px 14px', color: '#94a3b8', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <Clock size={11} style={{ color: '#64748b' }} />
+                            <span>{formattedDate}</span>
                           </div>
                         </td>
 
                         {/* Actions Column */}
-                        <td style={{ padding: '16px 20px', textAlign: 'right' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                        <td style={{ padding: '10px 14px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
                             <Link
                               href={`/admin/providers?onboard=true&name=${encodeURIComponent(lead.name)}&phone=${encodeURIComponent(lead.mobileNumber)}`}
                               style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '6px',
-                                padding: '6px 12px',
-                                borderRadius: '8px',
+                                gap: '4px',
+                                padding: '5px 10px',
+                                borderRadius: '6px',
                                 backgroundColor: 'rgba(16, 185, 129, 0.15)',
                                 border: '1px solid rgba(16, 185, 129, 0.3)',
                                 color: '#34d399',
-                                fontSize: '12px',
+                                fontSize: '11px',
                                 fontWeight: 600,
                                 textDecoration: 'none',
-                                transition: 'all 0.15s ease',
+                                whiteSpace: 'nowrap',
+                                transition: 'all 0.12s ease',
                               }}
                             >
-                              <UserCheck size={14} />
+                              <UserCheck size={12} />
                               <span>Onboard Provider</span>
                             </Link>
                           </div>
@@ -812,43 +812,43 @@ function ProviderLeadsPageContent() {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  padding: '16px 20px',
+                  padding: '10px 14px',
                   borderTop: '1px solid rgba(255, 255, 255, 0.08)',
                   backgroundColor: 'rgba(255, 255, 255, 0.01)',
                   flexWrap: 'wrap',
-                  gap: '12px',
+                  gap: '8px',
                 }}
               >
-                <span style={{ fontSize: '12px', color: '#64748b' }}>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>
                   Showing <strong style={{ color: '#ffffff' }}>{(page - 1) * limit + 1}</strong> to{' '}
                   <strong style={{ color: '#ffffff' }}>{Math.min(page * limit, total)}</strong> of{' '}
                   <strong style={{ color: '#ffffff' }}>{total}</strong> applicant leads
                 </span>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <button
                     disabled={page === 1}
                     onClick={() => setPage((p) => Math.max(p - 1, 1))}
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '4px',
+                      gap: '3px',
                       backgroundColor: 'rgba(255, 255, 255, 0.04)',
                       border: '1px solid rgba(255, 255, 255, 0.08)',
                       color: page === 1 ? '#475569' : '#ffffff',
-                      borderRadius: '8px',
-                      padding: '6px 12px',
-                      fontSize: '12px',
+                      borderRadius: '6px',
+                      padding: '4px 10px',
+                      fontSize: '11px',
                       fontWeight: 600,
                       cursor: page === 1 ? 'not-allowed' : 'pointer',
                       transition: 'all 0.15s ease',
                     }}
                   >
-                    <ChevronLeft size={14} />
+                    <ChevronLeft size={12} />
                     <span>Previous</span>
                   </button>
 
-                  <span style={{ fontSize: '12px', color: '#94a3b8', padding: '0 8px' }}>
+                  <span style={{ fontSize: '11px', color: '#94a3b8', padding: '0 6px' }}>
                     {page} / {totalPages}
                   </span>
 
@@ -858,20 +858,20 @@ function ProviderLeadsPageContent() {
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '4px',
+                      gap: '3px',
                       backgroundColor: 'rgba(255, 255, 255, 0.04)',
                       border: '1px solid rgba(255, 255, 255, 0.08)',
                       color: page >= totalPages ? '#475569' : '#ffffff',
-                      borderRadius: '8px',
-                      padding: '6px 12px',
-                      fontSize: '12px',
+                      borderRadius: '6px',
+                      padding: '4px 10px',
+                      fontSize: '11px',
                       fontWeight: 600,
                       cursor: page >= totalPages ? 'not-allowed' : 'pointer',
                       transition: 'all 0.15s ease',
                     }}
                   >
                     <span>Next</span>
-                    <ChevronRight size={14} />
+                    <ChevronRight size={12} />
                   </button>
                 </div>
               </div>
@@ -885,7 +885,7 @@ function ProviderLeadsPageContent() {
 
 export default function ProviderLeadsPage() {
   return (
-    <Suspense fallback={<TableSkeleton rows={5} columns={5} />}>
+    <Suspense fallback={<TableSkeleton rows={5} columns={6} />}>
       <ProviderLeadsPageContent />
     </Suspense>
   );
