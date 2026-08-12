@@ -8,12 +8,13 @@ export const apiClient = new ApiClient({
   baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
   getToken: () => {
     if (typeof window === 'undefined') return null;
-    return (
+    const token =
       sessionStorage.getItem('access_token') ||
       localStorage.getItem('admin_token') ||
-      localStorage.getItem('access_token') ||
-      null
-    );
+      localStorage.getItem('access_token');
+    if (token) return token;
+    const match = typeof document !== 'undefined' ? document.cookie.match(/(?:^|; )admin_access_token=([^;]*)/) : null;
+    return match && match[1] ? decodeURIComponent(match[1]) : null;
   },
   onUnauthorized: () => {
     if (typeof window !== 'undefined') {
