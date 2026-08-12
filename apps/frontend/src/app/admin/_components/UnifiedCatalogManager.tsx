@@ -76,6 +76,7 @@ export default function UnifiedCatalogManager() {
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [loadingServices, setLoadingServices] = useState(false);
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
   const [error, setError] = useState<string | null>(null);
 
   // Search & Filter states
@@ -195,6 +196,31 @@ export default function UnifiedCatalogManager() {
           setSelectedCategoryId(data.data[0].id);
           setSvcFormData((prev) => ({ ...prev, categoryId: data.data[0].id }));
         }
+
+        // Pre-fetch service counts for all categories
+        Promise.all(
+          data.data.map(async (cat: ServiceCategory) => {
+            try {
+              const resSvcs = await apiClient.get(`/api/v1/admin/catalog/categories/${cat.id}/services`, {
+                headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+                cache: 'no-store',
+              });
+              if (resSvcs && resSvcs.success && Array.isArray(resSvcs.data)) {
+                servicesCacheRef.current.set(cat.id, resSvcs.data);
+                return { catId: cat.id, count: resSvcs.data.length };
+              }
+            } catch {
+              return { catId: cat.id, count: 0 };
+            }
+            return { catId: cat.id, count: 0 };
+          })
+        ).then((results) => {
+          const countsMap: Record<string, number> = {};
+          results.forEach((item) => {
+            if (item) countsMap[item.catId] = item.count;
+          });
+          setCategoryCounts((prev) => ({ ...prev, ...countsMap }));
+        });
       }
     } catch (err: any) {
       if (err.name === 'AbortError') return;
@@ -209,7 +235,9 @@ export default function UnifiedCatalogManager() {
     if (!catId) return;
 
     if (!forceRefetch && servicesCacheRef.current.has(catId)) {
-      setServices(servicesCacheRef.current.get(catId)!);
+      const cached = servicesCacheRef.current.get(catId)!;
+      setServices(cached);
+      setCategoryCounts((prev) => ({ ...prev, [catId]: cached.length }));
       setLoadingServices(false);
       return;
     }
@@ -233,6 +261,7 @@ export default function UnifiedCatalogManager() {
       if (data.success) {
         setServices(data.data);
         servicesCacheRef.current.set(catId, data.data);
+        setCategoryCounts((prev) => ({ ...prev, [catId]: data.data.length }));
       }
     } catch (err: any) {
       if (err.name === 'AbortError') return;
@@ -1206,7 +1235,11 @@ export default function UnifiedCatalogManager() {
                                 fontWeight: 700,
                               }}
                             >
-                              {selectedCategoryId === cat.id ? services.length : '—'}
+                              {categoryCounts[cat.id] !== undefined
+                                ? categoryCounts[cat.id]
+                                : (servicesCacheRef.current.get(cat.id)
+                                    ? servicesCacheRef.current.get(cat.id)!.length
+                                    : (selectedCategoryId === cat.id ? services.length : 0))}
                             </span>
                           </td>
 
