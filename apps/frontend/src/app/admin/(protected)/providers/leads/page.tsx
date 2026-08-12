@@ -590,8 +590,8 @@ function ProviderLeadsPageContent() {
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+          <div style={{ width: '100%', overflowX: 'auto' }}>
+            <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
               <thead>
                 <tr
                   style={{
@@ -604,11 +604,11 @@ function ProviderLeadsPageContent() {
                     letterSpacing: '0.5px',
                   }}
                 >
-                  <th style={{ padding: '10px 14px', width: '25%' }}>APPLICANT NAME</th>
+                  <th style={{ padding: '10px 14px', width: '23%' }}>APPLICANT NAME</th>
                   <th style={{ padding: '10px 14px', width: '16%', whiteSpace: 'nowrap' }}>MOBILE NUMBER</th>
-                  <th style={{ padding: '10px 14px', width: '15%', whiteSpace: 'nowrap' }}>SERVICE AREA</th>
+                  <th style={{ padding: '10px 14px', width: '20%', whiteSpace: 'nowrap' }}>SERVICE AREA</th>
                   <th style={{ padding: '10px 14px', width: '14%', whiteSpace: 'nowrap' }}>STATUS BADGE</th>
-                  <th style={{ padding: '10px 14px', width: '18%', whiteSpace: 'nowrap' }}>SUBMITTED DATE</th>
+                  <th style={{ padding: '10px 14px', width: '15%', whiteSpace: 'nowrap' }}>SUBMITTED DATE</th>
                   <th style={{ padding: '10px 14px', width: '12%', textAlign: 'right', whiteSpace: 'nowrap' }}>ACTIONS</th>
                 </tr>
               </thead>
@@ -639,8 +639,8 @@ function ProviderLeadsPageContent() {
                         }}
                       >
                         {/* Applicant Name with Compact Avatar */}
-                        <td style={{ padding: '10px 14px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <td style={{ padding: '10px 14px', overflow: 'hidden' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
                             <div
                               style={{
                                 width: '32px',
@@ -659,9 +659,9 @@ function ProviderLeadsPageContent() {
                             >
                               {initials}
                             </div>
-                            <div style={{ minWidth: 0 }}>
-                              <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
-                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{lead.name}</span>
+                            <div style={{ minWidth: 0, overflow: 'hidden' }}>
+                              <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lead.name}</span>
                                 {!lead.isAcknowledged && (
                                   <span
                                     style={{
@@ -673,13 +673,14 @@ function ProviderLeadsPageContent() {
                                       borderRadius: '4px',
                                       padding: '1px 5px',
                                       lineHeight: 1,
+                                      flexShrink: 0,
                                     }}
                                   >
                                     NEW
                                   </span>
                                 )}
                               </div>
-                              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '1px' }}>
+                              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '1px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 ID: {lead.id.substring(0, 8)}
                               </div>
                             </div>
@@ -689,7 +690,7 @@ function ProviderLeadsPageContent() {
                         {/* Mobile Number */}
                         <td style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Phone size={12} style={{ color: '#34d399' }} />
+                            <Phone size={12} style={{ color: '#34d399', flexShrink: 0 }} />
                             <a
                               href={`tel:${lead.mobileNumber}`}
                               style={{ color: '#cbd5e1', textDecoration: 'none', fontWeight: 600, fontFamily: 'monospace', fontSize: '12px' }}
@@ -707,6 +708,7 @@ function ProviderLeadsPageContent() {
                                 padding: '2px',
                                 display: 'flex',
                                 alignItems: 'center',
+                                flexShrink: 0,
                               }}
                             >
                               <Copy size={11} />
@@ -715,8 +717,9 @@ function ProviderLeadsPageContent() {
                         </td>
 
                         {/* Service Area */}
-                        <td style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>
+                        <td style={{ padding: '10px 14px', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                           <span
+                            title={lead.serviceArea || 'Not specified'}
                             style={{
                               display: 'inline-flex',
                               alignItems: 'center',
@@ -728,10 +731,15 @@ function ProviderLeadsPageContent() {
                               color: '#60a5fa',
                               fontSize: '11px',
                               fontWeight: 600,
+                              maxWidth: '100%',
+                              overflow: 'hidden',
+                              boxSizing: 'border-box',
                             }}
                           >
-                            <MapPin size={11} />
-                            <span>{lead.serviceArea || 'Not specified'}</span>
+                            <MapPin size={11} style={{ flexShrink: 0 }} />
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {lead.serviceArea || 'Not specified'}
+                            </span>
                           </span>
                         </td>
 
@@ -765,10 +773,10 @@ function ProviderLeadsPageContent() {
                         </td>
 
                         {/* Submitted Date */}
-                        <td style={{ padding: '10px 14px', color: '#94a3b8', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                        <td style={{ padding: '10px 14px', color: '#94a3b8', fontSize: '11px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            <Clock size={11} style={{ color: '#64748b' }} />
-                            <span>{formattedDate}</span>
+                            <Clock size={11} style={{ color: '#64748b', flexShrink: 0 }} />
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{formattedDate}</span>
                           </div>
                         </td>
 
