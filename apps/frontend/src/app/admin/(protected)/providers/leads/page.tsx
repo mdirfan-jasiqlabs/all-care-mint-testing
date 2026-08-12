@@ -604,12 +604,12 @@ function ProviderLeadsPageContent() {
                     letterSpacing: '0.5px',
                   }}
                 >
-                  <th style={{ padding: '10px 14px', width: '23%' }}>APPLICANT NAME</th>
+                  <th style={{ padding: '10px 14px', width: '24%' }}>APPLICANT NAME</th>
                   <th style={{ padding: '10px 14px', width: '16%', whiteSpace: 'nowrap' }}>MOBILE NUMBER</th>
-                  <th style={{ padding: '10px 14px', width: '20%', whiteSpace: 'nowrap' }}>SERVICE AREA</th>
+                  <th style={{ padding: '10px 14px', width: '18%', whiteSpace: 'nowrap' }}>SERVICE AREA</th>
                   <th style={{ padding: '10px 14px', width: '14%', whiteSpace: 'nowrap' }}>STATUS BADGE</th>
-                  <th style={{ padding: '10px 14px', width: '15%', whiteSpace: 'nowrap' }}>SUBMITTED DATE</th>
-                  <th style={{ padding: '10px 14px', width: '12%', textAlign: 'right', whiteSpace: 'nowrap' }}>ACTIONS</th>
+                  <th style={{ padding: '10px 14px', width: '14%', whiteSpace: 'nowrap' }}>SUBMITTED DATE</th>
+                  <th style={{ padding: '10px 14px', width: '14%', textAlign: 'right', whiteSpace: 'nowrap' }}>ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
@@ -628,7 +628,6 @@ function ProviderLeadsPageContent() {
                   leads.map((lead, idx) => {
                     const avatarStyle = getApplicantAvatarStyle(lead.name, idx);
                     const initials = getInitials(lead.name);
-                    const formattedDate = `${new Date(lead.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} • ${new Date(lead.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`;
 
                     return (
                       <tr
@@ -773,10 +772,17 @@ function ProviderLeadsPageContent() {
                         </td>
 
                         {/* Submitted Date */}
-                        <td style={{ padding: '10px 14px', color: '#94a3b8', fontSize: '11px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            <Clock size={11} style={{ color: '#64748b', flexShrink: 0 }} />
-                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{formattedDate}</span>
+                        <td style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Clock size={12} style={{ color: '#64748b', flexShrink: 0 }} />
+                            <div>
+                              <div style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '11px' }}>
+                                {new Date(lead.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </div>
+                              <div style={{ color: '#64748b', fontSize: '10px', marginTop: '1px' }}>
+                                {new Date(lead.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+                              </div>
+                            </div>
                           </div>
                         </td>
 
