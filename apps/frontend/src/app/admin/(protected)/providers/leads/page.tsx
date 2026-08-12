@@ -24,6 +24,7 @@ import {
   UserCheck,
   Building2,
   Copy,
+  Loader2,
 } from 'lucide-react';
 
 interface ProviderLead {
@@ -69,9 +70,47 @@ function ProviderLeadsPageContent() {
   const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [page, setPage] = useState(1);
+  const [onboardingId, setOnboardingId] = useState<string | null>(null);
   const limit = 20;
 
   const hasMarkedReadRef = useRef(false);
+
+  const handleOnboardLead = async (lead: ProviderLead) => {
+    try {
+      setOnboardingId(lead.id);
+      const cleanMobile = lead.mobileNumber.replace(/\D/g, '').slice(-10);
+      let targetProviderId: string | null = null;
+
+      try {
+        const res = await apiClient.post('/api/v1/admin/providers', {
+          fullName: lead.name,
+          mobileNumber: cleanMobile,
+          serviceArea: lead.serviceArea || 'General',
+        });
+        if (res.success && res.data?.id) {
+          targetProviderId = res.data.id;
+          addToast('Lead onboarded successfully! Opening details page...', 'success');
+        }
+      } catch (createErr: any) {
+        // If provider already exists, look up by mobile
+        const listRes = await apiClient.get(`/api/v1/admin/providers?search=${encodeURIComponent(cleanMobile)}`);
+        if (listRes.success && listRes.data && listRes.data.length > 0) {
+          targetProviderId = listRes.data[0].id;
+          addToast('Provider record found! Opening details page...', 'info');
+        } else {
+          addToast(createErr.message || 'Failed to onboard provider lead', 'error');
+        }
+      }
+
+      if (targetProviderId) {
+        router.push(`/admin/providers/${targetProviderId}`);
+      }
+    } catch (err: any) {
+      addToast(err.message || 'An error occurred during onboarding', 'error');
+    } finally {
+      setOnboardingId(null);
+    }
+  };
 
   // Handle search debouncing
   useEffect(() => {
@@ -789,27 +828,38 @@ function ProviderLeadsPageContent() {
                         {/* Actions Column */}
                         <td style={{ padding: '10px 14px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-                            <Link
-                              href={`/admin/providers?onboard=true&name=${encodeURIComponent(lead.name)}&phone=${encodeURIComponent(lead.mobileNumber)}`}
+                            <button
+                              onClick={() => handleOnboardLead(lead)}
+                              disabled={onboardingId === lead.id}
                               style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '4px',
-                                padding: '5px 10px',
+                                gap: '5px',
+                                padding: '5px 12px',
                                 borderRadius: '6px',
                                 backgroundColor: 'rgba(16, 185, 129, 0.15)',
                                 border: '1px solid rgba(16, 185, 129, 0.3)',
                                 color: '#34d399',
                                 fontSize: '11px',
                                 fontWeight: 600,
-                                textDecoration: 'none',
+                                cursor: onboardingId === lead.id ? 'wait' : 'pointer',
                                 whiteSpace: 'nowrap',
                                 transition: 'all 0.12s ease',
+                                opacity: onboardingId === lead.id ? 0.7 : 1,
                               }}
                             >
-                              <UserCheck size={12} />
-                              <span>Onboard Provider</span>
-                            </Link>
+                              {onboardingId === lead.id ? (
+                                <>
+                                  <Loader2 size={12} className="animate-spin" />
+                                  <span>Opening...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <UserCheck size={12} />
+                                  <span>Onboard & Review</span>
+                                </>
+                              )}
+                            </button>
                           </div>
                         </td>
                       </tr>
