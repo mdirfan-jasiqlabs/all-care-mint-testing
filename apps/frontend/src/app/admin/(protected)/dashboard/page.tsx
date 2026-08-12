@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   IndianRupee,
@@ -63,6 +63,335 @@ function getBezierPath(points: { x: number; y: number }[]) {
   }
   return path;
 }
+
+// Isolated Memoized SVG Chart Component (prevents hover state from re-rendering full page)
+interface DashboardChartProps {
+  monthlyTrend?: MonthlyTrendItem[];
+  chartYearFilter: string;
+  setChartYearFilter: (val: string) => void;
+}
+
+const DashboardChart = React.memo(function DashboardChart({
+  monthlyTrend,
+  chartYearFilter,
+  setChartYearFilter,
+}: DashboardChartProps) {
+  const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
+
+  const trendData = useMemo(() => {
+    return monthlyTrend && monthlyTrend.length > 0
+      ? monthlyTrend.map((t) => ({
+          month: t.month,
+          count: t.count,
+          revenue: t.revenue,
+        }))
+      : [
+          { month: 'Mar', count: 0, revenue: 0 },
+          { month: 'Apr', count: 0, revenue: 0 },
+          { month: 'May', count: 1360, revenue: 2197534 },
+          { month: 'Jun', count: 1650, revenue: 2830112 },
+          { month: 'Jul', count: 1715, revenue: 2983013 },
+          { month: 'Aug', count: 275, revenue: 479900 },
+        ];
+  }, [monthlyTrend]);
+
+  // SVG Chart Dimensions & Calculations
+  const chartWidth = 700;
+  const chartHeight = 260;
+  const paddingLeft = 50;
+  const paddingRight = 60;
+  const paddingTop = 25;
+  const paddingBottom = 40;
+
+  const graphW = chartWidth - paddingLeft - paddingRight;
+  const graphH = chartHeight - paddingTop - paddingBottom;
+
+  const { pointsBookings, pointsRevenue, pathBookings, pathRevenue, areaBookings, maxBookingsVal, maxRevenueVal } =
+    useMemo(() => {
+      const maxB = Math.max(...trendData.map((d) => d.count || 0), 3000);
+      const maxR = Math.max(...trendData.map((d) => d.revenue || 0), 3600000);
+
+      const ptsB = trendData.map((d, i) => {
+        const x = paddingLeft + (i / Math.max(trendData.length - 1, 1)) * graphW;
+        const y = paddingTop + graphH - (d.count / maxB) * graphH;
+        return { x, y, data: d };
+      });
+
+      const ptsR = trendData.map((d, i) => {
+        const x = paddingLeft + (i / Math.max(trendData.length - 1, 1)) * graphW;
+        const y = paddingTop + graphH - (d.revenue / maxR) * graphH;
+        return { x, y, data: d };
+      });
+
+      const pB = getBezierPath(ptsB);
+      const pR = getBezierPath(ptsR);
+
+      const aB =
+        ptsB.length > 0
+          ? `${pB} L ${ptsB[ptsB.length - 1].x} ${paddingTop + graphH} L ${ptsB[0].x} ${paddingTop + graphH} Z`
+          : '';
+
+      return {
+        pointsBookings: ptsB,
+        pointsRevenue: ptsR,
+        pathBookings: pB,
+        pathRevenue: pR,
+        areaBookings: aB,
+        maxBookingsVal: maxB,
+        maxRevenueVal: maxR,
+      };
+    }, [trendData, graphW, graphH]);
+
+  return (
+    <div
+      style={{
+        backgroundColor: '#0c1421',
+        border: '1px solid rgba(255, 255, 255, 0.07)',
+        borderRadius: '18px',
+        padding: '24px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '20px',
+        position: 'relative',
+        width: '100%',
+      }}
+    >
+      {/* Chart Header Bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#f8fafc', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
+          BOOKING VOLUME DISTRIBUTION (MONTHLY)
+        </h3>
+
+        <div style={{ position: 'relative' }}>
+          <select
+            value={chartYearFilter}
+            onChange={(e) => setChartYearFilter(e.target.value)}
+            style={{
+              backgroundColor: '#060b13',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 500,
+              padding: '6px 30px 6px 12px',
+              color: '#cbd5e1',
+              cursor: 'pointer',
+              outline: 'none',
+              appearance: 'none',
+              WebkitAppearance: 'none',
+            }}
+          >
+            <option value="this_year">This Year</option>
+            <option value="last_year">Last Year</option>
+          </select>
+          <ChevronDown
+            size={14}
+            color="#94a3b8"
+            style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+          />
+        </div>
+      </div>
+
+      {/* Chart Legend */}
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '24px', fontSize: '12px', color: '#cbd5e1' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
+          <span style={{ fontWeight: 500 }}>Bookings</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#3b82f6', display: 'inline-block' }} />
+          <span style={{ fontWeight: 500 }}>Revenue (₹)</span>
+        </div>
+      </div>
+
+      {/* Interactive Dual-Series SVG Chart Container */}
+      <div style={{ position: 'relative', width: '100%', minHeight: '280px', overflowX: 'auto' }}>
+        <svg
+          viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+          style={{ width: '100%', height: 'auto', display: 'block', overflow: 'visible' }}
+        >
+          <defs>
+            <linearGradient id="bookingsGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+            </linearGradient>
+          </defs>
+
+          {/* Horizontal Gridlines & Y-Axis Labels */}
+          {[0, 0.25, 0.5, 0.75, 1].map((ratio, idx) => {
+            const y = paddingTop + graphH * (1 - ratio);
+            const bookingLabel = Math.round(maxBookingsVal * ratio);
+            const revenueLabel = Math.round((maxRevenueVal * ratio) / 1000) + 'K';
+            const formattedBooking = bookingLabel >= 1000 ? `${(bookingLabel / 1000).toFixed(1).replace('.0', '')}K` : bookingLabel;
+            const formattedRevenue = ratio === 0 ? '0' : (maxRevenueVal * ratio >= 1000000 ? `${((maxRevenueVal * ratio) / 1000000).toFixed(1).replace('.0', '')}M` : revenueLabel);
+
+            return (
+              <g key={idx}>
+                <line
+                  x1={paddingLeft}
+                  y1={y}
+                  x2={chartWidth - paddingRight}
+                  y2={y}
+                  stroke="rgba(255, 255, 255, 0.05)"
+                  strokeDasharray="4 4"
+                />
+                <text
+                  x={paddingLeft - 10}
+                  y={y + 4}
+                  fill="#64748b"
+                  fontSize="11"
+                  textAnchor="end"
+                  fontFamily="sans-serif"
+                >
+                  {formattedBooking}
+                </text>
+                <text
+                  x={chartWidth - paddingRight + 10}
+                  y={y + 4}
+                  fill="#64748b"
+                  fontSize="11"
+                  textAnchor="start"
+                  fontFamily="sans-serif"
+                >
+                  {formattedRevenue}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Y-Axis Titles */}
+          <text x={paddingLeft - 30} y={paddingTop - 10} fill="#64748b" fontSize="10" fontWeight="600">
+            Bookings
+          </text>
+          <text x={chartWidth - paddingRight + 10} y={paddingTop - 10} fill="#64748b" fontSize="10" fontWeight="600">
+            Revenue (₹)
+          </text>
+
+          {/* Bookings Area Fill */}
+          {areaBookings && <path d={areaBookings} fill="url(#bookingsGradient)" />}
+
+          {/* Bookings Bezier Curve Line */}
+          {pathBookings && (
+            <path d={pathBookings} fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" />
+          )}
+
+          {/* Revenue Bezier Curve Line */}
+          {pathRevenue && (
+            <path d={pathRevenue} fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" />
+          )}
+
+          {/* Vertical Guide Line on Hover */}
+          {hoveredPointIndex !== null && pointsBookings[hoveredPointIndex] && (
+            <line
+              x1={pointsBookings[hoveredPointIndex].x}
+              y1={paddingTop}
+              x2={pointsBookings[hoveredPointIndex].x}
+              y2={paddingTop + graphH}
+              stroke="rgba(255, 255, 255, 0.2)"
+              strokeDasharray="3 3"
+            />
+          )}
+
+          {/* Data Points & X-Axis Labels */}
+          {trendData.map((d, i) => {
+            const ptB = pointsBookings[i];
+            const ptR = pointsRevenue[i];
+            const isHovered = hoveredPointIndex === i;
+
+            if (!ptB || !ptR) return null;
+
+            return (
+              <g key={d.month}>
+                <text
+                  x={ptB.x}
+                  y={chartHeight - 10}
+                  fill={isHovered ? '#f8fafc' : '#64748b'}
+                  fontSize="12"
+                  fontWeight={isHovered ? '700' : '500'}
+                  textAnchor="middle"
+                >
+                  {d.month}
+                </text>
+
+                <circle
+                  cx={ptB.x}
+                  cy={ptB.y}
+                  r={isHovered ? 6 : 4}
+                  fill="#10b981"
+                  stroke="#0c1421"
+                  strokeWidth="2"
+                  style={{ cursor: 'pointer', transition: 'all 0.15s ease' }}
+                />
+
+                <circle
+                  cx={ptR.x}
+                  cy={ptR.y}
+                  r={isHovered ? 6 : 4}
+                  fill="#3b82f6"
+                  stroke="#0c1421"
+                  strokeWidth="2"
+                  style={{ cursor: 'pointer', transition: 'all 0.15s ease' }}
+                />
+
+                <rect
+                  x={ptB.x - 25}
+                  y={paddingTop}
+                  width={50}
+                  height={graphH}
+                  fill="transparent"
+                  style={{ cursor: 'pointer' }}
+                  onMouseEnter={() => setHoveredPointIndex(i)}
+                  onMouseLeave={() => setHoveredPointIndex(null)}
+                />
+              </g>
+            );
+          })}
+        </svg>
+
+        {/* Dark Floating Glassmorphism Tooltip */}
+        {hoveredPointIndex !== null && pointsBookings[hoveredPointIndex] && trendData[hoveredPointIndex] && (
+          <div
+            style={{
+              position: 'absolute',
+              left: `${(pointsBookings[hoveredPointIndex].x / chartWidth) * 100}%`,
+              top: '20%',
+              transform: 'translateX(-50%)',
+              backgroundColor: '#060b13',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              borderRadius: '10px',
+              padding: '10px 14px',
+              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.6)',
+              pointerEvents: 'none',
+              zIndex: 20,
+              minWidth: '150px',
+            }}
+          >
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#f8fafc', marginBottom: '6px' }}>
+              {trendData[hoveredPointIndex].month}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', fontSize: '11px', color: '#cbd5e1', marginBottom: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }} />
+                <span>Bookings</span>
+              </div>
+              <span style={{ fontWeight: 700, color: '#10b981' }}>
+                {trendData[hoveredPointIndex].count.toLocaleString()}
+              </span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', fontSize: '11px', color: '#cbd5e1' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#3b82f6' }} />
+                <span>Revenue</span>
+              </div>
+              <span style={{ fontWeight: 700, color: '#60a5fa' }}>
+                ₹{trendData[hoveredPointIndex].revenue.toLocaleString()}
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
 
 function DashboardSkeleton() {
   return (
@@ -200,20 +529,99 @@ export default function AdminDashboardPage() {
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
   const [isExportingCsv, setIsExportingCsv] = useState<boolean>(false);
 
-  // Interactive Chart state
-  const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
+  // Request cancellation & sequence refs
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const requestIdRef = useRef<number>(0);
 
-  const fetchDashboardData = async (
-    isManualRetry = false,
-    periodOverride?: string,
-    customStartOverride?: string,
-    customEndOverride?: string,
-  ) => {
-    if (isManualRetry) {
-      setIsRetrying(true);
-      if (!metrics) setLoading(true);
-    }
+  const fetchDashboardMetrics = useCallback(
+    async (
+      isManualRetry = false,
+      periodOverride?: string,
+      customStartOverride?: string,
+      customEndOverride?: string,
+    ) => {
+      if (isManualRetry) {
+        setIsRetrying(true);
+        if (!metrics) setLoading(true);
+      }
 
+      // Abort previous in-flight metrics request if exists
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      const currentRequestId = ++requestIdRef.current;
+
+      try {
+        const token =
+          typeof window !== 'undefined'
+            ? sessionStorage.getItem('access_token') ||
+              localStorage.getItem('access_token') ||
+              localStorage.getItem('admin_token')
+            : null;
+
+        if (!token) {
+          if (currentRequestId === requestIdRef.current) {
+            setLoading(false);
+            setIsRetrying(false);
+          }
+          return;
+        }
+
+        const headers = { Authorization: `Bearer ${token}` };
+        const activePeriod = periodOverride || filterPeriod;
+        const activeStart = customStartOverride !== undefined ? customStartOverride : startDate;
+        const activeEnd = customEndOverride !== undefined ? customEndOverride : endDate;
+
+        let queryParams = '';
+        if (activePeriod === '7' || activePeriod === '30' || activePeriod === '365') {
+          queryParams = `?days=${activePeriod}`;
+        } else if (activePeriod === 'custom' && activeStart && activeEnd) {
+          queryParams = `?date_from=${activeStart}&date_to=${activeEnd}`;
+        }
+
+        const metricsRes = await fetch(`/api/v1/admin/dashboard/metrics${queryParams}`, {
+          headers,
+          signal: controller.signal,
+        });
+
+        // Ignore stale or aborted responses
+        if (controller.signal.aborted || currentRequestId !== requestIdRef.current) {
+          return;
+        }
+
+        if (metricsRes.ok) {
+          const data = await metricsRes.json();
+          if (currentRequestId === requestIdRef.current && !controller.signal.aborted) {
+            setMetrics(data);
+            setError(null);
+          }
+        } else {
+          if (currentRequestId === requestIdRef.current && !controller.signal.aborted) {
+            setError(`Failed to fetch metrics (HTTP ${metricsRes.status})`);
+          }
+        }
+      } catch (err: any) {
+        if (err.name === 'AbortError' || controller.signal.aborted) {
+          return; // Ignore aborted request without updating UI state
+        }
+        if (currentRequestId === requestIdRef.current) {
+          setError(err?.message || 'Network error fetching metrics');
+        }
+      } finally {
+        if (currentRequestId === requestIdRef.current) {
+          setLoading(false);
+          setIsRetrying(false);
+          setIsRecalculating(false);
+        }
+      }
+    },
+    [filterPeriod, startDate, endDate, metrics],
+  );
+
+  const fetchUnassignedBookings = useCallback(async () => {
     try {
       const token =
         typeof window !== 'undefined'
@@ -221,100 +629,55 @@ export default function AdminDashboardPage() {
             localStorage.getItem('access_token') ||
             localStorage.getItem('admin_token')
           : null;
+      if (!token) return;
 
-      if (!token) {
-        setLoading(false);
-        setIsRetrying(false);
-        return;
-      }
-
-      const headers = { Authorization: `Bearer ${token}` };
-      let fetchFailed = false;
-      let errorMessage = '';
-
-      const activePeriod = periodOverride || filterPeriod;
-      const activeStart = customStartOverride !== undefined ? customStartOverride : startDate;
-      const activeEnd = customEndOverride !== undefined ? customEndOverride : endDate;
-
-      let queryParams = '';
-      if (activePeriod === '7' || activePeriod === '30' || activePeriod === '365') {
-        queryParams = `?days=${activePeriod}`;
-      } else if (activePeriod === 'custom' && activeStart && activeEnd) {
-        queryParams = `?date_from=${activeStart}&date_to=${activeEnd}`;
-      }
-
-      // Fetch 5 KPI metrics + monthly_trend database aggregations
-      try {
-        const metricsRes = await fetch(`/api/v1/admin/dashboard/metrics${queryParams}`, { headers });
-        if (metricsRes.ok) {
-          const data = await metricsRes.json();
-          setMetrics(data);
-        } else {
-          fetchFailed = true;
-          errorMessage = `Failed to fetch metrics (HTTP ${metricsRes.status})`;
-        }
-      } catch (err: any) {
-        fetchFailed = true;
-        errorMessage = err?.message || 'Network error fetching metrics';
-      }
-
-      // Fetch recent unassigned bookings for table
-      try {
-        const bookingsRes = await fetch('/api/v1/admin/bookings?status=PENDING&limit=10', { headers });
-        if (bookingsRes.ok) {
-          const json = await bookingsRes.json();
-          const items = json.data || json.bookings || [];
-          setUnassignedBookings(
-            items.map((b: any) => ({
-              id: b.id,
-              bookingReference: b.bookingReference || b.id.substring(0, 8),
-              createdAt: b.createdAt
-                ? new Date(b.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                : 'Recently',
-              customerName: b.customer?.displayName || b.customer?.mobileNumber || 'Customer',
-              serviceName: b.serviceNameSnapshot || b.service?.name || 'Service',
-            })),
-          );
-        } else {
-          fetchFailed = true;
-          if (!errorMessage) {
-            errorMessage = `Failed to fetch recent bookings (HTTP ${bookingsRes.status})`;
-          }
-        }
-      } catch (err: any) {
-        fetchFailed = true;
-        if (!errorMessage) {
-          errorMessage = err?.message || 'Network error fetching recent bookings';
-        }
-      }
-
-      if (fetchFailed) {
-        setError(errorMessage || 'Failed to sync latest operational dashboard data');
-      } else {
-        setError(null);
+      const bookingsRes = await fetch('/api/v1/admin/bookings?status=PENDING&limit=10', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (bookingsRes.ok) {
+        const json = await bookingsRes.json();
+        const items = json.data || json.bookings || [];
+        setUnassignedBookings(
+          items.map((b: any) => ({
+            id: b.id,
+            bookingReference: b.bookingReference || b.id.substring(0, 8),
+            createdAt: b.createdAt
+              ? new Date(b.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              : 'Recently',
+            customerName: b.customer?.displayName || b.customer?.mobileNumber || 'Customer',
+            serviceName: b.serviceNameSnapshot || b.service?.name || 'Service',
+          })),
+        );
       }
     } catch (err) {
-      console.error('Error loading dashboard data:', err);
-      setError('An unexpected error occurred while loading dashboard metrics.');
-    } finally {
-      setLoading(false);
-      setIsRetrying(false);
-      setIsRecalculating(false);
+      console.error('Error loading unassigned bookings:', err);
     }
+  }, []);
+
+  const fetchDashboardData = (isManualRetry = false) => {
+    fetchDashboardMetrics(isManualRetry);
+    fetchUnassignedBookings();
   };
 
   useEffect(() => {
-    fetchDashboardData();
+    fetchDashboardMetrics();
+    fetchUnassignedBookings();
 
     // 60-second auto-refresh
     const interval = setInterval(() => {
-      fetchDashboardData();
+      fetchDashboardMetrics();
+      fetchUnassignedBookings();
     }, 60000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, []);
 
-  // Filter change handler
+  // Filter change handler - ONLY fetches metrics for new date filter (does not refetch unassigned table)
   const handleFilterChange = (newPeriod: string) => {
     setFilterPeriod(newPeriod);
     if (newPeriod === 'custom') {
@@ -322,7 +685,7 @@ export default function AdminDashboardPage() {
     } else {
       setDateValidationError(false);
       setIsRecalculating(true);
-      fetchDashboardData(false, newPeriod);
+      fetchDashboardMetrics(false, newPeriod);
     }
   };
 
@@ -332,7 +695,7 @@ export default function AdminDashboardPage() {
     } else {
       setDateValidationError(false);
       setIsRecalculating(true);
-      fetchDashboardData(false, 'custom', start, end);
+      fetchDashboardMetrics(false, 'custom', start, end);
     }
   };
 
@@ -387,55 +750,6 @@ export default function AdminDashboardPage() {
       setTimeout(() => setBannerMessage(null), 5000);
     }
   };
-
-  // Derived dynamic trend data for modern dual-series SVG chart using actual DB monthly metrics
-  const trendData = metrics?.monthly_trend && metrics.monthly_trend.length > 0
-    ? metrics.monthly_trend.map((t) => ({
-        month: t.month,
-        count: t.count,
-        revenue: t.revenue,
-      }))
-    : [
-        { month: 'Mar', count: 0, revenue: 0 },
-        { month: 'Apr', count: 0, revenue: 0 },
-        { month: 'May', count: 1360, revenue: 2197534 },
-        { month: 'Jun', count: 1650, revenue: 2830112 },
-        { month: 'Jul', count: 1715, revenue: 2983013 },
-        { month: 'Aug', count: 275, revenue: 479900 },
-      ];
-
-  // SVG Chart Dimensions & Calculations
-  const chartWidth = 700;
-  const chartHeight = 260;
-  const paddingLeft = 50;
-  const paddingRight = 60;
-  const paddingTop = 25;
-  const paddingBottom = 40;
-
-  const graphW = chartWidth - paddingLeft - paddingRight;
-  const graphH = chartHeight - paddingTop - paddingBottom;
-
-  const maxBookingsVal = Math.max(...trendData.map((d) => d.count || 0), 3000);
-  const maxRevenueVal = Math.max(...trendData.map((d) => d.revenue || 0), 3600000);
-
-  const pointsBookings = trendData.map((d, i) => {
-    const x = paddingLeft + (i / Math.max(trendData.length - 1, 1)) * graphW;
-    const y = paddingTop + graphH - (d.count / maxBookingsVal) * graphH;
-    return { x, y, data: d };
-  });
-
-  const pointsRevenue = trendData.map((d, i) => {
-    const x = paddingLeft + (i / Math.max(trendData.length - 1, 1)) * graphW;
-    const y = paddingTop + graphH - (d.revenue / maxRevenueVal) * graphH;
-    return { x, y, data: d };
-  });
-
-  const pathBookings = getBezierPath(pointsBookings);
-  const pathRevenue = getBezierPath(pointsRevenue);
-
-  const areaBookings = pointsBookings.length > 0
-    ? `${pathBookings} L ${pointsBookings[pointsBookings.length - 1].x} ${paddingTop + graphH} L ${pointsBookings[0].x} ${paddingTop + graphH} Z`
-    : '';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', maxWidth: '1600px', margin: '0 auto' }}>
@@ -833,259 +1147,11 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Full-Width Modern Dual-Series SVG Chart */}
-      <div
-        style={{
-          backgroundColor: '#0c1421',
-          border: '1px solid rgba(255, 255, 255, 0.07)',
-          borderRadius: '18px',
-          padding: '24px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px',
-          position: 'relative',
-          width: '100%',
-        }}
-      >
-        {/* Chart Header Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-          <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#f8fafc', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
-            BOOKING VOLUME DISTRIBUTION (MONTHLY)
-          </h3>
-
-          <div style={{ position: 'relative' }}>
-            <select
-              value={chartYearFilter}
-              onChange={(e) => setChartYearFilter(e.target.value)}
-              style={{
-                backgroundColor: '#060b13',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: 500,
-                padding: '6px 30px 6px 12px',
-                color: '#cbd5e1',
-                cursor: 'pointer',
-                outline: 'none',
-                appearance: 'none',
-                WebkitAppearance: 'none',
-              }}
-            >
-              <option value="this_year">This Year</option>
-              <option value="last_year">Last Year</option>
-            </select>
-            <ChevronDown
-              size={14}
-              color="#94a3b8"
-              style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-            />
-          </div>
-        </div>
-
-        {/* Chart Legend */}
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '24px', fontSize: '12px', color: '#cbd5e1' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
-            <span style={{ fontWeight: 500 }}>Bookings</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#3b82f6', display: 'inline-block' }} />
-            <span style={{ fontWeight: 500 }}>Revenue (₹)</span>
-          </div>
-        </div>
-
-        {/* Interactive Dual-Series SVG Chart Container */}
-        <div style={{ position: 'relative', width: '100%', minHeight: '280px', overflowX: 'auto' }}>
-          <svg
-            viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-            style={{ width: '100%', height: 'auto', display: 'block', overflow: 'visible' }}
-          >
-            <defs>
-              {/* Subtle Area Fill Gradient for Bookings */}
-              <linearGradient id="bookingsGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
-                <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
-              </linearGradient>
-            </defs>
-
-            {/* Horizontal Gridlines & Y-Axis Labels */}
-            {[0, 0.25, 0.5, 0.75, 1].map((ratio, idx) => {
-              const y = paddingTop + graphH * (1 - ratio);
-              const bookingLabel = Math.round(maxBookingsVal * ratio);
-              const revenueLabel = Math.round((maxRevenueVal * ratio) / 1000) + 'K';
-              const formattedBooking = bookingLabel >= 1000 ? `${(bookingLabel / 1000).toFixed(1).replace('.0', '')}K` : bookingLabel;
-              const formattedRevenue = ratio === 0 ? '0' : (maxRevenueVal * ratio >= 1000000 ? `${((maxRevenueVal * ratio) / 1000000).toFixed(1).replace('.0', '')}M` : revenueLabel);
-
-              return (
-                <g key={idx}>
-                  {/* Gridline */}
-                  <line
-                    x1={paddingLeft}
-                    y1={y}
-                    x2={chartWidth - paddingRight}
-                    y2={y}
-                    stroke="rgba(255, 255, 255, 0.05)"
-                    strokeDasharray="4 4"
-                  />
-                  {/* Left Y-Axis Label (Bookings) */}
-                  <text
-                    x={paddingLeft - 10}
-                    y={y + 4}
-                    fill="#64748b"
-                    fontSize="11"
-                    textAnchor="end"
-                    fontFamily="sans-serif"
-                  >
-                    {formattedBooking}
-                  </text>
-                  {/* Right Y-Axis Label (Revenue) */}
-                  <text
-                    x={chartWidth - paddingRight + 10}
-                    y={y + 4}
-                    fill="#64748b"
-                    fontSize="11"
-                    textAnchor="start"
-                    fontFamily="sans-serif"
-                  >
-                    {formattedRevenue}
-                  </text>
-                </g>
-              );
-            })}
-
-            {/* Y-Axis Titles */}
-            <text x={paddingLeft - 30} y={paddingTop - 10} fill="#64748b" fontSize="10" fontWeight="600">
-              Bookings
-            </text>
-            <text x={chartWidth - paddingRight + 10} y={paddingTop - 10} fill="#64748b" fontSize="10" fontWeight="600">
-              Revenue (₹)
-            </text>
-
-            {/* Bookings Area Fill */}
-            {areaBookings && <path d={areaBookings} fill="url(#bookingsGradient)" />}
-
-            {/* Bookings Bezier Curve Line */}
-            {pathBookings && (
-              <path d={pathBookings} fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" />
-            )}
-
-            {/* Revenue Bezier Curve Line */}
-            {pathRevenue && (
-              <path d={pathRevenue} fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" />
-            )}
-
-            {/* Vertical Guide Line on Hover */}
-            {hoveredPointIndex !== null && (
-              <line
-                x1={pointsBookings[hoveredPointIndex].x}
-                y1={paddingTop}
-                x2={pointsBookings[hoveredPointIndex].x}
-                y2={paddingTop + graphH}
-                stroke="rgba(255, 255, 255, 0.2)"
-                strokeDasharray="3 3"
-              />
-            )}
-
-            {/* Data Points & X-Axis Labels */}
-            {trendData.map((d, i) => {
-              const ptB = pointsBookings[i];
-              const ptR = pointsRevenue[i];
-              const isHovered = hoveredPointIndex === i;
-
-              return (
-                <g key={d.month}>
-                  {/* X-Axis Label */}
-                  <text
-                    x={ptB.x}
-                    y={chartHeight - 10}
-                    fill={isHovered ? '#f8fafc' : '#64748b'}
-                    fontSize="12"
-                    fontWeight={isHovered ? '700' : '500'}
-                    textAnchor="middle"
-                  >
-                    {d.month}
-                  </text>
-
-                  {/* Bookings Dot */}
-                  <circle
-                    cx={ptB.x}
-                    cy={ptB.y}
-                    r={isHovered ? 6 : 4}
-                    fill="#10b981"
-                    stroke="#0c1421"
-                    strokeWidth="2"
-                    style={{ cursor: 'pointer', transition: 'all 0.15s ease' }}
-                  />
-
-                  {/* Revenue Dot */}
-                  <circle
-                    cx={ptR.x}
-                    cy={ptR.y}
-                    r={isHovered ? 6 : 4}
-                    fill="#3b82f6"
-                    stroke="#0c1421"
-                    strokeWidth="2"
-                    style={{ cursor: 'pointer', transition: 'all 0.15s ease' }}
-                  />
-
-                  {/* Transparent Hit Target Area for Easy Hovering */}
-                  <rect
-                    x={ptB.x - 25}
-                    y={paddingTop}
-                    width={50}
-                    height={graphH}
-                    fill="transparent"
-                    style={{ cursor: 'pointer' }}
-                    onMouseEnter={() => setHoveredPointIndex(i)}
-                    onMouseLeave={() => setHoveredPointIndex(null)}
-                  />
-                </g>
-              );
-            })}
-          </svg>
-
-          {/* Dark Floating Glassmorphism Tooltip */}
-          {hoveredPointIndex !== null && (
-            <div
-              style={{
-                position: 'absolute',
-                left: `${(pointsBookings[hoveredPointIndex].x / chartWidth) * 100}%`,
-                top: '20%',
-                transform: 'translateX(-50%)',
-                backgroundColor: '#060b13',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                borderRadius: '10px',
-                padding: '10px 14px',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.6)',
-                pointerEvents: 'none',
-                zIndex: 20,
-                minWidth: '150px',
-              }}
-            >
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#f8fafc', marginBottom: '6px' }}>
-                {trendData[hoveredPointIndex].month}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', fontSize: '11px', color: '#cbd5e1', marginBottom: '4px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }} />
-                  <span>Bookings</span>
-                </div>
-                <span style={{ fontWeight: 700, color: '#10b981' }}>
-                  {trendData[hoveredPointIndex].count.toLocaleString()}
-                </span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', fontSize: '11px', color: '#cbd5e1' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#3b82f6' }} />
-                  <span>Revenue</span>
-                </div>
-                <span style={{ fontWeight: 700, color: '#60a5fa' }}>
-                  ₹{trendData[hoveredPointIndex].revenue.toLocaleString()}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      <DashboardChart
+        monthlyTrend={metrics?.monthly_trend}
+        chartYearFilter={chartYearFilter}
+        setChartYearFilter={setChartYearFilter}
+      />
 
       {/* Unassigned Bookings Section (Preserved for full functionality) */}
       <div

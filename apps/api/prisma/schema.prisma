@@ -387,3 +387,20 @@ model ProviderLead {
   @@index([isAcknowledged, createdAt], map: "idx_leads_acknowledged")
   @@map("provider_leads")
 }
+
+model DailyAnalytics {
+  id                        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  date                      DateTime @unique @db.Date
+  bookingCount              Int      @default(0) @map("booking_count")
+  completedBookings         Int      @default(0) @map("completed_bookings")
+  cancelledBookings         Int      @default(0) @map("cancelled_bookings")
+  revenuePaise              BigInt   @default(0) @map("revenue_paise")
+  onlineRevenuePaise        BigInt   @default(0) @map("online_revenue_paise")
+  cashSettledRevenuePaise   BigInt   @default(0) @map("cash_settled_revenue_paise")
+  completedCashRevenuePaise BigInt   @default(0) @map("completed_cash_revenue_paise")
+  unassignedCount           Int      @default(0) @map("unassigned_count")
+  updatedAt                 DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("daily_analytics")
+}
+

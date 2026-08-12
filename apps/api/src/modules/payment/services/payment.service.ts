@@ -10,6 +10,9 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import * as crypto from 'crypto';
 import { InitiatePaymentDto, AdminPaymentsQueryDto } from '../dto/payment.dto';
 
+import { Inject, Optional, forwardRef } from '@nestjs/common';
+import { AnalyticsProjectionService } from '../../analytics/services/analytics-projection.service';
+
 interface DraftMeta {
   bookingDraftId: string;
   customerId: string;
@@ -25,7 +28,10 @@ export class PaymentService {
   private readonly logger = new Logger(PaymentService.name);
   private draftStore = new Map<string, DraftMeta>();
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() @Inject(forwardRef(() => AnalyticsProjectionService)) private readonly analyticsProjectionService?: AnalyticsProjectionService,
+  ) {}
 
   /**
    * Save or register draft metadata in memory cache
@@ -490,6 +496,12 @@ export class PaymentService {
             }),
           );
 
+          if (this.analyticsProjectionService) {
+            this.analyticsProjectionService.recomputeDailyBucket(new Date()).catch((err) => {
+              this.logger.warn(`[Analytics Projection Trigger Error] ${err.message}`);
+            });
+          }
+
           return { status: 'ok', message: 'Payment marked as success' };
         });
       } catch (error: any) {
@@ -846,6 +858,12 @@ export class PaymentService {
       booking_id: updated.bookingId,
       status: updated.status,
     });
+
+    if (this.analyticsProjectionService) {
+      this.analyticsProjectionService.recomputeDailyBucket(new Date()).catch((err) => {
+        this.logger.warn(`[Analytics Projection Trigger Error] ${err.message}`);
+      });
+    }
 
     return {
       id: updated.id,
