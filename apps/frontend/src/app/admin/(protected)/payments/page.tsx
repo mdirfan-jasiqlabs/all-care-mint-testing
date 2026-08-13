@@ -32,6 +32,12 @@ interface PaymentRecord {
   status: 'PAYMENT_PENDING' | 'PAYMENT_SUCCESS' | 'PAYMENT_FAILED' | 'CASH_PENDING' | 'CASH_SETTLED' | 'CANCELLED';
 }
 
+const inrFormatter = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+  maximumFractionDigits: 0,
+});
+
 export default function AdminPaymentsPage() {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,8 +52,15 @@ export default function AdminPaymentsPage() {
   const [exporting, setExporting] = useState(false);
 
   const { addToast } = useToast();
+  const abortControllerRef = React.useRef<AbortController | null>(null);
 
   const fetchPayments = async () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoading(true);
     setErrorMsg(null);
     try {
@@ -60,19 +73,24 @@ export default function AdminPaymentsPage() {
       params.append('page_size', '20');
 
       const json = await apiClient.get(`/api/v1/admin/payments?${params.toString()}`);
-      if (json.success && json.data) {
-        setPayments(json.data.data || []);
-        setTotalPages(json.data.meta?.total_pages || 1);
-      } else {
-        setPayments([]);
+      if (!controller.signal.aborted) {
+        if (json.success && json.data) {
+          setPayments(json.data.data || []);
+          setTotalPages(json.data.meta?.total_pages || 1);
+        } else {
+          setPayments([]);
+        }
       }
     } catch (err: any) {
+      if (err.name === 'AbortError' || controller.signal.aborted) return;
       console.error('Failed to fetch payments:', err);
       setErrorMsg(err.message || 'Failed to load payments ledger records.');
       addToast(err.message || 'Error loading payment records', 'error');
       setPayments([]);
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   };
 
@@ -159,13 +177,7 @@ export default function AdminPaymentsPage() {
   const onlinePercentage = totalAmount > 0 ? ((onlineAmount / totalAmount) * 100).toFixed(1) : '0.0';
   const cashPercentage = totalAmount > 0 ? ((cashAmount / totalAmount) * 100).toFixed(1) : '0.0';
 
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(val);
-  };
+  const formatCurrency = (val: number) => inrFormatter.format(val);
 
   const renderMethodBadge = (method: string) => {
     const isCash = method === 'CASH';

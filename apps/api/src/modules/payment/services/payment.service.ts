@@ -712,7 +712,13 @@ export class PaymentService {
         skip: query.format === 'csv' ? undefined : skip,
         take: query.format === 'csv' ? undefined : pageSize,
         orderBy: { createdAt: 'desc' },
-        include: {
+        select: {
+          id: true,
+          createdAt: true,
+          bookingId: true,
+          amountPaise: true,
+          paymentMethod: true,
+          status: true,
           customer: {
             select: { displayName: true, mobileNumber: true },
           },

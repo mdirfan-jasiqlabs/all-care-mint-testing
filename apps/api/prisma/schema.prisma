@@ -336,6 +336,10 @@ model PaymentOrder {
   @@index([razorpayOrderId], map: "idx_payment_orders_razorpay_order")
   @@index([bookingId], map: "idx_payment_orders_booking_id")
   @@index([status, updatedAt, amountPaise], map: "idx_payment_orders_status_updated_amount")
+  @@index([createdAt(sort: Desc)], map: "idx_payment_orders_created_at_desc")
+  @@index([status, createdAt(sort: Desc)], map: "idx_payment_orders_status_created")
+  @@index([paymentMethod, createdAt(sort: Desc)], map: "idx_payment_orders_method_created")
+  @@index([paymentMethod, status, createdAt(sort: Desc)], map: "idx_payment_orders_method_status_created")
   @@map("payment_orders")
 }
 
