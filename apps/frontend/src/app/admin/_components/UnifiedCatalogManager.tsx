@@ -814,186 +814,190 @@ export default function UnifiedCatalogManager() {
       )}
 
       {/* 3. Summary / 4 Equal Height KPI Cards (120px height) */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-          gap: '12px',
-          width: '100%',
-        }}
-      >
-        {/* KPI 1: Total Categories */}
+      {loadingCategories ? (
+        <CatalogKpiSkeleton />
+      ) : (
         <div
           style={{
-            backgroundColor: '#090d16',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '12px',
-            padding: '12px 14px',
-            height: '120px',
-            display: 'flex',
-            alignItems: 'center',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
             gap: '12px',
-            boxSizing: 'border-box',
-            minWidth: 0,
+            width: '100%',
           }}
         >
+          {/* KPI 1: Total Categories */}
           <div
             style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              backgroundColor: '#090d16',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '12px',
+              padding: '12px 14px',
+              height: '120px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              color: '#10b981',
-              flexShrink: 0,
+              gap: '12px',
+              boxSizing: 'border-box',
+              minWidth: 0,
             }}
           >
-            <Folder size={18} />
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#10b981',
+                flexShrink: 0,
+              }}
+            >
+              <Folder size={18} />
+            </div>
+            <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
+                {totalCategories}
+              </div>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Total Categories
+              </div>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                All categories in catalog
+              </div>
+            </div>
           </div>
-          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
-              {totalCategories}
-            </div>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Total Categories
-            </div>
-            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              All categories in catalog
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 2: Active Categories */}
-        <div
-          style={{
-            backgroundColor: '#090d16',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '12px',
-            padding: '12px 14px',
-            height: '120px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            boxSizing: 'border-box',
-            minWidth: 0,
-          }}
-        >
+          {/* KPI 2: Active Categories */}
           <div
             style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(59, 130, 246, 0.12)',
+              backgroundColor: '#090d16',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '12px',
+              padding: '12px 14px',
+              height: '120px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              color: '#60a5fa',
-              flexShrink: 0,
+              gap: '12px',
+              boxSizing: 'border-box',
+              minWidth: 0,
             }}
           >
-            <ShieldCheck size={18} />
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#60a5fa',
+                flexShrink: 0,
+              }}
+            >
+              <ShieldCheck size={18} />
+            </div>
+            <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
+                {activeCategories}
+              </div>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Active Categories
+              </div>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Currently active
+              </div>
+            </div>
           </div>
-          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
-              {activeCategories}
-            </div>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Active Categories
-            </div>
-            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Currently active
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 3: Inactive Categories */}
-        <div
-          style={{
-            backgroundColor: '#090d16',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '12px',
-            padding: '12px 14px',
-            height: '120px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            boxSizing: 'border-box',
-            minWidth: 0,
-          }}
-        >
+          {/* KPI 3: Inactive Categories */}
           <div
             style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(245, 158, 11, 0.12)',
+              backgroundColor: '#090d16',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '12px',
+              padding: '12px 14px',
+              height: '120px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fbbf24',
-              flexShrink: 0,
+              gap: '12px',
+              boxSizing: 'border-box',
+              minWidth: 0,
             }}
           >
-            <PauseCircle size={18} />
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fbbf24',
+                flexShrink: 0,
+              }}
+            >
+              <PauseCircle size={18} />
+            </div>
+            <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
+                {inactiveCategories}
+              </div>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Inactive Categories
+              </div>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Not active
+              </div>
+            </div>
           </div>
-          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
-              {inactiveCategories}
-            </div>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Inactive Categories
-            </div>
-            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Not active
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 4: Total Services */}
-        <div
-          style={{
-            backgroundColor: '#090d16',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '12px',
-            padding: '12px 14px',
-            height: '120px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            boxSizing: 'border-box',
-            minWidth: 0,
-          }}
-        >
+          {/* KPI 4: Total Services */}
           <div
             style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(168, 85, 247, 0.12)',
+              backgroundColor: '#090d16',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '12px',
+              padding: '12px 14px',
+              height: '120px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              color: '#c084fc',
-              flexShrink: 0,
+              gap: '12px',
+              boxSizing: 'border-box',
+              minWidth: 0,
             }}
           >
-            <Package size={18} />
-          </div>
-          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
-              {totalServices}
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(168, 85, 247, 0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#c084fc',
+                flexShrink: 0,
+              }}
+            >
+              <Package size={18} />
             </div>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Total Services
-            </div>
-            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Across catalog
+            <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
+                {totalServices}
+              </div>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Total Services
+              </div>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Across catalog
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 4. MAIN CATALOG MANAGER TABLE CARD */}
       <div
@@ -2045,3 +2049,44 @@ export default function UnifiedCatalogManager() {
     </div>
   );
 }
+
+function CatalogKpiSkeleton() {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+        gap: '12px',
+        width: '100%',
+      }}
+      aria-busy="true"
+      aria-label="Loading catalog statistics"
+    >
+      {[1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          style={{
+            backgroundColor: '#090d16',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '12px',
+            padding: '12px 14px',
+            height: '120px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            boxSizing: 'border-box',
+          }}
+          className="animate-pulse"
+        >
+          <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.08)', flexShrink: 0 }} />
+          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ width: '60px', height: '22px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }} />
+            <div style={{ width: '100px', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+            <div style={{ width: '70px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+

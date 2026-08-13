@@ -412,152 +412,156 @@ export default function AdminRatingsPage() {
       </div>
 
       {/* 3. Summary Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-        {/* KPI 1: Total Reviews */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Reviews</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
-              <UsersRound size={16} />
+      {loading ? (
+        <RatingsKpiSkeleton />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {/* KPI 1: Total Reviews */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Reviews</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
+                <UsersRound size={16} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+                {totalRecords}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                Total Ledger Matching
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
-              {loading ? '—' : totalRecords}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              Total Ledger Matching
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 2: Average Rating */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Average Rating</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399' }}>
-              <Star size={16} className="fill-emerald-400/30" />
+          {/* KPI 2: Average Rating */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Average Rating</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399' }}>
+                <Star size={16} className="fill-emerald-400/30" />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+                {`${avgPageRating} / 5`}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                On Current Page
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
-              {loading ? '—' : `${avgPageRating} / 5`}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              On Current Page
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 3: 5 Star Reviews */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>5 Star Reviews</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
-              <ThumbsUp size={16} />
+          {/* KPI 3: 5 Star Reviews */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>5 Star Reviews</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
+                <ThumbsUp size={16} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+                {`${fiveStarCount} ${ratings.length > 0 ? `(${((fiveStarCount / ratings.length) * 100).toFixed(0)}%)` : ''}`}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                On Current Page
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
-              {loading ? '—' : `${fiveStarCount} ${ratings.length > 0 ? `(${((fiveStarCount / ratings.length) * 100).toFixed(0)}%)` : ''}`}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              On Current Page
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 4: Low Rated (<=2*) */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Low Rated (≤2★)</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171' }}>
-              <AlertTriangle size={16} />
+          {/* KPI 4: Low Rated (<=2*) */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Low Rated (≤2★)</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171' }}>
+                <AlertTriangle size={16} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: lowRatingCount > 0 ? '#f87171' : '#f8fafc', letterSpacing: '-0.02em' }}>
+                {`${lowRatingCount} ${ratings.length > 0 ? `(${((lowRatingCount / ratings.length) * 100).toFixed(0)}%)` : ''}`}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                {lowRatingCount > 0 ? 'Requires Attention' : 'On Current Page'}
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: lowRatingCount > 0 ? '#f87171' : '#f8fafc', letterSpacing: '-0.02em' }}>
-              {loading ? '—' : `${lowRatingCount} ${ratings.length > 0 ? `(${((lowRatingCount / ratings.length) * 100).toFixed(0)}%)` : ''}`}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              {lowRatingCount > 0 ? 'Requires Attention' : 'On Current Page'}
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 5: Total Comments */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Comments</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(20, 184, 166, 0.12)', border: '1px solid rgba(20, 184, 166, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2dd4bf' }}>
-              <MessageSquareText size={16} />
+          {/* KPI 5: Total Comments */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Comments</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(20, 184, 166, 0.12)', border: '1px solid rgba(20, 184, 166, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2dd4bf' }}>
+                <MessageSquareText size={16} />
+              </div>
             </div>
-          </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
-              {loading ? '—' : commentsCount}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              Written Feedback on Page
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+                {commentsCount}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                Written Feedback on Page
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 4. Main Ratings Table Card */}
       <div
@@ -690,17 +694,27 @@ export default function AdminRatingsPage() {
             <tbody>
               {loading ? (
                 Array.from({ length: 6 }).map((_, idx) => (
-                  <tr key={`sk-row-${idx}`} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
-                    <td colSpan={6} style={{ padding: '14px 16px' }}>
-                      <div
-                        style={{
-                          height: '20px',
-                          backgroundColor: 'rgba(255, 255, 255, 0.06)',
-                          borderRadius: '4px',
-                          width: '100%',
-                          animation: 'pulse 1.5s infinite ease-in-out',
-                        }}
-                      />
+                  <tr key={`sk-row-${idx}`} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }} className="animate-pulse">
+                    <td style={{ padding: '12px 14px' }}>
+                      <div style={{ width: '80px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                    </td>
+                    <td style={{ padding: '12px 14px' }}>
+                      <div style={{ width: '90px', height: '20px', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderRadius: '5px' }} />
+                    </td>
+                    <td style={{ padding: '12px 14px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
+                        <div style={{ width: '100px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                      </div>
+                    </td>
+                    <td style={{ padding: '12px 14px' }}>
+                      <div style={{ width: '110px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                    </td>
+                    <td style={{ padding: '12px 14px' }}>
+                      <div style={{ width: '80px', height: '16px', backgroundColor: 'rgba(245, 158, 11, 0.12)', borderRadius: '4px' }} />
+                    </td>
+                    <td style={{ padding: '12px 14px' }}>
+                      <div style={{ width: '180px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '4px' }} />
                     </td>
                   </tr>
                 ))
@@ -928,3 +942,37 @@ export default function AdminRatingsPage() {
     </div>
   );
 }
+
+function RatingsKpiSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 w-full" aria-busy="true" aria-label="Loading rating summary statistics">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          style={{
+            padding: '14px 16px',
+            backgroundColor: '#090d16',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '12px',
+            minHeight: '90px',
+          }}
+          className="animate-pulse"
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ width: '80px', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ width: '100px', height: '22px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }} />
+            <div style={{ width: '70px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+

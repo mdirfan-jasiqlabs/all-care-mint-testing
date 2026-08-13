@@ -84,7 +84,11 @@ function getStatusBadgeStyles(status: string) {
 }
 
 // MEMOIZED KPI CARDS GRID - 5 Equal Height Cards (120px height)
-const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts }: { kpiCounts: KpiCounts }) {
+const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { kpiCounts: KpiCounts; loading: boolean }) {
+  if (loading) {
+    return <ProvidersKpiSkeleton />;
+  }
+
   const cards = [
     {
       title: 'Total Providers',
@@ -747,7 +751,7 @@ function ProvidersPageContent() {
       </div>
 
       {/* 3. MEMOIZED KPI CARDS GRID */}
-      <KpiCardsGrid kpiCounts={kpiCounts} />
+      <KpiCardsGrid kpiCounts={kpiCounts} loading={loading} />
 
       {/* 4. MAIN DIRECTORY TABLE CARD */}
       <div
@@ -1261,3 +1265,45 @@ export default function ProvidersPage() {
     </Suspense>
   );
 }
+
+function ProvidersKpiSkeleton() {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(5, minmax(0, 1fr))',
+        gap: '12px',
+        width: '100%',
+      }}
+      aria-busy="true"
+      aria-label="Loading provider statistics"
+    >
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          style={{
+            backgroundColor: '#090d16',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '12px',
+            padding: '12px 14px',
+            height: '120px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            boxSizing: 'border-box',
+            minWidth: 0,
+          }}
+          className="animate-pulse"
+        >
+          <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.08)', flexShrink: 0 }} />
+          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ width: '50px', height: '22px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }} />
+            <div style={{ width: '90px', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+            <div style={{ width: '70px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+

@@ -333,179 +333,183 @@ function ProviderLeadsPageContent() {
       </div>
 
       {/* 3. High-Density Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {/* KPI 1: Total Leads */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-            height: '100%',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Applications</span>
-            <div
-              style={{
-                width: '30px',
-                height: '30px',
-                borderRadius: '7px',
-                backgroundColor: 'rgba(59, 130, 246, 0.12)',
-                border: '1px solid rgba(59, 130, 246, 0.25)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#60a5fa',
-                flexShrink: 0,
-              }}
-            >
-              <UserPlus size={15} />
+      {loading ? (
+        <LeadsKpiSkeleton />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* KPI 1: Total Leads */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '100%',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Applications</span>
+              <div
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '7px',
+                  backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                  border: '1px solid rgba(59, 130, 246, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#60a5fa',
+                  flexShrink: 0,
+                }}
+              >
+                <UserPlus size={15} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+                {stats.total.toLocaleString()}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                All prospective provider leads
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
-              {loading ? '—' : stats.total.toLocaleString()}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              All prospective provider leads
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 2: New Leads */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-            height: '100%',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>New / Pending</span>
-            <div
-              style={{
-                width: '30px',
-                height: '30px',
-                borderRadius: '7px',
-                backgroundColor: 'rgba(239, 68, 68, 0.12)',
-                border: '1px solid rgba(239, 68, 68, 0.25)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#f87171',
-                flexShrink: 0,
-              }}
-            >
-              <ShieldAlert size={15} />
+          {/* KPI 2: New Leads */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '100%',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>New / Pending</span>
+              <div
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '7px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#f87171',
+                  flexShrink: 0,
+                }}
+              >
+                <ShieldAlert size={15} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f87171', letterSpacing: '-0.02em' }}>
+                {stats.newLeads.toLocaleString()}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                Require initial admin review
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f87171', letterSpacing: '-0.02em' }}>
-              {loading ? '—' : stats.newLeads.toLocaleString()}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              Require initial admin review
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 3: Acknowledged Leads */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-            height: '100%',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Acknowledged</span>
-            <div
-              style={{
-                width: '30px',
-                height: '30px',
-                borderRadius: '7px',
-                backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                border: '1px solid rgba(16, 185, 129, 0.25)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#10b981',
-                flexShrink: 0,
-              }}
-            >
-              <UserCheck size={15} />
+          {/* KPI 3: Acknowledged Leads */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '100%',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Acknowledged</span>
+              <div
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '7px',
+                  backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                  border: '1px solid rgba(16, 185, 129, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#10b981',
+                  flexShrink: 0,
+                }}
+              >
+                <UserCheck size={15} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#10b981', letterSpacing: '-0.02em' }}>
+                {stats.acknowledged.toLocaleString()}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                Reviewed by admin team
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#10b981', letterSpacing: '-0.02em' }}>
-              {loading ? '—' : stats.acknowledged.toLocaleString()}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              Reviewed by admin team
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 4: Coverage Areas */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-            height: '100%',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Service Areas</span>
-            <div
-              style={{
-                width: '30px',
-                height: '30px',
-                borderRadius: '7px',
-                backgroundColor: 'rgba(139, 92, 246, 0.12)',
-                border: '1px solid rgba(139, 92, 246, 0.25)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#c084fc',
-                flexShrink: 0,
-              }}
-            >
-              <MapPin size={15} />
+          {/* KPI 4: Coverage Areas */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '100%',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Service Areas</span>
+              <div
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '7px',
+                  backgroundColor: 'rgba(139, 92, 246, 0.12)',
+                  border: '1px solid rgba(139, 92, 246, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#c084fc',
+                  flexShrink: 0,
+                }}
+              >
+                <MapPin size={15} />
+              </div>
             </div>
-          </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
-              {loading ? '—' : stats.uniqueAreas.toLocaleString()}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              Distinct locations represented
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+                {stats.uniqueAreas.toLocaleString()}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                Distinct locations represented
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 4. Main High-Density Data Card */}
       <div
@@ -997,3 +1001,37 @@ export default function ProviderLeadsPage() {
     </Suspense>
   );
 }
+
+function LeadsKpiSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full" aria-busy="true" aria-label="Loading application lead statistics">
+      {[1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          style={{
+            padding: '14px 16px',
+            backgroundColor: '#090d16',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '12px',
+            minHeight: '90px',
+          }}
+          className="animate-pulse"
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ width: '90px', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ width: '80px', height: '22px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }} />
+            <div style={{ width: '110px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+

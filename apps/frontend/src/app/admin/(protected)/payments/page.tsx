@@ -512,157 +512,161 @@ export default function AdminPaymentsPage() {
       </div>
 
       {/* 3. Financial KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-        {/* KPI 1: Total Transactions */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-            height: '100%',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Transactions</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
-              <Receipt size={16} />
+      {loading ? (
+        <PaymentsKpiSkeleton />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {/* KPI 1: Total Transactions */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '100%',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Transactions</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
+                <Receipt size={16} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+                {totalCount}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                Loaded Page Ledger
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
-              {loading ? '—' : totalCount}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              Loaded Page Ledger
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 2: Total Amount */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-            height: '100%',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Amount</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399' }}>
-              <Wallet size={16} />
+          {/* KPI 2: Total Amount */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '100%',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Amount</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399' }}>
+                <Wallet size={16} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#34d399', letterSpacing: '-0.02em' }} className="truncate font-mono">
+                {formatCurrency(totalAmount)}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                Gross Volume
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#34d399', letterSpacing: '-0.02em' }} className="truncate font-mono">
-              {loading ? '—' : formatCurrency(totalAmount)}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              Gross Volume
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 3: Online Payments */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-            height: '100%',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Online Payments</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
-              <CreditCard size={16} />
+          {/* KPI 3: Online Payments */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '100%',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Online Payments</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
+                <CreditCard size={16} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }} className="truncate font-mono">
+                {formatCurrency(onlineAmount)}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                {onlinePercentage}% of Total
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }} className="truncate font-mono">
-              {loading ? '—' : formatCurrency(onlineAmount)}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              {onlinePercentage}% of Total
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 4: Cash Payments */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-            height: '100%',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Cash Payments</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24' }}>
-              <Banknote size={16} />
+          {/* KPI 4: Cash Payments */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '100%',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Cash Payments</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24' }}>
+                <Banknote size={16} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }} className="truncate font-mono">
+                {formatCurrency(cashAmount)}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                {cashPercentage}% of Total
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }} className="truncate font-mono">
-              {loading ? '—' : formatCurrency(cashAmount)}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              {cashPercentage}% of Total
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 5: Success Rate */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-            height: '100%',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Success Rate</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(20, 184, 166, 0.12)', border: '1px solid rgba(20, 184, 166, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2dd4bf' }}>
-              <ShieldCheck size={16} />
+          {/* KPI 5: Success Rate */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '100%',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Success Rate</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(20, 184, 166, 0.12)', border: '1px solid rgba(20, 184, 166, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2dd4bf' }}>
+                <ShieldCheck size={16} />
+              </div>
             </div>
-          </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#2dd4bf', letterSpacing: '-0.02em' }}>
-              {loading ? '—' : `${successRate}%`}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              Settled & Successful
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#2dd4bf', letterSpacing: '-0.02em' }}>
+                {`${successRate}%`}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                Successful Transactions
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 4. Main Ledger Table Card */}
       <div
@@ -761,18 +765,34 @@ export default function AdminPaymentsPage() {
             </thead>
             <tbody>
               {loading ? (
-                Array.from({ length: 5 }).map((_, idx) => (
-                  <tr key={`sk-row-${idx}`} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
-                    <td colSpan={8} style={{ padding: '10px' }}>
-                      <div
-                        style={{
-                          height: '18px',
-                          backgroundColor: 'rgba(255, 255, 255, 0.06)',
-                          borderRadius: '4px',
-                          width: '100%',
-                          animation: 'pulse 1.5s infinite ease-in-out',
-                        }}
-                      />
+                Array.from({ length: 6 }).map((_, idx) => (
+                  <tr key={`sk-row-${idx}`} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }} className="animate-pulse">
+                    <td style={{ padding: '10px 12px' }}>
+                      <div style={{ width: '70px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                    </td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <div style={{ width: '90px', height: '20px', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderRadius: '5px' }} />
+                    </td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
+                        <div style={{ width: '90px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                      </div>
+                    </td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <div style={{ width: '110px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                    </td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <div style={{ width: '90px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                    </td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <div style={{ width: '70px', height: '14px', backgroundColor: 'rgba(16, 185, 129, 0.12)', borderRadius: '4px' }} />
+                    </td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <div style={{ width: '60px', height: '18px', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '6px' }} />
+                    </td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <div style={{ width: '75px', height: '20px', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '999px' }} />
                     </td>
                   </tr>
                 ))
@@ -996,3 +1016,37 @@ export default function AdminPaymentsPage() {
     </div>
   );
 }
+
+function PaymentsKpiSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 w-full" aria-busy="true" aria-label="Loading financial summary statistics">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          style={{
+            padding: '14px 16px',
+            backgroundColor: '#090d16',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '12px',
+            minHeight: '90px',
+          }}
+          className="animate-pulse"
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ width: '85px', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ width: '100px', height: '22px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }} />
+            <div style={{ width: '70px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
