@@ -38,6 +38,28 @@ const inrFormatter = new Intl.NumberFormat('en-IN', {
   maximumFractionDigits: 0,
 });
 
+const getCustomerAvatarColor = (name: string) => {
+  const palette = [
+    { bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.3)', color: '#34d399' },
+    { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)', color: '#60a5fa' },
+    { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)', color: '#fbbf24' },
+    { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)', color: '#a78bfa' },
+    { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)', color: '#f472b6' },
+  ];
+  let hash = 0;
+  for (let i = 0; i < (name || '').length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return palette[Math.abs(hash) % palette.length];
+};
+
+const getInitials = (name: string) => {
+  if (!name) return 'CU';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.substring(0, 2).toUpperCase();
+};
+
 export default function AdminPaymentsPage() {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -319,6 +341,7 @@ export default function AdminPaymentsPage() {
             transition: 'all 0.15s ease',
             whiteSpace: 'nowrap',
           }}
+          className="hover:bg-[#34d399]"
         >
           {exporting ? <RefreshCw size={15} className="animate-spin" /> : <Download size={15} />}
           {exporting ? 'Exporting...' : 'Export CSV'}
@@ -353,7 +376,7 @@ export default function AdminPaymentsPage() {
             }}
             style={{
               padding: '8px 12px',
-              backgroundColor: '#020617',
+              backgroundColor: '#090d16',
               color: '#f8fafc',
               border: '1px solid rgba(255, 255, 255, 0.12)',
               borderRadius: '8px',
@@ -384,7 +407,7 @@ export default function AdminPaymentsPage() {
             }}
             style={{
               padding: '8px 12px',
-              backgroundColor: '#020617',
+              backgroundColor: '#090d16',
               color: '#f8fafc',
               border: '1px solid rgba(255, 255, 255, 0.12)',
               borderRadius: '8px',
@@ -420,7 +443,7 @@ export default function AdminPaymentsPage() {
             }}
             style={{
               padding: '7px 10px',
-              backgroundColor: '#020617',
+              backgroundColor: '#090d16',
               color: '#f8fafc',
               border: '1px solid rgba(255, 255, 255, 0.12)',
               borderRadius: '8px',
@@ -448,7 +471,7 @@ export default function AdminPaymentsPage() {
             }}
             style={{
               padding: '7px 10px',
-              backgroundColor: '#020617',
+              backgroundColor: '#090d16',
               color: '#f8fafc',
               border: '1px solid rgba(255, 255, 255, 0.12)',
               borderRadius: '8px',
@@ -501,6 +524,7 @@ export default function AdminPaymentsPage() {
             flexDirection: 'column',
             justifyContent: 'space-between',
             gap: '8px',
+            height: '100%',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -530,6 +554,7 @@ export default function AdminPaymentsPage() {
             flexDirection: 'column',
             justifyContent: 'space-between',
             gap: '8px',
+            height: '100%',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -539,7 +564,7 @@ export default function AdminPaymentsPage() {
             </div>
           </div>
           <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#34d399', letterSpacing: '-0.02em' }} className="truncate font-mono">
               {loading ? '—' : formatCurrency(totalAmount)}
             </div>
             <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
@@ -559,6 +584,7 @@ export default function AdminPaymentsPage() {
             flexDirection: 'column',
             justifyContent: 'space-between',
             gap: '8px',
+            height: '100%',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -568,7 +594,7 @@ export default function AdminPaymentsPage() {
             </div>
           </div>
           <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }} className="truncate font-mono">
               {loading ? '—' : formatCurrency(onlineAmount)}
             </div>
             <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
@@ -588,6 +614,7 @@ export default function AdminPaymentsPage() {
             flexDirection: 'column',
             justifyContent: 'space-between',
             gap: '8px',
+            height: '100%',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -597,7 +624,7 @@ export default function AdminPaymentsPage() {
             </div>
           </div>
           <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }} className="truncate font-mono">
               {loading ? '—' : formatCurrency(cashAmount)}
             </div>
             <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
@@ -617,6 +644,7 @@ export default function AdminPaymentsPage() {
             flexDirection: 'column',
             justifyContent: 'space-between',
             gap: '8px',
+            height: '100%',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -626,7 +654,7 @@ export default function AdminPaymentsPage() {
             </div>
           </div>
           <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#2dd4bf', letterSpacing: '-0.02em' }}>
               {loading ? '—' : `${successRate}%`}
             </div>
             <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
@@ -654,15 +682,24 @@ export default function AdminPaymentsPage() {
             justifyContent: 'space-between',
             alignItems: 'center',
             padding: '14px 18px',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
-            backgroundColor: '#0d131f',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           }}
         >
-          <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
             Transactions Ledger
           </h2>
-          <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>
-            {loading ? 'Loading records...' : `${payments.length} records on page`}
+          <span
+            style={{
+              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              color: '#10b981',
+              fontSize: '11px',
+              fontWeight: 700,
+              padding: '2px 8px',
+              borderRadius: '10px',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
+            }}
+          >
+            {loading ? 'Loading...' : `${payments.length} records`}
           </span>
         </div>
 
@@ -709,24 +746,24 @@ export default function AdminPaymentsPage() {
 
         {/* Table Content - Clean 100% width fitting on desktop without horizontal scrollbar */}
         <div style={{ overflowX: 'auto', width: '100%' }}>
-          <table id="admin-payments-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <table id="admin-payments-table" style={{ width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>DATE & TIME</th>
-                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>BOOKING ID</th>
-                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px' }}>CUSTOMER</th>
-                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px' }}>SERVICE</th>
-                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>AMOUNT</th>
-                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>METHOD</th>
-                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>STATUS</th>
-                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', textAlign: 'right', whiteSpace: 'nowrap' }}>ACTION</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>DATE & TIME</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>BOOKING ID</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>CUSTOMER</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>SERVICE</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>AMOUNT</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>METHOD</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>STATUS</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', textAlign: 'right', whiteSpace: 'nowrap' }}>ACTION</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 Array.from({ length: 5 }).map((_, idx) => (
                   <tr key={`sk-row-${idx}`} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
-                    <td colSpan={8} style={{ padding: '12px' }}>
+                    <td colSpan={8} style={{ padding: '10px' }}>
                       <div
                         style={{
                           height: '18px',
@@ -754,112 +791,139 @@ export default function AdminPaymentsPage() {
                   </td>
                 </tr>
               ) : (
-                payments.map((row) => (
-                  <tr
-                    key={row.id}
-                    style={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
-                      transition: 'background-color 0.15s ease',
-                    }}
-                    className="hover:bg-slate-800/30"
-                  >
-                    {/* Date */}
-                    <td style={{ padding: '10px 12px', fontSize: '12px', color: '#cbd5e1', whiteSpace: 'nowrap' }}>
-                      {new Date(row.date).toLocaleDateString('en-IN', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </td>
+                payments.map((row) => {
+                  const avatar = getCustomerAvatarColor(row.customer_name);
+                  const initials = getInitials(row.customer_name);
 
-                    {/* Booking ID */}
-                    <td style={{ padding: '10px 12px', fontSize: '12px', fontWeight: 600, color: '#f8fafc', fontFamily: 'monospace', letterSpacing: '0.2px', whiteSpace: 'nowrap' }}>
-                      {row.booking_id}
-                    </td>
-
-                    {/* Customer */}
-                    <td
+                  return (
+                    <tr
+                      key={row.id}
                       style={{
-                        padding: '10px 12px',
-                        fontSize: '12px',
-                        color: '#e2e8f0',
-                        fontWeight: 500,
-                        maxWidth: '130px',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                        transition: 'background-color 0.15s ease',
                       }}
-                      title={row.customer_name}
+                      className="hover:bg-[rgba(255,255,255,0.02)]"
                     >
-                      {row.customer_name}
-                    </td>
+                      {/* Date */}
+                      <td style={{ padding: '8px 10px', fontSize: '11px', color: '#cbd5e1', whiteSpace: 'nowrap' }}>
+                        {new Date(row.date).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </td>
 
-                    {/* Service */}
-                    <td
-                      style={{
-                        padding: '10px 12px',
-                        fontSize: '12px',
-                        color: '#cbd5e1',
-                        maxWidth: '130px',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                      title={row.service_name}
-                    >
-                      {row.service_name}
-                    </td>
+                      {/* Booking ID */}
+                      <td style={{ padding: '8px 10px', fontSize: '11px', fontWeight: 700, color: '#38bdf8', fontFamily: 'monospace', letterSpacing: '0.2px', whiteSpace: 'nowrap' }}>
+                        {row.booking_id}
+                      </td>
 
-                    {/* Amount */}
-                    <td style={{ padding: '10px 12px', fontSize: '13px', fontWeight: 800, color: '#34d399', whiteSpace: 'nowrap' }}>
-                      ₹{row.amount_inr}
-                    </td>
+                      {/* Customer with Initials Avatar */}
+                      <td style={{ padding: '8px 10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                          <div
+                            style={{
+                              width: '24px',
+                              height: '24px',
+                              borderRadius: '50%',
+                              backgroundColor: avatar.bg,
+                              border: `1px solid ${avatar.border}`,
+                              color: avatar.color,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '9px',
+                              fontWeight: 800,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {initials}
+                          </div>
+                          <span
+                            style={{
+                              fontWeight: 600,
+                              color: '#f8fafc',
+                              fontSize: '11px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              maxWidth: '120px',
+                            }}
+                            title={row.customer_name}
+                          >
+                            {row.customer_name}
+                          </span>
+                        </div>
+                      </td>
 
-                    {/* Method */}
-                    <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>{renderMethodBadge(row.payment_method)}</td>
-
-                    {/* Status */}
-                    <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>{renderStatusBadge(row.status)}</td>
-
-                    {/* Action */}
-                    <td style={{ padding: '10px 12px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                      {row.status === 'CASH_PENDING' ? (
-                        <button
-                          id={`settle-btn-${row.id}`}
-                          onClick={() => handleSettle(row.id)}
-                          disabled={settlingId === row.id}
+                      {/* Service */}
+                      <td style={{ padding: '8px 10px' }}>
+                        <span
                           style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '5px',
-                            padding: '5px 10px',
-                            backgroundColor: '#2563eb',
-                            color: '#ffffff',
-                            borderRadius: '6px',
-                            border: 'none',
-                            fontWeight: 700,
                             fontSize: '11px',
-                            cursor: settlingId === row.id ? 'not-allowed' : 'pointer',
-                            opacity: settlingId === row.id ? 0.6 : 1,
-                            boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)',
-                            transition: 'all 0.15s ease',
+                            color: '#cbd5e1',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            display: 'block',
+                            maxWidth: '130px',
                           }}
+                          title={row.service_name}
                         >
-                          {settlingId === row.id ? (
-                            <RefreshCw size={12} className="animate-spin" />
-                          ) : (
-                            <CheckCircle2 size={12} />
-                          )}
-                          {settlingId === row.id ? 'Settling...' : 'Mark Settled'}
-                        </button>
-                      ) : (
-                        <span style={{ fontSize: '12px', color: '#475569', paddingRight: '8px' }}>—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))
+                          {row.service_name}
+                        </span>
+                      </td>
+
+                      {/* Amount */}
+                      <td style={{ padding: '8px 10px', fontSize: '12px', fontWeight: 800, color: '#34d399', whiteSpace: 'nowrap' }} className="font-mono">
+                        ₹{row.amount_inr?.toLocaleString()}
+                      </td>
+
+                      {/* Method */}
+                      <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>{renderMethodBadge(row.payment_method)}</td>
+
+                      {/* Status */}
+                      <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>{renderStatusBadge(row.status)}</td>
+
+                      {/* Action */}
+                      <td style={{ padding: '10px 12px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        {row.status === 'CASH_PENDING' ? (
+                          <button
+                            id={`settle-btn-${row.id}`}
+                            onClick={() => handleSettle(row.id)}
+                            disabled={settlingId === row.id}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              padding: '5px 10px',
+                              backgroundColor: '#2563eb',
+                              color: '#ffffff',
+                              borderRadius: '6px',
+                              border: 'none',
+                              fontWeight: 700,
+                              fontSize: '11px',
+                              cursor: settlingId === row.id ? 'not-allowed' : 'pointer',
+                              opacity: settlingId === row.id ? 0.6 : 1,
+                              boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)',
+                              transition: 'all 0.15s ease',
+                            }}
+                            className="hover:bg-[#1d4ed8]"
+                          >
+                            {settlingId === row.id ? (
+                              <RefreshCw size={12} className="animate-spin" />
+                            ) : (
+                              <CheckCircle2 size={12} />
+                            )}
+                            {settlingId === row.id ? 'Settling...' : 'Mark Settled'}
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: '12px', color: '#475569', paddingRight: '8px' }}>—</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -872,14 +936,14 @@ export default function AdminPaymentsPage() {
             justifyContent: 'space-between',
             alignItems: 'center',
             padding: '12px 18px',
-            backgroundColor: '#0d131f',
             borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+            backgroundColor: 'rgba(255, 255, 255, 0.01)',
           }}
         >
-          <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 500 }}>
+          <span style={{ fontSize: '12px', color: '#64748b' }}>
             Page <strong style={{ color: '#f8fafc' }}>{page}</strong> of <strong style={{ color: '#f8fafc' }}>{totalPages}</strong>
           </span>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '6px' }}>
             <button
               id="prev-page-btn"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -887,20 +951,20 @@ export default function AdminPaymentsPage() {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '5px',
-                padding: '7px 12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                gap: '3px',
+                backgroundColor: '#090d16',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
                 color: page <= 1 ? '#475569' : '#f8fafc',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
                 borderRadius: '6px',
-                fontSize: '12px',
+                padding: '5px 10px',
+                fontSize: '11px',
                 fontWeight: 600,
                 cursor: page <= 1 ? 'not-allowed' : 'pointer',
                 opacity: page <= 1 ? 0.4 : 1,
                 transition: 'all 0.15s ease',
               }}
             >
-              <ChevronLeft size={15} />
+              <ChevronLeft size={12} />
               Previous
             </button>
             <button
@@ -910,13 +974,13 @@ export default function AdminPaymentsPage() {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '5px',
-                padding: '7px 12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                gap: '3px',
+                backgroundColor: '#090d16',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
                 color: page >= totalPages ? '#475569' : '#f8fafc',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
                 borderRadius: '6px',
-                fontSize: '12px',
+                padding: '5px 10px',
+                fontSize: '11px',
                 fontWeight: 600,
                 cursor: page >= totalPages ? 'not-allowed' : 'pointer',
                 opacity: page >= totalPages ? 0.4 : 1,
@@ -924,7 +988,7 @@ export default function AdminPaymentsPage() {
               }}
             >
               Next
-              <ChevronRight size={15} />
+              <ChevronRight size={12} />
             </button>
           </div>
         </div>
