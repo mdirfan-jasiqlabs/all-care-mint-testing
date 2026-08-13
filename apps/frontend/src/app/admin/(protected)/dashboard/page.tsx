@@ -720,36 +720,32 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* 1. Page Header Bar - Strictly Pinned Right Action Buttons */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: '1 1 auto', minWidth: 0 }}>
-          <div
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '10px',
-              backgroundColor: 'rgba(16, 185, 129, 0.12)',
-              border: '1px solid rgba(16, 185, 129, 0.25)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#10b981',
-              flexShrink: 0,
-            }}
-          >
-            <TrendingUp size={20} />
-          </div>
-          <div style={{ minWidth: 0 }}>
+      {/* 1. Page Header Bar - Pinned Right Action Buttons & Full Description Below */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '100%' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '10px',
+                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#10b981',
+                flexShrink: 0,
+              }}
+            >
+              <TrendingUp size={20} />
+            </div>
             <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
               Operational Analytics
             </h1>
-            <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px', margin: 0, fontWeight: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              Inspect time-series booking trends, active provider occupancies, and download streamed transactions ledgers.
-            </p>
           </div>
-        </div>
 
-        {/* Action Button & Date Filter Dropdown Pinned to Far Right */}
+          {/* Action Button & Date Filter Dropdown Pinned to Far Right */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0, marginLeft: 'auto' }}>
           <button
             onClick={handleExportCsv}
@@ -847,6 +843,10 @@ export default function AdminDashboardPage() {
           )}
         </div>
       </div>
+      <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0, fontWeight: 400, lineHeight: 1.4 }}>
+        Inspect time-series booking trends, active provider occupancies, and download streamed transactions ledgers.
+      </p>
+    </div>
 
       {dateValidationError && (
         <p id="date-validation-error" style={{ fontSize: '11px', color: '#f87171', fontWeight: 600, margin: 0, textAlign: 'right' }}>
