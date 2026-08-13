@@ -148,7 +148,7 @@ const DashboardChart = React.memo(function DashboardChart({
         backgroundColor: '#090d16',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         borderRadius: '12px',
-        padding: '16px 20px',
+        padding: '18px 20px',
         display: 'flex',
         flexDirection: 'column',
         gap: '16px',
@@ -410,17 +410,20 @@ function DashboardSkeleton() {
               backgroundColor: '#090d16',
               border: '1px solid rgba(255, 255, 255, 0.08)',
               borderRadius: '12px',
-              padding: '12px 14px',
-              height: '120px',
+              padding: '16px',
+              height: '130px',
               display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
               boxSizing: 'border-box',
             }}
           >
-            <div className="skeleton-box" style={{ width: '38px', height: '38px', borderRadius: '50%' }} />
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div className="skeleton-box" style={{ width: '100px', height: '20px', borderRadius: '4px' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="skeleton-box" style={{ width: '36px', height: '36px', borderRadius: '10px' }} />
+              <div className="skeleton-box" style={{ width: '90px', height: '12px', borderRadius: '4px' }} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div className="skeleton-box" style={{ width: '120px', height: '22px', borderRadius: '4px' }} />
               <div className="skeleton-box" style={{ width: '80px', height: '12px', borderRadius: '4px' }} />
             </div>
           </div>
@@ -717,9 +720,9 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* 1. Page Header Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      {/* 1. Page Header Bar - Strictly Pinned Right Action Buttons */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: '1 1 auto', minWidth: 0 }}>
           <div
             style={{
               width: '40px',
@@ -736,18 +739,18 @@ export default function AdminDashboardPage() {
           >
             <TrendingUp size={20} />
           </div>
-          <div>
+          <div style={{ minWidth: 0 }}>
             <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
               Operational Analytics
             </h1>
-            <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px', margin: 0, fontWeight: 400 }}>
+            <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px', margin: 0, fontWeight: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               Inspect time-series booking trends, active provider occupancies, and download streamed transactions ledgers.
             </p>
           </div>
         </div>
 
-        {/* Action Button & Date Filter Dropdown */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        {/* Action Button & Date Filter Dropdown Pinned to Far Right */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0, marginLeft: 'auto' }}>
           <button
             onClick={handleExportCsv}
             disabled={isExportingCsv}
@@ -765,6 +768,7 @@ export default function AdminDashboardPage() {
               gap: '6px',
               transition: 'all 0.15s ease',
               opacity: isExportingCsv ? 0.7 : 1,
+              whiteSpace: 'nowrap',
             }}
             className="hover:bg-[#34d399]"
           >
@@ -789,6 +793,7 @@ export default function AdminDashboardPage() {
                 outline: 'none',
                 appearance: 'none',
                 WebkitAppearance: 'none',
+                whiteSpace: 'nowrap',
               }}
             >
               <option value="30">Last 30 Days</option>
@@ -892,7 +897,7 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* 2. 4 Equal Height KPI Cards Grid (120px height) */}
+      {/* 2. Executive 4 KPI Cards Grid (Structured Top Label / Bottom Value Layout) */}
       {(loading && !metrics) || isRecalculating ? (
         <DashboardSkeleton />
       ) : (
@@ -904,60 +909,64 @@ export default function AdminDashboardPage() {
                 backgroundColor: '#090d16',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: '12px',
-                padding: '12px 14px',
-                height: '120px',
+                padding: '16px 18px',
+                minHeight: '130px',
                 display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
                 boxSizing: 'border-box',
                 minWidth: 0,
                 opacity: isRecalculating ? 0.6 : 1,
                 transition: 'opacity 0.2s ease',
               }}
             >
-              <div
-                style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(168, 85, 247, 0.12)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#c084fc',
-                  flexShrink: 0,
-                }}
-              >
-                <IndianRupee size={18} />
-              </div>
-              <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div id="val-revenue" style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
-                  {metrics ? `₹${metrics.revenue_today_inr.toLocaleString()}` : '₹0'}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '10px',
+                    backgroundColor: 'rgba(168, 85, 247, 0.12)',
+                    border: '1px solid rgba(168, 85, 247, 0.25)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#c084fc',
+                    flexShrink: 0,
+                  }}
+                >
+                  <IndianRupee size={18} />
                 </div>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  Total Revenue
+                <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
+                  TOTAL REVENUE
+                </span>
+              </div>
+
+              <div>
+                <div id="val-revenue" style={{ fontSize: '24px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
+                  {metrics ? `₹${metrics.revenue_today_inr.toLocaleString('en-IN')}` : '₹0'}
                 </div>
                 {(() => {
                   const label = metrics?.comparison_label || (filterPeriod === '7' ? 'vs prev 7d' : filterPeriod === '30' ? 'vs prev 30d' : filterPeriod === '365' ? 'vs prev yr' : 'vs prev period');
                   const percent = metrics?.revenue_trend_percent;
                   if (percent !== undefined && percent !== null && percent > 0) {
                     return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#34d399', fontWeight: 700 }}>
-                        <TrendingUp size={11} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#34d399', fontWeight: 700 }}>
+                        <TrendingUp size={13} />
                         <span>+{percent}% {label}</span>
                       </div>
                     );
                   } else if (percent !== undefined && percent !== null && percent < 0) {
                     return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#f87171', fontWeight: 700 }}>
-                        <TrendingDown size={11} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#f87171', fontWeight: 700 }}>
+                        <TrendingDown size={13} />
                         <span>{percent}% {label}</span>
                       </div>
                     );
                   }
                   return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#64748b', fontWeight: 500 }}>
-                      <Minus size={11} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                      <Minus size={13} />
                       <span>0.0% {label}</span>
                     </div>
                   );
@@ -971,60 +980,64 @@ export default function AdminDashboardPage() {
                 backgroundColor: '#090d16',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: '12px',
-                padding: '12px 14px',
-                height: '120px',
+                padding: '16px 18px',
+                minHeight: '130px',
                 display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
                 boxSizing: 'border-box',
                 minWidth: 0,
                 opacity: isRecalculating ? 0.6 : 1,
                 transition: 'opacity 0.2s ease',
               }}
             >
-              <div
-                style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#10b981',
-                  flexShrink: 0,
-                }}
-              >
-                <CalendarDays size={18} />
-              </div>
-              <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div id="val-bookings" style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
-                  {metrics ? metrics.total_bookings_today.toLocaleString() : '0'}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '10px',
+                    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                    border: '1px solid rgba(16, 185, 129, 0.25)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#10b981',
+                    flexShrink: 0,
+                  }}
+                >
+                  <CalendarDays size={18} />
                 </div>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  Total Bookings
+                <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
+                  TOTAL BOOKINGS
+                </span>
+              </div>
+
+              <div>
+                <div id="val-bookings" style={{ fontSize: '24px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
+                  {metrics ? metrics.total_bookings_today.toLocaleString('en-IN') : '0'}
                 </div>
                 {(() => {
                   const label = metrics?.comparison_label || (filterPeriod === '7' ? 'vs prev 7d' : filterPeriod === '30' ? 'vs prev 30d' : filterPeriod === '365' ? 'vs prev yr' : 'vs prev period');
                   const percent = metrics?.bookings_trend_percent;
                   if (percent !== undefined && percent !== null && percent > 0) {
                     return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#34d399', fontWeight: 700 }}>
-                        <TrendingUp size={11} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#34d399', fontWeight: 700 }}>
+                        <TrendingUp size={13} />
                         <span>+{percent}% {label}</span>
                       </div>
                     );
                   } else if (percent !== undefined && percent !== null && percent < 0) {
                     return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#f87171', fontWeight: 700 }}>
-                        <TrendingDown size={11} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#f87171', fontWeight: 700 }}>
+                        <TrendingDown size={13} />
                         <span>{percent}% {label}</span>
                       </div>
                     );
                   }
                   return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#64748b', fontWeight: 500 }}>
-                      <Minus size={11} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                      <Minus size={13} />
                       <span>0.0% {label}</span>
                     </div>
                   );
@@ -1038,67 +1051,71 @@ export default function AdminDashboardPage() {
                 backgroundColor: '#090d16',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: '12px',
-                padding: '12px 14px',
-                height: '120px',
+                padding: '16px 18px',
+                minHeight: '130px',
                 display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
                 boxSizing: 'border-box',
                 minWidth: 0,
                 opacity: isRecalculating ? 0.6 : 1,
                 transition: 'opacity 0.2s ease',
               }}
             >
-              <div
-                style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ef4444',
-                  flexShrink: 0,
-                }}
-              >
-                <UserRoundX size={18} />
-              </div>
-              <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '10px',
+                    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ef4444',
+                    flexShrink: 0,
+                  }}
+                >
+                  <UserRoundX size={18} />
+                </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div id="val-occupancy" style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
-                    {metrics ? metrics.unassigned_count : '0'}
-                  </div>
+                  <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
+                    UNASSIGNED
+                  </span>
                   {metrics && metrics.unassigned_count > 0 && (
                     <span style={{ backgroundColor: 'rgba(239, 68, 68, 0.14)', color: '#f87171', border: '1px solid rgba(248, 113, 113, 0.28)', fontSize: '9px', fontWeight: 800, padding: '1px 6px', borderRadius: '999px', whiteSpace: 'nowrap' }}>
                       Action Required
                     </span>
                   )}
                 </div>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  Unassigned Bookings
+              </div>
+
+              <div>
+                <div id="val-occupancy" style={{ fontSize: '24px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
+                  {metrics ? metrics.unassigned_count.toLocaleString('en-IN') : '0'}
                 </div>
                 {(() => {
                   const label = metrics?.comparison_label || (filterPeriod === '7' ? 'vs prev 7d' : filterPeriod === '30' ? 'vs prev 30d' : filterPeriod === '365' ? 'vs prev yr' : 'vs prev period');
                   const percent = metrics?.unassigned_trend_percent;
                   if (percent !== undefined && percent !== null && percent > 0) {
                     return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#f87171', fontWeight: 700 }}>
-                        <TrendingUp size={11} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#f87171', fontWeight: 700 }}>
+                        <TrendingUp size={13} />
                         <span>+{percent}% {label}</span>
                       </div>
                     );
                   } else if (percent !== undefined && percent !== null && percent < 0) {
                     return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#34d399', fontWeight: 700 }}>
-                        <TrendingDown size={11} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#34d399', fontWeight: 700 }}>
+                        <TrendingDown size={13} />
                         <span>{percent}% {label}</span>
                       </div>
                     );
                   }
                   return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#64748b', fontWeight: 500 }}>
-                      <Minus size={11} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                      <Minus size={13} />
                       <span>0.0% {label}</span>
                     </div>
                   );
@@ -1112,41 +1129,45 @@ export default function AdminDashboardPage() {
                 backgroundColor: '#090d16',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: '12px',
-                padding: '12px 14px',
-                height: '120px',
+                padding: '16px 18px',
+                minHeight: '130px',
                 display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
                 boxSizing: 'border-box',
                 minWidth: 0,
                 opacity: isRecalculating ? 0.6 : 1,
                 transition: 'opacity 0.2s ease',
               }}
             >
-              <div
-                style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(59, 130, 246, 0.12)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#60a5fa',
-                  flexShrink: 0,
-                }}
-              >
-                <UsersRound size={18} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '10px',
+                    backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                    border: '1px solid rgba(59, 130, 246, 0.25)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#60a5fa',
+                    flexShrink: 0,
+                  }}
+                >
+                  <UsersRound size={18} />
+                </div>
+                <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
+                  ACTIVE PROVIDERS
+                </span>
               </div>
-              <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div id="val-providers" style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
-                  {metrics ? metrics.active_providers_count : '0'}
+
+              <div>
+                <div id="val-providers" style={{ fontSize: '24px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
+                  {metrics ? metrics.active_providers_count.toLocaleString('en-IN') : '0'}
                 </div>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  Active Providers
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#64748b', fontWeight: 500 }}>
-                  <Minus size={11} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  <Minus size={13} />
                   <span>Steady</span>
                 </div>
               </div>
