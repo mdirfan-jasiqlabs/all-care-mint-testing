@@ -359,6 +359,8 @@ model Rating {
 
   @@index([providerId, ratingScore], map: "idx_ratings_provider_score")
   @@index([customerId], map: "idx_ratings_customer")
+  @@index([createdAt(sort: Desc)], map: "idx_ratings_created_at_desc")
+  @@index([ratingScore], map: "idx_ratings_score")
   @@map("ratings")
 }
 

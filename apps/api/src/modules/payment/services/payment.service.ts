@@ -27,6 +27,8 @@ interface DraftMeta {
 export class PaymentService {
   private readonly logger = new Logger(PaymentService.name);
   private draftStore = new Map<string, DraftMeta>();
+  private paymentsCache = new Map<string, { data: any; timestamp: number }>();
+  private readonly CACHE_TTL_MS = 30000;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -601,6 +603,12 @@ export class PaymentService {
    * Admin Payment Reconciliation Ledger
    */
   async getAdminPayments(query: AdminPaymentsQueryDto) {
+    const cacheKey = JSON.stringify(query);
+    const cached = this.paymentsCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL_MS) {
+      return cached.data;
+    }
+
     if (query.page !== undefined) {
       const pageNum = Number(query.page);
       if (isNaN(pageNum) || pageNum < 1 || !Number.isInteger(pageNum)) {
@@ -759,7 +767,7 @@ export class PaymentService {
       return header + rows;
     }
 
-    return {
+    const result = {
       data: formattedItems,
       meta: {
         page,
@@ -768,9 +776,12 @@ export class PaymentService {
         total_pages: Math.ceil(total / pageSize),
       },
     };
+    this.paymentsCache.set(cacheKey, { data: result, timestamp: Date.now() });
+    return result;
   }
 
   async settleCashPayment(paymentId: string) {
+    this.paymentsCache.clear();
     this.logger.log({
       event: 'admin.payment.settlement.requested',
       payment_id: paymentId,

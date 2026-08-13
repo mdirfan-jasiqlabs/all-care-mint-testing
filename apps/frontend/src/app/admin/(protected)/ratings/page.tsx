@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Star,
   Search,
@@ -16,11 +16,9 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  User,
   UserCheck,
   RefreshCw,
   Clock,
-  Sparkles,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { useToast } from '../../_components/Toast';
@@ -35,16 +33,22 @@ interface RatingRecord {
   review_text: string | null;
 }
 
+const initialsCacheMap = new Map<string, string>();
+const avatarColorCacheMap = new Map<string, { bg: string; text: string; border: string }>();
+
 function getInitials(name: string): string {
-  if (!name) return '??';
-  const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
-  return name.slice(0, 2).toUpperCase();
+  const key = name || '';
+  if (initialsCacheMap.has(key)) return initialsCacheMap.get(key)!;
+  if (!key) return '??';
+  const parts = key.trim().split(/\s+/);
+  const result = parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : key.slice(0, 2).toUpperCase();
+  initialsCacheMap.set(key, result);
+  return result;
 }
 
 function getAvatarColor(name: string): { bg: string; text: string; border: string } {
+  const key = name || '';
+  if (avatarColorCacheMap.has(key)) return avatarColorCacheMap.get(key)!;
   const colors = [
     { bg: 'rgba(99, 102, 241, 0.16)', text: '#818cf8', border: 'rgba(129, 140, 248, 0.3)' },
     { bg: 'rgba(168, 85, 247, 0.16)', text: '#c084fc', border: 'rgba(192, 132, 252, 0.3)' },
@@ -53,12 +57,18 @@ function getAvatarColor(name: string): { bg: string; text: string; border: strin
     { bg: 'rgba(245, 158, 11, 0.16)', text: '#fbbf24', border: 'rgba(251, 191, 36, 0.3)' },
   ];
   let hash = 0;
-  for (let i = 0; i < (name || '').length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < key.length; i++) {
+    hash = key.charCodeAt(i) + ((hash << 5) - hash);
   }
   const index = Math.abs(hash) % colors.length;
-  return colors[index];
+  const result = colors[index];
+  avatarColorCacheMap.set(key, result);
+  return result;
 }
+
+// Hoisted date/time formatters for high performance rendering
+const dateObjFormatter = new Intl.DateTimeFormat('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+const timeObjFormatter = new Intl.DateTimeFormat('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
 
 export default function AdminRatingsPage() {
   const [ratings, setRatings] = useState<RatingRecord[]>([]);
@@ -67,6 +77,7 @@ export default function AdminRatingsPage() {
   
   // Filters & Sorting
   const [providerSearch, setProviderSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [minRatingFilter, setMinRatingFilter] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
@@ -77,6 +88,15 @@ export default function AdminRatingsPage() {
   const [totalRecords, setTotalRecords] = useState(0);
 
   const { addToast } = useToast();
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Debounce search input changes by 300ms to eliminate per-keystroke API spam
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(providerSearch);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [providerSearch]);
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -89,11 +109,18 @@ export default function AdminRatingsPage() {
   };
 
   const fetchRatings = async () => {
+    // Abort pending request if new params triggered
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoading(true);
     setErrorMsg(null);
     try {
       const params = new URLSearchParams();
-      if (providerSearch) params.append('provider_search', providerSearch);
+      if (debouncedSearch) params.append('provider_search', debouncedSearch);
       if (minRatingFilter) params.append('min_rating', minRatingFilter);
       if (dateFrom) params.append('date_from', dateFrom);
       if (dateTo) params.append('date_to', dateTo);
@@ -103,16 +130,19 @@ export default function AdminRatingsPage() {
       params.append('page_size', '20');
 
       const json = await apiClient.get(`/api/v1/admin/ratings?${params.toString()}`);
-      if (json.success && json.data) {
-        setRatings(json.data.data || []);
-        setTotalPages(json.data.meta?.total_pages || 1);
-        setTotalRecords(json.data.meta?.total || (json.data.data || []).length);
-      } else {
-        setRatings([]);
-        setTotalPages(1);
-        setTotalRecords(0);
+      if (!controller.signal.aborted) {
+        if (json.success && json.data) {
+          setRatings(json.data.data || []);
+          setTotalPages(json.data.meta?.total_pages || 1);
+          setTotalRecords(json.data.meta?.total || (json.data.data || []).length);
+        } else {
+          setRatings([]);
+          setTotalPages(1);
+          setTotalRecords(0);
+        }
       }
     } catch (err: any) {
+      if (err.name === 'AbortError' || controller.signal.aborted) return;
       console.error('Failed to fetch ratings:', err);
       setErrorMsg(err.message || 'Failed to load rating records.');
       addToast(err.message || 'Error loading rating records', 'error');
@@ -120,16 +150,19 @@ export default function AdminRatingsPage() {
       setTotalPages(1);
       setTotalRecords(0);
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
     fetchRatings();
-  }, [providerSearch, minRatingFilter, dateFrom, dateTo, page, sortBy, sortOrder]);
+  }, [debouncedSearch, minRatingFilter, dateFrom, dateTo, page, sortBy, sortOrder]);
 
   const handleResetFilters = () => {
     setProviderSearch('');
+    setDebouncedSearch('');
     setMinRatingFilter('');
     setDateFrom('');
     setDateTo('');
@@ -138,12 +171,15 @@ export default function AdminRatingsPage() {
 
   const isFiltersDirty = Boolean(providerSearch || minRatingFilter || dateFrom || dateTo);
 
-  // Derivations for summary cards based strictly on available data scope
-  const pageRatingSum = ratings.reduce((acc, r) => acc + (r.rating_score || 0), 0);
-  const avgPageRating = ratings.length > 0 ? (pageRatingSum / ratings.length).toFixed(1) : '0.0';
-  const fiveStarCount = ratings.filter((r) => r.rating_score === 5).length;
-  const lowRatingCount = ratings.filter((r) => r.rating_score <= 2).length;
-  const commentsCount = ratings.filter((r) => Boolean(r.review_text && r.review_text.trim())).length;
+  // Derivations for summary cards memoized for clean rendering
+  const { avgPageRating, fiveStarCount, lowRatingCount, commentsCount } = useMemo(() => {
+    const sum = ratings.reduce((acc, r) => acc + (r.rating_score || 0), 0);
+    const avg = ratings.length > 0 ? (sum / ratings.length).toFixed(1) : '0.0';
+    const fiveStar = ratings.filter((r) => r.rating_score === 5).length;
+    const low = ratings.filter((r) => r.rating_score <= 2).length;
+    const comments = ratings.filter((r) => Boolean(r.review_text && r.review_text.trim())).length;
+    return { avgPageRating: avg, fiveStarCount: fiveStar, lowRatingCount: low, commentsCount: comments };
+  }, [ratings]);
 
   const renderStars = (score: number) => {
     const isLowRating = score <= 2;
@@ -710,8 +746,8 @@ export default function AdminRatingsPage() {
                   const customerInitials = getInitials(row.customer_name);
                   const custAvatar = getAvatarColor(row.customer_name);
                   const d = new Date(row.date);
-                  const dateStr = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-                  const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+                  const dateStr = dateObjFormatter.format(d);
+                  const timeStr = timeObjFormatter.format(d);
 
                   return (
                     <tr

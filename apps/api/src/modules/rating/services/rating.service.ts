@@ -18,6 +18,8 @@ import {
 @Injectable()
 export class RatingService {
   private readonly logger = new Logger(RatingService.name);
+  private ratingsCache = new Map<string, { data: any; timestamp: number }>();
+  private readonly CACHE_TTL_MS = 30000;
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -26,6 +28,11 @@ export class RatingService {
    * Paginated ratings ledger for Admin
    */
   async getAdminRatings(query: AdminRatingsQueryDto) {
+    const cacheKey = JSON.stringify(query);
+    const cached = this.ratingsCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL_MS) {
+      return cached.data;
+    }
     const page = Number(query.page) || 1;
     const pageSize = Number(query.page_size) || 20;
     const skip = (page - 1) * pageSize;
@@ -111,9 +118,16 @@ export class RatingService {
         skip,
         take: pageSize,
         orderBy,
-        include: {
-          customer: { select: { displayName: true, mobileNumber: true } },
-          provider: { select: { displayName: true, mobileNumber: true } },
+        select: {
+          id: true,
+          bookingId: true,
+          customerId: true,
+          providerId: true,
+          ratingScore: true,
+          reviewText: true,
+          createdAt: true,
+          customer: { select: { displayName: true } },
+          provider: { select: { displayName: true } },
           booking: { select: { bookingReference: true } },
         },
       }),
@@ -132,7 +146,7 @@ export class RatingService {
       review_text: r.reviewText,
     }));
 
-    return {
+    const result = {
       data: formattedData,
       meta: {
         page,
@@ -141,6 +155,8 @@ export class RatingService {
         total_pages: Math.ceil(total / pageSize) || 1,
       },
     };
+    this.ratingsCache.set(cacheKey, { data: result, timestamp: Date.now() });
+    return result;
   }
 
   /**
@@ -211,6 +227,8 @@ export class RatingService {
           },
         });
       });
+
+      this.ratingsCache.clear();
 
       return {
         id: rating.id,
