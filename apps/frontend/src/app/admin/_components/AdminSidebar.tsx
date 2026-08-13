@@ -220,32 +220,6 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
           </button>
         </nav>
       </div>
-
-      {/* Section 2: USERS & ACCESS */}
-      <div>
-        <div
-          style={{
-            fontSize: '11px',
-            color: '#64748b',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.8px',
-            marginBottom: '12px',
-            paddingLeft: '4px',
-          }}
-        >
-          USERS & ACCESS
-        </div>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <button
-            onClick={() => handleNav('/admin/users')}
-            style={{ ...getLinkStyle('users'), opacity: 0.55 }}
-          >
-            <UsersRound size={18} color={activePage === 'users' ? '#10b981' : '#94a3b8'} />
-            <span>Users & Access</span>
-          </button>
-        </nav>
-      </div>
     </div>
   );
 
