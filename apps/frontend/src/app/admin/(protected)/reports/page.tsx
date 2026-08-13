@@ -120,7 +120,7 @@ export default function AdminReportsPage() {
   const [dateFrom, setDateFrom] = useState<string>(defaultDateFrom);
   const [dateTo, setDateTo] = useState<string>(defaultDateTo);
   const [reportData, setReportData] = useState<ReportItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Search & Sorting state
@@ -531,157 +531,161 @@ export default function AdminReportsPage() {
       )}
 
       {/* 4. KPI Summary Cards Grid - 5 Cards in Single Row matching Payments/Ratings family */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-        {/* KPI 1: Total Reports */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-            height: '100%',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Reports</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
-              <Files size={15} />
+      {loading ? (
+        <ReportsKpiSkeleton />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {/* KPI 1: Total Reports */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '100%',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Reports</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
+                <Files size={15} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+                {kpiMetrics.totalReports.toLocaleString()}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                In Selected Range
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
-              {loading ? '—' : kpiMetrics.totalReports.toLocaleString()}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              In Selected Range
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 2: Total Revenue */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-            height: '100%',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Revenue</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
-              <IndianRupee size={15} />
+          {/* KPI 2: Total Revenue */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '100%',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Revenue</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
+                <IndianRupee size={15} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#10b981', letterSpacing: '-0.02em' }} className="truncate font-mono">
+                {inrFormatter.format(kpiMetrics.totalRevenue)}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                In Selected Range
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#10b981', letterSpacing: '-0.02em' }} className="truncate font-mono">
-              {loading ? '—' : inrFormatter.format(kpiMetrics.totalRevenue)}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              In Selected Range
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 3: Total Bookings */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-            height: '100%',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Bookings</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
-              <CalendarCheck2 size={15} />
+          {/* KPI 3: Total Bookings */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '100%',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Bookings</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
+                <CalendarCheck2 size={15} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+                {kpiMetrics.totalBookings.toLocaleString()}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                In Selected Range
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
-              {loading ? '—' : kpiMetrics.totalBookings.toLocaleString()}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              In Selected Range
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 4: Avg. Order Value */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-            height: '100%',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Avg. Order Value</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24' }}>
-              <WalletCards size={15} />
+          {/* KPI 4: Avg. Order Value */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '100%',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Avg. Order Value</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24' }}>
+                <WalletCards size={15} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }} className="truncate font-mono">
+                {inrFormatter.format(kpiMetrics.avgOrderValue)}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                In Selected Range
+              </div>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }} className="truncate font-mono">
-              {loading ? '—' : inrFormatter.format(kpiMetrics.avgOrderValue)}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              In Selected Range
-            </div>
-          </div>
-        </div>
 
-        {/* KPI 5: Completed Bookings */}
-        <div
-          style={{
-            padding: '14px 16px',
-            backgroundColor: '#090d16',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '8px',
-            height: '100%',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Completed Bookings</span>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(20, 184, 166, 0.12)', border: '1px solid rgba(20, 184, 166, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2dd4bf' }}>
-              <BadgeCheck size={15} />
+          {/* KPI 5: Completed Bookings */}
+          <div
+            style={{
+              padding: '14px 16px',
+              backgroundColor: '#090d16',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '100%',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Completed Bookings</span>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(20, 184, 166, 0.12)', border: '1px solid rgba(20, 184, 166, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2dd4bf' }}>
+                <BadgeCheck size={15} />
+              </div>
             </div>
-          </div>
-          <div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#2dd4bf', letterSpacing: '-0.02em' }}>
-              {loading ? '—' : `${kpiMetrics.completedBookings}`}
-            </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-              {loading ? 'Success Rate' : `${kpiMetrics.successRate.toFixed(1)}% Success Rate`}
+            <div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: '#2dd4bf', letterSpacing: '-0.02em' }}>
+                {kpiMetrics.completedBookings}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+                {`${kpiMetrics.successRate.toFixed(1)}% Success Rate`}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 5. Report Ledger Table Container */}
       <div
@@ -737,10 +741,7 @@ export default function AdminReportsPage() {
 
         {/* Loading / Empty / Table View */}
         {loading ? (
-          <div style={{ padding: '36px', textAlign: 'center', color: '#64748b', fontSize: '13px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <RefreshCw size={24} className="animate-spin text-emerald-400" />
-            <span>Processing aggregation query...</span>
-          </div>
+          <ReportsTableSkeleton />
         ) : processedData.length === 0 ? (
           <div style={{ padding: '36px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
@@ -1064,5 +1065,91 @@ export default function AdminReportsPage() {
     </div>
   );
 }
+
+// Skeleton Component for 5 KPI Summary Cards
+function ReportsKpiSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 w-full" aria-busy="true" aria-label="Loading report summary statistics">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          style={{
+            padding: '14px 16px',
+            backgroundColor: '#090d16',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '12px',
+            minHeight: '90px',
+          }}
+          className="animate-pulse"
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ width: '80px', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ width: '100px', height: '22px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }} />
+            <div style={{ width: '70px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Skeleton Component for Reports Table
+function ReportsTableSkeleton() {
+  return (
+    <div className="w-full overflow-x-auto" aria-busy="true" aria-label="Loading reports table data">
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
+        <thead>
+          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', color: '#64748b' }}>
+            <th style={{ padding: '10px 12px', width: '13%' }}>Date</th>
+            <th style={{ padding: '10px 12px', width: '15%' }}>Booking ID</th>
+            <th style={{ padding: '10px 12px', width: '20%' }}>Customer</th>
+            <th style={{ padding: '10px 12px', width: '22%' }}>Service</th>
+            <th style={{ padding: '10px 12px', width: '11%' }}>Amount (INR)</th>
+            <th style={{ padding: '10px 12px', width: '10%' }}>Method</th>
+            <th style={{ padding: '10px 12px', width: '9%' }}>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((row) => (
+            <tr key={row} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }} className="animate-pulse">
+              <td style={{ padding: '12px' }}>
+                <div style={{ width: '70px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+              </td>
+              <td style={{ padding: '12px' }}>
+                <div style={{ width: '90px', height: '20px', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderRadius: '5px' }} />
+              </td>
+              <td style={{ padding: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '26px', height: '26px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
+                  <div style={{ width: '100px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                </div>
+              </td>
+              <td style={{ padding: '12px' }}>
+                <div style={{ width: '130px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+              </td>
+              <td style={{ padding: '12px' }}>
+                <div style={{ width: '70px', height: '14px', backgroundColor: 'rgba(16, 185, 129, 0.12)', borderRadius: '4px' }} />
+              </td>
+              <td style={{ padding: '12px' }}>
+                <div style={{ width: '60px', height: '18px', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '6px' }} />
+              </td>
+              <td style={{ padding: '12px' }}>
+                <div style={{ width: '75px', height: '20px', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '999px' }} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 
 
