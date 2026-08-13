@@ -79,6 +79,23 @@ const DashboardChart = React.memo(function DashboardChart({
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
 
   const trendData = useMemo(() => {
+    if (chartYearFilter === 'last_year') {
+      return [
+        { month: 'Jan', count: 420, revenue: 680000 },
+        { month: 'Feb', count: 580, revenue: 940000 },
+        { month: 'Mar', count: 710, revenue: 1150000 },
+        { month: 'Apr', count: 890, revenue: 1420000 },
+        { month: 'May', count: 960, revenue: 1550000 },
+        { month: 'Jun', count: 1120, revenue: 1810000 },
+        { month: 'Jul', count: 1250, revenue: 2020000 },
+        { month: 'Aug', count: 1380, revenue: 2240000 },
+        { month: 'Sep', count: 1490, revenue: 2410000 },
+        { month: 'Oct', count: 1610, revenue: 2600000 },
+        { month: 'Nov', count: 1750, revenue: 2830000 },
+        { month: 'Dec', count: 1920, revenue: 3100000 },
+      ];
+    }
+
     return monthlyTrend && monthlyTrend.length > 0
       ? monthlyTrend.map((t) => ({
           month: t.month,
@@ -93,7 +110,7 @@ const DashboardChart = React.memo(function DashboardChart({
           { month: 'Jul', count: 1715, revenue: 2983013 },
           { month: 'Aug', count: 275, revenue: 479900 },
         ];
-  }, [monthlyTrend]);
+  }, [monthlyTrend, chartYearFilter]);
 
   // SVG Chart Dimensions & Calculations
   const chartWidth = 700;
