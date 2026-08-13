@@ -64,53 +64,33 @@ function getBezierPath(points: { x: number; y: number }[]) {
   return path;
 }
 
-// Isolated Memoized SVG Chart Component (prevents hover state from re-rendering full page)
+// Isolated Memoized SVG Chart Component (100% Real API Data Driven)
 interface DashboardChartProps {
   monthlyTrend?: MonthlyTrendItem[];
   chartYearFilter: string;
-  setChartYearFilter: (val: string) => void;
+  onChartYearChange: (val: string) => void;
 }
 
 const DashboardChart = React.memo(function DashboardChart({
   monthlyTrend,
   chartYearFilter,
-  setChartYearFilter,
+  onChartYearChange,
 }: DashboardChartProps) {
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
 
+  // Map real API monthlyTrend data directly (zero hardcoded dummy values)
   const trendData = useMemo(() => {
-    if (chartYearFilter === 'last_year') {
-      return [
-        { month: 'Jan', count: 420, revenue: 680000 },
-        { month: 'Feb', count: 580, revenue: 940000 },
-        { month: 'Mar', count: 710, revenue: 1150000 },
-        { month: 'Apr', count: 890, revenue: 1420000 },
-        { month: 'May', count: 960, revenue: 1550000 },
-        { month: 'Jun', count: 1120, revenue: 1810000 },
-        { month: 'Jul', count: 1250, revenue: 2020000 },
-        { month: 'Aug', count: 1380, revenue: 2240000 },
-        { month: 'Sep', count: 1490, revenue: 2410000 },
-        { month: 'Oct', count: 1610, revenue: 2600000 },
-        { month: 'Nov', count: 1750, revenue: 2830000 },
-        { month: 'Dec', count: 1920, revenue: 3100000 },
-      ];
+    if (monthlyTrend && monthlyTrend.length > 0) {
+      return monthlyTrend.map((t) => ({
+        month: t.month,
+        count: t.count,
+        revenue: t.revenue,
+      }));
     }
-
-    return monthlyTrend && monthlyTrend.length > 0
-      ? monthlyTrend.map((t) => ({
-          month: t.month,
-          count: t.count,
-          revenue: t.revenue,
-        }))
-      : [
-          { month: 'Mar', count: 0, revenue: 0 },
-          { month: 'Apr', count: 0, revenue: 0 },
-          { month: 'May', count: 1360, revenue: 2197534 },
-          { month: 'Jun', count: 1650, revenue: 2830112 },
-          { month: 'Jul', count: 1715, revenue: 2983013 },
-          { month: 'Aug', count: 275, revenue: 479900 },
-        ];
-  }, [monthlyTrend, chartYearFilter]);
+    // Default zero-state buckets if API returns empty array
+    const defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    return defaultMonths.map((m) => ({ month: m, count: 0, revenue: 0 }));
+  }, [monthlyTrend]);
 
   // SVG Chart Dimensions & Calculations
   const chartWidth = 700;
@@ -125,8 +105,8 @@ const DashboardChart = React.memo(function DashboardChart({
 
   const { pointsBookings, pointsRevenue, pathBookings, pathRevenue, areaBookings, maxBookingsVal, maxRevenueVal } =
     useMemo(() => {
-      const maxB = Math.max(...trendData.map((d) => d.count || 0), 3000);
-      const maxR = Math.max(...trendData.map((d) => d.revenue || 0), 3600000);
+      const maxB = Math.max(...trendData.map((d) => d.count || 0), 10);
+      const maxR = Math.max(...trendData.map((d) => d.revenue || 0), 1000);
 
       const ptsB = trendData.map((d, i) => {
         const x = paddingLeft + (i / Math.max(trendData.length - 1, 1)) * graphW;
@@ -183,7 +163,7 @@ const DashboardChart = React.memo(function DashboardChart({
         <div style={{ position: 'relative' }}>
           <select
             value={chartYearFilter}
-            onChange={(e) => setChartYearFilter(e.target.value)}
+            onChange={(e) => onChartYearChange(e.target.value)}
             style={{
               backgroundColor: '#090d16',
               border: '1px solid rgba(255, 255, 255, 0.12)',
@@ -318,7 +298,7 @@ const DashboardChart = React.memo(function DashboardChart({
             if (!ptB || !ptR) return null;
 
             return (
-              <g key={d.month}>
+              <g key={`${d.month}-${i}`}>
                 <text
                   x={ptB.x}
                   y={chartHeight - 10}
@@ -639,7 +619,24 @@ export default function AdminDashboardPage() {
     } else {
       setDateValidationError(false);
       setIsRecalculating(true);
+      setChartYearFilter('this_year');
       fetchDashboardMetrics(false, newPeriod);
+    }
+  };
+
+  // Chart year filter change handler - fetches real last year metrics if Last Year selected
+  const handleChartYearChange = (newYearFilter: string) => {
+    setChartYearFilter(newYearFilter);
+    setIsRecalculating(true);
+    if (newYearFilter === 'last_year') {
+      const lastYearNum = new Date().getFullYear() - 1;
+      fetchDashboardMetrics(false, 'custom', `${lastYearNum}-01-01`, `${lastYearNum}-12-31`);
+    } else {
+      if (filterPeriod === 'custom') {
+        fetchDashboardMetrics(false, 'custom', startDate, endDate);
+      } else {
+        fetchDashboardMetrics(false, filterPeriod);
+      }
     }
   };
 
@@ -763,107 +760,107 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Action Button & Date Filter Dropdown Pinned to Far Right */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0, marginLeft: 'auto' }}>
-          <button
-            onClick={handleExportCsv}
-            disabled={isExportingCsv}
-            style={{
-              backgroundColor: '#10b981',
-              color: '#020617',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '8px 14px',
-              fontWeight: 700,
-              fontSize: '12px',
-              cursor: isExportingCsv ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              transition: 'all 0.15s ease',
-              opacity: isExportingCsv ? 0.7 : 1,
-              whiteSpace: 'nowrap',
-            }}
-            className="hover:bg-[#34d399]"
-          >
-            <Download size={14} />
-            <span>{isExportingCsv ? 'Exporting...' : 'Export Ledger CSV'}</span>
-          </button>
-
-          <div style={{ position: 'relative' }}>
-            <select
-              id="date-filter"
-              value={filterPeriod}
-              onChange={(e) => handleFilterChange(e.target.value)}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0, marginLeft: 'auto' }}>
+            <button
+              onClick={handleExportCsv}
+              disabled={isExportingCsv}
               style={{
-                backgroundColor: '#090d16',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
+                backgroundColor: '#10b981',
+                color: '#020617',
+                border: 'none',
                 borderRadius: '8px',
+                padding: '8px 14px',
+                fontWeight: 700,
                 fontSize: '12px',
-                fontWeight: 500,
-                padding: '7px 28px 7px 12px',
-                color: '#f8fafc',
-                cursor: 'pointer',
-                outline: 'none',
-                appearance: 'none',
-                WebkitAppearance: 'none',
+                cursor: isExportingCsv ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'all 0.15s ease',
+                opacity: isExportingCsv ? 0.7 : 1,
                 whiteSpace: 'nowrap',
               }}
+              className="hover:bg-[#34d399]"
             >
-              <option value="30">Last 30 Days</option>
-              <option value="7">Last 7 Days</option>
-              <option value="365">This Year</option>
-              <option value="custom">Custom Range</option>
-            </select>
-            <ChevronDown
-              size={14}
-              color="#94a3b8"
-              style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-            />
-          </div>
+              <Download size={14} />
+              <span>{isExportingCsv ? 'Exporting...' : 'Export Ledger CSV'}</span>
+            </button>
 
-          {filterPeriod === 'custom' && (
-            <div id="custom-date-container" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
-              <input
-                type="date"
-                id="start-date"
-                value={startDate}
-                onChange={handleStartDateChange}
+            <div style={{ position: 'relative' }}>
+              <select
+                id="date-filter"
+                value={filterPeriod}
+                onChange={(e) => handleFilterChange(e.target.value)}
                 style={{
                   backgroundColor: '#090d16',
-                  border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
-                  borderRadius: '6px',
-                  padding: '5px 8px',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  padding: '7px 28px 7px 12px',
                   color: '#f8fafc',
-                  colorScheme: 'dark',
-                  fontSize: '11px',
+                  cursor: 'pointer',
                   outline: 'none',
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                  whiteSpace: 'nowrap',
                 }}
-              />
-              <span style={{ color: '#64748b' }}>to</span>
-              <input
-                type="date"
-                id="end-date"
-                value={endDate}
-                onChange={handleEndDateChange}
-                style={{
-                  backgroundColor: '#090d16',
-                  border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
-                  borderRadius: '6px',
-                  padding: '5px 8px',
-                  color: '#f8fafc',
-                  colorScheme: 'dark',
-                  fontSize: '11px',
-                  outline: 'none',
-                }}
+              >
+                <option value="30">Last 30 Days</option>
+                <option value="7">Last 7 Days</option>
+                <option value="365">This Year</option>
+                <option value="custom">Custom Range</option>
+              </select>
+              <ChevronDown
+                size={14}
+                color="#94a3b8"
+                style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
               />
             </div>
-          )}
+
+            {filterPeriod === 'custom' && (
+              <div id="custom-date-container" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
+                <input
+                  type="date"
+                  id="start-date"
+                  value={startDate}
+                  onChange={handleStartDateChange}
+                  style={{
+                    backgroundColor: '#090d16',
+                    border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '6px',
+                    padding: '5px 8px',
+                    color: '#f8fafc',
+                    colorScheme: 'dark',
+                    fontSize: '11px',
+                    outline: 'none',
+                  }}
+                />
+                <span style={{ color: '#64748b' }}>to</span>
+                <input
+                  type="date"
+                  id="end-date"
+                  value={endDate}
+                  onChange={handleEndDateChange}
+                  style={{
+                    backgroundColor: '#090d16',
+                    border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '6px',
+                    padding: '5px 8px',
+                    color: '#f8fafc',
+                    colorScheme: 'dark',
+                    fontSize: '11px',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+            )}
+          </div>
         </div>
+        <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0, fontWeight: 400, lineHeight: 1.4 }}>
+          Inspect time-series booking trends, active provider occupancies, and download streamed transactions ledgers.
+        </p>
       </div>
-      <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0, fontWeight: 400, lineHeight: 1.4 }}>
-        Inspect time-series booking trends, active provider occupancies, and download streamed transactions ledgers.
-      </p>
-    </div>
 
       {dateValidationError && (
         <p id="date-validation-error" style={{ fontSize: '11px', color: '#f87171', fontWeight: 600, margin: 0, textAlign: 'right' }}>
@@ -1191,11 +1188,11 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          {/* 3. Full-Width Dual-Series SVG Chart */}
+          {/* 3. Full-Width Dual-Series SVG Chart (Real API Data) */}
           <DashboardChart
             monthlyTrend={metrics?.monthly_trend}
             chartYearFilter={chartYearFilter}
-            setChartYearFilter={setChartYearFilter}
+            onChartYearChange={handleChartYearChange}
           />
 
           {/* 4. Recent Unassigned Bookings Table Card */}
