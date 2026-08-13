@@ -1,6 +1,22 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import {
+  WalletCards,
+  Download,
+  CreditCard,
+  ShieldCheck,
+  Calendar,
+  RotateCcw,
+  Receipt,
+  Wallet,
+  Banknote,
+  CheckCircle2,
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+  RefreshCw,
+} from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { useToast } from '../../_components/Toast';
 
@@ -121,6 +137,36 @@ export default function AdminPaymentsPage() {
     }
   };
 
+  const handleResetFilters = () => {
+    setMethodFilter('');
+    setStatusFilter('');
+    setDateFrom('');
+    setDateTo('');
+    setPage(1);
+  };
+
+  // Derivative calculations for KPI metrics based ONLY on existing loaded payments data
+  const totalCount = payments.length;
+  const totalAmount = payments.reduce((acc, p) => acc + (p.amount_inr || 0), 0);
+  const onlinePayments = payments.filter((p) => p.payment_method === 'ONLINE');
+  const onlineAmount = onlinePayments.reduce((acc, p) => acc + (p.amount_inr || 0), 0);
+  const cashPayments = payments.filter((p) => p.payment_method === 'CASH');
+  const cashAmount = cashPayments.reduce((acc, p) => acc + (p.amount_inr || 0), 0);
+  const successfulCount = payments.filter(
+    (p) => p.status === 'PAYMENT_SUCCESS' || p.status === 'CASH_SETTLED'
+  ).length;
+  const successRate = totalCount > 0 ? ((successfulCount / totalCount) * 100).toFixed(1) : '100.0';
+  const onlinePercentage = totalAmount > 0 ? ((onlineAmount / totalAmount) * 100).toFixed(1) : '0.0';
+  const cashPercentage = totalAmount > 0 ? ((cashAmount / totalAmount) * 100).toFixed(1) : '0.0';
+
+  const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(val);
+  };
+
   const renderMethodBadge = (method: string) => {
     const isCash = method === 'CASH';
     return (
@@ -128,45 +174,53 @@ export default function AdminPaymentsPage() {
         style={{
           display: 'inline-flex',
           alignItems: 'center',
-          padding: '4px 10px',
+          gap: '4px',
+          padding: '3px 8px',
           borderRadius: '9999px',
-          fontSize: '12px',
-          fontWeight: 600,
-          backgroundColor: isCash ? 'rgba(59, 130, 246, 0.15)' : 'rgba(168, 85, 247, 0.15)',
+          fontSize: '11px',
+          fontWeight: 700,
+          letterSpacing: '0.2px',
+          backgroundColor: isCash ? 'rgba(59, 130, 246, 0.14)' : 'rgba(168, 85, 247, 0.14)',
           color: isCash ? '#60a5fa' : '#c084fc',
-          border: isCash ? '1px solid rgba(96, 165, 250, 0.3)' : '1px solid rgba(192, 132, 252, 0.3)',
+          border: isCash ? '1px solid rgba(96, 165, 250, 0.28)' : '1px solid rgba(192, 132, 252, 0.28)',
+          whiteSpace: 'nowrap',
         }}
       >
+        {isCash ? <Banknote size={11} /> : <CreditCard size={11} />}
         {method}
       </span>
     );
   };
 
   const renderStatusBadge = (status: string) => {
-    let bg = 'rgba(148, 163, 184, 0.15)';
+    let bg = 'rgba(148, 163, 184, 0.14)';
     let color = '#94a3b8';
-    let border = 'rgba(148, 163, 184, 0.3)';
+    let border = 'rgba(148, 163, 184, 0.28)';
 
     if (status === 'PAYMENT_SUCCESS') {
-      bg = 'rgba(16, 185, 129, 0.15)';
+      bg = 'rgba(16, 185, 129, 0.14)';
       color = '#34d399';
-      border = 'rgba(52, 211, 153, 0.3)';
+      border = 'rgba(52, 211, 153, 0.28)';
     } else if (status === 'CASH_PENDING') {
-      bg = 'rgba(245, 158, 11, 0.15)';
+      bg = 'rgba(245, 158, 11, 0.14)';
       color = '#fbbf24';
-      border = 'rgba(251, 191, 36, 0.3)';
+      border = 'rgba(251, 191, 36, 0.28)';
     } else if (status === 'CASH_SETTLED') {
-      bg = 'rgba(100, 116, 139, 0.2)';
+      bg = 'rgba(100, 116, 139, 0.18)';
       color = '#cbd5e1';
-      border = 'rgba(203, 213, 225, 0.3)';
+      border = 'rgba(203, 213, 225, 0.28)';
     } else if (status === 'PAYMENT_FAILED') {
-      bg = 'rgba(239, 68, 68, 0.15)';
+      bg = 'rgba(239, 68, 68, 0.14)';
       color = '#f87171';
-      border = 'rgba(248, 113, 113, 0.3)';
+      border = 'rgba(248, 113, 113, 0.28)';
+    } else if (status === 'PAYMENT_PENDING') {
+      bg = 'rgba(234, 179, 8, 0.14)';
+      color = '#facc15';
+      border = 'rgba(250, 204, 21, 0.28)';
     } else if (status === 'CANCELLED') {
-      bg = 'rgba(148, 163, 184, 0.15)';
+      bg = 'rgba(148, 163, 184, 0.14)';
       color = '#94a3b8';
-      border = 'rgba(148, 163, 184, 0.3)';
+      border = 'rgba(148, 163, 184, 0.28)';
     }
 
     return (
@@ -174,32 +228,63 @@ export default function AdminPaymentsPage() {
         style={{
           display: 'inline-flex',
           alignItems: 'center',
-          padding: '4px 10px',
+          gap: '4px',
+          padding: '3px 8px',
           borderRadius: '9999px',
-          fontSize: '12px',
-          fontWeight: 600,
+          fontSize: '11px',
+          fontWeight: 700,
+          letterSpacing: '0.2px',
           backgroundColor: bg,
           color,
           border: `1px solid ${border}`,
+          whiteSpace: 'nowrap',
         }}
       >
+        <span
+          style={{
+            width: '5px',
+            height: '5px',
+            borderRadius: '50%',
+            backgroundColor: color,
+          }}
+        />
         {status}
       </span>
     );
   };
 
+  const isFiltersDirty = Boolean(methodFilter || statusFilter || dateFrom || dateTo);
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Header Banner */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
+      {/* 1. Header Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 id="admin-payments-heading" style={{ fontSize: '24px', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
-            Payments & Financial Ledger
-          </h1>
-          <p style={{ fontSize: '14px', color: '#94a3b8', marginTop: '4px', margin: 0 }}>
-            Reconcile provider cash collections, audit online Razorpay transactions, and export reports.
+          <div className="flex items-center gap-3">
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '40px',
+                height: '40px',
+                borderRadius: '10px',
+                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+                color: '#10b981',
+              }}
+            >
+              <WalletCards size={20} />
+            </div>
+            <h1 id="admin-payments-heading" style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', margin: 0, letterSpacing: '-0.02em' }}>
+              Payments & Financial Ledger
+            </h1>
+          </div>
+          <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px', margin: 0, paddingLeft: '2px' }}>
+            Reconcile provider cash collections, audit online Razorpay transactions, and export financial reports.
           </p>
         </div>
+
         <button
           id="export-csv-btn"
           onClick={handleExportCsv}
@@ -207,43 +292,44 @@ export default function AdminPaymentsPage() {
           style={{
             display: 'inline-flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '8px',
-            padding: '10px 18px',
+            padding: '9px 18px',
             backgroundColor: '#10b981',
             color: '#020617',
-            fontWeight: 600,
-            fontSize: '14px',
+            fontWeight: 700,
+            fontSize: '13px',
             borderRadius: '8px',
             border: 'none',
             cursor: exporting ? 'not-allowed' : 'pointer',
-            opacity: exporting ? 0.7 : 1,
-            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)',
+            opacity: exporting ? 0.75 : 1,
+            boxShadow: '0 4px 14px rgba(16, 185, 129, 0.25)',
+            transition: 'all 0.15s ease',
+            whiteSpace: 'nowrap',
           }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
+          {exporting ? <RefreshCw size={15} className="animate-spin" /> : <Download size={15} />}
           {exporting ? 'Exporting...' : 'Export CSV'}
         </button>
       </div>
 
-      {/* Filter Control Toolbar */}
+      {/* 2. Filter Control Surface */}
       <div
         style={{
           display: 'flex',
           flexWrap: 'wrap',
-          gap: '16px',
-          padding: '16px 20px',
-          backgroundColor: '#0f172a',
+          gap: '12px',
+          padding: '16px 18px',
+          backgroundColor: '#090d16',
           borderRadius: '12px',
           border: '1px solid rgba(255, 255, 255, 0.08)',
-          alignItems: 'center',
+          alignItems: 'flex-end',
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '140px' }}>
-          <label htmlFor="method-filter-select" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+        {/* Method Filter */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 150px', minWidth: '130px' }}>
+          <label htmlFor="method-filter-select" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <CreditCard size={12} color="#64748b" />
             Payment Method
           </label>
           <select
@@ -257,10 +343,12 @@ export default function AdminPaymentsPage() {
               padding: '8px 12px',
               backgroundColor: '#020617',
               color: '#f8fafc',
-              border: '1px solid #334155',
-              borderRadius: '6px',
-              fontSize: '14px',
-              minHeight: '44px',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '8px',
+              fontSize: '13px',
+              height: '40px',
+              outline: 'none',
+              cursor: 'pointer',
             }}
           >
             <option value="">All Methods</option>
@@ -269,8 +357,10 @@ export default function AdminPaymentsPage() {
           </select>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '160px' }}>
-          <label htmlFor="status-filter-select" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+        {/* Status Filter */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 170px', minWidth: '150px' }}>
+          <label htmlFor="status-filter-select" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <ShieldCheck size={12} color="#64748b" />
             Payment Status
           </label>
           <select
@@ -284,10 +374,12 @@ export default function AdminPaymentsPage() {
               padding: '8px 12px',
               backgroundColor: '#020617',
               color: '#f8fafc',
-              border: '1px solid #334155',
-              borderRadius: '6px',
-              fontSize: '14px',
-              minHeight: '44px',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '8px',
+              fontSize: '13px',
+              height: '40px',
+              outline: 'none',
+              cursor: 'pointer',
             }}
           >
             <option value="">All Statuses</option>
@@ -300,8 +392,10 @@ export default function AdminPaymentsPage() {
           </select>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '140px' }}>
-          <label htmlFor="date-from-input" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+        {/* Date From */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 140px', minWidth: '130px' }}>
+          <label htmlFor="date-from-input" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Calendar size={12} color="#64748b" />
             From Date
           </label>
           <input
@@ -313,19 +407,23 @@ export default function AdminPaymentsPage() {
               setPage(1);
             }}
             style={{
-              padding: '7px 12px',
+              padding: '7px 10px',
               backgroundColor: '#020617',
               color: '#f8fafc',
-              border: '1px solid #334155',
-              borderRadius: '6px',
-              fontSize: '14px',
-              minHeight: '44px',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '8px',
+              fontSize: '13px',
+              height: '40px',
+              colorScheme: 'dark',
+              outline: 'none',
             }}
           />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '140px' }}>
-          <label htmlFor="date-to-input" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+        {/* Date To */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 140px', minWidth: '130px' }}>
+          <label htmlFor="date-to-input" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Calendar size={12} color="#64748b" />
             To Date
           </label>
           <input
@@ -337,91 +435,324 @@ export default function AdminPaymentsPage() {
               setPage(1);
             }}
             style={{
-              padding: '7px 12px',
+              padding: '7px 10px',
               backgroundColor: '#020617',
               color: '#f8fafc',
-              border: '1px solid #334155',
-              borderRadius: '6px',
-              fontSize: '14px',
-              minHeight: '44px',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '8px',
+              fontSize: '13px',
+              height: '40px',
+              colorScheme: 'dark',
+              outline: 'none',
             }}
           />
         </div>
+
+        {/* Reset Action */}
+        <button
+          id="reset-filters-btn"
+          onClick={handleResetFilters}
+          disabled={!isFiltersDirty}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
+            padding: '8px 14px',
+            backgroundColor: 'rgba(255, 255, 255, 0.04)',
+            color: isFiltersDirty ? '#f8fafc' : '#64748b',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: 600,
+            height: '40px',
+            cursor: isFiltersDirty ? 'pointer' : 'default',
+            opacity: isFiltersDirty ? 1 : 0.5,
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <RotateCcw size={14} />
+          Reset
+        </button>
       </div>
 
-      {/* Main Table */}
+      {/* 3. Financial KPI Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        {/* KPI 1: Total Transactions */}
+        <div
+          style={{
+            padding: '14px 16px',
+            backgroundColor: '#090d16',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Transactions</span>
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
+              <Receipt size={16} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              {loading ? '—' : totalCount}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              Loaded Page Ledger
+            </div>
+          </div>
+        </div>
+
+        {/* KPI 2: Total Amount */}
+        <div
+          style={{
+            padding: '14px 16px',
+            backgroundColor: '#090d16',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Amount</span>
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399' }}>
+              <Wallet size={16} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              {loading ? '—' : formatCurrency(totalAmount)}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              Gross Volume
+            </div>
+          </div>
+        </div>
+
+        {/* KPI 3: Online Payments */}
+        <div
+          style={{
+            padding: '14px 16px',
+            backgroundColor: '#090d16',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Online Payments</span>
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
+              <CreditCard size={16} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              {loading ? '—' : formatCurrency(onlineAmount)}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              {onlinePercentage}% of Total
+            </div>
+          </div>
+        </div>
+
+        {/* KPI 4: Cash Payments */}
+        <div
+          style={{
+            padding: '14px 16px',
+            backgroundColor: '#090d16',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Cash Payments</span>
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24' }}>
+              <Banknote size={16} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              {loading ? '—' : formatCurrency(cashAmount)}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              {cashPercentage}% of Total
+            </div>
+          </div>
+        </div>
+
+        {/* KPI 5: Success Rate */}
+        <div
+          style={{
+            padding: '14px 16px',
+            backgroundColor: '#090d16',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Success Rate</span>
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(20, 184, 166, 0.12)', border: '1px solid rgba(20, 184, 166, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2dd4bf' }}>
+              <ShieldCheck size={16} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              {loading ? '—' : `${successRate}%`}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              Settled & Successful
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Main Ledger Table Card */}
       <div
         style={{
-          backgroundColor: '#0f172a',
+          backgroundColor: '#090d16',
           borderRadius: '12px',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
+        {/* Section Header */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '14px 18px',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+            backgroundColor: '#0d131f',
+          }}
+        >
+          <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            Transactions Ledger
+          </h2>
+          <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>
+            {loading ? 'Loading records...' : `${payments.length} records on page`}
+          </span>
+        </div>
+
+        {/* Error Alert State */}
         {errorMsg && (
           <div
             id="error-payments-state"
             style={{
-              padding: '16px 20px',
-              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              padding: '12px 18px',
+              backgroundColor: 'rgba(239, 68, 68, 0.08)',
               borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
               color: '#f87171',
-              fontSize: '14px',
+              fontSize: '13px',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
             }}
           >
-            <span>{errorMsg}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <AlertTriangle size={16} color="#ef4444" />
+              <span>{errorMsg}</span>
+            </div>
             <button
               onClick={fetchPayments}
               style={{
-                padding: '4px 12px',
+                padding: '5px 12px',
                 backgroundColor: '#ef4444',
-                color: '#fff',
+                color: '#ffffff',
                 border: 'none',
-                borderRadius: '4px',
+                borderRadius: '6px',
                 cursor: 'pointer',
                 fontSize: '12px',
-                fontWeight: 600,
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
               }}
             >
+              <RefreshCw size={13} />
               Retry
             </button>
           </div>
         )}
 
-        <div style={{ overflowX: 'auto' }}>
-          <table id="admin-payments-table" style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse', textAlign: 'left' }}>
+        {/* Table Content - Clean 100% width fitting on desktop without horizontal scrollbar */}
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+          <table id="admin-payments-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
-                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Date</th>
-                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Booking ID</th>
-                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Customer</th>
-                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Service</th>
-                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Amount</th>
-                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Method</th>
-                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Status</th>
-                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', textAlign: 'right' }}>Action</th>
+              <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>DATE & TIME</th>
+                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>BOOKING ID</th>
+                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px' }}>CUSTOMER</th>
+                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px' }}>SERVICE</th>
+                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>AMOUNT</th>
+                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>METHOD</th>
+                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>STATUS</th>
+                <th style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', textAlign: 'right', whiteSpace: 'nowrap' }}>ACTION</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={8} style={{ padding: '32px', textAlign: 'center', color: '#94a3b8' }}>
-                    Loading payment records...
-                  </td>
-                </tr>
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <tr key={`sk-row-${idx}`} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
+                    <td colSpan={8} style={{ padding: '12px' }}>
+                      <div
+                        style={{
+                          height: '18px',
+                          backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                          borderRadius: '4px',
+                          width: '100%',
+                          animation: 'pulse 1.5s infinite ease-in-out',
+                        }}
+                      />
+                    </td>
+                  </tr>
+                ))
               ) : payments.length === 0 ? (
                 <tr>
-                  <td id="empty-payments-state" colSpan={8} style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>
-                    No payment transactions found matching the filter criteria.
+                  <td id="empty-payments-state" colSpan={8} style={{ padding: '40px 16px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                      <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                        <Receipt size={22} />
+                      </div>
+                      <span style={{ fontSize: '14px', fontWeight: 600, color: '#f8fafc' }}>No transactions found</span>
+                      <span style={{ fontSize: '12px', color: '#64748b', maxWidth: '340px' }}>
+                        No payment records matching the selected filter criteria were found. Try resetting the filters.
+                      </span>
+                    </div>
                   </td>
                 </tr>
               ) : (
                 payments.map((row) => (
-                  <tr key={row.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                    <td style={{ padding: '14px 16px', fontSize: '14px', color: '#cbd5e1' }}>
+                  <tr
+                    key={row.id}
+                    style={{
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                      transition: 'background-color 0.15s ease',
+                    }}
+                    className="hover:bg-slate-800/30"
+                  >
+                    {/* Date */}
+                    <td style={{ padding: '10px 12px', fontSize: '12px', color: '#cbd5e1', whiteSpace: 'nowrap' }}>
                       {new Date(row.date).toLocaleDateString('en-IN', {
                         day: '2-digit',
                         month: 'short',
@@ -430,42 +761,89 @@ export default function AdminPaymentsPage() {
                         minute: '2-digit',
                       })}
                     </td>
-                    <td style={{ padding: '14px 16px', fontSize: '14px', fontWeight: 600, color: '#f8fafc' }}>
+
+                    {/* Booking ID */}
+                    <td style={{ padding: '10px 12px', fontSize: '12px', fontWeight: 600, color: '#f8fafc', fontFamily: 'monospace', letterSpacing: '0.2px', whiteSpace: 'nowrap' }}>
                       {row.booking_id}
                     </td>
-                    <td style={{ padding: '14px 16px', fontSize: '14px', color: '#cbd5e1' }}>
+
+                    {/* Customer */}
+                    <td
+                      style={{
+                        padding: '10px 12px',
+                        fontSize: '12px',
+                        color: '#e2e8f0',
+                        fontWeight: 500,
+                        maxWidth: '130px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                      title={row.customer_name}
+                    >
                       {row.customer_name}
                     </td>
-                    <td style={{ padding: '14px 16px', fontSize: '14px', color: '#cbd5e1' }}>
+
+                    {/* Service */}
+                    <td
+                      style={{
+                        padding: '10px 12px',
+                        fontSize: '12px',
+                        color: '#cbd5e1',
+                        maxWidth: '130px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                      title={row.service_name}
+                    >
                       {row.service_name}
                     </td>
-                    <td style={{ padding: '14px 16px', fontSize: '14px', fontWeight: 700, color: '#10b981' }}>
+
+                    {/* Amount */}
+                    <td style={{ padding: '10px 12px', fontSize: '13px', fontWeight: 800, color: '#34d399', whiteSpace: 'nowrap' }}>
                       ₹{row.amount_inr}
                     </td>
-                    <td style={{ padding: '14px 16px' }}>{renderMethodBadge(row.payment_method)}</td>
-                    <td style={{ padding: '14px 16px' }}>{renderStatusBadge(row.status)}</td>
-                    <td style={{ padding: '14px 16px', textAlign: 'right' }}>
+
+                    {/* Method */}
+                    <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>{renderMethodBadge(row.payment_method)}</td>
+
+                    {/* Status */}
+                    <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>{renderStatusBadge(row.status)}</td>
+
+                    {/* Action */}
+                    <td style={{ padding: '10px 12px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                       {row.status === 'CASH_PENDING' ? (
                         <button
                           id={`settle-btn-${row.id}`}
                           onClick={() => handleSettle(row.id)}
                           disabled={settlingId === row.id}
                           style={{
-                            padding: '6px 12px',
-                            backgroundColor: '#3b82f6',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            padding: '5px 10px',
+                            backgroundColor: '#2563eb',
                             color: '#ffffff',
                             borderRadius: '6px',
                             border: 'none',
-                            fontWeight: 600,
-                            fontSize: '12px',
+                            fontWeight: 700,
+                            fontSize: '11px',
                             cursor: settlingId === row.id ? 'not-allowed' : 'pointer',
                             opacity: settlingId === row.id ? 0.6 : 1,
+                            boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)',
+                            transition: 'all 0.15s ease',
                           }}
                         >
+                          {settlingId === row.id ? (
+                            <RefreshCw size={12} className="animate-spin" />
+                          ) : (
+                            <CheckCircle2 size={12} />
+                          )}
                           {settlingId === row.id ? 'Settling...' : 'Mark Settled'}
                         </button>
                       ) : (
-                        <span style={{ fontSize: '12px', color: '#475569' }}>—</span>
+                        <span style={{ fontSize: '12px', color: '#475569', paddingRight: '8px' }}>—</span>
                       )}
                     </td>
                   </tr>
@@ -475,19 +853,19 @@ export default function AdminPaymentsPage() {
           </table>
         </div>
 
-        {/* Pagination Bar */}
+        {/* 5. Pagination Bar */}
         <div
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: '12px 16px',
-            backgroundColor: '#1e293b',
-            borderTop: '1px solid #334155',
+            padding: '12px 18px',
+            backgroundColor: '#0d131f',
+            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
           }}
         >
-          <span style={{ fontSize: '13px', color: '#94a3b8' }}>
-            Page {page} of {totalPages}
+          <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 500 }}>
+            Page <strong style={{ color: '#f8fafc' }}>{page}</strong> of <strong style={{ color: '#f8fafc' }}>{totalPages}</strong>
           </span>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
@@ -495,16 +873,22 @@ export default function AdminPaymentsPage() {
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
               style={{
-                padding: '6px 12px',
-                backgroundColor: '#0f172a',
-                color: '#f8fafc',
-                border: '1px solid #334155',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '7px 12px',
+                backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                color: page <= 1 ? '#475569' : '#f8fafc',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
                 borderRadius: '6px',
-                fontSize: '13px',
+                fontSize: '12px',
+                fontWeight: 600,
                 cursor: page <= 1 ? 'not-allowed' : 'pointer',
                 opacity: page <= 1 ? 0.4 : 1,
+                transition: 'all 0.15s ease',
               }}
             >
+              <ChevronLeft size={15} />
               Previous
             </button>
             <button
@@ -512,17 +896,23 @@ export default function AdminPaymentsPage() {
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
               style={{
-                padding: '6px 12px',
-                backgroundColor: '#0f172a',
-                color: '#f8fafc',
-                border: '1px solid #334155',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '7px 12px',
+                backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                color: page >= totalPages ? '#475569' : '#f8fafc',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
                 borderRadius: '6px',
-                fontSize: '13px',
+                fontSize: '12px',
+                fontWeight: 600,
                 cursor: page >= totalPages ? 'not-allowed' : 'pointer',
                 opacity: page >= totalPages ? 0.4 : 1,
+                transition: 'all 0.15s ease',
               }}
             >
               Next
+              <ChevronRight size={15} />
             </button>
           </div>
         </div>
