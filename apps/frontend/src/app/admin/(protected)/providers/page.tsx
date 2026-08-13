@@ -34,17 +34,16 @@ function getAvatarInitials(name: string): string {
 }
 
 const AVATAR_COLORS = [
-  { bg: 'rgba(16, 185, 129, 0.2)', text: '#10b981', border: 'rgba(16, 185, 129, 0.35)' },
-  { bg: 'rgba(245, 158, 11, 0.2)', text: '#f59e0b', border: 'rgba(245, 158, 11, 0.35)' },
-  { bg: 'rgba(20, 184, 166, 0.2)', text: '#14b8a6', border: 'rgba(20, 184, 166, 0.35)' },
-  { bg: 'rgba(239, 68, 68, 0.2)', text: '#ef4444', border: 'rgba(239, 68, 68, 0.35)' },
-  { bg: 'rgba(168, 85, 247, 0.2)', text: '#a855f7', border: 'rgba(168, 85, 247, 0.35)' },
-  { bg: 'rgba(59, 130, 246, 0.2)', text: '#3b82f6', border: 'rgba(59, 130, 246, 0.35)' },
+  { bg: 'rgba(16, 185, 129, 0.15)', text: '#34d399', border: 'rgba(16, 185, 129, 0.3)' },
+  { bg: 'rgba(59, 130, 246, 0.15)', text: '#60a5fa', border: 'rgba(59, 130, 246, 0.3)' },
+  { bg: 'rgba(245, 158, 11, 0.15)', text: '#fbbf24', border: 'rgba(245, 158, 11, 0.3)' },
+  { bg: 'rgba(239, 68, 68, 0.15)', text: '#f87171', border: 'rgba(239, 68, 68, 0.3)' },
+  { bg: 'rgba(168, 85, 247, 0.15)', text: '#c084fc', border: 'rgba(168, 85, 247, 0.3)' },
 ];
 
 function getAvatarColor(name: string) {
   let hash = 0;
-  for (let i = 0; i < name.length; i++) {
+  for (let i = 0; i < (name || '').length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
   const index = Math.abs(hash) % AVATAR_COLORS.length;
@@ -54,27 +53,27 @@ function getAvatarColor(name: string) {
 function getStatusBadgeStyles(status: string) {
   if (status === 'APPROVED') {
     return {
-      backgroundColor: 'rgba(16, 185, 129, 0.15)',
-      color: '#10b981',
-      border: '1px solid rgba(16, 185, 129, 0.3)',
+      backgroundColor: 'rgba(16, 185, 129, 0.14)',
+      color: '#34d399',
+      border: '1px solid rgba(52, 211, 153, 0.28)',
     };
   } else if (status === 'PENDING_REVIEW') {
     return {
-      backgroundColor: 'rgba(245, 158, 11, 0.15)',
-      color: '#f59e0b',
-      border: '1px solid rgba(245, 158, 11, 0.3)',
+      backgroundColor: 'rgba(245, 158, 11, 0.14)',
+      color: '#fbbf24',
+      border: '1px solid rgba(251, 191, 36, 0.28)',
     };
   } else if (status === 'SUSPENDED') {
     return {
-      backgroundColor: 'rgba(239, 68, 68, 0.15)',
-      color: '#ef4444',
-      border: '1px solid rgba(239, 68, 68, 0.3)',
+      backgroundColor: 'rgba(239, 68, 68, 0.14)',
+      color: '#f87171',
+      border: '1px solid rgba(248, 113, 113, 0.28)',
     };
   } else if (status === 'REJECTED') {
     return {
-      backgroundColor: 'rgba(148, 163, 184, 0.12)',
+      backgroundColor: 'rgba(148, 163, 184, 0.14)',
       color: '#94a3b8',
-      border: '1px solid rgba(148, 163, 184, 0.25)',
+      border: '1px solid rgba(148, 163, 184, 0.28)',
     };
   }
   return {
@@ -84,238 +83,151 @@ function getStatusBadgeStyles(status: string) {
   };
 }
 
-// MEMOIZED KPI CARDS GRID - Isolated from search/filter/pagination re-renders
+// MEMOIZED KPI CARDS GRID - 5 Equal Height Cards (120px height)
 const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts }: { kpiCounts: KpiCounts }) {
+  const cards = [
+    {
+      title: 'Total Providers',
+      value: kpiCounts.total,
+      subtext: 'All registered providers',
+      iconColor: '#10b981',
+      iconBg: 'rgba(16, 185, 129, 0.12)',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      ),
+    },
+    {
+      title: 'Pending Review',
+      value: kpiCounts.pending,
+      subtext: 'Awaiting verification',
+      iconColor: '#f59e0b',
+      iconBg: 'rgba(245, 158, 11, 0.12)',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+      ),
+    },
+    {
+      title: 'Approved',
+      value: kpiCounts.approved,
+      subtext: 'Active providers',
+      iconColor: '#10b981',
+      iconBg: 'rgba(16, 185, 129, 0.12)',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          <polyline points="9 12 11 14 15 10"></polyline>
+        </svg>
+      ),
+    },
+    {
+      title: 'Suspended',
+      value: kpiCounts.suspended,
+      subtext: 'Temporarily suspended',
+      iconColor: '#ef4444',
+      iconBg: 'rgba(239, 68, 68, 0.12)',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="10" y1="15" x2="10" y2="9"></line>
+          <line x1="14" y1="15" x2="14" y2="9"></line>
+        </svg>
+      ),
+    },
+    {
+      title: 'Rejected',
+      value: kpiCounts.rejected,
+      subtext: 'Not approved',
+      iconColor: '#a855f7',
+      iconBg: 'rgba(168, 85, 247, 0.12)',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+        </svg>
+      ),
+    },
+  ];
+
   return (
     <div
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(5, minmax(0, 1fr))',
         gap: '12px',
+        width: '100%',
       }}
     >
-      {/* Total Providers */}
-      <div
-        style={{
-          backgroundColor: '#0b0e17',
-          border: '1px solid rgba(255, 255, 255, 0.07)',
-          borderRadius: '14px',
-          padding: '14px 12px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          minWidth: 0,
-        }}
-      >
+      {cards.map((card, idx) => (
         <div
+          key={idx}
           style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+            backgroundColor: '#090d16',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '12px',
+            padding: '12px 14px',
+            height: '120px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            color: '#10b981',
-            flexShrink: 0,
+            gap: '12px',
+            boxSizing: 'border-box',
+            minWidth: 0,
           }}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-          </svg>
-        </div>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>
-            {kpiCounts.total}
+          <div
+            style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '50%',
+              backgroundColor: card.iconBg,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: card.iconColor,
+              flexShrink: 0,
+            }}
+          >
+            {card.icon}
           </div>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            Total Providers
-          </div>
-          <div style={{ fontSize: '10px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            All registered providers
-          </div>
-        </div>
-      </div>
-
-      {/* Pending Review */}
-      <div
-        style={{
-          backgroundColor: '#0b0e17',
-          border: '1px solid rgba(255, 255, 255, 0.07)',
-          borderRadius: '14px',
-          padding: '14px 12px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          minWidth: 0,
-        }}
-      >
-        <div
-          style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(245, 158, 11, 0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#f59e0b',
-            flexShrink: 0,
-          }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
-          </svg>
-        </div>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>
-            {kpiCounts.pending}
-          </div>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            Pending Review
-          </div>
-          <div style={{ fontSize: '10px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            Awaiting verification
+          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
+              {card.value}
+            </div>
+            <div
+              style={{
+                fontSize: '12px',
+                fontWeight: 700,
+                color: '#e2e8f0',
+                marginTop: '3px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {card.title}
+            </div>
+            <div
+              style={{
+                fontSize: '10px',
+                color: '#64748b',
+                marginTop: '2px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {card.subtext}
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Approved */}
-      <div
-        style={{
-          backgroundColor: '#0b0e17',
-          border: '1px solid rgba(255, 255, 255, 0.07)',
-          borderRadius: '14px',
-          padding: '14px 12px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          minWidth: 0,
-        }}
-      >
-        <div
-          style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(16, 185, 129, 0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#10b981',
-            flexShrink: 0,
-          }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-            <polyline points="9 12 11 14 15 10"></polyline>
-          </svg>
-        </div>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>
-            {kpiCounts.approved}
-          </div>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            Approved
-          </div>
-          <div style={{ fontSize: '10px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            Active providers
-          </div>
-        </div>
-      </div>
-
-      {/* Suspended */}
-      <div
-        style={{
-          backgroundColor: '#0b0e17',
-          border: '1px solid rgba(255, 255, 255, 0.07)',
-          borderRadius: '14px',
-          padding: '14px 12px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          minWidth: 0,
-        }}
-      >
-        <div
-          style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(239, 68, 68, 0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#ef4444',
-            flexShrink: 0,
-          }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="10" y1="15" x2="10" y2="9"></line>
-            <line x1="14" y1="15" x2="14" y2="9"></line>
-          </svg>
-        </div>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>
-            {kpiCounts.suspended}
-          </div>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            Suspended
-          </div>
-          <div style={{ fontSize: '10px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            Temporarily suspended
-          </div>
-        </div>
-      </div>
-
-      {/* Rejected */}
-      <div
-        style={{
-          backgroundColor: '#0b0e17',
-          border: '1px solid rgba(255, 255, 255, 0.07)',
-          borderRadius: '14px',
-          padding: '14px 12px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          minWidth: 0,
-        }}
-      >
-        <div
-          style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(168, 85, 247, 0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#a855f7',
-            flexShrink: 0,
-          }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-          </svg>
-        </div>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>
-            {kpiCounts.rejected}
-          </div>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            Rejected
-          </div>
-          <div style={{ fontSize: '10px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            Not approved
-          </div>
-        </div>
-      </div>
+      ))}
     </div>
   );
 });
@@ -332,6 +244,11 @@ const ProviderTableRow = React.memo(function ProviderTableRow({
   const avatarTheme = useMemo(() => getAvatarColor(provider.displayName), [provider.displayName]);
   const badgeStyle = useMemo(() => getStatusBadgeStyles(provider.status), [provider.status]);
 
+  const categoryNames = useMemo(() => {
+    if (!provider.categories || provider.categories.length === 0) return 'None';
+    return provider.categories.map((c) => c.name).join(', ');
+  }, [provider.categories]);
+
   return (
     <tr
       tabIndex={0}
@@ -347,25 +264,24 @@ const ProviderTableRow = React.memo(function ProviderTableRow({
       style={{
         borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
         cursor: 'pointer',
-        transition: 'background-color 0.15s ease',
+        transition: 'background-color 0.12s ease',
         outline: 'none',
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.025)')}
-      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+      className="hover:bg-[rgba(255,255,255,0.02)]"
     >
       {/* Provider Name + Avatar */}
-      <td style={{ padding: '14px 20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <td style={{ padding: '10px 12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
           <div
             style={{
-              width: '36px',
-              height: '36px',
+              width: '28px',
+              height: '28px',
               borderRadius: '50%',
               backgroundColor: avatarTheme.bg,
               border: `1px solid ${avatarTheme.border}`,
               color: avatarTheme.text,
               fontWeight: 800,
-              fontSize: '12px',
+              fontSize: '10px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -374,30 +290,50 @@ const ProviderTableRow = React.memo(function ProviderTableRow({
           >
             {avatarInitials}
           </div>
-          <span style={{ fontWeight: 700, color: '#ffffff', fontSize: '13px' }}>
+          <span
+            style={{
+              fontWeight: 700,
+              color: '#f8fafc',
+              fontSize: '12px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              maxWidth: '180px',
+            }}
+            title={provider.displayName}
+          >
             {provider.displayName}
           </span>
         </div>
       </td>
 
       {/* Mobile Number */}
-      <td style={{ padding: '14px 20px', color: '#cbd5e1', fontSize: '13px' }}>
+      <td style={{ padding: '10px 12px', color: '#cbd5e1', fontSize: '12px', whiteSpace: 'nowrap' }}>
         {provider.mobileNumber}
       </td>
 
       {/* Service Categories */}
-      <td style={{ padding: '14px 20px', color: '#cbd5e1', fontSize: '13px' }}>
-        {provider.categories && provider.categories.length > 0
-          ? provider.categories.map((c) => c.name).join(', ')
-          : 'None'}
+      <td style={{ padding: '10px 12px', color: '#94a3b8', fontSize: '12px' }}>
+        <span
+          style={{
+            display: 'block',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            maxWidth: '220px',
+          }}
+          title={categoryNames}
+        >
+          {categoryNames}
+        </span>
       </td>
 
       {/* Status Badge */}
-      <td style={{ padding: '14px 20px', whiteSpace: 'nowrap' }}>
+      <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
         <span
           style={{
-            padding: '4px 10px',
-            borderRadius: '20px',
+            padding: '3px 8px',
+            borderRadius: '9999px',
             fontSize: '10px',
             fontWeight: 800,
             letterSpacing: '0.04em',
@@ -412,7 +348,7 @@ const ProviderTableRow = React.memo(function ProviderTableRow({
       </td>
 
       {/* Actions */}
-      <td style={{ padding: '14px 20px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+      <td style={{ padding: '10px 12px', textAlign: 'right', whiteSpace: 'nowrap' }}>
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -422,9 +358,9 @@ const ProviderTableRow = React.memo(function ProviderTableRow({
             backgroundColor: 'transparent',
             color: '#10b981',
             border: '1px solid rgba(16, 185, 129, 0.3)',
-            borderRadius: '8px',
-            padding: '6px 14px',
-            fontSize: '12px',
+            borderRadius: '6px',
+            padding: '4px 10px',
+            fontSize: '11px',
             fontWeight: 700,
             cursor: 'pointer',
             transition: 'all 0.15s ease',
@@ -606,7 +542,7 @@ function ProvidersPageContent() {
       }
 
       const data = await apiClient.get(url, { signal: controller.signal });
-      
+
       // Ensure only latest response updates state
       if (currentSeq === requestSeqRef.current && data && data.success) {
         setProviders(data.data);
@@ -707,15 +643,15 @@ function ProvidersPageContent() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', color: '#ffffff' }}>
-      {/* PAGE HEADER */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+    <div style={{ maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', color: '#ffffff' }}>
+      {/* 1. PAGE HEADER */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div
             style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '12px',
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
               backgroundColor: 'rgba(16, 185, 129, 0.12)',
               border: '1px solid rgba(16, 185, 129, 0.25)',
               display: 'flex',
@@ -725,7 +661,7 @@ function ProvidersPageContent() {
               flexShrink: 0,
             }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -733,10 +669,10 @@ function ProvidersPageContent() {
             </svg>
           </div>
           <div>
-            <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', margin: 0 }}>
+            <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
               Service Providers Directory
             </h1>
-            <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px', margin: 0, fontWeight: 400 }}>
+            <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px', margin: 0, fontWeight: 400 }}>
               Onboard new service leads, manage approval/suspension status, and define skill capability mappings.
             </p>
           </div>
@@ -745,23 +681,21 @@ function ProvidersPageContent() {
           onClick={() => setModalOpen(true)}
           style={{
             backgroundColor: '#10b981',
-            color: '#ffffff',
+            color: '#020617',
             border: 'none',
-            borderRadius: '10px',
-            padding: '10px 20px',
+            borderRadius: '8px',
+            padding: '8px 16px',
             fontWeight: 700,
-            fontSize: '13px',
+            fontSize: '12px',
             cursor: 'pointer',
-            boxShadow: '0 4px 14px rgba(16, 185, 129, 0.25)',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            transition: 'all 0.2s ease',
+            gap: '6px',
+            transition: 'all 0.15s ease',
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#059669')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#10b981')}
+          className="hover:bg-[#34d399]"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
             <circle cx="9" cy="7" r="4"></circle>
             <line x1="19" y1="8" x2="19" y2="14"></line>
@@ -771,24 +705,23 @@ function ProvidersPageContent() {
         </button>
       </div>
 
-      {/* NAVIGATION TABS */}
+      {/* 2. NAVIGATION TABS */}
       <div
         style={{
           display: 'flex',
           gap: '24px',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          paddingBottom: '0',
-          marginTop: '4px',
+          paddingBottom: '2px',
         }}
       >
         <Link
           href="/admin/providers"
           style={{
-            paddingBottom: '12px',
-            fontSize: '14px',
+            paddingBottom: '10px',
+            fontSize: '13px',
             fontWeight: 700,
             textDecoration: 'none',
-            color: '#10b981',
+            color: '#f8fafc',
             borderBottom: '2px solid #10b981',
             display: 'inline-block',
           }}
@@ -798,118 +731,159 @@ function ProvidersPageContent() {
         <Link
           href="/admin/providers/leads"
           style={{
-            paddingBottom: '12px',
-            fontSize: '14px',
-            fontWeight: 600,
+            paddingBottom: '10px',
+            fontSize: '13px',
+            fontWeight: 500,
             textDecoration: 'none',
             color: '#94a3b8',
             borderBottom: '2px solid transparent',
             display: 'inline-block',
-            transition: 'color 0.2s',
+            transition: 'color 0.15s',
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = '#cbd5e1')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+          className="hover:text-slate-200"
         >
           Provider Application Leads
         </Link>
       </div>
 
-      {/* SEARCH & STATUS FILTER BAR */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '16px',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-        }}
-      >
-        <div style={{ position: 'relative', flex: '1 1 300px', maxWidth: '440px' }}>
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#64748b"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input
-            type="text"
-            placeholder="Search by name or mobile number..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{
-              width: '100%',
-              backgroundColor: '#090c15',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '10px',
-              padding: '10px 14px 10px 38px',
-              color: '#ffffff',
-              fontSize: '13px',
-              outline: 'none',
-              transition: 'border-color 0.2s',
-              boxSizing: 'border-box',
-            }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = '#10b981')}
-            onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)')}
-          />
-        </div>
-
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {[
-            { key: 'ALL', label: 'All' },
-            { key: 'PENDING_REVIEW', label: 'Pending Review' },
-            { key: 'APPROVED', label: 'Approved' },
-            { key: 'SUSPENDED', label: 'Suspended' },
-            { key: 'REJECTED', label: 'Rejected' },
-          ].map((item) => {
-            const isActive = statusFilter === item.key;
-            return (
-              <button
-                key={item.key}
-                onClick={() => {
-                  setStatusFilter(item.key);
-                  setPage(1);
-                }}
-                style={{
-                  backgroundColor: isActive ? 'rgba(16, 185, 129, 0.12)' : 'rgba(15, 23, 42, 0.4)',
-                  border: isActive ? '1px solid #10b981' : '1px solid rgba(255, 255, 255, 0.08)',
-                  color: isActive ? '#10b981' : '#94a3b8',
-                  borderRadius: '8px',
-                  padding: '8px 16px',
-                  fontSize: '12px',
-                  fontWeight: isActive ? 700 : 500,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {item.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* MEMOIZED KPI CARDS GRID */}
+      {/* 3. MEMOIZED KPI CARDS GRID */}
       <KpiCardsGrid kpiCounts={kpiCounts} />
 
-      {/* TABLE CONTAINER */}
+      {/* 4. MAIN DIRECTORY TABLE CARD */}
       <div
         style={{
-          backgroundColor: '#090c15',
-          border: '1px solid rgba(255, 255, 255, 0.07)',
-          borderRadius: '14px',
-          padding: '4px',
+          backgroundColor: '#090d16',
+          borderRadius: '12px',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
           overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
+        {/* Search & Filter Toolbar Header */}
+        <div
+          style={{
+            padding: '14px 16px',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '12px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
+              Registered Directory
+            </h2>
+            <span
+              style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                color: '#10b981',
+                fontSize: '11px',
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: '10px',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+              }}
+            >
+              {total} total
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flex: '1', justifyContent: 'flex-end' }}>
+            {/* Search Input */}
+            <div style={{ position: 'relative', width: '100%', maxWidth: '300px' }}>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#64748b"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search by name or mobile..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{
+                  width: '100%',
+                  backgroundColor: '#090d16',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '8px',
+                  padding: '7px 28px 7px 32px',
+                  color: '#f8fafc',
+                  fontSize: '12px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+                className="focus:border-[#10b981]"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: '#64748b',
+                    cursor: 'pointer',
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Status Filter Pills */}
+            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+              {[
+                { key: 'ALL', label: 'All' },
+                { key: 'PENDING_REVIEW', label: 'Pending Review' },
+                { key: 'APPROVED', label: 'Approved' },
+                { key: 'SUSPENDED', label: 'Suspended' },
+                { key: 'REJECTED', label: 'Rejected' },
+              ].map((item) => {
+                const isActive = statusFilter === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => {
+                      setStatusFilter(item.key);
+                      setPage(1);
+                    }}
+                    style={{
+                      backgroundColor: isActive ? 'rgba(16, 185, 129, 0.14)' : 'transparent',
+                      border: isActive ? '1px solid #10b981' : '1px solid rgba(255, 255, 255, 0.08)',
+                      color: isActive ? '#10b981' : '#94a3b8',
+                      borderRadius: '6px',
+                      padding: '5px 10px',
+                      fontSize: '11px',
+                      fontWeight: isActive ? 700 : 500,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Data Table Container */}
         {loading ? (
           <div style={{ padding: '16px' }}>
             <TableSkeleton rows={6} columns={5} />
@@ -921,14 +895,13 @@ function ProvidersPageContent() {
               onClick={fetchProviders}
               style={{
                 backgroundColor: '#10b981',
-                color: '#ffffff',
+                color: '#020617',
                 border: 'none',
                 borderRadius: '8px',
                 padding: '8px 20px',
                 fontWeight: 700,
-                fontSize: '13px',
+                fontSize: '12px',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
               }}
             >
               Retry
@@ -936,31 +909,37 @@ function ProvidersPageContent() {
           </div>
         ) : (
           <div>
-            <div className="overflow-x-auto">
-              <table style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+            <div style={{ overflowX: 'auto', width: '100%' }}>
+              <table style={{ width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
                 <thead>
                   <tr
                     style={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.07)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
                       color: '#64748b',
-                      textTransform: 'uppercase',
-                      fontSize: '11px',
-                      letterSpacing: '0.05em',
+                      fontSize: '10px',
                       fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
                     }}
                   >
-                    <th style={{ padding: '14px 20px' }}>PROVIDER NAME</th>
-                    <th style={{ padding: '14px 20px' }}>MOBILE</th>
-                    <th style={{ padding: '14px 20px' }}>SERVICE CATEGORIES</th>
-                    <th style={{ padding: '14px 20px' }}>STATUS BADGE</th>
-                    <th style={{ padding: '14px 20px', textAlign: 'right' }}>ACTIONS</th>
+                    <th style={{ padding: '10px 12px', width: '28%' }}>PROVIDER NAME</th>
+                    <th style={{ padding: '10px 12px', width: '18%', whiteSpace: 'nowrap' }}>MOBILE</th>
+                    <th style={{ padding: '10px 12px', width: '28%' }}>SERVICE CATEGORIES</th>
+                    <th style={{ padding: '10px 12px', width: '14%', whiteSpace: 'nowrap' }}>STATUS BADGE</th>
+                    <th style={{ padding: '10px 12px', width: '12%', textAlign: 'right', whiteSpace: 'nowrap' }}>ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
                   {providers.length === 0 ? (
                     <tr>
-                      <td colSpan={5} style={{ padding: '48px', textAlign: 'center', color: '#64748b', fontSize: '14px' }}>
-                        No service providers found matching criteria.
+                      <td colSpan={5} style={{ padding: '36px 12px', textAlign: 'center', color: '#64748b' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8', marginBottom: '2px' }}>
+                          No providers found
+                        </div>
+                        <div style={{ fontSize: '12px' }}>
+                          No service providers found matching criteria.
+                        </div>
                       </td>
                     </tr>
                   ) : (
@@ -972,39 +951,37 @@ function ProvidersPageContent() {
               </table>
             </div>
 
-            {/* PAGINATION BAR */}
+            {/* Pagination Bar */}
             {total > 0 && (
               <div
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  padding: '16px 20px',
-                  borderTop: '1px solid rgba(255, 255, 255, 0.07)',
-                  backgroundColor: '#070911',
+                  padding: '12px 16px',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.01)',
                   flexWrap: 'wrap',
-                  gap: '12px',
+                  gap: '8px',
                 }}
               >
                 <span style={{ fontSize: '12px', color: '#64748b' }}>
-                  Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} providers
+                  Showing <strong style={{ color: '#f8fafc' }}>{(page - 1) * limit + 1}</strong> to{' '}
+                  <strong style={{ color: '#f8fafc' }}>{Math.min(page * limit, total)}</strong> of{' '}
+                  <strong style={{ color: '#f8fafc' }}>{total}</strong> providers
                 </span>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   {/* Previous Page */}
                   <button
                     disabled={page === 1}
                     onClick={() => setPage((p) => Math.max(p - 1, 1))}
                     style={{
-                      width: '32px',
-                      height: '32px',
+                      padding: '4px 8px',
                       borderRadius: '6px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      color: page === 1 ? '#475569' : '#94a3b8',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      backgroundColor: '#090d16',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: page === 1 ? '#475569' : '#f8fafc',
                       cursor: page === 1 ? 'not-allowed' : 'pointer',
                       fontSize: '12px',
                     }}
@@ -1027,16 +1004,16 @@ function ProvidersPageContent() {
                         key={`page-${num}`}
                         onClick={() => setPage(num as number)}
                         style={{
-                          minWidth: '32px',
-                          height: '32px',
+                          minWidth: '28px',
+                          height: '28px',
                           padding: '0 6px',
                           borderRadius: '6px',
-                          backgroundColor: isCurrent ? '#10b981' : 'rgba(255, 255, 255, 0.04)',
+                          backgroundColor: isCurrent ? 'rgba(16, 185, 129, 0.14)' : '#090d16',
                           border: isCurrent ? '1px solid #10b981' : '1px solid rgba(255, 255, 255, 0.08)',
-                          color: isCurrent ? '#ffffff' : '#94a3b8',
+                          color: isCurrent ? '#10b981' : '#94a3b8',
                           fontWeight: isCurrent ? 700 : 500,
                           cursor: 'pointer',
-                          fontSize: '12px',
+                          fontSize: '11px',
                           transition: 'all 0.15s ease',
                         }}
                       >
@@ -1050,15 +1027,11 @@ function ProvidersPageContent() {
                     disabled={page >= totalPages}
                     onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
                     style={{
-                      width: '32px',
-                      height: '32px',
+                      padding: '4px 8px',
                       borderRadius: '6px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      color: page >= totalPages ? '#475569' : '#94a3b8',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      backgroundColor: '#090d16',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: page >= totalPages ? '#475569' : '#f8fafc',
                       cursor: page >= totalPages ? 'not-allowed' : 'pointer',
                       fontSize: '12px',
                     }}
@@ -1092,7 +1065,7 @@ function ProvidersPageContent() {
         >
           <div
             style={{
-              backgroundColor: '#0b0f19',
+              backgroundColor: '#090d16',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: '16px',
               padding: '28px 24px',
@@ -1138,7 +1111,7 @@ function ProvidersPageContent() {
                   onChange={(e) => setFullName(e.target.value)}
                   style={{
                     width: '100%',
-                    backgroundColor: '#020617',
+                    backgroundColor: '#090d16',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '8px',
                     padding: '10px 12px',
@@ -1165,7 +1138,7 @@ function ProvidersPageContent() {
                   onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ''))}
                   style={{
                     width: '100%',
-                    backgroundColor: '#020617',
+                    backgroundColor: '#090d16',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '8px',
                     padding: '10px 12px',
@@ -1191,7 +1164,7 @@ function ProvidersPageContent() {
                   onChange={(e) => setServiceArea(e.target.value)}
                   style={{
                     width: '100%',
-                    backgroundColor: '#020617',
+                    backgroundColor: '#090d16',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '8px',
                     padding: '10px 12px',
@@ -1209,7 +1182,7 @@ function ProvidersPageContent() {
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                   Service Category Assignments *
                 </label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '140px', overflowY: 'auto', backgroundColor: '#020617', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '140px', overflowY: 'auto', backgroundColor: '#090d16', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                   {availableCategories.length === 0 ? (
                     <span style={{ fontSize: '12px', color: '#64748b' }}>No categories available</span>
                   ) : (
@@ -1261,7 +1234,7 @@ function ProvidersPageContent() {
                     border: 'none',
                     borderRadius: '8px',
                     padding: '10px',
-                    color: '#ffffff',
+                    color: '#020617',
                     fontWeight: 700,
                     fontSize: '13px',
                     cursor: 'pointer',
