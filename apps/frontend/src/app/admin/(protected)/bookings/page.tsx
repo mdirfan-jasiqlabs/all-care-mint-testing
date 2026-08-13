@@ -75,41 +75,138 @@ interface CachedBookingData {
 const bookingCache = new Map<string, CachedBookingData>();
 const CACHE_TTL_MS = 3 * 60 * 1000;
 
+const getCustomerAvatarColor = (name: string) => {
+  const palette = [
+    { bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.3)', color: '#34d399' },
+    { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)', color: '#60a5fa' },
+    { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)', color: '#fbbf24' },
+    { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)', color: '#a78bfa' },
+    { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)', color: '#f472b6' },
+  ];
+  let hash = 0;
+  for (let i = 0; i < (name || '').length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return palette[Math.abs(hash) % palette.length];
+};
+
+const getInitials = (name: string) => {
+  if (!name) return 'CU';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.substring(0, 2).toUpperCase();
+};
+
 // Helper badge renderer
 const renderStatusBadge = (status: string) => {
   switch (status) {
     case 'ACCEPTED':
     case 'COMPLETED':
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#064E3B]/80 text-[#10B981] border border-[#059669]/30">
-          <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            padding: '3px 8px',
+            borderRadius: '9999px',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.2px',
+            backgroundColor: 'rgba(16, 185, 129, 0.14)',
+            color: '#34d399',
+            border: '1px solid rgba(52, 211, 153, 0.28)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <CheckCircle2 size={11} />
           Completed
         </span>
       );
     case 'PENDING':
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#451A03]/80 text-[#F59E0B] border border-[#B45309]/30">
-          <Clock className="w-3.5 h-3.5 text-[#F59E0B]" />
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            padding: '3px 8px',
+            borderRadius: '9999px',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.2px',
+            backgroundColor: 'rgba(245, 158, 11, 0.14)',
+            color: '#fbbf24',
+            border: '1px solid rgba(251, 191, 36, 0.28)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <Clock size={11} />
           Pending
         </span>
       );
     case 'ASSIGNED':
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#1E1B4B]/80 text-[#818CF8] border border-[#4338CA]/30">
-          <User className="w-3.5 h-3.5 text-[#818CF8]" />
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            padding: '3px 8px',
+            borderRadius: '9999px',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.2px',
+            backgroundColor: 'rgba(59, 130, 246, 0.14)',
+            color: '#60a5fa',
+            border: '1px solid rgba(96, 165, 250, 0.28)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <User size={11} />
           Assigned
         </span>
       );
     case 'CANCELLED':
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#450A0A]/80 text-[#EF4444] border border-[#B91C1C]/30">
-          <XCircle className="w-3.5 h-3.5 text-[#EF4444]" />
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            padding: '3px 8px',
+            borderRadius: '9999px',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.2px',
+            backgroundColor: 'rgba(239, 68, 68, 0.14)',
+            color: '#f87171',
+            border: '1px solid rgba(248, 113, 113, 0.28)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <XCircle size={11} />
           Cancelled
         </span>
       );
     default:
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            padding: '3px 8px',
+            borderRadius: '9999px',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.2px',
+            backgroundColor: 'rgba(148, 163, 184, 0.14)',
+            color: '#94a3b8',
+            border: '1px solid rgba(148, 163, 184, 0.28)',
+            whiteSpace: 'nowrap',
+          }}
+        >
           {status}
         </span>
       );
@@ -151,99 +248,205 @@ const BookingTableRow = memo(function BookingTableRow({
     return `₹${parseFloat(booking.servicePriceSnapshot).toFixed(2)}`;
   }, [booking.servicePriceSnapshot]);
 
+  const avatar = useMemo(() => getCustomerAvatarColor(booking.customerName || ''), [booking.customerName]);
+  const initials = useMemo(() => getInitials(booking.customerName || ''), [booking.customerName]);
+
   return (
     <tr
       onClick={() => onSelectRow(booking)}
-      className={`transition-colors cursor-pointer group ${
-        isSelected
-          ? 'bg-[#10B981]/10 border-l-4 border-l-[#10B981]'
-          : 'hover:bg-slate-800/40'
-      }`}
+      style={{
+        borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+        backgroundColor: isSelected ? 'rgba(16, 185, 129, 0.08)' : 'transparent',
+        transition: 'background-color 0.12s ease',
+      }}
+      className="hover:bg-[rgba(255,255,255,0.02)] cursor-pointer group"
     >
       {/* BOOKING ID COLUMN */}
-      <td className="py-4 px-4 font-bold text-white font-mono whitespace-nowrap">
-        <div className="flex items-center gap-1.5">
-          <span>#{booking.bookingReference}</span>
+      <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontWeight: 700, color: '#38bdf8', fontFamily: 'monospace', fontSize: '12px' }}>
+            #{booking.bookingReference}
+          </span>
           <button
             type="button"
             title="Copy Booking ID"
             onClick={(e) => onCopyId(booking.bookingReference, e)}
-            className="p-1 text-slate-500 hover:text-white rounded opacity-0 group-hover:opacity-100 transition-opacity"
+            style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px' }}
+            className="opacity-0 group-hover:opacity-100 hover:text-white transition-opacity"
           >
-            <Copy className="w-3.5 h-3.5" />
+            <Copy size={12} />
           </button>
         </div>
       </td>
 
       {/* CUSTOMER COLUMN */}
-      <td className="py-4 px-4 text-slate-200 font-medium whitespace-nowrap">
-        <div className="flex items-center gap-2">
-          <User className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-          <span>{booking.customerName || 'Customer'}</span>
+      <td style={{ padding: '10px 12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+          <div
+            style={{
+              width: '26px',
+              height: '26px',
+              borderRadius: '50%',
+              backgroundColor: avatar.bg,
+              border: `1px solid ${avatar.border}`,
+              color: avatar.color,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '10px',
+              fontWeight: 800,
+              flexShrink: 0,
+            }}
+          >
+            {initials}
+          </div>
+          <span
+            style={{
+              fontWeight: 600,
+              color: '#f8fafc',
+              fontSize: '12px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              maxWidth: '150px',
+            }}
+            title={booking.customerName || 'Customer'}
+          >
+            {booking.customerName || 'Customer'}
+          </span>
         </div>
       </td>
 
       {/* SERVICE COLUMN */}
-      <td className="py-4 px-4 whitespace-nowrap">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-[#002B1D] border border-[#004D36] flex items-center justify-center text-[#10B981] flex-shrink-0">
-            <Wrench className="w-4 h-4 text-[#10B981]" />
+      <td style={{ padding: '10px 12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+          <div
+            style={{
+              width: '28px',
+              height: '28px',
+              borderRadius: '7px',
+              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#10b981',
+              flexShrink: 0,
+            }}
+          >
+            <Wrench size={13} />
           </div>
-          <div className="flex flex-col">
-            <span className="font-semibold text-white text-xs">
+          <div style={{ minWidth: 0, overflow: 'hidden' }}>
+            <span
+              style={{
+                fontWeight: 600,
+                color: '#f8fafc',
+                fontSize: '12px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                display: 'block',
+                maxWidth: '180px',
+              }}
+              title={booking.serviceNameSnapshot}
+            >
               {booking.serviceNameSnapshot}
             </span>
-            <span className="text-[11px] text-slate-400">Cleaning</span>
+            <span style={{ fontSize: '10px', color: '#64748b' }}>Cleaning</span>
           </div>
         </div>
       </td>
 
       {/* PRICE COLUMN */}
-      <td className="py-4 px-4 font-bold text-[#10B981] font-mono text-sm whitespace-nowrap">
-        {formattedPrice}
+      <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
+        <span style={{ fontSize: '13px', fontWeight: 800, color: '#34d399', fontFamily: 'monospace' }}>
+          {formattedPrice}
+        </span>
       </td>
 
       {/* DATE/TIME SLOT COLUMN */}
-      <td className="py-4 px-4 whitespace-nowrap">
-        <div className="flex flex-col">
-          <span className="font-medium text-slate-200">{formattedDate}</span>
-          <span className="text-[11px] text-slate-400">{booking.slotLabelSnapshot}</span>
+      <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <span style={{ fontWeight: 600, color: '#f8fafc', fontSize: '12px' }}>{formattedDate}</span>
+          <span style={{ fontSize: '10px', color: '#64748b' }}>{booking.slotLabelSnapshot}</span>
         </div>
       </td>
 
       {/* CURRENT STATUS COLUMN */}
-      <td className="py-4 px-4 whitespace-nowrap">
+      <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
         {renderStatusBadge(booking.status)}
       </td>
 
       {/* ACTIONS COLUMN */}
-      <td className="py-4 px-4 text-right whitespace-nowrap relative">
-        <div className="inline-block" ref={isActionOpen ? actionMenuRef : null}>
+      <td style={{ padding: '10px 12px', textAlign: 'right', whiteSpace: 'nowrap', position: 'relative' }}>
+        <div style={{ display: 'inline-block' }} ref={isActionOpen ? actionMenuRef : null}>
           <button
             type="button"
             onClick={(e) => onToggleActionMenu(booking.id, e)}
-            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#64748b',
+              cursor: 'pointer',
+              padding: '4px',
+              borderRadius: '6px',
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+            className="hover:text-white hover:bg-[rgba(255,255,255,0.06)]"
           >
-            <MoreVertical className="w-4 h-4" />
+            <MoreVertical size={15} />
           </button>
 
           {/* DROPDOWN MENU */}
           {isActionOpen && (
             <div
-              className="absolute right-4 mt-1 w-44 bg-[#0F172A] border border-slate-800 rounded-xl shadow-xl z-30 py-1 text-left"
+              style={{
+                position: 'absolute',
+                right: '12px',
+                marginTop: '4px',
+                width: '180px',
+                backgroundColor: '#090d16',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '10px',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.5)',
+                zIndex: 30,
+                padding: '4px 0',
+                textAlign: 'left',
+              }}
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 type="button"
                 onClick={() => onViewDetailsPage(booking.id)}
-                className="w-full px-3.5 py-2 text-xs text-slate-200 hover:bg-slate-800 flex items-center gap-2"
+                style={{
+                  width: '100%',
+                  padding: '7px 12px',
+                  fontSize: '12px',
+                  color: '#f8fafc',
+                  background: 'none',
+                  border: 'none',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                }}
+                className="hover:bg-[rgba(255,255,255,0.06)]"
               >
                 <span>View Details Page</span>
               </button>
               <button
                 type="button"
                 onClick={() => onSelectRow(booking)}
-                className="w-full px-3.5 py-2 text-xs text-slate-200 hover:bg-slate-800 flex items-center gap-2"
+                style={{
+                  width: '100%',
+                  padding: '7px 12px',
+                  fontSize: '12px',
+                  color: '#f8fafc',
+                  background: 'none',
+                  border: 'none',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                }}
+                className="hover:bg-[rgba(255,255,255,0.06)]"
               >
                 <span>{booking.status === 'PENDING' ? 'Assign Partner' : 'Reassign Partner'}</span>
               </button>
@@ -252,11 +455,17 @@ const BookingTableRow = memo(function BookingTableRow({
                   type="button"
                   disabled={booking.status === 'ACCEPTED'}
                   onClick={() => onSelectRow(booking)}
-                  className={`w-full px-3.5 py-2 text-xs flex items-center gap-2 ${
-                    booking.status === 'ACCEPTED'
-                      ? 'text-slate-600 cursor-not-allowed'
-                      : 'text-red-400 hover:bg-red-500/10'
-                  }`}
+                  style={{
+                    width: '100%',
+                    padding: '7px 12px',
+                    fontSize: '12px',
+                    color: booking.status === 'ACCEPTED' ? '#475569' : '#f87171',
+                    background: 'none',
+                    border: 'none',
+                    textAlign: 'left',
+                    cursor: booking.status === 'ACCEPTED' ? 'not-allowed' : 'pointer',
+                  }}
+                  className={booking.status === 'ACCEPTED' ? '' : 'hover:bg-[rgba(239,68,68,0.1)]'}
                 >
                   <span>Cancel Booking</span>
                 </button>
@@ -601,30 +810,51 @@ export default function AdminBookingsPage() {
   const totalPages = useMemo(() => Math.ceil(total / limit) || 1, [total, limit]);
 
   return (
-    <div className="flex flex-col gap-6 max-w-[1600px] mx-auto pb-12">
-      {/* PAGE CONTENT HEADER */}
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-xl bg-[#00281C] border border-[#004D36] flex items-center justify-center text-[#10B981] shadow-inner flex-shrink-0">
-          <Calendar className="w-6 h-6 text-[#10B981]" />
+    <div style={{ maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* 1. Header & Title Banner */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '10px',
+            backgroundColor: 'rgba(16, 185, 129, 0.12)',
+            border: '1px solid rgba(16, 185, 129, 0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#10b981',
+            flexShrink: 0,
+          }}
+        >
+          <Calendar size={20} />
         </div>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+          <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
             Bookings Operations Board
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-0.5 font-normal">
+          <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0, marginTop: '2px' }}>
             Track service assignments, evaluate slot lock constraints, and manage active schedules.
           </p>
         </div>
       </div>
 
-      {/* HORIZONTAL STATUS NAVIGATION TABS */}
-      <div className="border-b border-slate-800/80 flex gap-6 overflow-x-auto scrollbar-none">
+      {/* 2. Navigation Tabs Bar */}
+      <div
+        style={{
+          display: 'flex',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          gap: '24px',
+          paddingBottom: '2px',
+          overflowX: 'auto',
+        }}
+      >
         {[
-          { id: 'ALL', label: 'All Bookings', badgeBg: 'bg-[#064E3B]', badgeText: 'text-[#10B981]' },
-          { id: 'PENDING', label: 'Pending', badgeBg: 'bg-[#451A03]', badgeText: 'text-[#F59E0B]' },
-          { id: 'ASSIGNED', label: 'Assigned', badgeBg: 'bg-[#1E1B4B]', badgeText: 'text-[#818CF8]' },
-          { id: 'ACCEPTED', label: 'Accepted', badgeBg: 'bg-[#064E3B]', badgeText: 'text-[#10B981]' },
-          { id: 'CANCELLED', label: 'Cancelled', badgeBg: 'bg-[#450A0A]', badgeText: 'text-[#EF4444]' },
+          { id: 'ALL', label: 'All Bookings', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
+          { id: 'PENDING', label: 'Pending', color: '#fbbf24', bg: 'rgba(245, 158, 11, 0.12)' },
+          { id: 'ASSIGNED', label: 'Assigned', color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.12)' },
+          { id: 'ACCEPTED', label: 'Accepted', color: '#34d399', bg: 'rgba(16, 185, 129, 0.12)' },
+          { id: 'CANCELLED', label: 'Cancelled', color: '#f87171', bg: 'rgba(239, 68, 68, 0.12)' },
         ].map((tab) => {
           const isActive = activeTab === tab.id;
           const count = statusCounts[tab.id] ?? (tab.id === 'ALL' ? total : 0);
@@ -636,15 +866,34 @@ export default function AdminBookingsPage() {
                 setActiveTab(tab.id);
                 setPage(1);
               }}
-              className={`pb-3 text-xs sm:text-sm flex items-center gap-2.5 cursor-pointer whitespace-nowrap transition-all flex-shrink-0 outline-none ${
-                isActive
-                  ? 'text-white font-bold border-b-2 border-[#10B981]'
-                  : 'text-slate-400 font-medium border-b-2 border-transparent hover:text-slate-200'
-              }`}
+              style={{
+                padding: '8px 4px 10px 4px',
+                fontSize: '13px',
+                fontWeight: isActive ? 700 : 500,
+                color: isActive ? '#f8fafc' : '#94a3b8',
+                borderBottom: isActive ? '2px solid #10b981' : '2px solid transparent',
+                background: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease',
+              }}
+              className="hover:text-slate-200"
             >
               <span>{tab.label}</span>
               <span
-                className={`text-[11px] px-2 py-0.5 rounded-full font-bold min-w-[20px] text-center ${tab.badgeBg} ${tab.badgeText}`}
+                style={{
+                  backgroundColor: tab.bg,
+                  color: tab.color,
+                  fontSize: '10px',
+                  fontWeight: 800,
+                  borderRadius: '10px',
+                  padding: '2px 8px',
+                  lineHeight: 1,
+                  border: `1px solid ${tab.color}33`,
+                }}
               >
                 {count}
               </span>
@@ -655,127 +904,204 @@ export default function AdminBookingsPage() {
 
       {/* ERROR BANNER */}
       {error && (
-        <div className="bg-[#450A0A]/40 border border-[#EF4444]/40 p-4 rounded-xl text-[#F87171] text-xs sm:text-sm flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+        <div
+          style={{
+            padding: '12px 16px',
+            backgroundColor: 'rgba(239, 68, 68, 0.08)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            borderRadius: '12px',
+            color: '#f87171',
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          <AlertCircle size={16} color="#ef4444" />
           <span>{error}</span>
           <button
             onClick={fetchBookings}
-            className="ml-auto underline hover:no-underline font-semibold text-xs text-white"
+            style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#ffffff', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}
           >
             Retry
           </button>
         </div>
       )}
 
-      {/* SEARCH & FILTER TOOLBAR */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#090D16]/60 border border-slate-800/80 p-3 rounded-2xl">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
-          {/* SEARCH INPUT */}
-          <div className="relative flex-1 sm:max-w-xs">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search bookings by ID, customer..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#0F172A]/90 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#10B981]/60 focus:ring-1 focus:ring-[#10B981]/60 shadow-inner"
-            />
-            {searchQuery && (
+      {/* 3. Main Operations Board Card */}
+      <div
+        style={{
+          backgroundColor: '#090d16',
+          borderRadius: '12px',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Search & Filter Toolbar Header */}
+        <div
+          style={{
+            padding: '14px 16px',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '12px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
+              Service Bookings
+            </h2>
+            <span
+              style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                color: '#10b981',
+                fontSize: '11px',
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: '10px',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+              }}
+            >
+              {total} total
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flex: '1', justifyContent: 'flex-end' }}>
+            {/* Search Input */}
+            <div style={{ position: 'relative', width: '100%', maxWidth: '320px' }}>
+              <Search
+                size={14}
+                style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
+              />
+              <input
+                type="text"
+                placeholder="Search bookings by ID, customer..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: '100%',
+                  backgroundColor: '#090d16',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '8px',
+                  padding: '7px 28px 7px 32px',
+                  color: '#f8fafc',
+                  fontSize: '12px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+                className="focus:border-[#10b981]"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: '#64748b',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+
+            {/* Date Filter Input */}
+            <div style={{ position: 'relative', width: '170px' }}>
+              <input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => {
+                  setDateFilter(e.target.value);
+                  setPage(1);
+                }}
+                style={{
+                  width: '100%',
+                  backgroundColor: '#090d16',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '8px',
+                  padding: '6px 10px',
+                  color: '#f8fafc',
+                  fontSize: '12px',
+                  colorScheme: 'dark',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            {/* Clear Filters Action */}
+            {isFilterActive && (
               <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                onClick={handleClearFilters}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  backgroundColor: 'none',
+                  border: 'none',
+                  color: '#10b981',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
               >
-                <X className="w-3.5 h-3.5" />
+                <RotateCcw size={13} />
+                <span>Reset</span>
               </button>
             )}
           </div>
-
-          {/* DATE RANGE FILTER CONTROL */}
-          <div className="relative w-full sm:w-52">
-            <Calendar className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="date"
-              value={dateFilter}
-              onChange={(e) => {
-                setDateFilter(e.target.value);
-                setPage(1);
-              }}
-              className="w-full bg-[#0F172A]/90 border border-slate-800 rounded-xl pl-10 pr-3 py-2 text-xs text-white focus:outline-none focus:border-[#10B981]/60 text-slate-300 [&::-webkit-calendar-picker-indicator]:invert"
-            />
-          </div>
-
         </div>
 
-        {/* CLEAR FILTERS BUTTON */}
-        {isFilterActive && (
-          <button
-            onClick={handleClearFilters}
-            className="flex items-center gap-1.5 text-xs text-[#10B981] hover:text-[#34D399] font-medium px-2 py-1 transition-colors self-end sm:self-center"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Clear Filters</span>
-          </button>
-        )}
-      </div>
-
-      {/* BOOKINGS TABLE CONTAINER */}
-      <div className="bg-[#090D16]/90 border border-slate-800/80 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-md">
+        {/* Data Table Container */}
         {loading ? (
-          /* SKELETON TABLE LOADING STATE */
-          <div className="p-4 space-y-4">
-            <div className="h-10 bg-slate-800/40 rounded-xl animate-pulse w-full" />
+          <div style={{ padding: '20px' }} className="space-y-3">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-14 bg-slate-800/20 rounded-xl animate-pulse w-full flex items-center justify-between px-4 gap-4">
-                <div className="w-24 h-4 bg-slate-800 rounded" />
-                <div className="w-32 h-4 bg-slate-800 rounded" />
-                <div className="w-28 h-4 bg-slate-800 rounded" />
-                <div className="w-20 h-4 bg-slate-800 rounded" />
-                <div className="w-28 h-4 bg-slate-800 rounded" />
-                <div className="w-24 h-6 bg-slate-800 rounded-full" />
-              </div>
+              <div key={i} className="h-12 bg-slate-800/30 rounded-lg animate-pulse w-full" />
             ))}
           </div>
         ) : (
           <div>
-            {/* DESKTOP OPERATIONS BOARD TABLE (>= 768px) */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse min-w-[768px]">
+            <div style={{ overflowX: 'auto', width: '100%' }}>
+              <table style={{ width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
                 <thead>
-                  <tr className="bg-[#0F172A]/80 border-b border-slate-800/80 text-slate-400 font-bold text-[11px] tracking-wider uppercase">
-                    <th className="py-3.5 px-4">
-                      <span className="inline-flex items-center gap-1">
-                        BOOKING ID
-                        <ArrowUpDown className="w-3 h-3 text-slate-500" />
-                      </span>
-                    </th>
-                    <th className="py-3.5 px-4">CUSTOMER</th>
-                    <th className="py-3.5 px-4">SERVICE</th>
-                    <th className="py-3.5 px-4">PRICE</th>
-                    <th className="py-3.5 px-4">DATE/TIME SLOT</th>
-                    <th className="py-3.5 px-4">CURRENT STATUS</th>
-                    <th className="py-3.5 px-4 text-right">ACTIONS</th>
+                  <tr
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                      color: '#64748b',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                    }}
+                  >
+                    <th style={{ padding: '10px 12px', width: '15%', whiteSpace: 'nowrap' }}>BOOKING ID</th>
+                    <th style={{ padding: '10px 12px', width: '20%' }}>CUSTOMER</th>
+                    <th style={{ padding: '10px 12px', width: '24%' }}>SERVICE</th>
+                    <th style={{ padding: '10px 12px', width: '12%', whiteSpace: 'nowrap' }}>PRICE</th>
+                    <th style={{ padding: '10px 12px', width: '15%', whiteSpace: 'nowrap' }}>DATE / TIME SLOT</th>
+                    <th style={{ padding: '10px 12px', width: '10%', whiteSpace: 'nowrap' }}>STATUS</th>
+                    <th style={{ padding: '10px 12px', width: '4%', textAlign: 'right', whiteSpace: 'nowrap' }}>ACTIONS</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/50">
+                <tbody>
                   {filteredBookings.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="py-16 text-center text-slate-400">
-                        <div className="flex flex-col items-center justify-center gap-2">
-                          <Calendar className="w-8 h-8 text-slate-600 mb-1" />
-                          <p className="font-semibold text-sm text-slate-300">No bookings found</p>
-                          <p className="text-xs text-slate-500">
-                            {isFilterActive
-                              ? 'Try clearing active search or date filters.'
-                              : 'No active service bookings in the database.'}
-                          </p>
-                          {isFilterActive && (
-                            <button
-                              onClick={handleClearFilters}
-                              className="mt-2 text-xs font-bold text-[#10B981] hover:underline"
-                            >
-                              Reset Filters
-                            </button>
-                          )}
+                      <td colSpan={7} style={{ padding: '36px 12px', textAlign: 'center', color: '#64748b' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8', marginBottom: '2px' }}>
+                          No bookings found
+                        </div>
+                        <div style={{ fontSize: '12px' }}>
+                          {isFilterActive ? 'Try clearing active search or date filters.' : 'No active service bookings in the database.'}
                         </div>
                       </td>
                     </tr>
@@ -797,123 +1123,76 @@ export default function AdminBookingsPage() {
                 </tbody>
               </table>
             </div>
-
-            {/* MOBILE RESPONSIVE BOOKING CARDS (< 768px) */}
-            <div className="block md:hidden divide-y divide-slate-800/60">
-              {filteredBookings.length === 0 ? (
-                <div className="py-12 text-center text-slate-400 p-4">
-                  <p className="font-semibold text-sm text-slate-300">No bookings found</p>
-                </div>
-              ) : (
-                filteredBookings.map((b) => (
-                  <div
-                    key={b.id}
-                    onClick={() => openBookingDrawer(b)}
-                    className="p-4 flex flex-col gap-3 hover:bg-slate-800/30 transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-white font-mono text-sm">#{b.bookingReference}</span>
-                        <button
-                          type="button"
-                          onClick={(e) => handleCopyId(b.bookingReference, e)}
-                          className="p-1 text-slate-400 hover:text-white"
-                        >
-                          <Copy className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <div>{renderStatusBadge(b.status)}</div>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2 text-slate-300">
-                        <Wrench className="w-3.5 h-3.5 text-[#10B981]" />
-                        <span className="font-medium text-white">{b.serviceNameSnapshot}</span>
-                      </div>
-                      <span className="font-bold text-[#10B981] font-mono">
-                        ₹{parseFloat(b.servicePriceSnapshot).toFixed(2)}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800/40">
-                      <div className="flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5 text-slate-500" />
-                        <span>{b.customerName || 'Customer'}</span>
-                      </div>
-                      <div>
-                        {new Date(b.slotDate).toLocaleDateString('en-IN', {
-                          weekday: 'short',
-                          day: 'numeric',
-                          month: 'short',
-                        })}{' '}
-                        • {b.slotLabelSnapshot}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
           </div>
         )}
 
-        {/* PAGINATION FOOTER */}
+        {/* Pagination Footer */}
         {!loading && total > 0 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-slate-800/80 bg-[#0F172A]/40 text-xs">
-            <span className="text-slate-400">
-              Showing <span className="font-semibold text-white">{Math.min((page - 1) * limit + 1, total)}</span> to{' '}
-              <span className="font-semibold text-white">{Math.min(page * limit, total)}</span> of{' '}
-              <span className="font-semibold text-white">{total}</span> bookings
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '12px 16px',
+              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+              backgroundColor: 'rgba(255, 255, 255, 0.01)',
+              flexWrap: 'wrap',
+              gap: '8px',
+            }}
+          >
+            <span style={{ fontSize: '12px', color: '#64748b' }}>
+              Showing <strong style={{ color: '#f8fafc' }}>{Math.min((page - 1) * limit + 1, total)}</strong> to{' '}
+              <strong style={{ color: '#f8fafc' }}>{Math.min(page * limit, total)}</strong> of{' '}
+              <strong style={{ color: '#f8fafc' }}>{total}</strong> bookings
             </span>
 
-            {/* PAGINATION CONTROLS */}
-            <div className="flex items-center gap-1.5">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <button
                 disabled={page === 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="p-2 rounded-lg bg-[#0F172A] border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                title="Previous Page"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '3px',
+                  backgroundColor: '#090d16',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: page === 1 ? '#475569' : '#f8fafc',
+                  borderRadius: '6px',
+                  padding: '5px 10px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  cursor: page === 1 ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft size={12} />
+                <span>Previous</span>
               </button>
 
-              {[...Array(totalPages)].map((_, i) => {
-                const pageNum = i + 1;
-                // Limit display of page numbers if totalPages > 5
-                if (
-                  totalPages > 6 &&
-                  pageNum !== 1 &&
-                  pageNum !== totalPages &&
-                  Math.abs(pageNum - page) > 1
-                ) {
-                  if (pageNum === 2 || pageNum === totalPages - 1) {
-                    return <span key={pageNum} className="text-slate-600 px-1">...</span>;
-                  }
-                  return null;
-                }
-
-                const isCurrent = page === pageNum;
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => setPage(pageNum)}
-                    className={`w-8 h-8 rounded-lg font-bold text-xs flex items-center justify-center transition-colors ${
-                      isCurrent
-                        ? 'bg-[#065F46] text-[#10B981] border border-[#059669]/40'
-                        : 'bg-[#0F172A] border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white'
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
+              <span style={{ fontSize: '11px', color: '#94a3b8', padding: '0 6px' }}>
+                {page} / {totalPages}
+              </span>
 
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className="p-2 rounded-lg bg-[#0F172A] border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                title="Next Page"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '3px',
+                  backgroundColor: '#090d16',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: page >= totalPages ? '#475569' : '#f8fafc',
+                  borderRadius: '6px',
+                  padding: '5px 10px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  cursor: page >= totalPages ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
               >
-                <ChevronRight className="w-4 h-4" />
+                <span>Next</span>
+                <ChevronRight size={12} />
               </button>
             </div>
           </div>
@@ -929,7 +1208,8 @@ export default function AdminBookingsPage() {
           />
           <aside
             id="drawer-details"
-            className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-[#090D16] border-l border-slate-800/80 p-6 shadow-2xl z-50 flex flex-col justify-between overflow-y-auto"
+            style={{ backgroundColor: '#090d16', borderLeft: '1px solid rgba(255, 255, 255, 0.1)' }}
+            className="fixed top-0 right-0 bottom-0 w-full max-w-md p-6 shadow-2xl z-50 flex flex-col justify-between overflow-y-auto"
           >
             <div className="flex flex-col gap-6">
               {/* Drawer Header */}
@@ -943,7 +1223,7 @@ export default function AdminBookingsPage() {
                     <button
                       type="button"
                       onClick={() => router.push(`/admin/bookings/${drawerBooking.id}`)}
-                      className="text-[11px] font-semibold text-[#10B981] hover:underline cursor-pointer ml-1"
+                      className="text-[11px] font-semibold text-[#10b981] hover:underline cursor-pointer ml-1"
                     >
                       Open Full Page →
                     </button>
@@ -960,7 +1240,7 @@ export default function AdminBookingsPage() {
 
               {drawerLoading ? (
                 <div className="py-12 text-center flex flex-col items-center justify-center gap-2 text-slate-400">
-                  <Loader2 className="w-6 h-6 animate-spin text-[#10B981]" />
+                  <Loader2 className="w-6 h-6 animate-spin text-[#10b981]" />
                   <span className="text-xs">Loading booking details...</span>
                 </div>
               ) : (
@@ -980,7 +1260,7 @@ export default function AdminBookingsPage() {
                     </div>
                     <div className="flex justify-between items-center py-1">
                       <span className="text-slate-400">Price:</span>
-                      <span className="text-[#10B981] font-bold font-mono text-sm">
+                      <span className="text-[#34d399] font-bold font-mono text-sm">
                         ₹{parseFloat(drawerBooking.servicePriceSnapshot).toFixed(2)}
                       </span>
                     </div>
@@ -1013,7 +1293,8 @@ export default function AdminBookingsPage() {
                         disabled={actionSubmitting || drawerLoading}
                         value={selectedProviderId}
                         onChange={(e) => setSelectedProviderId(e.target.value)}
-                        className="flex-1 bg-[#0F172A] border border-slate-800 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-[#10B981]/60 disabled:opacity-50 cursor-pointer"
+                        style={{ backgroundColor: '#090d16', border: '1px solid rgba(255, 255, 255, 0.12)' }}
+                        className="flex-1 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-[#10b981]/60 disabled:opacity-50 cursor-pointer"
                       >
                         {drawerProviders.map((p) => (
                           <option key={p.id} value={p.id}>
@@ -1025,7 +1306,8 @@ export default function AdminBookingsPage() {
                         type="button"
                         disabled={actionSubmitting || drawerLoading}
                         onClick={handleAssignProvider}
-                        className="bg-[#10B981] hover:bg-[#059669] text-slate-950 font-bold rounded-xl px-4 py-2 text-xs flex items-center gap-1.5 disabled:opacity-50 transition-colors cursor-pointer"
+                        style={{ backgroundColor: '#10b981', color: '#020617' }}
+                        className="hover:bg-[#34d399] font-bold rounded-xl px-4 py-2 text-xs flex items-center gap-1.5 disabled:opacity-50 transition-colors cursor-pointer"
                       >
                         {actionSubmitting ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1049,7 +1331,7 @@ export default function AdminBookingsPage() {
                       ) : (
                         drawerHistory.map((h) => (
                           <div key={h.id} className="relative pl-3">
-                            <div className="absolute -left-[17px] top-1.5 w-2 h-2 rounded-full bg-[#10B981]" />
+                            <div className="absolute -left-[17px] top-1.5 w-2 h-2 rounded-full bg-[#10b981]" />
                             <p className="text-xs font-bold text-white">Status: {h.status}</p>
                             <p className="text-[10px] text-slate-400">
                               {new Date(h.createdAt).toLocaleTimeString()} by {h.actorRole}{' '}
