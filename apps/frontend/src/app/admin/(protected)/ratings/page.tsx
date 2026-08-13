@@ -1,6 +1,27 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import {
+  Star,
+  Search,
+  Calendar,
+  RotateCcw,
+  MessageSquareText,
+  MessageSquareOff,
+  UsersRound,
+  ThumbsUp,
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  User,
+  UserCheck,
+  RefreshCw,
+  Clock,
+  Sparkles,
+} from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { useToast } from '../../_components/Toast';
 
@@ -12,6 +33,31 @@ interface RatingRecord {
   provider_name: string;
   rating_score: number;
   review_text: string | null;
+}
+
+function getInitials(name: string): string {
+  if (!name) return '??';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+}
+
+function getAvatarColor(name: string): { bg: string; text: string; border: string } {
+  const colors = [
+    { bg: 'rgba(99, 102, 241, 0.16)', text: '#818cf8', border: 'rgba(129, 140, 248, 0.3)' },
+    { bg: 'rgba(168, 85, 247, 0.16)', text: '#c084fc', border: 'rgba(192, 132, 252, 0.3)' },
+    { bg: 'rgba(59, 130, 246, 0.16)', text: '#60a5fa', border: 'rgba(96, 165, 250, 0.3)' },
+    { bg: 'rgba(20, 184, 166, 0.16)', text: '#2dd4bf', border: 'rgba(45, 212, 191, 0.3)' },
+    { bg: 'rgba(245, 158, 11, 0.16)', text: '#fbbf24', border: 'rgba(251, 191, 36, 0.3)' },
+  ];
+  let hash = 0;
+  for (let i = 0; i < (name || '').length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
 }
 
 export default function AdminRatingsPage() {
@@ -28,6 +74,7 @@ export default function AdminRatingsPage() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
 
   const { addToast } = useToast();
 
@@ -59,14 +106,19 @@ export default function AdminRatingsPage() {
       if (json.success && json.data) {
         setRatings(json.data.data || []);
         setTotalPages(json.data.meta?.total_pages || 1);
+        setTotalRecords(json.data.meta?.total || (json.data.data || []).length);
       } else {
         setRatings([]);
+        setTotalPages(1);
+        setTotalRecords(0);
       }
     } catch (err: any) {
       console.error('Failed to fetch ratings:', err);
       setErrorMsg(err.message || 'Failed to load rating records.');
       addToast(err.message || 'Error loading rating records', 'error');
       setRatings([]);
+      setTotalPages(1);
+      setTotalRecords(0);
     } finally {
       setLoading(false);
     }
@@ -76,98 +128,140 @@ export default function AdminRatingsPage() {
     fetchRatings();
   }, [providerSearch, minRatingFilter, dateFrom, dateTo, page, sortBy, sortOrder]);
 
+  const handleResetFilters = () => {
+    setProviderSearch('');
+    setMinRatingFilter('');
+    setDateFrom('');
+    setDateTo('');
+    setPage(1);
+  };
+
+  const isFiltersDirty = Boolean(providerSearch || minRatingFilter || dateFrom || dateTo);
+
+  // Derivations for summary cards based strictly on available data scope
+  const pageRatingSum = ratings.reduce((acc, r) => acc + (r.rating_score || 0), 0);
+  const avgPageRating = ratings.length > 0 ? (pageRatingSum / ratings.length).toFixed(1) : '0.0';
+  const fiveStarCount = ratings.filter((r) => r.rating_score === 5).length;
+  const lowRatingCount = ratings.filter((r) => r.rating_score <= 2).length;
+  const commentsCount = ratings.filter((r) => Boolean(r.review_text && r.review_text.trim())).length;
+
   const renderStars = (score: number) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <span
-          key={i}
-          style={{
-            color: i <= score ? '#f59e0b' : '#334155',
-            fontSize: '16px',
-            marginRight: '2px',
-          }}
-        >
-          ★
-        </span>
-      );
-    }
     const isLowRating = score <= 2;
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-        <div>{stars}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star
+              key={star}
+              size={14}
+              style={{
+                fill: star <= score ? '#f59e0b' : '#1e293b',
+                color: star <= score ? '#f59e0b' : '#334155',
+              }}
+            />
+          ))}
+        </div>
         <span
           style={{
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: 700,
-            padding: '2px 8px',
+            padding: '2px 7px',
             borderRadius: '9999px',
             backgroundColor: isLowRating ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
             color: isLowRating ? '#f87171' : '#34d399',
             border: isLowRating ? '1px solid rgba(248, 113, 113, 0.3)' : '1px solid rgba(52, 211, 153, 0.3)',
+            letterSpacing: '0.2px',
           }}
         >
-          {score}.0
+          {score.toFixed(1)}
         </span>
       </div>
     );
   };
 
+  const startRecord = (page - 1) * 20 + 1;
+  const endRecord = Math.min(page * 20, totalRecords);
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Header Banner */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
+      {/* 1. Header Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 id="admin-ratings-heading" style={{ fontSize: '24px', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
-            Provider Ratings & Feedback Ledger
-          </h1>
-          <p style={{ fontSize: '14px', color: '#94a3b8', marginTop: '4px', margin: 0 }}>
+          <div className="flex items-center gap-3">
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '40px',
+                height: '40px',
+                borderRadius: '10px',
+                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+                color: '#10b981',
+              }}
+            >
+              <Star size={20} className="fill-emerald-500/20" />
+            </div>
+            <h1 id="admin-ratings-heading" style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', margin: 0, letterSpacing: '-0.02em' }}>
+              Provider Ratings & Feedback Ledger
+            </h1>
+          </div>
+          <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px', margin: 0, paddingLeft: '2px' }}>
             Audit customer reviews, identify low-rated providers (≤2 stars), and monitor service quality metrics.
           </p>
         </div>
       </div>
 
-      {/* Filter Control Toolbar */}
+      {/* 2. Filter Control Surface */}
       <div
         style={{
           display: 'flex',
           flexWrap: 'wrap',
-          gap: '16px',
-          padding: '16px 20px',
-          backgroundColor: '#0f172a',
+          gap: '12px',
+          padding: '16px 18px',
+          backgroundColor: '#090d16',
           borderRadius: '12px',
           border: '1px solid rgba(255, 255, 255, 0.08)',
-          alignItems: 'center',
+          alignItems: 'flex-end',
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '180px' }}>
-          <label htmlFor="provider-search-input" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+        {/* Search Provider / Customer */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 200px', minWidth: '180px' }}>
+          <label htmlFor="provider-search-input" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Search size={12} color="#64748b" />
             Search Provider / Customer
           </label>
-          <input
-            id="provider-search-input"
-            type="text"
-            placeholder="Search name..."
-            value={providerSearch}
-            onChange={(e) => {
-              setProviderSearch(e.target.value);
-              setPage(1);
-            }}
-            style={{
-              padding: '8px 12px',
-              backgroundColor: '#020617',
-              color: '#f8fafc',
-              border: '1px solid #334155',
-              borderRadius: '6px',
-              fontSize: '14px',
-              width: '100%',
-              minHeight: '44px',
-            }}
-          />
+          <div style={{ position: 'relative', width: '100%' }} className="relative">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+            <input
+              id="provider-search-input"
+              type="text"
+              placeholder="Search provider or customer name..."
+              value={providerSearch}
+              onChange={(e) => {
+                setProviderSearch(e.target.value);
+                setPage(1);
+              }}
+              style={{
+                padding: '8px 12px 8px 34px',
+                backgroundColor: '#020617',
+                color: '#f8fafc',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '8px',
+                fontSize: '13px',
+                width: '100%',
+                height: '40px',
+                outline: 'none',
+              }}
+            />
+          </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '160px' }}>
-          <label htmlFor="min-rating-select" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+        {/* Rating Filter */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 170px', minWidth: '160px' }}>
+          <label htmlFor="min-rating-select" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Star size={12} color="#64748b" />
             Filter by Rating
           </label>
           <select
@@ -181,10 +275,12 @@ export default function AdminRatingsPage() {
               padding: '8px 12px',
               backgroundColor: '#020617',
               color: '#f8fafc',
-              border: '1px solid #334155',
-              borderRadius: '6px',
-              fontSize: '14px',
-              minHeight: '44px',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '8px',
+              fontSize: '13px',
+              height: '40px',
+              outline: 'none',
+              cursor: 'pointer',
             }}
           >
             <option value="">All Ratings</option>
@@ -195,8 +291,10 @@ export default function AdminRatingsPage() {
           </select>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '140px' }}>
-          <label htmlFor="date-from-input" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+        {/* Date From */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 140px', minWidth: '130px' }}>
+          <label htmlFor="date-from-input" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Calendar size={12} color="#64748b" />
             From Date
           </label>
           <input
@@ -208,19 +306,23 @@ export default function AdminRatingsPage() {
               setPage(1);
             }}
             style={{
-              padding: '7px 12px',
+              padding: '7px 10px',
               backgroundColor: '#020617',
               color: '#f8fafc',
-              border: '1px solid #334155',
-              borderRadius: '6px',
-              fontSize: '14px',
-              minHeight: '44px',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '8px',
+              fontSize: '13px',
+              height: '40px',
+              colorScheme: 'dark',
+              outline: 'none',
             }}
           />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '140px' }}>
-          <label htmlFor="date-to-input" style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+        {/* Date To */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 140px', minWidth: '130px' }}>
+          <label htmlFor="date-to-input" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Calendar size={12} color="#64748b" />
             To Date
           </label>
           <input
@@ -232,193 +334,557 @@ export default function AdminRatingsPage() {
               setPage(1);
             }}
             style={{
-              padding: '7px 12px',
+              padding: '7px 10px',
               backgroundColor: '#020617',
               color: '#f8fafc',
-              border: '1px solid #334155',
-              borderRadius: '6px',
-              fontSize: '14px',
-              minHeight: '44px',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '8px',
+              fontSize: '13px',
+              height: '40px',
+              colorScheme: 'dark',
+              outline: 'none',
             }}
           />
         </div>
+
+        {/* Reset Action */}
+        <button
+          id="reset-filters-btn"
+          onClick={handleResetFilters}
+          disabled={!isFiltersDirty}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
+            padding: '8px 14px',
+            backgroundColor: 'rgba(255, 255, 255, 0.04)',
+            color: isFiltersDirty ? '#f8fafc' : '#64748b',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: 600,
+            height: '40px',
+            cursor: isFiltersDirty ? 'pointer' : 'default',
+            opacity: isFiltersDirty ? 1 : 0.5,
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <RotateCcw size={14} />
+          Reset
+        </button>
       </div>
 
-      {/* Main Table Container */}
+      {/* 3. Summary Metric Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        {/* KPI 1: Total Reviews */}
+        <div
+          style={{
+            padding: '14px 16px',
+            backgroundColor: '#090d16',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Reviews</span>
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
+              <UsersRound size={16} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              {loading ? '—' : totalRecords}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              Total Ledger Matching
+            </div>
+          </div>
+        </div>
+
+        {/* KPI 2: Average Rating */}
+        <div
+          style={{
+            padding: '14px 16px',
+            backgroundColor: '#090d16',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Average Rating</span>
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399' }}>
+              <Star size={16} className="fill-emerald-400/30" />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              {loading ? '—' : `${avgPageRating} / 5`}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              On Current Page
+            </div>
+          </div>
+        </div>
+
+        {/* KPI 3: 5 Star Reviews */}
+        <div
+          style={{
+            padding: '14px 16px',
+            backgroundColor: '#090d16',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>5 Star Reviews</span>
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
+              <ThumbsUp size={16} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              {loading ? '—' : `${fiveStarCount} ${ratings.length > 0 ? `(${((fiveStarCount / ratings.length) * 100).toFixed(0)}%)` : ''}`}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              On Current Page
+            </div>
+          </div>
+        </div>
+
+        {/* KPI 4: Low Rated (<=2*) */}
+        <div
+          style={{
+            padding: '14px 16px',
+            backgroundColor: '#090d16',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Low Rated (≤2★)</span>
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171' }}>
+              <AlertTriangle size={16} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: lowRatingCount > 0 ? '#f87171' : '#f8fafc', letterSpacing: '-0.02em' }}>
+              {loading ? '—' : `${lowRatingCount} ${ratings.length > 0 ? `(${((lowRatingCount / ratings.length) * 100).toFixed(0)}%)` : ''}`}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              {lowRatingCount > 0 ? 'Requires Attention' : 'On Current Page'}
+            </div>
+          </div>
+        </div>
+
+        {/* KPI 5: Total Comments */}
+        <div
+          style={{
+            padding: '14px 16px',
+            backgroundColor: '#090d16',
+            borderRadius: '12px',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Comments</span>
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(20, 184, 166, 0.12)', border: '1px solid rgba(20, 184, 166, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2dd4bf' }}>
+              <MessageSquareText size={16} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              {loading ? '—' : commentsCount}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              Written Feedback on Page
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Main Ratings Table Card */}
       <div
         style={{
-          backgroundColor: '#0f172a',
+          backgroundColor: '#090d16',
           borderRadius: '12px',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
+        {/* Error Alert State */}
         {errorMsg && (
           <div
             id="error-ratings-state"
             style={{
-              padding: '16px 20px',
-              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              padding: '12px 18px',
+              backgroundColor: 'rgba(239, 68, 68, 0.08)',
               borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
               color: '#f87171',
-              fontSize: '14px',
+              fontSize: '13px',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
             }}
           >
-            <span>{errorMsg}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <AlertTriangle size={16} color="#ef4444" />
+              <span>{errorMsg}</span>
+            </div>
             <button
               onClick={fetchRatings}
               style={{
-                padding: '4px 12px',
+                padding: '5px 12px',
                 backgroundColor: '#ef4444',
-                color: '#fff',
+                color: '#ffffff',
                 border: 'none',
-                borderRadius: '4px',
+                borderRadius: '6px',
                 cursor: 'pointer',
                 fontSize: '12px',
-                fontWeight: 600,
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
               }}
             >
+              <RefreshCw size={13} />
               Retry
             </button>
           </div>
         )}
 
-        <div style={{ overflowX: 'auto' }}>
-          <table id="admin-ratings-table" style={{ width: '100%', minWidth: '640px', borderCollapse: 'collapse', textAlign: 'left' }}>
+        {/* Table Content */}
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+          <table id="admin-ratings-table" style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
+              <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 <th
                   id="th-sort-date"
                   onClick={() => handleSort('date')}
                   style={{
-                    padding: '14px 16px',
-                    fontSize: '12px',
+                    padding: '12px 14px',
+                    fontSize: '11px',
                     color: sortBy === 'date' ? '#38bdf8' : '#94a3b8',
                     textTransform: 'uppercase',
+                    fontWeight: 700,
+                    letterSpacing: '0.4px',
                     cursor: 'pointer',
                     userSelect: 'none',
+                    whiteSpace: 'nowrap',
                   }}
                   title="Click to sort by date"
                 >
-                  Date {sortBy === 'date' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <Calendar size={13} />
+                    <span>DATE & TIME</span>
+                    {sortBy === 'date' ? (
+                      sortOrder === 'asc' ? <ArrowUp size={13} /> : <ArrowDown size={13} />
+                    ) : (
+                      <ArrowUpDown size={12} className="opacity-40" />
+                    )}
+                  </div>
                 </th>
-                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Customer</th>
-                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Provider</th>
-                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Booking ID</th>
+
+                <th style={{ padding: '12px 14px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px' }}>
+                  CUSTOMER
+                </th>
+
+                <th style={{ padding: '12px 14px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px' }}>
+                  PROVIDER
+                </th>
+
+                <th style={{ padding: '12px 14px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>
+                  BOOKING ID
+                </th>
+
                 <th
                   id="th-sort-rating"
                   onClick={() => handleSort('rating')}
                   style={{
-                    padding: '14px 16px',
-                    fontSize: '12px',
+                    padding: '12px 14px',
+                    fontSize: '11px',
                     color: sortBy === 'rating' ? '#38bdf8' : '#94a3b8',
                     textTransform: 'uppercase',
+                    fontWeight: 700,
+                    letterSpacing: '0.4px',
                     cursor: 'pointer',
                     userSelect: 'none',
+                    whiteSpace: 'nowrap',
                   }}
                   title="Click to sort by rating"
                 >
-                  Rating {sortBy === 'rating' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <Star size={13} />
+                    <span>RATING</span>
+                    {sortBy === 'rating' ? (
+                      sortOrder === 'asc' ? <ArrowUp size={13} /> : <ArrowDown size={13} />
+                    ) : (
+                      <ArrowUpDown size={12} className="opacity-40" />
+                    )}
+                  </div>
                 </th>
-                <th style={{ padding: '14px 16px', fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase' }}>Customer Review / Comment</th>
+
+                <th style={{ padding: '12px 14px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px' }}>
+                  CUSTOMER REVIEW / COMMENT
+                </th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: '#94a3b8' }}>
-                    Loading provider ratings...
-                  </td>
-                </tr>
-              ) : ratings.length === 0 ? (
-                <tr>
-                  <td id="empty-ratings-state" colSpan={6} style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>
-                    No provider ratings found matching the filter criteria.
-                  </td>
-                </tr>
-              ) : (
-                ratings.map((row) => (
-                  <tr key={row.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                    <td style={{ padding: '14px 16px', fontSize: '14px', color: '#cbd5e1' }}>
-                      {new Date(row.date).toLocaleDateString('en-IN', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </td>
-                    <td style={{ padding: '14px 16px', fontSize: '14px', color: '#cbd5e1' }}>
-                      {row.customer_name}
-                    </td>
-                    <td style={{ padding: '14px 16px', fontSize: '14px', fontWeight: 600, color: '#f8fafc' }}>
-                      {row.provider_name}
-                    </td>
-                    <td style={{ padding: '14px 16px', fontSize: '14px', fontFamily: 'monospace', color: '#60a5fa' }}>
-                      {row.booking_id}
-                    </td>
-                    <td style={{ padding: '14px 16px' }}>{renderStars(row.rating_score)}</td>
-                    <td style={{ padding: '14px 16px', fontSize: '14px', color: '#94a3b8', maxWidth: '300px' }}>
-                      {row.review_text || <span style={{ fontStyle: 'italic', color: '#475569' }}>No written review</span>}
+                Array.from({ length: 6 }).map((_, idx) => (
+                  <tr key={`sk-row-${idx}`} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
+                    <td colSpan={6} style={{ padding: '14px 16px' }}>
+                      <div
+                        style={{
+                          height: '20px',
+                          backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                          borderRadius: '4px',
+                          width: '100%',
+                          animation: 'pulse 1.5s infinite ease-in-out',
+                        }}
+                      />
                     </td>
                   </tr>
                 ))
+              ) : ratings.length === 0 ? (
+                <tr>
+                  <td id="empty-ratings-state" colSpan={6} style={{ padding: '48px 16px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+                      <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                        <MessageSquareOff size={24} />
+                      </div>
+                      <span style={{ fontSize: '15px', fontWeight: 700, color: '#f8fafc' }}>No ratings or reviews found</span>
+                      <span style={{ fontSize: '13px', color: '#64748b', maxWidth: '360px' }}>
+                        No provider ratings matching the current filter criteria were found. Try resetting the filters.
+                      </span>
+                      {isFiltersDirty && (
+                        <button
+                          onClick={handleResetFilters}
+                          style={{
+                            marginTop: '8px',
+                            padding: '8px 16px',
+                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                            color: '#f8fafc',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            borderRadius: '8px',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                          }}
+                        >
+                          <RotateCcw size={14} />
+                          Reset Filters
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                ratings.map((row) => {
+                  const isLow = row.rating_score <= 2;
+                  const customerInitials = getInitials(row.customer_name);
+                  const custAvatar = getAvatarColor(row.customer_name);
+                  const d = new Date(row.date);
+                  const dateStr = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+                  const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+                  return (
+                    <tr
+                      key={row.id}
+                      style={{
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                        backgroundColor: isLow ? 'rgba(239, 68, 68, 0.04)' : 'transparent',
+                        borderLeft: isLow ? '3px solid #ef4444' : '3px solid transparent',
+                        transition: 'background-color 0.15s ease',
+                      }}
+                      className="hover:bg-slate-800/30"
+                    >
+                      {/* Date & Time */}
+                      <td style={{ padding: '12px 14px', fontSize: '13px', color: '#cbd5e1', whiteSpace: 'nowrap' }}>
+                        <div style={{ fontWeight: 600, color: '#f8fafc' }}>{dateStr}</div>
+                        <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <Clock size={11} />
+                          {timeStr}
+                        </div>
+                      </td>
+
+                      {/* Customer */}
+                      <td style={{ padding: '12px 14px', fontSize: '13px', color: '#cbd5e1' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <div
+                            style={{
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '50%',
+                              backgroundColor: custAvatar.bg,
+                              color: custAvatar.text,
+                              border: `1px solid ${custAvatar.border}`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {customerInitials}
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 600, color: '#f8fafc' }}>{row.customer_name}</div>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Provider */}
+                      <td style={{ padding: '12px 14px', fontSize: '13px', fontWeight: 600, color: '#f8fafc' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div
+                            style={{
+                              width: '28px',
+                              height: '28px',
+                              borderRadius: '50%',
+                              backgroundColor: 'rgba(16, 185, 129, 0.14)',
+                              color: '#34d399',
+                              border: '1px solid rgba(52, 211, 153, 0.28)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <UserCheck size={14} />
+                          </div>
+                          <span>{row.provider_name}</span>
+                        </div>
+                      </td>
+
+                      {/* Booking ID */}
+                      <td style={{ padding: '12px 14px', fontSize: '13px', fontFamily: 'monospace', color: '#34d399', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                        {row.booking_id}
+                      </td>
+
+                      {/* Rating */}
+                      <td style={{ padding: '12px 14px', whiteSpace: 'nowrap' }}>
+                        {renderStars(row.rating_score)}
+                      </td>
+
+                      {/* Customer Review / Comment */}
+                      <td style={{ padding: '12px 14px', fontSize: '13px', color: '#cbd5e1', maxWidth: '340px' }}>
+                        {row.review_text && row.review_text.trim() ? (
+                          <span style={{ color: '#e2e8f0', lineHeight: 1.4 }}>{row.review_text}</span>
+                        ) : (
+                          <span style={{ fontStyle: 'italic', color: '#475569', fontSize: '12px' }}>No written review</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
 
-        {/* Pagination Bar */}
+        {/* 5. Pagination Bar */}
         <div
           style={{
             display: 'flex',
+            flexWrap: 'wrap',
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: '12px 16px',
-            backgroundColor: '#1e293b',
-            borderTop: '1px solid #334155',
+            gap: '12px',
+            padding: '12px 18px',
+            backgroundColor: '#0d131f',
+            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
           }}
         >
-          <span style={{ fontSize: '13px', color: '#94a3b8' }}>
-            Page {page} of {totalPages}
+          <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 500 }}>
+            {totalRecords > 0 ? (
+              <>
+                Showing <strong style={{ color: '#f8fafc' }}>{startRecord}</strong> to{' '}
+                <strong style={{ color: '#f8fafc' }}>{endRecord}</strong> of{' '}
+                <strong style={{ color: '#f8fafc' }}>{totalRecords}</strong> results
+              </>
+            ) : (
+              'Page 1 of 1'
+            )}
           </span>
-          <div style={{ display: 'flex', gap: '8px' }}>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button
               id="prev-page-btn"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
+              disabled={page <= 1 || loading}
               style={{
-                padding: '6px 12px',
-                backgroundColor: '#0f172a',
-                color: '#f8fafc',
-                border: '1px solid #334155',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '6px 14px',
+                backgroundColor: '#020617',
+                color: page <= 1 || loading ? '#64748b' : '#f8fafc',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
                 borderRadius: '6px',
                 fontSize: '13px',
-                cursor: page <= 1 ? 'not-allowed' : 'pointer',
-                opacity: page <= 1 ? 0.4 : 1,
+                fontWeight: 600,
+                cursor: page <= 1 || loading ? 'not-allowed' : 'pointer',
+                opacity: page <= 1 || loading ? 0.4 : 1,
+                transition: 'all 0.15s ease',
               }}
             >
+              <ChevronLeft size={15} />
               Previous
             </button>
+
+            <span style={{ fontSize: '12px', color: '#64748b', padding: '0 4px', fontWeight: 600 }}>
+              {page} / {totalPages}
+            </span>
+
             <button
               id="next-page-btn"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
+              disabled={page >= totalPages || loading}
               style={{
-                padding: '6px 12px',
-                backgroundColor: '#0f172a',
-                color: '#f8fafc',
-                border: '1px solid #334155',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '6px 14px',
+                backgroundColor: '#020617',
+                color: page >= totalPages || loading ? '#64748b' : '#f8fafc',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
                 borderRadius: '6px',
                 fontSize: '13px',
-                cursor: page >= totalPages ? 'not-allowed' : 'pointer',
-                opacity: page >= totalPages ? 0.4 : 1,
+                fontWeight: 600,
+                cursor: page >= totalPages || loading ? 'not-allowed' : 'pointer',
+                opacity: page >= totalPages || loading ? 0.4 : 1,
+                transition: 'all 0.15s ease',
               }}
             >
               Next
+              <ChevronRight size={15} />
             </button>
           </div>
         </div>
