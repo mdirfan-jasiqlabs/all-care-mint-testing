@@ -610,20 +610,20 @@ export default function UnifiedCatalogManager() {
   // Category Icon styling generator
   const getCategoryIconDetails = (name: string, index: number) => {
     const palette = [
-      { bg: 'rgba(139, 92, 246, 0.18)', border: 'rgba(139, 92, 246, 0.3)', color: '#a78bfa', Icon: Sparkles },
-      { bg: 'rgba(16, 185, 129, 0.18)', border: 'rgba(16, 185, 129, 0.3)', color: '#34d399', Icon: Folder },
-      { bg: 'rgba(59, 130, 246, 0.18)', border: 'rgba(59, 130, 246, 0.3)', color: '#60a5fa', Icon: Droplet },
-      { bg: 'rgba(245, 158, 11, 0.18)', border: 'rgba(245, 158, 11, 0.3)', color: '#fbbf24', Icon: Zap },
-      { bg: 'rgba(236, 72, 153, 0.18)', border: 'rgba(236, 72, 153, 0.3)', color: '#f472b6', Icon: Paintbrush },
-      { bg: 'rgba(20, 184, 166, 0.18)', border: 'rgba(20, 184, 166, 0.3)', color: '#2dd4bf', Icon: Wrench },
+      { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)', color: '#a78bfa', Icon: Sparkles },
+      { bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.3)', color: '#34d399', Icon: Folder },
+      { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)', color: '#60a5fa', Icon: Droplet },
+      { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)', color: '#fbbf24', Icon: Zap },
+      { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)', color: '#f472b6', Icon: Paintbrush },
+      { bg: 'rgba(20, 184, 166, 0.15)', border: 'rgba(20, 184, 166, 0.3)', color: '#2dd4bf', Icon: Wrench },
     ];
 
     const lower = name.toLowerCase();
-    if (lower.includes('clean')) return { bg: 'rgba(16, 185, 129, 0.18)', border: 'rgba(16, 185, 129, 0.3)', color: '#34d399', Icon: Sparkles };
-    if (lower.includes('ac') || lower.includes('repair')) return { bg: 'rgba(245, 158, 11, 0.18)', border: 'rgba(245, 158, 11, 0.3)', color: '#fbbf24', Icon: Zap };
-    if (lower.includes('plumb')) return { bg: 'rgba(59, 130, 246, 0.18)', border: 'rgba(59, 130, 246, 0.3)', color: '#60a5fa', Icon: Droplet };
-    if (lower.includes('paint')) return { bg: 'rgba(236, 72, 153, 0.18)', border: 'rgba(236, 72, 153, 0.3)', color: '#f472b6', Icon: Paintbrush };
-    if (lower.includes('electric')) return { bg: 'rgba(139, 92, 246, 0.18)', border: 'rgba(139, 92, 246, 0.3)', color: '#a78bfa', Icon: Zap };
+    if (lower.includes('clean')) return { bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.3)', color: '#34d399', Icon: Sparkles };
+    if (lower.includes('ac') || lower.includes('repair')) return { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)', color: '#fbbf24', Icon: Zap };
+    if (lower.includes('plumb')) return { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)', color: '#60a5fa', Icon: Droplet };
+    if (lower.includes('paint')) return { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)', color: '#f472b6', Icon: Paintbrush };
+    if (lower.includes('electric')) return { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)', color: '#a78bfa', Icon: Zap };
 
     return palette[index % palette.length];
   };
@@ -662,22 +662,35 @@ export default function UnifiedCatalogManager() {
   );
 
   return (
-    <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', color: '#ffffff' }}>
       
       {/* 1. Page Header & Primary Action CTA */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-            <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.5px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#10b981',
+              flexShrink: 0,
+            }}
+          >
+            {activeTab === 'categories' ? <Folder size={20} /> : <Package size={20} />}
+          </div>
+          <div>
+            <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
               Service Catalog Manager
             </h1>
-            <div style={{ color: '#10b981', display: 'flex', alignItems: 'center' }}>
-              <CheckCircle2 size={22} className="text-[#10b981]" />
-            </div>
+            <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px', margin: 0, fontWeight: 400 }}>
+              Manage service categories, configure fixed pricing, and adjust operational catalog structures.
+            </p>
           </div>
-          <p style={{ color: '#94a3b8', fontSize: '14px', maxWidth: '640px', lineHeight: '1.5' }}>
-            Manage your service categories. Create, edit and organize categories for easier service management.
-          </p>
         </div>
 
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -688,20 +701,20 @@ export default function UnifiedCatalogManager() {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
-                padding: '10px 20px',
-                borderRadius: '10px',
-                background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-                color: '#ffffff',
-                fontWeight: 600,
-                fontSize: '14px',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 4px 14px rgba(79, 70, 229, 0.3)',
+                gap: '6px',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                backgroundColor: '#10b981',
+                color: '#020617',
+                fontWeight: 700,
+                fontSize: '12px',
+                border: 'none',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.15s ease',
               }}
+              className="hover:bg-[#34d399]"
             >
-              <Plus size={18} />
+              <Plus size={15} />
               <span>Add Category</span>
             </button>
           ) : (
@@ -711,20 +724,20 @@ export default function UnifiedCatalogManager() {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
-                padding: '10px 20px',
-                borderRadius: '10px',
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                color: '#ffffff',
-                fontWeight: 600,
-                fontSize: '14px',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)',
+                gap: '6px',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                backgroundColor: '#10b981',
+                color: '#020617',
+                fontWeight: 700,
+                fontSize: '12px',
+                border: 'none',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.15s ease',
               }}
+              className="hover:bg-[#34d399]"
             >
-              <Plus size={18} />
+              <Plus size={15} />
               <span>Add Service</span>
             </button>
           )}
@@ -744,19 +757,20 @@ export default function UnifiedCatalogManager() {
           id="tab-categories"
           onClick={() => handleTabChange('categories')}
           style={{
-            padding: '10px 4px 14px 4px',
-            fontSize: '15px',
+            padding: '8px 4px 10px 4px',
+            fontSize: '13px',
             fontWeight: activeTab === 'categories' ? 700 : 500,
-            color: activeTab === 'categories' ? '#10b981' : '#94a3b8',
+            color: activeTab === 'categories' ? '#f8fafc' : '#94a3b8',
             background: 'none',
             border: 'none',
             borderBottom: activeTab === 'categories' ? '2px solid #10b981' : '2px solid transparent',
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
+            transition: 'all 0.15s ease',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
           }}
+          className="hover:text-slate-200"
         >
           <span>Categories</span>
         </button>
@@ -764,33 +778,34 @@ export default function UnifiedCatalogManager() {
           id="tab-services"
           onClick={() => handleTabChange('services')}
           style={{
-            padding: '10px 4px 14px 4px',
-            fontSize: '15px',
+            padding: '8px 4px 10px 4px',
+            fontSize: '13px',
             fontWeight: activeTab === 'services' ? 700 : 500,
-            color: activeTab === 'services' ? '#10b981' : '#94a3b8',
+            color: activeTab === 'services' ? '#f8fafc' : '#94a3b8',
             background: 'none',
             border: 'none',
             borderBottom: activeTab === 'services' ? '2px solid #10b981' : '2px solid transparent',
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
+            transition: 'all 0.15s ease',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
           }}
+          className="hover:text-slate-200"
         >
-          <span>Services</span>
+          <span>Services & Pricing</span>
         </button>
       </div>
 
       {/* Error Banner if API error occurs */}
       {error && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div className="alert-error" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', padding: '14px 18px', borderRadius: '10px' }}>
+          <div className="alert-error" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', padding: '12px 16px', borderRadius: '10px', fontSize: '13px' }}>
             {error}
           </div>
           <button
             className="btn-primary"
-            style={{ width: '120px', height: '40px', fontSize: '14px' }}
+            style={{ width: '120px', height: '36px', fontSize: '12px', fontWeight: 700 }}
             onClick={fetchCategories}
           >
             Retry
@@ -798,51 +813,53 @@ export default function UnifiedCatalogManager() {
         </div>
       )}
 
-      {/* 3. Summary / KPI Cards */}
+      {/* 3. Summary / 4 Equal Height KPI Cards (120px height) */}
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-          gap: '16px',
+          gap: '12px',
+          width: '100%',
         }}
       >
         {/* KPI 1: Total Categories */}
         <div
           style={{
-            backgroundColor: '#0d1424',
+            backgroundColor: '#090d16',
             border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '12px',
+            padding: '12px 14px',
+            height: '120px',
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            alignItems: 'center',
+            gap: '12px',
+            boxSizing: 'border-box',
+            minWidth: 0,
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Total Categories</span>
-            <div
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
-                backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                border: '1px solid rgba(16, 185, 129, 0.25)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#10b981',
-                flexShrink: 0,
-              }}
-            >
-              <Folder size={18} />
-            </div>
+          <div
+            style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#10b981',
+              flexShrink: 0,
+            }}
+          >
+            <Folder size={18} />
           </div>
-          <div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
+          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
               {totalCategories}
             </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Total Categories
+            </div>
+            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               All categories in catalog
             </div>
           </div>
@@ -851,40 +868,41 @@ export default function UnifiedCatalogManager() {
         {/* KPI 2: Active Categories */}
         <div
           style={{
-            backgroundColor: '#0d1424',
+            backgroundColor: '#090d16',
             border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '12px',
+            padding: '12px 14px',
+            height: '120px',
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            alignItems: 'center',
+            gap: '12px',
+            boxSizing: 'border-box',
+            minWidth: 0,
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Active Categories</span>
-            <div
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
-                backgroundColor: 'rgba(59, 130, 246, 0.12)',
-                border: '1px solid rgba(59, 130, 246, 0.25)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#3b82f6',
-                flexShrink: 0,
-              }}
-            >
-              <ShieldCheck size={18} />
-            </div>
+          <div
+            style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(59, 130, 246, 0.12)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#60a5fa',
+              flexShrink: 0,
+            }}
+          >
+            <ShieldCheck size={18} />
           </div>
-          <div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
+          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
               {activeCategories}
             </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Active Categories
+            </div>
+            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               Currently active
             </div>
           </div>
@@ -893,40 +911,41 @@ export default function UnifiedCatalogManager() {
         {/* KPI 3: Inactive Categories */}
         <div
           style={{
-            backgroundColor: '#0d1424',
+            backgroundColor: '#090d16',
             border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '12px',
+            padding: '12px 14px',
+            height: '120px',
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            alignItems: 'center',
+            gap: '12px',
+            boxSizing: 'border-box',
+            minWidth: 0,
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Inactive Categories</span>
-            <div
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
-                backgroundColor: 'rgba(245, 158, 11, 0.12)',
-                border: '1px solid rgba(245, 158, 11, 0.25)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#f59e0b',
-                flexShrink: 0,
-              }}
-            >
-              <PauseCircle size={18} />
-            </div>
+          <div
+            style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(245, 158, 11, 0.12)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fbbf24',
+              flexShrink: 0,
+            }}
+          >
+            <PauseCircle size={18} />
           </div>
-          <div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
+          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
               {inactiveCategories}
             </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Inactive Categories
+            </div>
+            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               Not active
             </div>
           </div>
@@ -935,402 +954,640 @@ export default function UnifiedCatalogManager() {
         {/* KPI 4: Total Services */}
         <div
           style={{
-            backgroundColor: '#0d1424',
+            backgroundColor: '#090d16',
             border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '12px',
+            padding: '12px 14px',
+            height: '120px',
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            alignItems: 'center',
+            gap: '12px',
+            boxSizing: 'border-box',
+            minWidth: 0,
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8' }}>Total Services</span>
-            <div
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
-                backgroundColor: 'rgba(139, 92, 246, 0.12)',
-                border: '1px solid rgba(139, 92, 246, 0.25)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#a78bfa',
-                flexShrink: 0,
-              }}
-            >
-              <Package size={18} />
-            </div>
+          <div
+            style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(168, 85, 247, 0.12)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#c084fc',
+              flexShrink: 0,
+            }}
+          >
+            <Package size={18} />
           </div>
-          <div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.5px' }}>
+          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
               {totalServices}
             </div>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
-              Across all catalog categories
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Total Services
+            </div>
+            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Across catalog
             </div>
           </div>
         </div>
       </div>
 
-      {/* 4. Search & Filter Toolbar */}
+      {/* 4. MAIN CATALOG MANAGER TABLE CARD */}
       <div
         style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px',
-          backgroundColor: '#0d1424',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: '#090d16',
           borderRadius: '12px',
-          padding: '12px 16px',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        {/* Search Input */}
-        <div style={{ position: 'relative', flex: '1', minWidth: '220px', maxWidth: '400px' }}>
-          <Search
-            size={16}
-            style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
-          />
-          <input
-            type="text"
-            placeholder={activeTab === 'categories' ? 'Search categories...' : 'Search services...'}
-            value={activeTab === 'categories' ? catSearchTerm : svcSearchTerm}
-            onChange={(e) =>
-              activeTab === 'categories'
-                ? setCatSearchTerm(e.target.value)
-                : setSvcSearchTerm(e.target.value)
-            }
-            style={{
-              width: '100%',
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '8px',
-              padding: '8px 32px 8px 36px',
-              color: '#ffffff',
-              fontSize: '13px',
-              outline: 'none',
-            }}
-          />
-          {(activeTab === 'categories' ? catSearchTerm : svcSearchTerm) && (
-            <button
-              onClick={() =>
-                activeTab === 'categories' ? setCatSearchTerm('') : setSvcSearchTerm('')
-              }
-              style={{
-                position: 'absolute',
-                right: '10px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                color: '#64748b',
-                cursor: 'pointer',
-              }}
-            >
-              <X size={14} />
-            </button>
-          )}
-        </div>
-
-        {/* Right Filter Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          {/* Category Dropdown Selector (Active on both tabs) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>Category:</span>
-            {activeTab === 'categories' ? (
-              <select
-                id="select-category-filter-cat-tab"
-                value={catCategoryFilter}
-                onChange={(e) => setCatCategoryFilter(e.target.value)}
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                  color: '#ffffff',
-                  fontSize: '13px',
-                  outline: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                <option value="ALL" style={{ backgroundColor: '#0f172a', color: '#ffffff' }}>
-                  All Categories
-                </option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id} style={{ backgroundColor: '#0f172a', color: '#ffffff' }}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <select
-                id="select-category-filter-svc-tab"
-                value={selectedCategoryId}
-                onChange={(e) => {
-                  setSelectedCategoryId(e.target.value);
-                  setSvcFormData((prev) => ({ ...prev, categoryId: e.target.value }));
-                }}
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                  color: '#ffffff',
-                  fontSize: '13px',
-                  outline: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id} style={{ backgroundColor: '#0f172a', color: '#ffffff' }}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
-
-          {/* Status Filter */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Filter size={14} style={{ color: '#64748b' }} />
-            <select
-              value={activeTab === 'categories' ? catStatusFilter : svcStatusFilter}
-              onChange={(e) => {
-                const val = e.target.value as StatusFilter;
-                if (activeTab === 'categories') setCatStatusFilter(val);
-                else setSvcStatusFilter(val);
-              }}
-              style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '8px',
-                padding: '8px 12px',
-                color: '#ffffff',
-                fontSize: '13px',
-                outline: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              <option value="ALL" style={{ backgroundColor: '#0f172a' }}>All Status</option>
-              <option value="ACTIVE" style={{ backgroundColor: '#0f172a' }}>Active Only</option>
-              <option value="INACTIVE" style={{ backgroundColor: '#0f172a' }}>Inactive Only</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* 5. TAB CONTENT: CATEGORIES VIEW */}
-      {activeTab === 'categories' && (
+        {/* Search & Filter Toolbar Header */}
         <div
           style={{
-            backgroundColor: '#0d1424',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '14px',
-            padding: '24px',
-            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.25)',
+            padding: '14px 16px',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '12px',
           }}
         >
-          {loadingCategories ? (
-            <TableSkeleton rows={5} columns={5} />
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
-                  <tr
-                    style={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                      color: '#64748b',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.6px',
-                    }}
-                  >
-                    <th
-                      style={{ padding: '14px 16px', cursor: 'pointer', userSelect: 'none' }}
-                      onClick={handleCatSort}
-                    >
-                      Category Name {catSortOrder === 'asc' ? '▲' : catSortOrder === 'desc' ? '▼' : '⇅'}
-                    </th>
-                    <th style={{ padding: '14px 16px' }}>Description</th>
-                    <th style={{ padding: '14px 16px', textAlign: 'center' }}>Services</th>
-                    <th style={{ padding: '14px 16px' }}>Status</th>
-                    <th style={{ padding: '14px 16px', textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredCategories.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} style={{ padding: '48px 16px', textAlign: 'center', color: '#64748b' }}>
-                        <div style={{ fontSize: '15px', fontWeight: 600, color: '#94a3b8', marginBottom: '4px' }}>
-                          No categories found
-                        </div>
-                        <div style={{ fontSize: '13px' }}>
-                          Try clearing your search term or status filter.
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredCategories.map((cat, idx) => {
-                      const iconStyle = getCategoryIconDetails(cat.name, idx);
-                      const IconComp = iconStyle.Icon;
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
+              {activeTab === 'categories' ? 'Catalog Categories' : 'Services & Pricing'}
+            </h2>
+            <span
+              style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                color: '#10b981',
+                fontSize: '11px',
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: '10px',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+              }}
+            >
+              {activeTab === 'categories' ? filteredCategories.length : filteredServices.length} total
+            </span>
+          </div>
 
-                      return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flex: '1', justifyContent: 'flex-end' }}>
+            {/* Search Input */}
+            <div style={{ position: 'relative', width: '100%', maxWidth: '280px' }}>
+              <Search
+                size={14}
+                style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
+              />
+              <input
+                type="text"
+                placeholder={activeTab === 'categories' ? 'Search categories...' : 'Search services...'}
+                value={activeTab === 'categories' ? catSearchTerm : svcSearchTerm}
+                onChange={(e) =>
+                  activeTab === 'categories'
+                    ? setCatSearchTerm(e.target.value)
+                    : setSvcSearchTerm(e.target.value)
+                }
+                style={{
+                  width: '100%',
+                  backgroundColor: '#090d16',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '8px',
+                  padding: '7px 28px 7px 32px',
+                  color: '#f8fafc',
+                  fontSize: '12px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+                className="focus:border-[#10b981]"
+              />
+              {(activeTab === 'categories' ? catSearchTerm : svcSearchTerm) && (
+                <button
+                  onClick={() =>
+                    activeTab === 'categories' ? setCatSearchTerm('') : setSvcSearchTerm('')
+                  }
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: '#64748b',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+
+            {/* Category Dropdown Selector */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Category:</span>
+              {activeTab === 'categories' ? (
+                <select
+                  id="select-category-filter-cat-tab"
+                  value={catCategoryFilter}
+                  onChange={(e) => setCatCategoryFilter(e.target.value)}
+                  style={{
+                    backgroundColor: '#090d16',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '8px',
+                    padding: '6px 10px',
+                    color: '#f8fafc',
+                    fontSize: '12px',
+                    outline: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="ALL" style={{ backgroundColor: '#090d16', color: '#ffffff' }}>
+                    All Categories
+                  </option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id} style={{ backgroundColor: '#090d16', color: '#ffffff' }}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <select
+                  id="select-category-filter-svc-tab"
+                  value={selectedCategoryId}
+                  onChange={(e) => {
+                    setSelectedCategoryId(e.target.value);
+                    setSvcFormData((prev) => ({ ...prev, categoryId: e.target.value }));
+                  }}
+                  style={{
+                    backgroundColor: '#090d16',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '8px',
+                    padding: '6px 10px',
+                    color: '#f8fafc',
+                    fontSize: '12px',
+                    outline: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id} style={{ backgroundColor: '#090d16', color: '#ffffff' }}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            {/* Status Filter */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Filter size={13} style={{ color: '#64748b' }} />
+              <select
+                value={activeTab === 'categories' ? catStatusFilter : svcStatusFilter}
+                onChange={(e) => {
+                  const val = e.target.value as StatusFilter;
+                  if (activeTab === 'categories') setCatStatusFilter(val);
+                  else setSvcStatusFilter(val);
+                }}
+                style={{
+                  backgroundColor: '#090d16',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '8px',
+                  padding: '6px 10px',
+                  color: '#f8fafc',
+                  fontSize: '12px',
+                  outline: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                <option value="ALL" style={{ backgroundColor: '#090d16' }}>All Status</option>
+                <option value="ACTIVE" style={{ backgroundColor: '#090d16' }}>Active Only</option>
+                <option value="INACTIVE" style={{ backgroundColor: '#090d16' }}>Inactive Only</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* 5. TAB CONTENT: CATEGORIES VIEW */}
+        {activeTab === 'categories' && (
+          <div>
+            {loadingCategories ? (
+              <div style={{ padding: '16px' }}>
+                <TableSkeleton rows={5} columns={5} />
+              </div>
+            ) : (
+              <div style={{ overflowX: 'auto', width: '100%' }}>
+                <table style={{ width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+                  <thead>
+                    <tr
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                        color: '#64748b',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                      }}
+                    >
+                      <th
+                        style={{ padding: '10px 12px', width: '30%', cursor: 'pointer', userSelect: 'none' }}
+                        onClick={handleCatSort}
+                      >
+                        CATEGORY NAME {catSortOrder === 'asc' ? '▲' : catSortOrder === 'desc' ? '▼' : '⇅'}
+                      </th>
+                      <th style={{ padding: '10px 12px', width: '35%' }}>DESCRIPTION</th>
+                      <th style={{ padding: '10px 12px', width: '12%', textAlign: 'center', whiteSpace: 'nowrap' }}>SERVICES</th>
+                      <th style={{ padding: '10px 12px', width: '11%', whiteSpace: 'nowrap' }}>STATUS</th>
+                      <th style={{ padding: '10px 12px', width: '12%', textAlign: 'right', whiteSpace: 'nowrap' }}>ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredCategories.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} style={{ padding: '36px 12px', textAlign: 'center', color: '#64748b' }}>
+                          <div style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8', marginBottom: '2px' }}>
+                            No categories found
+                          </div>
+                          <div style={{ fontSize: '12px' }}>
+                            Try clearing your search term or status filter.
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredCategories.map((cat, idx) => {
+                        const iconStyle = getCategoryIconDetails(cat.name, idx);
+                        const IconComp = iconStyle.Icon;
+
+                        return (
+                          <tr
+                            key={cat.id}
+                            style={{
+                              borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                              transition: 'background-color 0.12s ease',
+                            }}
+                            className="hover:bg-[rgba(255,255,255,0.02)]"
+                          >
+                            {/* Category Name with Styled Icon Box */}
+                            <td style={{ padding: '10px 12px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                                <div
+                                  style={{
+                                    width: '28px',
+                                    height: '28px',
+                                    borderRadius: '7px',
+                                    backgroundColor: iconStyle.bg,
+                                    border: `1px solid ${iconStyle.border}`,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: iconStyle.color,
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  <IconComp size={14} />
+                                </div>
+                                <div style={{ minWidth: 0, overflow: 'hidden' }}>
+                                  <span
+                                    style={{
+                                      fontWeight: 700,
+                                      color: '#f8fafc',
+                                      fontSize: '12px',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      whiteSpace: 'nowrap',
+                                      display: 'block',
+                                    }}
+                                    title={cat.name}
+                                  >
+                                    {cat.name}
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Description */}
+                            <td style={{ padding: '10px 12px', color: '#94a3b8', fontSize: '12px' }}>
+                              <span
+                                style={{
+                                  display: 'block',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                  maxWidth: '300px',
+                                }}
+                                title={cat.description || ''}
+                              >
+                                {cat.description || '—'}
+                              </span>
+                            </td>
+
+                            {/* Services Count Pill */}
+                            <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  padding: '2px 8px',
+                                  borderRadius: '6px',
+                                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                                  color: '#e2e8f0',
+                                  fontSize: '11px',
+                                  fontWeight: 700,
+                                }}
+                              >
+                                {categoryCounts[cat.id] !== undefined
+                                  ? categoryCounts[cat.id]
+                                  : (servicesCacheRef.current.get(cat.id)
+                                      ? servicesCacheRef.current.get(cat.id)!.length
+                                      : (selectedCategoryId === cat.id ? services.length : 0))}
+                              </span>
+                            </td>
+
+                            {/* Status Badge Pill */}
+                            <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '5px',
+                                  padding: '3px 8px',
+                                  borderRadius: '9999px',
+                                  fontSize: '10px',
+                                  fontWeight: 800,
+                                  letterSpacing: '0.04em',
+                                  textTransform: 'uppercase',
+                                  backgroundColor: cat.isActive ? 'rgba(16, 185, 129, 0.14)' : 'rgba(239, 68, 68, 0.14)',
+                                  border: `1px solid ${cat.isActive ? 'rgba(52, 211, 153, 0.28)' : 'rgba(248, 113, 113, 0.28)'}`,
+                                  color: cat.isActive ? '#34d399' : '#f87171',
+                                }}
+                              >
+                                {cat.isActive ? 'Active' : 'Inactive'}
+                              </span>
+                            </td>
+
+                            {/* Action Buttons */}
+                            <td style={{ padding: '10px 12px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                              <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                <button
+                                  onClick={() => openCatDrawer(cat)}
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    padding: '4px 8px',
+                                    borderRadius: '6px',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                                    color: '#e2e8f0',
+                                    fontSize: '11px',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.15s ease',
+                                  }}
+                                  className="hover:bg-[rgba(255,255,255,0.08)]"
+                                >
+                                  <Edit2 size={12} />
+                                  <span>Edit</span>
+                                </button>
+
+                                <button
+                                  disabled={togglingCatId === cat.id}
+                                  onClick={() => handleToggleCatActive(cat)}
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    padding: '4px 8px',
+                                    borderRadius: '6px',
+                                    backgroundColor: cat.isActive ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                                    border: `1px solid ${cat.isActive ? 'rgba(239, 68, 68, 0.25)' : 'rgba(16, 185, 129, 0.25)'}`,
+                                    color: cat.isActive ? '#f87171' : '#10b981',
+                                    fontSize: '11px',
+                                    fontWeight: 600,
+                                    cursor: togglingCatId === cat.id ? 'not-allowed' : 'pointer',
+                                    opacity: togglingCatId === cat.id ? 0.6 : 1,
+                                    transition: 'all 0.15s ease',
+                                  }}
+                                >
+                                  <span>
+                                    {togglingCatId === cat.id
+                                      ? '...'
+                                      : cat.isActive
+                                      ? 'Deactivate'
+                                      : 'Activate'}
+                                  </span>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 6. TAB CONTENT: SERVICES VIEW */}
+        {activeTab === 'services' && (
+          <div>
+            {loadingServices ? (
+              <div style={{ padding: '16px' }}>
+                <TableSkeleton rows={5} columns={6} />
+              </div>
+            ) : (
+              <div style={{ overflowX: 'auto', width: '100%' }}>
+                <table style={{ width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+                  <thead>
+                    <tr
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                        color: '#64748b',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                      }}
+                    >
+                      <th
+                        style={{ padding: '10px 12px', width: '28%', cursor: 'pointer', userSelect: 'none' }}
+                        onClick={handleSvcSort}
+                      >
+                        SERVICE NAME {svcSortOrder === 'asc' ? '▲' : svcSortOrder === 'desc' ? '▼' : '⇅'}
+                      </th>
+                      <th style={{ padding: '10px 12px', width: '28%' }}>DESCRIPTION</th>
+                      <th style={{ padding: '10px 12px', width: '14%', whiteSpace: 'nowrap' }}>FIXED PRICE</th>
+                      <th style={{ padding: '10px 12px', width: '12%', whiteSpace: 'nowrap' }}>EST. DURATION</th>
+                      <th style={{ padding: '10px 12px', width: '10%', whiteSpace: 'nowrap' }}>STATUS</th>
+                      <th style={{ padding: '10px 12px', width: '8%', textAlign: 'right', whiteSpace: 'nowrap' }}>ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredServices.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} style={{ padding: '36px 12px', textAlign: 'center', color: '#64748b' }}>
+                          <div style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8', marginBottom: '2px' }}>
+                            No services found in this category
+                          </div>
+                          <div style={{ fontSize: '12px' }}>
+                            Select another category or click "+ Add Service" to create one.
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredServices.map((srv) => (
                         <tr
-                          key={cat.id}
+                          key={srv.id}
                           style={{
                             borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
-                            transition: 'background-color 0.15s ease',
+                            transition: 'background-color 0.12s ease',
                           }}
+                          className="hover:bg-[rgba(255,255,255,0.02)]"
                         >
-                          {/* Category Name with Styled Icon Box */}
-                          <td style={{ padding: '16px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                          {/* Service Name */}
+                          <td style={{ padding: '10px 12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
                               <div
                                 style={{
-                                  width: '40px',
-                                  height: '40px',
-                                  borderRadius: '10px',
-                                  backgroundColor: iconStyle.bg,
-                                  border: `1px solid ${iconStyle.border}`,
+                                  width: '28px',
+                                  height: '28px',
+                                  borderRadius: '7px',
+                                  backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                                  border: '1px solid rgba(16, 185, 129, 0.25)',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  color: iconStyle.color,
+                                  color: '#10b981',
                                   flexShrink: 0,
                                 }}
                               >
-                                <IconComp size={20} />
+                                <Wrench size={13} />
                               </div>
-                              <div>
-                                <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '14px' }}>
-                                  {cat.name}
-                                </div>
-                                {cat.iconUrl && (
-                                  <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-                                    {cat.iconUrl}
-                                  </div>
-                                )}
-                              </div>
+                              <span
+                                style={{
+                                  fontWeight: 700,
+                                  color: '#f8fafc',
+                                  fontSize: '12px',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                  maxWidth: '180px',
+                                }}
+                                title={srv.name}
+                              >
+                                {srv.name}
+                              </span>
                             </div>
                           </td>
 
                           {/* Description */}
-                          <td style={{ padding: '16px', color: '#94a3b8', fontSize: '13px', maxWidth: '320px' }}>
-                            {cat.description || '—'}
+                          <td style={{ padding: '10px 12px', color: '#94a3b8', fontSize: '12px' }}>
+                            <span
+                              style={{
+                                display: 'block',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                maxWidth: '240px',
+                              }}
+                              title={srv.description || ''}
+                            >
+                              {srv.description || '—'}
+                            </span>
                           </td>
 
-                          {/* Services Count Pill */}
-                          <td style={{ padding: '16px', textAlign: 'center' }}>
+                          {/* Fixed Price */}
+                          <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
+                            <span style={{ fontSize: '13px', fontWeight: 800, color: '#34d399', fontFamily: 'monospace' }}>
+                              ₹{parseFloat(srv.fixedPrice).toFixed(2)}
+                            </span>
+                          </td>
+
+                          {/* Est Duration */}
+                          <td style={{ padding: '10px 12px', color: '#94a3b8', fontSize: '12px', whiteSpace: 'nowrap' }}>
+                            {srv.estimatedDuration || '—'}
+                          </td>
+
+                          {/* Status */}
+                          <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
                             <span
                               style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '28px',
-                                height: '24px',
-                                borderRadius: '6px',
-                                backgroundColor: 'rgba(255, 255, 255, 0.06)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                color: '#e2e8f0',
-                                fontSize: '12px',
-                                fontWeight: 700,
+                                gap: '5px',
+                                padding: '3px 8px',
+                                borderRadius: '9999px',
+                                fontSize: '10px',
+                                fontWeight: 800,
+                                letterSpacing: '0.04em',
+                                textTransform: 'uppercase',
+                                backgroundColor: srv.isActive ? 'rgba(16, 185, 129, 0.14)' : 'rgba(239, 68, 68, 0.14)',
+                                border: `1px solid ${srv.isActive ? 'rgba(52, 211, 153, 0.28)' : 'rgba(248, 113, 113, 0.28)'}`,
+                                color: srv.isActive ? '#34d399' : '#f87171',
                               }}
                             >
-                              {categoryCounts[cat.id] !== undefined
-                                ? categoryCounts[cat.id]
-                                : (servicesCacheRef.current.get(cat.id)
-                                    ? servicesCacheRef.current.get(cat.id)!.length
-                                    : (selectedCategoryId === cat.id ? services.length : 0))}
+                              {srv.isActive ? 'Active' : 'Inactive'}
                             </span>
                           </td>
 
-                          {/* Status Badge Pill */}
-                          <td style={{ padding: '16px' }}>
-                            <span
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                padding: '4px 10px',
-                                borderRadius: '12px',
-                                fontSize: '12px',
-                                fontWeight: 600,
-                                backgroundColor: cat.isActive ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)',
-                                border: `1px solid ${cat.isActive ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`,
-                                color: cat.isActive ? '#10b981' : '#ef4444',
-                              }}
-                            >
-                              <span
-                                style={{
-                                  width: '6px',
-                                  height: '6px',
-                                  borderRadius: '9999px',
-                                  backgroundColor: cat.isActive ? '#10b981' : '#ef4444',
-                                }}
-                              />
-                              {cat.isActive ? 'Active' : 'Inactive'}
-                            </span>
-                          </td>
-
-                          {/* Action Buttons */}
-                          <td style={{ padding: '16px', textAlign: 'right' }}>
-                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                          {/* Actions */}
+                          <td style={{ padding: '10px 12px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', alignItems: 'center' }}>
                               <button
-                                onClick={() => openCatDrawer(cat)}
+                                onClick={() => openSvcDrawer(srv)}
                                 style={{
                                   display: 'inline-flex',
                                   alignItems: 'center',
-                                  gap: '6px',
-                                  padding: '6px 12px',
-                                  borderRadius: '8px',
-                                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                                  gap: '4px',
+                                  padding: '4px 8px',
+                                  borderRadius: '6px',
+                                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                                  border: '1px solid rgba(255, 255, 255, 0.08)',
                                   color: '#e2e8f0',
-                                  fontSize: '12px',
+                                  fontSize: '11px',
                                   fontWeight: 600,
                                   cursor: 'pointer',
                                   transition: 'all 0.15s ease',
                                 }}
+                                className="hover:bg-[rgba(255,255,255,0.08)]"
                               >
-                                <Edit2 size={13} />
+                                <Edit2 size={12} />
                                 <span>Edit</span>
                               </button>
 
                               <button
-                                disabled={togglingCatId === cat.id}
-                                onClick={() => handleToggleCatActive(cat)}
+                                disabled={togglingSvcId === srv.id}
+                                onClick={() => handleToggleSvcActive(srv)}
                                 style={{
                                   display: 'inline-flex',
                                   alignItems: 'center',
-                                  gap: '6px',
-                                  padding: '6px 12px',
-                                  borderRadius: '8px',
-                                  backgroundColor: cat.isActive ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                                  border: `1px solid ${cat.isActive ? 'rgba(239, 68, 68, 0.25)' : 'rgba(16, 185, 129, 0.25)'}`,
-                                  color: cat.isActive ? '#ef4444' : '#10b981',
-                                  fontSize: '12px',
+                                  gap: '4px',
+                                  padding: '4px 8px',
+                                  borderRadius: '6px',
+                                  backgroundColor: srv.isActive ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                                  border: `1px solid ${srv.isActive ? 'rgba(239, 68, 68, 0.25)' : 'rgba(16, 185, 129, 0.25)'}`,
+                                  color: srv.isActive ? '#f87171' : '#10b981',
+                                  fontSize: '11px',
                                   fontWeight: 600,
-                                  cursor: togglingCatId === cat.id ? 'not-allowed' : 'pointer',
-                                  opacity: togglingCatId === cat.id ? 0.6 : 1,
+                                  cursor: togglingSvcId === srv.id ? 'not-allowed' : 'pointer',
+                                  opacity: togglingSvcId === srv.id ? 0.6 : 1,
                                   transition: 'all 0.15s ease',
                                 }}
                               >
-                                {togglingCatId === cat.id ? (
-                                  <span className="spinner" style={{ width: '12px', height: '12px' }} />
-                                ) : cat.isActive ? (
-                                  <Square size={13} />
-                                ) : (
-                                  <Play size={13} />
-                                )}
                                 <span>
-                                  {togglingCatId === cat.id
-                                    ? 'Processing...'
-                                    : cat.isActive
+                                  {togglingSvcId === srv.id
+                                    ? '...'
+                                    : srv.isActive
                                     ? 'Deactivate'
                                     : 'Activate'}
                                 </span>
@@ -1338,354 +1595,15 @@ export default function UnifiedCatalogManager() {
                             </div>
                           </td>
                         </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Pagination Footer */}
-          {!loadingCategories && filteredCategories.length > 0 && (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingTop: '20px',
-                marginTop: '16px',
-                borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-                fontSize: '13px',
-                color: '#64748b',
-                flexWrap: 'wrap',
-                gap: '12px',
-              }}
-            >
-              <div>
-                Showing 1 to {filteredCategories.length} of {categories.length} categories
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <button
-                  disabled
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    color: '#475569',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'not-allowed',
-                  }}
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                <span
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '8px',
-                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                    color: '#10b981',
-                    fontWeight: 700,
-                  }}
-                >
-                  1
-                </span>
-                <button
-                  disabled
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    color: '#475569',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'not-allowed',
-                  }}
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* 6. TAB CONTENT: SERVICES VIEW */}
-      {activeTab === 'services' && (
-        <div
-          style={{
-            backgroundColor: '#0d1424',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '14px',
-            padding: '24px',
-            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.25)',
-          }}
-        >
-          {loadingServices ? (
-            <TableSkeleton rows={5} columns={6} />
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', minWidth: '680px', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
-                  <tr
-                    style={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                      color: '#64748b',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.6px',
-                    }}
-                  >
-                    <th
-                      style={{ padding: '14px 16px', cursor: 'pointer', userSelect: 'none' }}
-                      onClick={handleSvcSort}
-                    >
-                      Service Name {svcSortOrder === 'asc' ? '▲' : svcSortOrder === 'desc' ? '▼' : '⇅'}
-                    </th>
-                    <th style={{ padding: '14px 16px' }}>Description</th>
-                    <th style={{ padding: '14px 16px' }}>Fixed Price (₹)</th>
-                    <th style={{ padding: '14px 16px' }}>Est. Duration</th>
-                    <th style={{ padding: '14px 16px' }}>Status</th>
-                    <th style={{ padding: '14px 16px', textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredServices.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} style={{ padding: '48px 16px', textAlign: 'center', color: '#64748b' }}>
-                        <div style={{ fontSize: '15px', fontWeight: 600, color: '#94a3b8', marginBottom: '4px' }}>
-                          No services found in this category
-                        </div>
-                        <div style={{ fontSize: '13px' }}>
-                          Select another category or click "+ Add Service" to create one.
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredServices.map((srv) => (
-                      <tr
-                        key={srv.id}
-                        style={{
-                          borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
-                          transition: 'background-color 0.15s ease',
-                        }}
-                      >
-                        {/* Service Name */}
-                        <td style={{ padding: '16px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <div
-                              style={{
-                                width: '36px',
-                                height: '36px',
-                                borderRadius: '8px',
-                                backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                                border: '1px solid rgba(16, 185, 129, 0.25)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: '#10b981',
-                                flexShrink: 0,
-                              }}
-                            >
-                              <Wrench size={18} />
-                            </div>
-                            <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '14px' }}>
-                              {srv.name}
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* Description */}
-                        <td style={{ padding: '16px', color: '#94a3b8', fontSize: '13px', maxWidth: '300px' }}>
-                          {srv.description || '—'}
-                        </td>
-
-                        {/* Fixed Price */}
-                        <td style={{ padding: '16px', fontWeight: 800, color: '#10b981', fontSize: '15px' }}>
-                          ₹{parseFloat(srv.fixedPrice).toFixed(0)}
-                        </td>
-
-                        {/* Est Duration */}
-                        <td style={{ padding: '16px', color: '#94a3b8', fontSize: '13px' }}>
-                          {srv.estimatedDuration || '—'}
-                        </td>
-
-                        {/* Status */}
-                        <td style={{ padding: '16px' }}>
-                          <span
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              padding: '4px 10px',
-                              borderRadius: '12px',
-                              fontSize: '12px',
-                              fontWeight: 600,
-                              backgroundColor: srv.isActive ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)',
-                              border: `1px solid ${srv.isActive ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`,
-                              color: srv.isActive ? '#10b981' : '#ef4444',
-                            }}
-                          >
-                            <span
-                              style={{
-                                width: '6px',
-                                height: '6px',
-                                borderRadius: '9999px',
-                                backgroundColor: srv.isActive ? '#10b981' : '#ef4444',
-                              }}
-                            />
-                            {srv.isActive ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
-
-                        {/* Actions */}
-                        <td style={{ padding: '16px', textAlign: 'right' }}>
-                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
-                            <button
-                              onClick={() => openSvcDrawer(srv)}
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                padding: '6px 12px',
-                                borderRadius: '8px',
-                                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                color: '#e2e8f0',
-                                fontSize: '12px',
-                                fontWeight: 600,
-                                cursor: 'pointer',
-                                transition: 'all 0.15s ease',
-                              }}
-                            >
-                              <Edit2 size={13} />
-                              <span>Edit</span>
-                            </button>
-
-                            <button
-                              disabled={togglingSvcId === srv.id}
-                              onClick={() => handleToggleSvcActive(srv)}
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                padding: '6px 12px',
-                                borderRadius: '8px',
-                                backgroundColor: srv.isActive ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                                border: `1px solid ${srv.isActive ? 'rgba(239, 68, 68, 0.25)' : 'rgba(16, 185, 129, 0.25)'}`,
-                                color: srv.isActive ? '#ef4444' : '#10b981',
-                                fontSize: '12px',
-                                fontWeight: 600,
-                                cursor: togglingSvcId === srv.id ? 'not-allowed' : 'pointer',
-                                opacity: togglingSvcId === srv.id ? 0.6 : 1,
-                                transition: 'all 0.15s ease',
-                              }}
-                            >
-                              {togglingSvcId === srv.id ? (
-                                <span className="spinner" style={{ width: '12px', height: '12px' }} />
-                              ) : srv.isActive ? (
-                                <Square size={13} />
-                              ) : (
-                                <Play size={13} />
-                              )}
-                              <span>
-                                {togglingSvcId === srv.id
-                                  ? 'Processing...'
-                                  : srv.isActive
-                                  ? 'Deactivate'
-                                  : 'Activate'}
-                              </span>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Pagination Footer */}
-          {!loadingServices && filteredServices.length > 0 && (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingTop: '20px',
-                marginTop: '16px',
-                borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-                fontSize: '13px',
-                color: '#64748b',
-                flexWrap: 'wrap',
-                gap: '12px',
-              }}
-            >
-              <div>
-                Showing 1 to {filteredServices.length} of {services.length} services
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <button
-                  disabled
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    color: '#475569',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'not-allowed',
-                  }}
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                <span
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '8px',
-                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                    color: '#10b981',
-                    fontWeight: 700,
-                  }}
-                >
-                  1
-                </span>
-                <button
-                  disabled
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    color: '#475569',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'not-allowed',
-                  }}
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </div>
 
       {/* 7. CATEGORY DRAWER */}
       {isCatDrawerOpen && (
@@ -1704,11 +1622,11 @@ export default function UnifiedCatalogManager() {
           <div
             style={{
               width: '100%',
-              maxWidth: '460px',
+              maxWidth: '440px',
               height: '100%',
-              backgroundColor: '#0f172a',
+              backgroundColor: '#090d16',
               borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
-              padding: '32px 28px',
+              padding: '28px 24px',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -1718,8 +1636,8 @@ export default function UnifiedCatalogManager() {
             onClick={(e) => e.stopPropagation()}
           >
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
                   {editingCategory ? 'Edit Category' : 'Create Category'}
                 </h2>
                 <button
@@ -1734,19 +1652,19 @@ export default function UnifiedCatalogManager() {
                     alignItems: 'center',
                   }}
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               </div>
 
               {catDrawerError && (
-                <div className="alert-error" style={{ marginBottom: '20px', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', padding: '12px 16px', borderRadius: '8px', fontSize: '13px' }}>
+                <div style={{ marginBottom: '16px', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171', padding: '10px 14px', borderRadius: '8px', fontSize: '12px' }}>
                   {catDrawerError}
                 </div>
               )}
 
-              <form onSubmit={handleCatSubmit}>
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px' }}>
+              <form onSubmit={handleCatSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Category Name *
                   </label>
                   <input
@@ -1759,19 +1677,20 @@ export default function UnifiedCatalogManager() {
                     required
                     style={{
                       width: '100%',
-                      backgroundColor: '#1e293b',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: '#090d16',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
                       borderRadius: '8px',
-                      padding: '10px 14px',
-                      color: '#ffffff',
-                      fontSize: '14px',
+                      padding: '9px 12px',
+                      color: '#f8fafc',
+                      fontSize: '13px',
                       outline: 'none',
+                      boxSizing: 'border-box',
                     }}
                   />
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Description
                   </label>
                   <textarea
@@ -1782,21 +1701,22 @@ export default function UnifiedCatalogManager() {
                     maxLength={255}
                     style={{
                       width: '100%',
-                      height: '84px',
-                      backgroundColor: '#1e293b',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      height: '80px',
+                      backgroundColor: '#090d16',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
                       borderRadius: '8px',
-                      padding: '10px 14px',
-                      color: '#ffffff',
-                      fontSize: '14px',
+                      padding: '9px 12px',
+                      color: '#f8fafc',
+                      fontSize: '13px',
                       outline: 'none',
                       resize: 'none',
+                      boxSizing: 'border-box',
                     }}
                   />
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Icon URL
                   </label>
                   <input
@@ -1807,13 +1727,14 @@ export default function UnifiedCatalogManager() {
                     onChange={(e) => setCatFormData({ ...catFormData, iconUrl: e.target.value })}
                     style={{
                       width: '100%',
-                      backgroundColor: '#1e293b',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: '#090d16',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
                       borderRadius: '8px',
-                      padding: '10px 14px',
-                      color: '#ffffff',
-                      fontSize: '14px',
+                      padding: '9px 12px',
+                      color: '#f8fafc',
+                      fontSize: '13px',
                       outline: 'none',
+                      boxSizing: 'border-box',
                     }}
                   />
                   <small style={{ color: '#64748b', display: 'block', marginTop: '4px', fontSize: '11px' }}>
@@ -1821,8 +1742,8 @@ export default function UnifiedCatalogManager() {
                   </small>
                 </div>
 
-                <div style={{ marginBottom: '24px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Display Order
                   </label>
                   <input
@@ -1832,13 +1753,14 @@ export default function UnifiedCatalogManager() {
                     onChange={(e) => setCatFormData({ ...catFormData, displayOrder: parseInt(e.target.value, 10) || 0 })}
                     style={{
                       width: '100%',
-                      backgroundColor: '#1e293b',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: '#090d16',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
                       borderRadius: '8px',
-                      padding: '10px 14px',
-                      color: '#ffffff',
-                      fontSize: '14px',
+                      padding: '9px 12px',
+                      color: '#f8fafc',
+                      fontSize: '13px',
                       outline: 'none',
+                      boxSizing: 'border-box',
                     }}
                   />
                 </div>
@@ -1848,22 +1770,19 @@ export default function UnifiedCatalogManager() {
                   disabled={submittingCat}
                   style={{
                     width: '100%',
-                    padding: '12px',
-                    borderRadius: '10px',
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                    color: '#ffffff',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    backgroundColor: '#10b981',
+                    color: '#020617',
                     fontWeight: 700,
-                    fontSize: '14px',
+                    fontSize: '13px',
                     border: 'none',
                     cursor: submittingCat ? 'not-allowed' : 'pointer',
-                    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    marginTop: '8px',
                     opacity: submittingCat ? 0.7 : 1,
                   }}
                 >
-                  {submittingCat ? <div className="spinner" style={{ width: '16px', height: '16px' }} /> : 'Save Category'}
+                  {submittingCat ? 'Saving Category...' : 'Save Category'}
                 </button>
               </form>
             </div>
@@ -1888,11 +1807,11 @@ export default function UnifiedCatalogManager() {
           <div
             style={{
               width: '100%',
-              maxWidth: '460px',
+              maxWidth: '440px',
               height: '100%',
-              backgroundColor: '#0f172a',
+              backgroundColor: '#090d16',
               borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
-              padding: '32px 28px',
+              padding: '28px 24px',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -1902,8 +1821,8 @@ export default function UnifiedCatalogManager() {
             onClick={(e) => e.stopPropagation()}
           >
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
                   {editingService ? 'Edit Service Item' : 'Create Service Item'}
                 </h2>
                 <button
@@ -1918,19 +1837,19 @@ export default function UnifiedCatalogManager() {
                     alignItems: 'center',
                   }}
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               </div>
 
               {svcDrawerError && (
-                <div className="alert-error" style={{ marginBottom: '20px', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', padding: '12px 16px', borderRadius: '8px', fontSize: '13px' }}>
+                <div style={{ marginBottom: '16px', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171', padding: '10px 14px', borderRadius: '8px', fontSize: '12px' }}>
                   {svcDrawerError}
                 </div>
               )}
 
-              <form onSubmit={handleSvcSubmit}>
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px' }}>
+              <form onSubmit={handleSvcSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Category *
                   </label>
                   <select
@@ -1941,13 +1860,14 @@ export default function UnifiedCatalogManager() {
                     disabled={!!editingService}
                     style={{
                       width: '100%',
-                      backgroundColor: '#1e293b',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: '#090d16',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
                       borderRadius: '8px',
-                      padding: '10px 14px',
-                      color: '#ffffff',
-                      fontSize: '14px',
+                      padding: '9px 12px',
+                      color: '#f8fafc',
+                      fontSize: '13px',
                       outline: 'none',
+                      boxSizing: 'border-box',
                     }}
                   >
                     {categories.map((c) => (
@@ -1958,8 +1878,8 @@ export default function UnifiedCatalogManager() {
                   </select>
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Service Name *
                   </label>
                   <input
@@ -1972,19 +1892,20 @@ export default function UnifiedCatalogManager() {
                     required
                     style={{
                       width: '100%',
-                      backgroundColor: '#1e293b',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: '#090d16',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
                       borderRadius: '8px',
-                      padding: '10px 14px',
-                      color: '#ffffff',
-                      fontSize: '14px',
+                      padding: '9px 12px',
+                      color: '#f8fafc',
+                      fontSize: '13px',
                       outline: 'none',
+                      boxSizing: 'border-box',
                     }}
                   />
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Fixed Price (₹) *
                   </label>
                   <input
@@ -1997,19 +1918,20 @@ export default function UnifiedCatalogManager() {
                     required
                     style={{
                       width: '100%',
-                      backgroundColor: '#1e293b',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: '#090d16',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
                       borderRadius: '8px',
-                      padding: '10px 14px',
-                      color: '#ffffff',
-                      fontSize: '14px',
+                      padding: '9px 12px',
+                      color: '#f8fafc',
+                      fontSize: '13px',
                       outline: 'none',
+                      boxSizing: 'border-box',
                     }}
                   />
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Estimated Duration
                   </label>
                   <input
@@ -2021,19 +1943,20 @@ export default function UnifiedCatalogManager() {
                     maxLength={50}
                     style={{
                       width: '100%',
-                      backgroundColor: '#1e293b',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: '#090d16',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
                       borderRadius: '8px',
-                      padding: '10px 14px',
-                      color: '#ffffff',
-                      fontSize: '14px',
+                      padding: '9px 12px',
+                      color: '#f8fafc',
+                      fontSize: '13px',
                       outline: 'none',
+                      boxSizing: 'border-box',
                     }}
                   />
                 </div>
 
-                <div style={{ marginBottom: '24px' }}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Description
                   </label>
                   <textarea
@@ -2043,15 +1966,16 @@ export default function UnifiedCatalogManager() {
                     onChange={(e) => setSvcFormData({ ...svcFormData, description: e.target.value })}
                     style={{
                       width: '100%',
-                      height: '84px',
-                      backgroundColor: '#1e293b',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      height: '80px',
+                      backgroundColor: '#090d16',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
                       borderRadius: '8px',
-                      padding: '10px 14px',
-                      color: '#ffffff',
-                      fontSize: '14px',
+                      padding: '9px 12px',
+                      color: '#f8fafc',
+                      fontSize: '13px',
                       outline: 'none',
                       resize: 'none',
+                      boxSizing: 'border-box',
                     }}
                   />
                 </div>
@@ -2061,22 +1985,19 @@ export default function UnifiedCatalogManager() {
                   disabled={submittingSvc}
                   style={{
                     width: '100%',
-                    padding: '12px',
-                    borderRadius: '10px',
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                    color: '#ffffff',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    backgroundColor: '#10b981',
+                    color: '#020617',
                     fontWeight: 700,
-                    fontSize: '14px',
+                    fontSize: '13px',
                     border: 'none',
                     cursor: submittingSvc ? 'not-allowed' : 'pointer',
-                    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    marginTop: '8px',
                     opacity: submittingSvc ? 0.7 : 1,
                   }}
                 >
-                  {submittingSvc ? <div className="spinner" style={{ width: '16px', height: '16px' }} /> : 'Save Service Item'}
+                  {submittingSvc ? 'Saving Service...' : 'Save Service Item'}
                 </button>
               </form>
             </div>
