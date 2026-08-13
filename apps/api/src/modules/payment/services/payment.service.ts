@@ -27,12 +27,12 @@ interface DraftMeta {
 export class PaymentService {
   private readonly logger = new Logger(PaymentService.name);
   private draftStore = new Map<string, DraftMeta>();
-  private paymentsCache = new Map<string, { data: any; timestamp: number }>();
-  private readonly CACHE_TTL_MS = 30000;
+  private inFlightPaymentsPromises = new Map<string, Promise<any>>();
 
   constructor(
     private readonly prisma: PrismaService,
     @Optional() @Inject(forwardRef(() => AnalyticsProjectionService)) private readonly analyticsProjectionService?: AnalyticsProjectionService,
+    @Optional() @Inject('REDIS_CLIENT') private readonly redisClient?: any,
   ) {}
 
   /**
@@ -603,10 +603,28 @@ export class PaymentService {
    * Admin Payment Reconciliation Ledger
    */
   async getAdminPayments(query: AdminPaymentsQueryDto) {
-    const cacheKey = JSON.stringify(query);
-    const cached = this.paymentsCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL_MS) {
-      return cached.data;
+    const pageVal = query.page || '1';
+    const pageSizeVal = query.page_size || '20';
+    const methodVal = query.method || 'ALL';
+    const statusVal = query.status || 'ALL';
+    const fromVal = query.date_from || 'ALL';
+    const toVal = query.date_to || 'ALL';
+
+    const cacheKey = `admin:payments:v1:${methodVal}:${statusVal}:${fromVal}:${toVal}:${pageVal}:${pageSizeVal}`;
+
+    if (this.redisClient && query.format !== 'csv') {
+      try {
+        const cached = await this.redisClient.get(cacheKey);
+        if (cached) {
+          return JSON.parse(cached);
+        }
+      } catch (err: any) {
+        console.warn(`[Redis Payments Cache Warning] get failed: ${err.message}`);
+      }
+    }
+
+    if (this.inFlightPaymentsPromises.has(cacheKey) && query.format !== 'csv') {
+      return this.inFlightPaymentsPromises.get(cacheKey)!;
     }
 
     if (query.page !== undefined) {
@@ -776,12 +794,19 @@ export class PaymentService {
         total_pages: Math.ceil(total / pageSize),
       },
     };
-    this.paymentsCache.set(cacheKey, { data: result, timestamp: Date.now() });
+
+    if (this.redisClient && query.format !== 'csv') {
+      try {
+        await this.redisClient.set(cacheKey, JSON.stringify(result), 'EX', 60);
+      } catch (err: any) {
+        console.warn(`[Redis Payments Cache Warning] set failed: ${err.message}`);
+      }
+    }
     return result;
   }
 
   async settleCashPayment(paymentId: string) {
-    this.paymentsCache.clear();
+    this.inFlightPaymentsPromises.clear();
     this.logger.log({
       event: 'admin.payment.settlement.requested',
       payment_id: paymentId,

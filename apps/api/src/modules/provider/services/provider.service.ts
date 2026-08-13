@@ -1,4 +1,4 @@
-import { Injectable, Inject, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject, Optional, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { IProviderRepository, ProviderDetails } from '../ports/provider-repository.interface';
 import { CreateProviderDto, ProviderStatusEnum } from '../dto/provider.dto';
 import { PrismaService } from '../../../prisma/prisma.service';
@@ -12,10 +12,15 @@ const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12
 
 @Injectable()
 export class ProviderService {
+  private inFlightProvidersPromises = new Map<string, Promise<{ data: ProviderDetails[]; total: number }>>();
+
   constructor(
     @Inject('IProviderRepository')
     private readonly providerRepo: IProviderRepository,
     private readonly prisma: PrismaService,
+    @Optional()
+    @Inject('REDIS_CLIENT')
+    private readonly redisClient?: any,
   ) {}
 
   private validateUuid(id: string) {
@@ -147,12 +152,50 @@ export class ProviderService {
   }): Promise<{ data: ProviderDetails[]; total: number }> {
     const page = query.page ? parseInt(query.page as any, 10) : 1;
     const limit = query.limit ? parseInt(query.limit as any, 10) : 20;
-    return this.providerRepo.findProviders({
-      status: query.status,
-      search: query.search,
-      page,
-      limit,
-    });
+    const status = query.status || 'ALL';
+    const search = query.search ? query.search.trim() : 'ALL';
+
+    const cacheKey = `admin:providers:v1:${status}:${search}:${page}:${limit}`;
+
+    if (this.redisClient) {
+      try {
+        const cached = await this.redisClient.get(cacheKey);
+        if (cached) {
+          return JSON.parse(cached);
+        }
+      } catch (err: any) {
+        console.warn(`[Redis Providers Cache Warning] get failed: ${err.message}`);
+      }
+    }
+
+    if (this.inFlightProvidersPromises.has(cacheKey)) {
+      return this.inFlightProvidersPromises.get(cacheKey)!;
+    }
+
+    const promise = (async () => {
+      try {
+        const result = await this.providerRepo.findProviders({
+          status: query.status,
+          search: query.search,
+          page,
+          limit,
+        });
+
+        if (this.redisClient) {
+          try {
+            await this.redisClient.set(cacheKey, JSON.stringify(result), 'EX', 60);
+          } catch (err: any) {
+            console.warn(`[Redis Providers Cache Warning] set failed: ${err.message}`);
+          }
+        }
+        return result;
+      } finally {
+        this.inFlightProvidersPromises.delete(cacheKey);
+      }
+    })();
+
+    this.inFlightProvidersPromises.set(cacheKey, promise);
+    return promise;
   }
 
   async getProviderById(id: string): Promise<ProviderDetails> {

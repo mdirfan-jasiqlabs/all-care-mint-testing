@@ -68,6 +68,7 @@ export class AnalyticsService {
   private readonly logger = new Logger(AnalyticsService.name);
   private monthlyTrendCache: { timestamp: number; cacheKey: string; data: MonthlyTrendDto[] } | null = null;
   private inFlightPromises = new Map<string, Promise<DashboardMetricsDto>>();
+  private inFlightReportPromises = new Map<string, Promise<PaginatedReportResponseDto>>();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -601,61 +602,122 @@ export class AnalyticsService {
       throw new BadRequestException('Page size must be a positive integer between 1 and 500');
     }
 
-    const whereClause = this.buildWhereClause(normalizedType, fromDate, adjustedToDate);
-    const skip = (page - 1) * pageSize;
+    const fromDateStr = fromDate.toISOString().split('T')[0];
+    const toDateStr = adjustedToDate.toISOString().split('T')[0];
+    const cacheKey = `admin:reports:v1:${normalizedType}:${fromDateStr}:${toDateStr}:${page}:${pageSize}`;
 
-    const [total, bookings] = await Promise.all([
-      this.prisma.booking.count({ where: whereClause }),
-      this.prisma.booking.findMany({
-        where: whereClause,
-        include: {
-          customer: true,
-          service: true,
-          paymentOrders: {
-            orderBy: { createdAt: 'desc' },
-            take: 1,
-          },
-        },
-        orderBy: [
-          { createdAt: 'desc' },
-          { id: 'desc' },
-        ],
-        skip,
-        take: pageSize,
-      }),
-    ]);
+    // 1. Try Redis cache lookup
+    if (this.redisClient) {
+      try {
+        const cached = await this.redisClient.get(cacheKey);
+        if (cached) {
+          return JSON.parse(cached);
+        }
+      } catch (err) {
+        this.logger.warn(`Redis get failed for key ${cacheKey}: ${(err as Error).message}`);
+      }
+    }
 
-    const data: ReportItemDto[] = bookings.map((b) => {
-      const payment = b.paymentOrders[0];
-      const amountInr = payment
-        ? payment.amountPaise / 100
-        : Number(b.servicePriceSnapshot || 0);
+    // 2. Single-flight stampede protection
+    if (this.inFlightReportPromises.has(cacheKey)) {
+      return await this.inFlightReportPromises.get(cacheKey)!;
+    }
 
-      return {
-        date: b.createdAt.toISOString().split('T')[0],
-        booking_id: b.id,
-        booking_reference: b.bookingReference,
-        customer_name: b.customer?.displayName || b.customer?.mobileNumber || 'Customer',
-        service_name: b.serviceNameSnapshot || b.service?.name || 'Service',
-        amount_inr: amountInr,
-        payment_method: b.paymentMethod,
-        status: b.status,
-      };
-    });
+    const fetchPromise = (async (): Promise<PaginatedReportResponseDto> => {
+      try {
+        const whereClause = this.buildWhereClause(normalizedType, fromDate, adjustedToDate);
+        const skip = (page - 1) * pageSize;
 
-    const totalPages = Math.ceil(total / pageSize);
+        const [total, bookings] = await Promise.all([
+          this.prisma.booking.count({ where: whereClause }),
+          this.prisma.booking.findMany({
+            where: whereClause,
+            select: {
+              id: true,
+              bookingReference: true,
+              createdAt: true,
+              paymentMethod: true,
+              status: true,
+              servicePriceSnapshot: true,
+              serviceNameSnapshot: true,
+              customer: {
+                select: {
+                  displayName: true,
+                  mobileNumber: true,
+                },
+              },
+              service: {
+                select: {
+                  name: true,
+                },
+              },
+              paymentOrders: {
+                select: {
+                  amountPaise: true,
+                  status: true,
+                },
+                orderBy: { createdAt: 'desc' },
+                take: 1,
+              },
+            },
+            orderBy: [
+              { createdAt: 'desc' },
+              { id: 'desc' },
+            ],
+            skip,
+            take: pageSize,
+          }),
+        ]);
 
-    return {
-      type: normalizedType,
-      date_from: dateFrom || fromDate.toISOString().split('T')[0],
-      date_to: dateTo || adjustedToDate.toISOString().split('T')[0],
-      page,
-      page_size: pageSize,
-      total,
-      total_pages: totalPages,
-      count: data.length,
-      data,
-    };
+        const data: ReportItemDto[] = bookings.map((b) => {
+          const payment = b.paymentOrders[0];
+          const amountInr = payment
+            ? payment.amountPaise / 100
+            : Number(b.servicePriceSnapshot || 0);
+
+          return {
+            date: b.createdAt.toISOString().split('T')[0],
+            booking_id: b.id,
+            booking_reference: b.bookingReference,
+            customer_name: b.customer?.displayName || b.customer?.mobileNumber || 'Customer',
+            service_name: b.serviceNameSnapshot || b.service?.name || 'Service',
+            amount_inr: amountInr,
+            payment_method: b.paymentMethod,
+            status: b.status,
+          };
+        });
+
+        const totalPages = Math.ceil(total / pageSize);
+
+        const result: PaginatedReportResponseDto = {
+          type: normalizedType,
+          date_from: dateFrom || fromDateStr,
+          date_to: dateTo || toDateStr,
+          page,
+          page_size: pageSize,
+          total,
+          total_pages: totalPages,
+          count: data.length,
+          data,
+        };
+
+        // Cache in Redis for 60 seconds
+        if (this.redisClient) {
+          try {
+            await this.redisClient.set(cacheKey, JSON.stringify(result), 'EX', 60);
+          } catch (err) {
+            this.logger.warn(`Redis set failed for key ${cacheKey}: ${(err as Error).message}`);
+          }
+        }
+
+        return result;
+      } finally {
+        this.inFlightReportPromises.delete(cacheKey);
+      }
+    })();
+
+    this.inFlightReportPromises.set(cacheKey, fetchPromise);
+    return await fetchPromise;
   }
 
   async streamCsvReport(
@@ -678,7 +740,7 @@ export class AnalyticsService {
       yield 'Date,Booking ID,Customer Name,Service Name,Amount (INR),Payment Method,Status\n';
 
       const whereClause = self.buildWhereClause(normalizedType, fromDate, adjustedToDate);
-      const batchSize = 500;
+      const batchSize = 2000;
       let skip = 0;
       let hasMore = true;
 
@@ -689,10 +751,30 @@ export class AnalyticsService {
 
         const batch = await self.prisma.booking.findMany({
           where: whereClause,
-          include: {
-            customer: true,
-            service: true,
+          select: {
+            id: true,
+            bookingReference: true,
+            createdAt: true,
+            paymentMethod: true,
+            status: true,
+            servicePriceSnapshot: true,
+            serviceNameSnapshot: true,
+            customer: {
+              select: {
+                displayName: true,
+                mobileNumber: true,
+              },
+            },
+            service: {
+              select: {
+                name: true,
+              },
+            },
             paymentOrders: {
+              select: {
+                amountPaise: true,
+                status: true,
+              },
               orderBy: { createdAt: 'desc' },
               take: 1,
             },
@@ -740,14 +822,14 @@ export class AnalyticsService {
       res.header('Content-Type', 'text/csv; charset=utf-8');
       res.header('Content-Disposition', `attachment; filename="${filename}"`);
       return res.send(csvStream);
-    } else if (typeof res.setHeader === 'function') {
-      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-      csvStream.pipe(res);
     } else if (res.raw && typeof res.raw.setHeader === 'function') {
       res.raw.setHeader('Content-Type', 'text/csv; charset=utf-8');
       res.raw.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-      csvStream.pipe(res.raw);
+      return csvStream.pipe(res.raw);
+    } else if (typeof res.setHeader === 'function') {
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      return csvStream.pipe(res);
     }
   }
 
@@ -768,10 +850,30 @@ export class AnalyticsService {
 
     const bookings = await this.prisma.booking.findMany({
       where: whereClause,
-      include: {
-        customer: true,
-        service: true,
+      select: {
+        id: true,
+        bookingReference: true,
+        createdAt: true,
+        paymentMethod: true,
+        status: true,
+        servicePriceSnapshot: true,
+        serviceNameSnapshot: true,
+        customer: {
+          select: {
+            displayName: true,
+            mobileNumber: true,
+          },
+        },
+        service: {
+          select: {
+            name: true,
+          },
+        },
         paymentOrders: {
+          select: {
+            amountPaise: true,
+            status: true,
+          },
           orderBy: { createdAt: 'desc' },
           take: 1,
         },

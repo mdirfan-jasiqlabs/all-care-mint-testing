@@ -63,7 +63,19 @@ export class PrismaProviderRepository implements IProviderRepository {
         skip,
         take: filters.limit,
         orderBy: { createdAt: 'desc' },
-        include: { categories: true }
+        select: {
+          id: true,
+          mobileNumber: true,
+          displayName: true,
+          status: true,
+          serviceArea: true,
+          createdAt: true,
+          updatedAt: true,
+          lastActiveAt: true,
+          categories: {
+            select: { id: true, name: true },
+          },
+        },
       }),
       this.prisma.provider.count({ where })
     ]);

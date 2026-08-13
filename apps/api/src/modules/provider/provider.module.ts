@@ -7,6 +7,28 @@ import { ProviderService } from './services/provider.service';
 import { ProviderLeadService } from './services/provider-lead.service';
 import { PrismaProviderRepository } from './adapters/prisma-provider.repository';
 import { PlatformProviderPublicFacade } from './facade/provider.facade';
+import Redis from 'ioredis';
+
+const RedisClientProvider = {
+  provide: 'REDIS_CLIENT',
+  useFactory: () => {
+    const client = new Redis({
+      host: process.env.REDIS_HOST || '127.0.0.1',
+      port: parseInt(process.env.REDIS_PORT || '6379', 10),
+      password: process.env.REDIS_PASSWORD || undefined,
+      maxRetriesPerRequest: null,
+      connectTimeout: 2000,
+      enableOfflineQueue: false,
+      retryStrategy: (times) => Math.min(times * 100, 2000),
+    });
+
+    client.on('error', (err) => {
+      console.warn(`[Redis Provider Client] Warning: ${err.message}`);
+    });
+
+    return client;
+  },
+};
 
 @Module({
   imports: [PrismaModule, AuthModule],
@@ -14,6 +36,7 @@ import { PlatformProviderPublicFacade } from './facade/provider.facade';
   providers: [
     ProviderService,
     ProviderLeadService,
+    RedisClientProvider,
     {
       provide: 'IProviderRepository',
       useClass: PrismaProviderRepository,

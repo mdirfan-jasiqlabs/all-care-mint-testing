@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   ChartNoAxesCombined,
   FileChartColumn,
@@ -134,6 +134,8 @@ export default function AdminReportsPage() {
   const [totalRecords, setTotalRecords] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(1);
 
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const validateDates = (from: string, to: string): boolean => {
     const dFrom = new Date(from);
     const dTo = new Date(to);
@@ -160,6 +162,12 @@ export default function AdminReportsPage() {
   const fetchReport = async () => {
     if (!validateDates(dateFrom, dateTo)) return;
 
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoading(true);
     try {
       const token = getAuthToken();
@@ -168,6 +176,7 @@ export default function AdminReportsPage() {
         `/api/v1/admin/reports?type=${type}&date_from=${dateFrom}&date_to=${dateTo}&page=${page}&page_size=${pageSize}`,
         {
           headers: { Authorization: token ? `Bearer ${token}` : '' },
+          signal: controller.signal,
         },
       );
 
@@ -186,9 +195,12 @@ export default function AdminReportsPage() {
       const calculatedPages = json.total_pages || Math.max(1, Math.ceil(total / pageSize));
       setTotalPages(calculatedPages);
     } catch (err: any) {
+      if (err.name === 'AbortError') return;
       setErrorMsg(err.message || 'Failed to generate report.');
     } finally {
-      setLoading(false);
+      if (abortControllerRef.current === controller) {
+        setLoading(false);
+      }
     }
   };
 

@@ -468,18 +468,61 @@ export class BookingService implements OnApplicationShutdown {
   }
 
   // ─── Admin Operations ───
+  private inFlightAdminBookingsPromises = new Map<string, Promise<{ data: BookingEntity[]; total: number }>>();
 
   async getAdminBookings(
     query: BookingListQueryDto,
   ): Promise<{ data: BookingEntity[]; total: number }> {
-    return this.bookingRepo.findBookingsAdmin({
-      status: query.status,
-      date: query.date,
-      customerId: query.customerId,
-      providerId: query.providerId,
-      page: query.page ?? 1,
-      limit: query.limit ?? 20,
-    });
+    const status = query.status || 'ALL';
+    const date = query.date || 'ALL';
+    const customerId = query.customerId || 'ALL';
+    const providerId = query.providerId || 'ALL';
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+
+    const cacheKey = `admin:bookings:v1:${status}:${date}:${customerId}:${providerId}:${page}:${limit}`;
+
+    if (this.redisClient) {
+      try {
+        const cached = await this.redisClient.get(cacheKey);
+        if (cached) {
+          return JSON.parse(cached);
+        }
+      } catch (err: any) {
+        console.warn(`[Redis Bookings Cache Warning] get failed: ${err.message}`);
+      }
+    }
+
+    if (this.inFlightAdminBookingsPromises.has(cacheKey)) {
+      return this.inFlightAdminBookingsPromises.get(cacheKey)!;
+    }
+
+    const promise = (async () => {
+      try {
+        const result = await this.bookingRepo.findBookingsAdmin({
+          status: query.status,
+          date: query.date,
+          customerId: query.customerId,
+          providerId: query.providerId,
+          page,
+          limit,
+        });
+
+        if (this.redisClient) {
+          try {
+            await this.redisClient.set(cacheKey, JSON.stringify(result), 'EX', 60);
+          } catch (err: any) {
+            console.warn(`[Redis Bookings Cache Warning] set failed: ${err.message}`);
+          }
+        }
+        return result;
+      } finally {
+        this.inFlightAdminBookingsPromises.delete(cacheKey);
+      }
+    })();
+
+    this.inFlightAdminBookingsPromises.set(cacheKey, promise);
+    return promise;
   }
 
   async getAdminBookingDetail(bookingId: string): Promise<any> {

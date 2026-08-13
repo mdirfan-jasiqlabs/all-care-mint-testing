@@ -15,6 +15,28 @@ import { IPushTokenRepository } from './ports/push-token-repository.interface';
 import { IFcmGateway } from './ports/fcm-gateway.interface';
 import { PrismaPushTokenRepository } from './adapters/prisma-push-token.repository';
 import { FirebaseFcmAdapter } from './adapters/firebase-fcm.adapter';
+import Redis from 'ioredis';
+
+const RedisClientProvider = {
+  provide: 'REDIS_CLIENT',
+  useFactory: () => {
+    const client = new Redis({
+      host: process.env.REDIS_HOST || '127.0.0.1',
+      port: parseInt(process.env.REDIS_PORT || '6379', 10),
+      password: process.env.REDIS_PASSWORD || undefined,
+      maxRetriesPerRequest: null,
+      connectTimeout: 2000,
+      enableOfflineQueue: false,
+      retryStrategy: (times) => Math.min(times * 100, 2000),
+    });
+
+    client.on('error', (err) => {
+      console.warn(`[Redis Notification Client] Warning: ${err.message}`);
+    });
+
+    return client;
+  },
+};
 
 @Module({
   imports: [
@@ -33,6 +55,7 @@ import { FirebaseFcmAdapter } from './adapters/firebase-fcm.adapter';
     BookingStatusListener,
     NotificationWorker,
     ExpoPushAdapter,
+    RedisClientProvider,
     {
       provide: IPushTokenRepository,
       useClass: PrismaPushTokenRepository,

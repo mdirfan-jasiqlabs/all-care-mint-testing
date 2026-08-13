@@ -5,6 +5,8 @@ import {
   ForbiddenException,
   ConflictException,
   Logger,
+  Inject,
+  Optional,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
@@ -18,20 +20,42 @@ import {
 @Injectable()
 export class RatingService {
   private readonly logger = new Logger(RatingService.name);
-  private ratingsCache = new Map<string, { data: any; timestamp: number }>();
-  private readonly CACHE_TTL_MS = 30000;
+  private inFlightRatingsPromises = new Map<string, Promise<any>>();
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() @Inject('REDIS_CLIENT') private readonly redisClient?: any,
+  ) {}
 
   /**
    * GET /api/v1/admin/ratings
    * Paginated ratings ledger for Admin
    */
   async getAdminRatings(query: AdminRatingsQueryDto) {
-    const cacheKey = JSON.stringify(query);
-    const cached = this.ratingsCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL_MS) {
-      return cached.data;
+    const pageVal = query.page || '1';
+    const pageSizeVal = query.page_size || '20';
+    const providerIdVal = query.provider_id || 'ALL';
+    const minRatingVal = query.min_rating || 'ALL';
+    const maxRatingVal = query.max_rating || 'ALL';
+    const searchVal = query.provider_search || 'ALL';
+    const sortByVal = query.sort_by || 'createdAt';
+    const orderVal = query.order || 'desc';
+
+    const cacheKey = `admin:ratings:v1:${providerIdVal}:${minRatingVal}:${maxRatingVal}:${searchVal}:${sortByVal}:${orderVal}:${pageVal}:${pageSizeVal}`;
+
+    if (this.redisClient) {
+      try {
+        const cached = await this.redisClient.get(cacheKey);
+        if (cached) {
+          return JSON.parse(cached);
+        }
+      } catch (err: any) {
+        console.warn(`[Redis Ratings Cache Warning] get failed: ${err.message}`);
+      }
+    }
+
+    if (this.inFlightRatingsPromises.has(cacheKey)) {
+      return this.inFlightRatingsPromises.get(cacheKey)!;
     }
     const page = Number(query.page) || 1;
     const pageSize = Number(query.page_size) || 20;
@@ -155,7 +179,14 @@ export class RatingService {
         total_pages: Math.ceil(total / pageSize) || 1,
       },
     };
-    this.ratingsCache.set(cacheKey, { data: result, timestamp: Date.now() });
+
+    if (this.redisClient) {
+      try {
+        await this.redisClient.set(cacheKey, JSON.stringify(result), 'EX', 60);
+      } catch (err: any) {
+        console.warn(`[Redis Ratings Cache Warning] set failed: ${err.message}`);
+      }
+    }
     return result;
   }
 
@@ -228,7 +259,7 @@ export class RatingService {
         });
       });
 
-      this.ratingsCache.clear();
+      this.inFlightRatingsPromises.clear();
 
       return {
         id: rating.id,

@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Optional } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   ICatalogRepository,
@@ -16,14 +16,51 @@ import {
 
 @Injectable()
 export class AdminCatalogService {
+  private inFlightCategoriesPromise: Promise<ServiceCategoryEntity[]> | null = null;
+
   constructor(
     @Inject('ICatalogRepository')
     private readonly catalogRepo: ICatalogRepository,
     private readonly prisma: PrismaService,
+    @Optional()
+    @Inject('REDIS_CLIENT')
+    private readonly redisClient?: any,
   ) {}
 
   async getAllCategoriesAdmin(): Promise<ServiceCategoryEntity[]> {
-    return this.catalogRepo.findAllCategories(true);
+    const cacheKey = 'admin:catalog:categories:v1';
+    if (this.redisClient) {
+      try {
+        const cached = await this.redisClient.get(cacheKey);
+        if (cached) {
+          return JSON.parse(cached);
+        }
+      } catch (err: any) {
+        console.warn(`[Redis Catalog Cache Warning] get failed: ${err.message}`);
+      }
+    }
+
+    if (this.inFlightCategoriesPromise) {
+      return this.inFlightCategoriesPromise;
+    }
+
+    this.inFlightCategoriesPromise = (async () => {
+      try {
+        const categories = await this.catalogRepo.findAllCategories(true);
+        if (this.redisClient) {
+          try {
+            await this.redisClient.set(cacheKey, JSON.stringify(categories), 'EX', 300);
+          } catch (err: any) {
+            console.warn(`[Redis Catalog Cache Warning] set failed: ${err.message}`);
+          }
+        }
+        return categories;
+      } finally {
+        this.inFlightCategoriesPromise = null;
+      }
+    })();
+
+    return this.inFlightCategoriesPromise;
   }
 
   async getAllServicesForCategoryAdmin(
