@@ -97,7 +97,7 @@ const DashboardChart = React.memo(function DashboardChart({
 
   // SVG Chart Dimensions & Calculations
   const chartWidth = 700;
-  const chartHeight = 260;
+  const chartHeight = 240;
   const paddingLeft = 50;
   const paddingRight = 60;
   const paddingTop = 25;
@@ -145,15 +145,16 @@ const DashboardChart = React.memo(function DashboardChart({
   return (
     <div
       style={{
-        backgroundColor: '#0c1421',
-        border: '1px solid rgba(255, 255, 255, 0.07)',
-        borderRadius: '18px',
-        padding: '24px',
+        backgroundColor: '#090d16',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        borderRadius: '12px',
+        padding: '16px 20px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '20px',
+        gap: '16px',
         position: 'relative',
         width: '100%',
+        boxSizing: 'border-box',
       }}
     >
       {/* Chart Header Bar */}
@@ -167,13 +168,13 @@ const DashboardChart = React.memo(function DashboardChart({
             value={chartYearFilter}
             onChange={(e) => setChartYearFilter(e.target.value)}
             style={{
-              backgroundColor: '#060b13',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              backgroundColor: '#090d16',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
               borderRadius: '8px',
               fontSize: '12px',
               fontWeight: 500,
-              padding: '6px 30px 6px 12px',
-              color: '#cbd5e1',
+              padding: '5px 28px 5px 10px',
+              color: '#f8fafc',
               cursor: 'pointer',
               outline: 'none',
               appearance: 'none',
@@ -184,34 +185,34 @@ const DashboardChart = React.memo(function DashboardChart({
             <option value="last_year">Last Year</option>
           </select>
           <ChevronDown
-            size={14}
+            size={13}
             color="#94a3b8"
-            style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+            style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
           />
         </div>
       </div>
 
       {/* Chart Legend */}
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '24px', fontSize: '12px', color: '#cbd5e1' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
           <span style={{ fontWeight: 500 }}>Bookings</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#3b82f6', display: 'inline-block' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#3b82f6', display: 'inline-block' }} />
           <span style={{ fontWeight: 500 }}>Revenue (₹)</span>
         </div>
       </div>
 
       {/* Interactive Dual-Series SVG Chart Container */}
-      <div style={{ position: 'relative', width: '100%', minHeight: '280px', overflowX: 'auto' }}>
+      <div style={{ position: 'relative', width: '100%', minHeight: '240px', overflowX: 'auto' }}>
         <svg
           viewBox={`0 0 ${chartWidth} ${chartHeight}`}
           style={{ width: '100%', height: 'auto', display: 'block', overflow: 'visible' }}
         >
           <defs>
             <linearGradient id="bookingsGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
               <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
             </linearGradient>
           </defs>
@@ -235,20 +236,20 @@ const DashboardChart = React.memo(function DashboardChart({
                   strokeDasharray="4 4"
                 />
                 <text
-                  x={paddingLeft - 10}
+                  x={paddingLeft - 8}
                   y={y + 4}
                   fill="#64748b"
-                  fontSize="11"
+                  fontSize="10"
                   textAnchor="end"
                   fontFamily="sans-serif"
                 >
                   {formattedBooking}
                 </text>
                 <text
-                  x={chartWidth - paddingRight + 10}
+                  x={chartWidth - paddingRight + 8}
                   y={y + 4}
                   fill="#64748b"
-                  fontSize="11"
+                  fontSize="10"
                   textAnchor="start"
                   fontFamily="sans-serif"
                 >
@@ -262,7 +263,7 @@ const DashboardChart = React.memo(function DashboardChart({
           <text x={paddingLeft - 30} y={paddingTop - 10} fill="#64748b" fontSize="10" fontWeight="600">
             Bookings
           </text>
-          <text x={chartWidth - paddingRight + 10} y={paddingTop - 10} fill="#64748b" fontSize="10" fontWeight="600">
+          <text x={chartWidth - paddingRight + 8} y={paddingTop - 10} fill="#64748b" fontSize="10" fontWeight="600">
             Revenue (₹)
           </text>
 
@@ -271,12 +272,12 @@ const DashboardChart = React.memo(function DashboardChart({
 
           {/* Bookings Bezier Curve Line */}
           {pathBookings && (
-            <path d={pathBookings} fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" />
+            <path d={pathBookings} fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" />
           )}
 
           {/* Revenue Bezier Curve Line */}
           {pathRevenue && (
-            <path d={pathRevenue} fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" />
+            <path d={pathRevenue} fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" />
           )}
 
           {/* Vertical Guide Line on Hover */}
@@ -305,7 +306,7 @@ const DashboardChart = React.memo(function DashboardChart({
                   x={ptB.x}
                   y={chartHeight - 10}
                   fill={isHovered ? '#f8fafc' : '#64748b'}
-                  fontSize="12"
+                  fontSize="11"
                   fontWeight={isHovered ? '700' : '500'}
                   textAnchor="middle"
                 >
@@ -315,9 +316,9 @@ const DashboardChart = React.memo(function DashboardChart({
                 <circle
                   cx={ptB.x}
                   cy={ptB.y}
-                  r={isHovered ? 6 : 4}
+                  r={isHovered ? 5 : 3.5}
                   fill="#10b981"
-                  stroke="#0c1421"
+                  stroke="#090d16"
                   strokeWidth="2"
                   style={{ cursor: 'pointer', transition: 'all 0.15s ease' }}
                 />
@@ -325,9 +326,9 @@ const DashboardChart = React.memo(function DashboardChart({
                 <circle
                   cx={ptR.x}
                   cy={ptR.y}
-                  r={isHovered ? 6 : 4}
+                  r={isHovered ? 5 : 3.5}
                   fill="#3b82f6"
-                  stroke="#0c1421"
+                  stroke="#090d16"
                   strokeWidth="2"
                   style={{ cursor: 'pointer', transition: 'all 0.15s ease' }}
                 />
@@ -353,33 +354,33 @@ const DashboardChart = React.memo(function DashboardChart({
             style={{
               position: 'absolute',
               left: `${(pointsBookings[hoveredPointIndex].x / chartWidth) * 100}%`,
-              top: '20%',
+              top: '15%',
               transform: 'translateX(-50%)',
-              backgroundColor: '#060b13',
+              backgroundColor: '#090d16',
               border: '1px solid rgba(255, 255, 255, 0.15)',
-              borderRadius: '10px',
-              padding: '10px 14px',
+              borderRadius: '8px',
+              padding: '8px 12px',
               boxShadow: '0 10px 25px rgba(0, 0, 0, 0.6)',
               pointerEvents: 'none',
               zIndex: 20,
-              minWidth: '150px',
+              minWidth: '140px',
             }}
           >
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#f8fafc', marginBottom: '6px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#f8fafc', marginBottom: '4px' }}>
               {trendData[hoveredPointIndex].month}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', fontSize: '11px', color: '#cbd5e1', marginBottom: '4px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', fontSize: '10px', color: '#cbd5e1', marginBottom: '2px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }} />
                 <span>Bookings</span>
               </div>
               <span style={{ fontWeight: 700, color: '#10b981' }}>
                 {trendData[hoveredPointIndex].count.toLocaleString()}
               </span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', fontSize: '11px', color: '#cbd5e1' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#3b82f6' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', fontSize: '10px', color: '#cbd5e1' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#3b82f6' }} />
                 <span>Revenue</span>
               </div>
               <span style={{ fontWeight: 700, color: '#60a5fa' }}>
@@ -398,111 +399,44 @@ function DashboardSkeleton() {
     <div
       aria-busy="true"
       aria-label="Loading dashboard analytics data"
-      style={{ display: 'flex', flexDirection: 'column', gap: '28px', width: '100%' }}
+      style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}
     >
       {/* 4 KPI Cards Grid Skeleton */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '12px' }}>
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            aria-hidden="true"
             style={{
-              backgroundColor: '#0c1421',
+              backgroundColor: '#090d16',
               border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '16px',
-              padding: '20px',
+              borderRadius: '12px',
+              padding: '12px 14px',
+              height: '120px',
               display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              minHeight: '150px',
+              alignItems: 'center',
+              gap: '12px',
+              boxSizing: 'border-box',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div className="skeleton-box" style={{ width: '38px', height: '38px', borderRadius: '12px' }} />
-              <div className="skeleton-box" style={{ width: '100px', height: '12px', borderRadius: '4px' }} />
-            </div>
-            <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div className="skeleton-box" style={{ width: '140px', height: '28px', borderRadius: '6px' }} />
-              <div className="skeleton-box" style={{ width: '110px', height: '14px', borderRadius: '4px' }} />
+            <div className="skeleton-box" style={{ width: '38px', height: '38px', borderRadius: '50%' }} />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div className="skeleton-box" style={{ width: '100px', height: '20px', borderRadius: '4px' }} />
+              <div className="skeleton-box" style={{ width: '80px', height: '12px', borderRadius: '4px' }} />
             </div>
           </div>
         ))}
       </div>
 
-      {/* Booking Volume Distribution Chart Skeleton */}
+      {/* Chart Skeleton */}
       <div
-        aria-hidden="true"
         style={{
-          backgroundColor: '#0c1421',
-          border: '1px solid rgba(255, 255, 255, 0.07)',
-          borderRadius: '18px',
-          padding: '24px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px',
-          width: '100%',
+          backgroundColor: '#090d16',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '12px',
+          padding: '16px',
+          height: '240px',
         }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div className="skeleton-box" style={{ width: '260px', height: '16px', borderRadius: '4px' }} />
-          <div className="skeleton-box" style={{ width: '90px', height: '28px', borderRadius: '8px' }} />
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', margin: '4px 0' }}>
-          <div className="skeleton-box" style={{ width: '90px', height: '14px', borderRadius: '4px' }} />
-          <div className="skeleton-box" style={{ width: '110px', height: '14px', borderRadius: '4px' }} />
-        </div>
-        <div style={{ position: 'relative', width: '100%', minHeight: '260px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '10px 0' }}>
-          {[1, 2, 3, 4].map((gridIdx) => (
-            <div key={gridIdx} style={{ width: '100%', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.04)' }} />
-          ))}
-          <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-end', height: '180px', padding: '0 20px' }}>
-            {[1, 2, 3, 4, 5, 6].map((barIdx) => (
-              <div key={barIdx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                <div className="skeleton-box" style={{ width: '40px', height: `${50 + (barIdx % 3) * 45}px`, borderRadius: '6px' }} />
-                <div className="skeleton-box" style={{ width: '32px', height: '12px', borderRadius: '4px' }} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Unassigned Bookings Table Skeleton */}
-      <div
-        aria-hidden="true"
-        style={{
-          backgroundColor: '#0c1421',
-          border: '1px solid rgba(255, 255, 255, 0.07)',
-          borderRadius: '18px',
-          padding: '24px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div className="skeleton-box" style={{ width: '220px', height: '18px', borderRadius: '4px' }} />
-          <div className="skeleton-box" style={{ width: '120px', height: '14px', borderRadius: '4px' }} />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
-          {[1, 2, 3, 4].map((rowIdx) => (
-            <div
-              key={rowIdx}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '12px 14px',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
-              }}
-            >
-              <div className="skeleton-box" style={{ width: '70px', height: '14px' }} />
-              <div className="skeleton-box" style={{ width: '120px', height: '14px' }} />
-              <div className="skeleton-box" style={{ width: '140px', height: '14px' }} />
-              <div className="skeleton-box" style={{ width: '64px', height: '24px', borderRadius: '6px' }} />
-            </div>
-          ))}
-        </div>
-      </div>
+      />
     </div>
   );
 }
@@ -677,7 +611,7 @@ export default function AdminDashboardPage() {
     };
   }, []);
 
-  // Filter change handler - ONLY fetches metrics for new date filter (does not refetch unassigned table)
+  // Filter change handler - ONLY fetches metrics for new date filter
   const handleFilterChange = (newPeriod: string) => {
     setFilterPeriod(newPeriod);
     if (newPeriod === 'custom') {
@@ -752,134 +686,168 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', maxWidth: '1600px', margin: '0 auto' }}>
+    <div style={{ maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', color: '#ffffff' }}>
       {/* Toast Notification Banner */}
       {bannerMessage && (
         <div
           id="alert-banner"
           style={{
-            padding: '14px 20px',
+            padding: '12px 16px',
             backgroundColor: 'rgba(16, 185, 129, 0.12)',
             color: '#10b981',
             border: '1px solid rgba(16, 185, 129, 0.25)',
-            borderRadius: '12px',
+            borderRadius: '10px',
             fontSize: '13px',
             fontWeight: 500,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <CheckCircle2 size={18} color="#10b981" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <CheckCircle2 size={16} color="#10b981" />
             <span>{bannerMessage}</span>
           </div>
           <button
             onClick={() => setBannerMessage(null)}
-            style={{ background: 'transparent', border: 'none', color: '#10b981', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px' }}
+            style={{ background: 'transparent', border: 'none', color: '#10b981', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
           >
             ✕
           </button>
         </div>
       )}
 
-      {/* Main Page Header Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <h1 style={{ fontSize: '26px', fontWeight: 700, margin: 0, color: '#f8fafc', letterSpacing: '-0.3px' }}>
-            Operational Analytics
-          </h1>
-          <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0, maxWidth: '600px', lineHeight: 1.5 }}>
-            Inspect time-series booking trends, active provider occupancies, and download streamed transactions ledgers.
-          </p>
+      {/* 1. Page Header Bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#10b981',
+              flexShrink: 0,
+            }}
+          >
+            <TrendingUp size={20} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
+              Operational Analytics
+            </h1>
+            <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px', margin: 0, fontWeight: 400 }}>
+              Inspect time-series booking trends, active provider occupancies, and download streamed transactions ledgers.
+            </p>
+          </div>
         </div>
 
-        {/* Filter Period Dropdown & Date Picker */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <label style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 500 }}>Filter Period:</label>
-            <div style={{ position: 'relative' }}>
-              <select
-                id="date-filter"
-                value={filterPeriod}
-                onChange={(e) => handleFilterChange(e.target.value)}
-                style={{
-                  backgroundColor: '#0c1421',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  borderRadius: '10px',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  padding: '9px 36px 9px 14px',
-                  color: '#f8fafc',
-                  cursor: 'pointer',
-                  outline: 'none',
-                  appearance: 'none',
-                  WebkitAppearance: 'none',
-                }}
-              >
-                <option value="30">Last 30 Days</option>
-                <option value="7">Last 7 Days</option>
-                <option value="365">This Year</option>
-                <option value="custom">Custom Range</option>
-              </select>
-              <ChevronDown
-                size={16}
-                color="#94a3b8"
-                style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-              />
-            </div>
+        {/* Action Button & Date Filter Dropdown */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            onClick={handleExportCsv}
+            disabled={isExportingCsv}
+            style={{
+              backgroundColor: '#10b981',
+              color: '#020617',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '8px 14px',
+              fontWeight: 700,
+              fontSize: '12px',
+              cursor: isExportingCsv ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.15s ease',
+              opacity: isExportingCsv ? 0.7 : 1,
+            }}
+            className="hover:bg-[#34d399]"
+          >
+            <Download size={14} />
+            <span>{isExportingCsv ? 'Exporting...' : 'Export Ledger CSV'}</span>
+          </button>
+
+          <div style={{ position: 'relative' }}>
+            <select
+              id="date-filter"
+              value={filterPeriod}
+              onChange={(e) => handleFilterChange(e.target.value)}
+              style={{
+                backgroundColor: '#090d16',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: 500,
+                padding: '7px 28px 7px 12px',
+                color: '#f8fafc',
+                cursor: 'pointer',
+                outline: 'none',
+                appearance: 'none',
+                WebkitAppearance: 'none',
+              }}
+            >
+              <option value="30">Last 30 Days</option>
+              <option value="7">Last 7 Days</option>
+              <option value="365">This Year</option>
+              <option value="custom">Custom Range</option>
+            </select>
+            <ChevronDown
+              size={14}
+              color="#94a3b8"
+              style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+            />
           </div>
 
           {filterPeriod === 'custom' && (
-            <div id="custom-date-container" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px' }}>
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                <input
-                  type="date"
-                  id="start-date"
-                  value={startDate}
-                  onChange={handleStartDateChange}
-                  style={{
-                    backgroundColor: '#0c1421',
-                    border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
-                    borderRadius: '8px',
-                    padding: '6px 10px',
-                    color: '#f8fafc',
-                    colorScheme: 'dark',
-                    cursor: 'pointer',
-                    outline: 'none',
-                  }}
-                />
-              </div>
+            <div id="custom-date-container" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
+              <input
+                type="date"
+                id="start-date"
+                value={startDate}
+                onChange={handleStartDateChange}
+                style={{
+                  backgroundColor: '#090d16',
+                  border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '6px',
+                  padding: '5px 8px',
+                  color: '#f8fafc',
+                  colorScheme: 'dark',
+                  fontSize: '11px',
+                  outline: 'none',
+                }}
+              />
               <span style={{ color: '#64748b' }}>to</span>
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                <input
-                  type="date"
-                  id="end-date"
-                  value={endDate}
-                  onChange={handleEndDateChange}
-                  style={{
-                    backgroundColor: '#0c1421',
-                    border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
-                    borderRadius: '8px',
-                    padding: '6px 10px',
-                    color: '#f8fafc',
-                    colorScheme: 'dark',
-                    cursor: 'pointer',
-                    outline: 'none',
-                  }}
-                />
-              </div>
+              <input
+                type="date"
+                id="end-date"
+                value={endDate}
+                onChange={handleEndDateChange}
+                style={{
+                  backgroundColor: '#090d16',
+                  border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '6px',
+                  padding: '5px 8px',
+                  color: '#f8fafc',
+                  colorScheme: 'dark',
+                  fontSize: '11px',
+                  outline: 'none',
+                }}
+              />
             </div>
-          )}
-
-          {dateValidationError && (
-            <p id="date-validation-error" style={{ fontSize: '11px', color: '#f87171', fontWeight: 600, margin: 0 }}>
-              Start date must precede End date
-            </p>
           )}
         </div>
       </div>
+
+      {dateValidationError && (
+        <p id="date-validation-error" style={{ fontSize: '11px', color: '#f87171', fontWeight: 600, margin: 0, textAlign: 'right' }}>
+          Start date must precede End date
+        </p>
+      )}
 
       {/* User Error Banner */}
       {error && (
@@ -889,25 +857,20 @@ export default function AdminDashboardPage() {
           style={{
             background: 'rgba(239, 68, 68, 0.1)',
             border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '14px',
-            padding: '14px 20px',
+            borderRadius: '10px',
+            padding: '12px 16px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '16px',
+            gap: '12px',
             color: '#fca5a5',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <AlertCircle size={20} color="#f87171" />
-            <div>
-              <div style={{ fontWeight: 600, color: '#f87171', fontSize: '13px', marginBottom: '2px' }}>
-                Dashboard Data Sync Issue
-              </div>
-              <div style={{ fontSize: '13px', color: '#cbd5e1' }}>
-                {error} {metrics ? '(Preserving last known successful dashboard metrics)' : ''}
-              </div>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <AlertCircle size={18} color="#f87171" />
+            <span style={{ fontSize: '13px' }}>
+              {error} {metrics ? '(Preserving last known successful metrics)' : ''}
+            </span>
           </div>
           <button
             onClick={() => fetchDashboardData(true)}
@@ -916,9 +879,9 @@ export default function AdminDashboardPage() {
               background: '#ef4444',
               color: '#ffffff',
               border: 'none',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontWeight: 600,
+              padding: '6px 14px',
+              borderRadius: '6px',
+              fontWeight: 700,
               fontSize: '12px',
               cursor: isRetrying ? 'not-allowed' : 'pointer',
               opacity: isRetrying ? 0.7 : 1,
@@ -929,309 +892,424 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* 4 KPI Metric Cards Grid */}
+      {/* 2. 4 Equal Height KPI Cards Grid (120px height) */}
       {(loading && !metrics) || isRecalculating ? (
         <DashboardSkeleton />
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* KPI 1: Total Revenue */}
-        <div
-          style={{
-            backgroundColor: '#0c1421',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '16px',
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            minHeight: '150px',
-            position: 'relative',
-            opacity: isRecalculating ? 0.6 : 1,
-            transition: 'opacity 0.2s ease',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-            <div style={{ backgroundColor: 'rgba(168, 85, 247, 0.12)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <IndianRupee size={18} color="#c084fc" />
-            </div>
-            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
-              TOTAL REVENUE
-            </span>
-          </div>
-          <div style={{ marginTop: '16px' }}>
-            <div id="val-revenue" style={{ fontSize: '24px', fontWeight: 700, color: '#f8fafc', letterSpacing: '-0.5px' }}>
-              {metrics ? `₹${metrics.revenue_today_inr.toLocaleString()}` : '₹0'}
-            </div>
-            {(() => {
-              const label = metrics?.comparison_label || (filterPeriod === '7' ? 'vs previous 7 days' : filterPeriod === '30' ? 'vs previous 30 days' : filterPeriod === '365' ? 'vs previous year' : 'vs previous period');
-              const percent = metrics?.revenue_trend_percent;
-              if (percent !== undefined && percent !== null && percent > 0) {
-                return (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
-                    <TrendingUp size={14} />
-                    <span>+{percent}% {label}</span>
-                  </div>
-                );
-              } else if (percent !== undefined && percent !== null && percent < 0) {
-                return (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#f87171', fontWeight: 600 }}>
-                    <TrendingDown size={14} />
-                    <span>{percent}% {label}</span>
-                  </div>
-                );
-              }
-              return (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>
-                  <Minus size={14} />
-                  <span>0.0% {label}</span>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '12px', width: '100%' }}>
+            {/* KPI 1: Total Revenue */}
+            <div
+              style={{
+                backgroundColor: '#090d16',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '12px',
+                padding: '12px 14px',
+                height: '120px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                boxSizing: 'border-box',
+                minWidth: 0,
+                opacity: isRecalculating ? 0.6 : 1,
+                transition: 'opacity 0.2s ease',
+              }}
+            >
+              <div
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(168, 85, 247, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#c084fc',
+                  flexShrink: 0,
+                }}
+              >
+                <IndianRupee size={18} />
+              </div>
+              <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div id="val-revenue" style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
+                  {metrics ? `₹${metrics.revenue_today_inr.toLocaleString()}` : '₹0'}
                 </div>
-              );
-            })()}
-          </div>
-        </div>
-
-        {/* KPI 2: Total Bookings */}
-        <div
-          style={{
-            backgroundColor: '#0c1421',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '16px',
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            minHeight: '150px',
-            opacity: isRecalculating ? 0.6 : 1,
-            transition: 'opacity 0.2s ease',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-            <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.12)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CalendarDays size={18} color="#34d399" />
-            </div>
-            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
-              TOTAL BOOKINGS
-            </span>
-          </div>
-          <div style={{ marginTop: '16px' }}>
-            <div id="val-bookings" style={{ fontSize: '24px', fontWeight: 700, color: '#f8fafc', letterSpacing: '-0.5px' }}>
-              {metrics ? metrics.total_bookings_today.toLocaleString() : '0'}
-            </div>
-            {(() => {
-              const label = metrics?.comparison_label || (filterPeriod === '7' ? 'vs previous 7 days' : filterPeriod === '30' ? 'vs previous 30 days' : filterPeriod === '365' ? 'vs previous year' : 'vs previous period');
-              const percent = metrics?.bookings_trend_percent;
-              if (percent !== undefined && percent !== null && percent > 0) {
-                return (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
-                    <TrendingUp size={14} />
-                    <span>+{percent}% {label}</span>
-                  </div>
-                );
-              } else if (percent !== undefined && percent !== null && percent < 0) {
-                return (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#f87171', fontWeight: 600 }}>
-                    <TrendingDown size={14} />
-                    <span>{percent}% {label}</span>
-                  </div>
-                );
-              }
-              return (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>
-                  <Minus size={14} />
-                  <span>0.0% {label}</span>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  Total Revenue
                 </div>
-              );
-            })()}
-          </div>
-        </div>
+                {(() => {
+                  const label = metrics?.comparison_label || (filterPeriod === '7' ? 'vs prev 7d' : filterPeriod === '30' ? 'vs prev 30d' : filterPeriod === '365' ? 'vs prev yr' : 'vs prev period');
+                  const percent = metrics?.revenue_trend_percent;
+                  if (percent !== undefined && percent !== null && percent > 0) {
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#34d399', fontWeight: 700 }}>
+                        <TrendingUp size={11} />
+                        <span>+{percent}% {label}</span>
+                      </div>
+                    );
+                  } else if (percent !== undefined && percent !== null && percent < 0) {
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#f87171', fontWeight: 700 }}>
+                        <TrendingDown size={11} />
+                        <span>{percent}% {label}</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#64748b', fontWeight: 500 }}>
+                      <Minus size={11} />
+                      <span>0.0% {label}</span>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
 
-        {/* KPI 3: Unassigned Bookings */}
-        <div
-          style={{
-            backgroundColor: '#0c1421',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '16px',
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            minHeight: '150px',
-            opacity: isRecalculating ? 0.6 : 1,
-            transition: 'opacity 0.2s ease',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-            <div style={{ backgroundColor: 'rgba(244, 63, 94, 0.12)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <UserRoundX size={18} color="#fb7185" />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-              <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
-                UNASSIGNED BOOKINGS
-              </span>
-              {metrics && metrics.unassigned_count > 0 && (
-                <span style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)', fontSize: '10px', fontWeight: 600, padding: '2px 8px', borderRadius: '999px', whiteSpace: 'nowrap' }}>
-                  Action Required
-                </span>
-              )}
-            </div>
-          </div>
-          <div style={{ marginTop: '16px' }}>
-            <div id="val-occupancy" style={{ fontSize: '24px', fontWeight: 700, color: '#f8fafc', letterSpacing: '-0.5px' }}>
-              {metrics ? metrics.unassigned_count : '0'}
-            </div>
-            {(() => {
-              const label = metrics?.comparison_label || (filterPeriod === '7' ? 'vs previous 7 days' : filterPeriod === '30' ? 'vs previous 30 days' : filterPeriod === '365' ? 'vs previous year' : 'vs previous period');
-              const percent = metrics?.unassigned_trend_percent;
-              // REVERSED SEMANTIC COLORING:
-              // Unassigned increase (>0) is BAD -> RED
-              // Unassigned decrease (<0) is GOOD -> GREEN
-              if (percent !== undefined && percent !== null && percent > 0) {
-                return (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#f87171', fontWeight: 600 }}>
-                    <TrendingUp size={14} />
-                    <span>+{percent}% {label}</span>
-                  </div>
-                );
-              } else if (percent !== undefined && percent !== null && percent < 0) {
-                return (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
-                    <TrendingDown size={14} />
-                    <span>{percent}% {label}</span>
-                  </div>
-                );
-              }
-              return (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>
-                  <Minus size={14} />
-                  <span>0.0% {label}</span>
+            {/* KPI 2: Total Bookings */}
+            <div
+              style={{
+                backgroundColor: '#090d16',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '12px',
+                padding: '12px 14px',
+                height: '120px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                boxSizing: 'border-box',
+                minWidth: 0,
+                opacity: isRecalculating ? 0.6 : 1,
+                transition: 'opacity 0.2s ease',
+              }}
+            >
+              <div
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#10b981',
+                  flexShrink: 0,
+                }}
+              >
+                <CalendarDays size={18} />
+              </div>
+              <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div id="val-bookings" style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
+                  {metrics ? metrics.total_bookings_today.toLocaleString() : '0'}
                 </div>
-              );
-            })()}
-          </div>
-        </div>
-
-        {/* KPI 4: Active Providers */}
-        <div
-          style={{
-            backgroundColor: '#0c1421',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '16px',
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            minHeight: '150px',
-            opacity: isRecalculating ? 0.6 : 1,
-            transition: 'opacity 0.2s ease',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-            <div style={{ backgroundColor: 'rgba(59, 130, 246, 0.12)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <UsersRound size={18} color="#60a5fa" />
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  Total Bookings
+                </div>
+                {(() => {
+                  const label = metrics?.comparison_label || (filterPeriod === '7' ? 'vs prev 7d' : filterPeriod === '30' ? 'vs prev 30d' : filterPeriod === '365' ? 'vs prev yr' : 'vs prev period');
+                  const percent = metrics?.bookings_trend_percent;
+                  if (percent !== undefined && percent !== null && percent > 0) {
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#34d399', fontWeight: 700 }}>
+                        <TrendingUp size={11} />
+                        <span>+{percent}% {label}</span>
+                      </div>
+                    );
+                  } else if (percent !== undefined && percent !== null && percent < 0) {
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#f87171', fontWeight: 700 }}>
+                        <TrendingDown size={11} />
+                        <span>{percent}% {label}</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#64748b', fontWeight: 500 }}>
+                      <Minus size={11} />
+                      <span>0.0% {label}</span>
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
-            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
-              ACTIVE PROVIDERS
-            </span>
-          </div>
-          <div style={{ marginTop: '16px' }}>
-            <div id="val-providers" style={{ fontSize: '24px', fontWeight: 700, color: '#f8fafc', letterSpacing: '-0.5px' }}>
-              {metrics ? metrics.active_providers_count : '0'}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>
-              <Minus size={14} />
-              <span>Steady</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Full-Width Modern Dual-Series SVG Chart */}
-      <DashboardChart
-        monthlyTrend={metrics?.monthly_trend}
-        chartYearFilter={chartYearFilter}
-        setChartYearFilter={setChartYearFilter}
-      />
+            {/* KPI 3: Unassigned Bookings */}
+            <div
+              style={{
+                backgroundColor: '#090d16',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '12px',
+                padding: '12px 14px',
+                height: '120px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                boxSizing: 'border-box',
+                minWidth: 0,
+                opacity: isRecalculating ? 0.6 : 1,
+                transition: 'opacity 0.2s ease',
+              }}
+            >
+              <div
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#ef4444',
+                  flexShrink: 0,
+                }}
+              >
+                <UserRoundX size={18} />
+              </div>
+              <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div id="val-occupancy" style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
+                    {metrics ? metrics.unassigned_count : '0'}
+                  </div>
+                  {metrics && metrics.unassigned_count > 0 && (
+                    <span style={{ backgroundColor: 'rgba(239, 68, 68, 0.14)', color: '#f87171', border: '1px solid rgba(248, 113, 113, 0.28)', fontSize: '9px', fontWeight: 800, padding: '1px 6px', borderRadius: '999px', whiteSpace: 'nowrap' }}>
+                      Action Required
+                    </span>
+                  )}
+                </div>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  Unassigned Bookings
+                </div>
+                {(() => {
+                  const label = metrics?.comparison_label || (filterPeriod === '7' ? 'vs prev 7d' : filterPeriod === '30' ? 'vs prev 30d' : filterPeriod === '365' ? 'vs prev yr' : 'vs prev period');
+                  const percent = metrics?.unassigned_trend_percent;
+                  if (percent !== undefined && percent !== null && percent > 0) {
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#f87171', fontWeight: 700 }}>
+                        <TrendingUp size={11} />
+                        <span>+{percent}% {label}</span>
+                      </div>
+                    );
+                  } else if (percent !== undefined && percent !== null && percent < 0) {
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#34d399', fontWeight: 700 }}>
+                        <TrendingDown size={11} />
+                        <span>{percent}% {label}</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#64748b', fontWeight: 500 }}>
+                      <Minus size={11} />
+                      <span>0.0% {label}</span>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
 
-      {/* Unassigned Bookings Section (Preserved for full functionality) */}
-      <div
-        style={{
-          backgroundColor: '#0c1421',
-          border: '1px solid rgba(255, 255, 255, 0.07)',
-          borderRadius: '18px',
-          padding: '24px',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#f8fafc', margin: 0 }}>
-            Recent Unassigned Bookings
-          </h3>
-          <button
-            onClick={() => router.push('/admin/bookings')}
+            {/* KPI 4: Active Providers */}
+            <div
+              style={{
+                backgroundColor: '#090d16',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '12px',
+                padding: '12px 14px',
+                height: '120px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                boxSizing: 'border-box',
+                minWidth: 0,
+                opacity: isRecalculating ? 0.6 : 1,
+                transition: 'opacity 0.2s ease',
+              }}
+            >
+              <div
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#60a5fa',
+                  flexShrink: 0,
+                }}
+              >
+                <UsersRound size={18} />
+              </div>
+              <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div id="val-providers" style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
+                  {metrics ? metrics.active_providers_count : '0'}
+                </div>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  Active Providers
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px', fontSize: '10px', color: '#64748b', fontWeight: 500 }}>
+                  <Minus size={11} />
+                  <span>Steady</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Full-Width Dual-Series SVG Chart */}
+          <DashboardChart
+            monthlyTrend={metrics?.monthly_trend}
+            chartYearFilter={chartYearFilter}
+            setChartYearFilter={setChartYearFilter}
+          />
+
+          {/* 4. Recent Unassigned Bookings Table Card */}
+          <div
             style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#10b981',
-              fontSize: '13px',
-              fontWeight: 600,
-              cursor: 'pointer',
+              backgroundColor: '#090d16',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
-            View All Bookings →
-          </button>
-        </div>
+            <div
+              style={{
+                padding: '14px 16px',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
+                  Recent Unassigned Bookings
+                </h2>
+                <span
+                  style={{
+                    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                    color: '#f87171',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                  }}
+                >
+                  {unassignedBookings.length} pending
+                </span>
+              </div>
 
-        {loading && unassignedBookings.length === 0 ? (
-          <div style={{ padding: '24px', color: '#64748b', textAlign: 'center', fontSize: '13px' }}>
-            Loading pending bookings...
-          </div>
-        ) : unassignedBookings.length === 0 ? (
-          <div style={{ padding: '24px', color: '#64748b', textAlign: 'center', fontSize: '13px' }}>
-            No unassigned bookings requiring immediate dispatch.
-          </div>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', color: '#64748b' }}>
-                  <th style={{ padding: '10px 14px' }}>Time</th>
-                  <th style={{ padding: '10px 14px' }}>Customer</th>
-                  <th style={{ padding: '10px 14px' }}>Service</th>
-                  <th style={{ padding: '10px 14px', textAlign: 'right' }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {unassignedBookings.map((booking) => (
-                  <tr key={booking.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
-                    <td style={{ padding: '10px 14px', color: '#94a3b8' }}>{booking.createdAt}</td>
-                    <td style={{ padding: '10px 14px', color: '#f8fafc', fontWeight: 500 }}>
-                      {booking.customerName}
-                    </td>
-                    <td style={{ padding: '10px 14px', color: '#cbd5e1' }}>{booking.serviceName}</td>
-                    <td style={{ padding: '10px 14px', textAlign: 'right' }}>
-                      <button
-                        onClick={() => router.push(`/admin/bookings/${booking.id}`)}
-                        style={{
-                          background: '#10b981',
-                          color: '#060b13',
-                          border: 'none',
-                          padding: '5px 12px',
-                          borderRadius: '6px',
-                          fontWeight: 700,
-                          fontSize: '12px',
-                          cursor: 'pointer',
-                        }}
+              <button
+                onClick={() => router.push('/admin/bookings')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#10b981',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+                className="hover:underline"
+              >
+                <span>View All Bookings</span>
+                <ArrowUpRight size={14} />
+              </button>
+            </div>
+
+            {loading && unassignedBookings.length === 0 ? (
+              <div style={{ padding: '24px', color: '#64748b', textAlign: 'center', fontSize: '12px' }}>
+                Loading pending bookings...
+              </div>
+            ) : unassignedBookings.length === 0 ? (
+              <div style={{ padding: '24px', color: '#64748b', textAlign: 'center', fontSize: '12px' }}>
+                No unassigned bookings requiring immediate dispatch.
+              </div>
+            ) : (
+              <div style={{ overflowX: 'auto', width: '100%' }}>
+                <table style={{ width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+                  <thead>
+                    <tr
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                        color: '#64748b',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                      }}
+                    >
+                      <th style={{ padding: '10px 12px', width: '15%', whiteSpace: 'nowrap' }}>TIME</th>
+                      <th style={{ padding: '10px 12px', width: '30%' }}>CUSTOMER</th>
+                      <th style={{ padding: '10px 12px', width: '40%' }}>SERVICE</th>
+                      <th style={{ padding: '10px 12px', width: '15%', textAlign: 'right', whiteSpace: 'nowrap' }}>ACTION</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {unassignedBookings.map((booking) => (
+                      <tr
+                        key={booking.id}
+                        style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)', transition: 'background-color 0.12s ease' }}
+                        className="hover:bg-[rgba(255,255,255,0.02)]"
                       >
-                        Assign
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                        <td style={{ padding: '10px 12px', color: '#64748b', whiteSpace: 'nowrap' }}>{booking.createdAt}</td>
+                        <td style={{ padding: '10px 12px', color: '#f8fafc', fontWeight: 600 }}>
+                          <span
+                            style={{
+                              display: 'block',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              maxWidth: '180px',
+                            }}
+                            title={booking.customerName}
+                          >
+                            {booking.customerName}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px 12px', color: '#cbd5e1' }}>
+                          <span
+                            style={{
+                              display: 'block',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              maxWidth: '240px',
+                            }}
+                            title={booking.serviceName}
+                          >
+                            {booking.serviceName}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          <button
+                            onClick={() => router.push(`/admin/bookings/${booking.id}`)}
+                            style={{
+                              backgroundColor: '#10b981',
+                              color: '#020617',
+                              border: 'none',
+                              padding: '4px 10px',
+                              borderRadius: '6px',
+                              fontWeight: 700,
+                              fontSize: '11px',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease',
+                            }}
+                            className="hover:bg-[#34d399]"
+                          >
+                            Assign
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        )}
-      </div>
         </>
       )}
     </div>
