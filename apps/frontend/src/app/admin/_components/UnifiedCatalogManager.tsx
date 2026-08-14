@@ -665,7 +665,7 @@ export default function UnifiedCatalogManager() {
     <div style={{ maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', color: '#ffffff' }}>
       
       {/* 1. Page Header & Primary Action CTA */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div
             style={{
@@ -687,13 +687,13 @@ export default function UnifiedCatalogManager() {
             <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
               Service Catalog Manager
             </h1>
-            <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px', margin: 0, fontWeight: 400 }}>
+            <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px', margin: 0, fontWeight: 400, lineHeight: 1.4 }}>
               Manage service categories, configure fixed pricing, and adjust operational catalog structures.
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           {activeTab === 'categories' ? (
             <button
               id="btn-add-category"
@@ -701,8 +701,9 @@ export default function UnifiedCatalogManager() {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '6px',
-                padding: '8px 16px',
+                padding: '9px 16px',
                 borderRadius: '8px',
                 backgroundColor: '#10b981',
                 color: '#020617',
@@ -712,7 +713,7 @@ export default function UnifiedCatalogManager() {
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
-              className="hover:bg-[#34d399]"
+              className="hover:bg-[#34d399] w-full sm:w-auto active:scale-[0.98]"
             >
               <Plus size={15} />
               <span>Add Category</span>
@@ -724,8 +725,9 @@ export default function UnifiedCatalogManager() {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '6px',
-                padding: '8px 16px',
+                padding: '9px 16px',
                 borderRadius: '8px',
                 backgroundColor: '#10b981',
                 color: '#020617',
@@ -735,7 +737,7 @@ export default function UnifiedCatalogManager() {
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
-              className="hover:bg-[#34d399]"
+              className="hover:bg-[#34d399] w-full sm:w-auto active:scale-[0.98]"
             >
               <Plus size={15} />
               <span>Add Service</span>
@@ -817,14 +819,7 @@ export default function UnifiedCatalogManager() {
       {loadingCategories ? (
         <CatalogKpiSkeleton />
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-            gap: '12px',
-            width: '100%',
-          }}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
           {/* KPI 1: Total Categories */}
           <div
             style={{
@@ -1041,9 +1036,9 @@ export default function UnifiedCatalogManager() {
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flex: '1', justifyContent: 'flex-end' }}>
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 w-full sm:w-auto sm:ml-auto">
             {/* Search Input */}
-            <div style={{ position: 'relative', width: '100%', maxWidth: '280px' }}>
+            <div className="relative w-full sm:max-w-[280px]">
               <Search
                 size={14}
                 style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
@@ -1062,7 +1057,7 @@ export default function UnifiedCatalogManager() {
                   backgroundColor: '#090d16',
                   border: '1px solid rgba(255, 255, 255, 0.12)',
                   borderRadius: '8px',
-                  padding: '7px 28px 7px 32px',
+                  padding: '8px 28px 8px 32px',
                   color: '#f8fafc',
                   fontSize: '12px',
                   outline: 'none',
@@ -1092,8 +1087,8 @@ export default function UnifiedCatalogManager() {
             </div>
 
             {/* Category Dropdown Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Category:</span>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' }}>Category:</span>
               {activeTab === 'categories' ? (
                 <select
                   id="select-category-filter-cat-tab"
@@ -1103,11 +1098,12 @@ export default function UnifiedCatalogManager() {
                     backgroundColor: '#090d16',
                     border: '1px solid rgba(255, 255, 255, 0.12)',
                     borderRadius: '8px',
-                    padding: '6px 10px',
+                    padding: '7px 10px',
                     color: '#f8fafc',
                     fontSize: '12px',
                     outline: 'none',
                     cursor: 'pointer',
+                    width: '100%',
                   }}
                 >
                   <option value="ALL" style={{ backgroundColor: '#090d16', color: '#ffffff' }}>
@@ -1131,11 +1127,12 @@ export default function UnifiedCatalogManager() {
                     backgroundColor: '#090d16',
                     border: '1px solid rgba(255, 255, 255, 0.12)',
                     borderRadius: '8px',
-                    padding: '6px 10px',
+                    padding: '7px 10px',
                     color: '#f8fafc',
                     fontSize: '12px',
                     outline: 'none',
                     cursor: 'pointer',
+                    width: '100%',
                   }}
                 >
                   {categories.map((c) => (
@@ -1148,8 +1145,8 @@ export default function UnifiedCatalogManager() {
             </div>
 
             {/* Status Filter */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Filter size={13} style={{ color: '#64748b' }} />
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Filter size={13} style={{ color: '#64748b', flexShrink: 0 }} />
               <select
                 value={activeTab === 'categories' ? catStatusFilter : svcStatusFilter}
                 onChange={(e) => {
@@ -1161,11 +1158,12 @@ export default function UnifiedCatalogManager() {
                   backgroundColor: '#090d16',
                   border: '1px solid rgba(255, 255, 255, 0.12)',
                   borderRadius: '8px',
-                  padding: '6px 10px',
+                  padding: '7px 10px',
                   color: '#f8fafc',
                   fontSize: '12px',
                   outline: 'none',
                   cursor: 'pointer',
+                  width: '100%',
                 }}
               >
                 <option value="ALL" style={{ backgroundColor: '#090d16' }}>All Status</option>
