@@ -788,9 +788,9 @@ function ProvidersPageContent() {
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flex: '1', justifyContent: 'flex-end' }}>
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 w-full sm:w-auto sm:ml-auto">
             {/* Search Input */}
-            <div style={{ position: 'relative', width: '100%', maxWidth: '300px' }}>
+            <div className="w-full sm:max-w-[300px]" style={{ position: 'relative' }}>
               <svg
                 width="14"
                 height="14"
@@ -815,7 +815,7 @@ function ProvidersPageContent() {
                   backgroundColor: '#090d16',
                   border: '1px solid rgba(255, 255, 255, 0.12)',
                   borderRadius: '8px',
-                  padding: '7px 28px 7px 32px',
+                  padding: '8px 28px 8px 32px',
                   color: '#f8fafc',
                   fontSize: '12px',
                   outline: 'none',
@@ -843,7 +843,7 @@ function ProvidersPageContent() {
             </div>
 
             {/* Status Filter Pills */}
-            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+            <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
               {[
                 { key: 'ALL', label: 'All' },
                 { key: 'PENDING_REVIEW', label: 'Pending Review' },

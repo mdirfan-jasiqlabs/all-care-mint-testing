@@ -554,9 +554,9 @@ function ProviderLeadsPageContent() {
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flex: '1', justifyContent: 'flex-end' }}>
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 w-full sm:w-auto sm:ml-auto">
             {/* Search Input */}
-            <div style={{ position: 'relative', width: '100%', maxWidth: '320px' }}>
+            <div className="w-full sm:max-w-[320px]" style={{ position: 'relative' }}>
               <Search
                 size={14}
                 style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
@@ -571,7 +571,7 @@ function ProviderLeadsPageContent() {
                   backgroundColor: '#090d16',
                   border: '1px solid rgba(255, 255, 255, 0.12)',
                   borderRadius: '8px',
-                  padding: '7px 28px 7px 32px',
+                  padding: '8px 28px 8px 32px',
                   color: '#f8fafc',
                   fontSize: '12px',
                   outline: 'none',
@@ -599,8 +599,8 @@ function ProviderLeadsPageContent() {
             </div>
 
             {/* Status Filter Pills */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-              <Filter size={13} style={{ color: '#64748b', marginRight: '2px' }} />
+            <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
+              <Filter size={13} style={{ color: '#64748b', marginRight: '2px', flexShrink: 0 }} />
               {[
                 { id: 'ALL', label: 'All Leads' },
                 { id: 'UNACKNOWLEDGED', label: 'New Leads' },
