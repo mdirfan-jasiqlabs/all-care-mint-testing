@@ -170,42 +170,46 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '12px',
             padding: '12px 14px',
-            height: '120px',
             display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
             boxSizing: 'border-box',
             minWidth: 0,
+            minHeight: '104px',
           }}
+          className={idx === 4 ? 'col-span-2 sm:col-span-1 lg:col-span-1' : ''}
         >
-          <div
-            style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '50%',
-              backgroundColor: card.iconBg,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: card.iconColor,
-              flexShrink: 0,
-            }}
-          >
-            {card.icon}
-          </div>
-          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
+          {/* Top Row: Icon + Large Count Value */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '8px' }}>
+            <div
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                backgroundColor: card.iconBg,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: card.iconColor,
+                flexShrink: 0,
+              }}
+            >
+              {card.icon}
+            </div>
+            <div style={{ fontSize: '24px', fontWeight: 800, color: '#f8fafc', lineHeight: 1 }}>
               {card.value}
             </div>
+          </div>
+
+          {/* Bottom Labels: Title + Subtext */}
+          <div style={{ minWidth: 0, width: '100%' }}>
             <div
               style={{
                 fontSize: '12px',
                 fontWeight: 700,
                 color: '#e2e8f0',
-                marginTop: '3px',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
+                lineHeight: 1.25,
+                wordBreak: 'break-word',
               }}
             >
               {card.title}
@@ -214,10 +218,9 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
               style={{
                 fontSize: '10px',
                 color: '#64748b',
-                marginTop: '2px',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
+                marginTop: '3px',
+                lineHeight: 1.2,
+                wordBreak: 'break-word',
               }}
             >
               {card.subtext}
@@ -642,7 +645,7 @@ function ProvidersPageContent() {
   return (
     <div style={{ maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', color: '#ffffff' }}>
       {/* 1. PAGE HEADER */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div
             style={{
@@ -669,7 +672,7 @@ function ProvidersPageContent() {
             <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
               Service Providers Directory
             </h1>
-            <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px', margin: 0, fontWeight: 400 }}>
+            <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px', margin: 0, fontWeight: 400, lineHeight: 1.4 }}>
               Onboard new service leads, manage approval/suspension status, and define skill capability mappings.
             </p>
           </div>
@@ -681,16 +684,17 @@ function ProvidersPageContent() {
             color: '#020617',
             border: 'none',
             borderRadius: '8px',
-            padding: '8px 16px',
+            padding: '9px 16px',
             fontWeight: 700,
             fontSize: '12px',
             cursor: 'pointer',
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '6px',
             transition: 'all 0.15s ease',
           }}
-          className="hover:bg-[#34d399]"
+          className="hover:bg-[#34d399] w-full sm:w-auto active:scale-[0.98]"
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -698,7 +702,7 @@ function ProvidersPageContent() {
             <line x1="19" y1="8" x2="19" y2="14"></line>
             <line x1="16" y1="11" x2="22" y2="11"></line>
           </svg>
-          Onboard Provider
+          <span>Onboard Provider</span>
         </button>
       </div>
 
@@ -709,7 +713,9 @@ function ProvidersPageContent() {
           gap: '24px',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           paddingBottom: '2px',
+          overflowX: 'auto',
         }}
+        className="w-full scrollbar-none"
       >
         <Link
           href="/admin/providers"
@@ -721,6 +727,7 @@ function ProvidersPageContent() {
             color: '#f8fafc',
             borderBottom: '2px solid #10b981',
             display: 'inline-block',
+            whiteSpace: 'nowrap',
           }}
         >
           Registered Providers Directory
@@ -736,6 +743,7 @@ function ProvidersPageContent() {
             borderBottom: '2px solid transparent',
             display: 'inline-block',
             transition: 'color 0.15s',
+            whiteSpace: 'nowrap',
           }}
           className="hover:text-slate-200"
         >
@@ -1262,12 +1270,7 @@ export default function ProvidersPage() {
 function ProvidersKpiSkeleton() {
   return (
     <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(5, minmax(0, 1fr))',
-        gap: '12px',
-        width: '100%',
-      }}
+      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 w-full"
       aria-busy="true"
       aria-label="Loading provider statistics"
     >
@@ -1279,18 +1282,20 @@ function ProvidersKpiSkeleton() {
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '12px',
             padding: '12px 14px',
-            height: '120px',
+            minHeight: '104px',
             display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
             boxSizing: 'border-box',
             minWidth: 0,
           }}
-          className="animate-pulse"
+          className={`animate-pulse ${i === 5 ? 'col-span-2 sm:col-span-1 lg:col-span-1' : ''}`}
         >
-          <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.08)', flexShrink: 0 }} />
-          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <div style={{ width: '50px', height: '22px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(255, 255, 255, 0.08)', flexShrink: 0 }} />
+            <div style={{ width: '40px', height: '24px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '100%' }}>
             <div style={{ width: '90px', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
             <div style={{ width: '70px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }} />
           </div>
