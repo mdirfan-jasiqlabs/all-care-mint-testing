@@ -14,7 +14,7 @@ export default function ProtectedAdminLayout({ children }: { children: React.Rea
     <CatalogETagProvider>
       <ToastProvider>
         {/* Viewport-locked shell: no document-level scroll */}
-        <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'hsl(224, 71%, 4%)', color: '#f8fafc', overflow: 'hidden' }}>
+        <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', backgroundColor: 'hsl(224, 71%, 4%)', color: '#f8fafc', overflow: 'hidden' }}>
           {/* Sticky header at top */}
           <AdminHeader onMenuClick={() => setIsMobileDrawerOpen(true)} />
 
@@ -28,7 +28,7 @@ export default function ProtectedAdminLayout({ children }: { children: React.Rea
 
             {/* Main content: only this area scrolls vertically */}
             <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <div className="p-4 sm:p-6 lg:p-8" style={{ flex: 1 }}>
+              <div className="p-3 sm:p-6 lg:p-8" style={{ flex: 1 }}>
                 {children}
               </div>
               <AdminFooter />

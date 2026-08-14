@@ -12,6 +12,7 @@ import {
   Star,
   ChartNoAxesCombined,
   UsersRound,
+  LogOut,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -24,6 +25,35 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
   const router = useRouter();
   const pathname = usePathname() || '';
   const [badgeCount, setBadgeCount] = React.useState<number>(0);
+  const [loggingOut, setLoggingOut] = React.useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      const csrfToken =
+        typeof window !== 'undefined'
+          ? sessionStorage.getItem('csrf_token') || localStorage.getItem('csrf_token') || ''
+          : '';
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken,
+        },
+      });
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('csrf_token');
+        sessionStorage.removeItem('access_token');
+        localStorage.removeItem('csrf_token');
+        localStorage.removeItem('access_token');
+      }
+      if (onClose) onClose();
+      router.push('/login/admin');
+    } catch (err) {
+      console.error('Logout error:', err);
+      setLoggingOut(false);
+    }
+  };
 
   React.useEffect(() => {
     let isMounted = true;
@@ -297,7 +327,40 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
                 ✕
               </button>
             </div>
-            {navContent}
+
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              {navContent}
+              <div style={{ paddingTop: '16px', marginTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    color: '#ef4444',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    cursor: loggingOut ? 'not-allowed' : 'pointer',
+                    opacity: loggingOut ? 0.6 : 1,
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {loggingOut ? (
+                    <span className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin inline-block" />
+                  ) : (
+                    <LogOut size={18} color="#ef4444" />
+                  )}
+                  <span>Log Out</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

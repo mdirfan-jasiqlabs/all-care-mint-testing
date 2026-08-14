@@ -782,7 +782,7 @@ export default function AdminReportsPage() {
         ) : (
           /* Table Wrapper: NO desktop horizontal scrollbar */
           <div className="w-full overflow-x-auto">
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }} className="min-w-full sm:min-w-0">
+            <table style={{ minWidth: '700px', width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', color: '#64748b' }}>
                   <th onClick={() => handleSort('date')} style={{ padding: '10px 12px', width: '13%' }} className="cursor-pointer hover:text-slate-200 transition-colors select-none group">

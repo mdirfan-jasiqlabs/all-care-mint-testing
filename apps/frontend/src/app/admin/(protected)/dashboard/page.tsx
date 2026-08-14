@@ -399,7 +399,7 @@ function DashboardSkeleton() {
       style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}
     >
       {/* 4 KPI Cards Grid Skeleton */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '12px' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
@@ -736,7 +736,7 @@ export default function AdminDashboardPage() {
 
       {/* 1. Page Header Bar - Pinned Right Action Buttons & Full Description Below */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '16px' }}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div
               style={{
@@ -760,7 +760,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Action Button & Date Filter Dropdown Pinned to Far Right */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0, marginLeft: 'auto' }}>
+          <div className="flex flex-wrap items-center gap-2.5 sm:ml-auto">
             <button
               onClick={handleExportCsv}
               disabled={isExportingCsv}
@@ -916,7 +916,7 @@ export default function AdminDashboardPage() {
         <DashboardSkeleton />
       ) : (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '12px', width: '100%' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
             {/* KPI 1: Total Revenue */}
             <div
               style={{
@@ -1264,7 +1264,7 @@ export default function AdminDashboardPage() {
               </div>
             ) : (
               <div style={{ overflowX: 'auto', width: '100%' }}>
-                <table style={{ width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+                <table style={{ minWidth: '550px', width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
                   <thead>
                     <tr
                       style={{

@@ -161,14 +161,7 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
   ];
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(5, minmax(0, 1fr))',
-        gap: '12px',
-        width: '100%',
-      }}
-    >
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 w-full">
       {cards.map((card, idx) => (
         <div
           key={idx}
@@ -914,7 +907,7 @@ function ProvidersPageContent() {
         ) : (
           <div>
             <div style={{ overflowX: 'auto', width: '100%' }}>
-              <table style={{ width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+              <table style={{ minWidth: '650px', width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
                 <thead>
                   <tr
                     style={{

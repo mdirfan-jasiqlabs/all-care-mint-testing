@@ -2053,12 +2053,7 @@ export default function UnifiedCatalogManager() {
 function CatalogKpiSkeleton() {
   return (
     <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-        gap: '12px',
-        width: '100%',
-      }}
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full"
       aria-busy="true"
       aria-label="Loading catalog statistics"
     >

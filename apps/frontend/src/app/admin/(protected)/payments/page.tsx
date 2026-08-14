@@ -750,7 +750,7 @@ export default function AdminPaymentsPage() {
 
         {/* Table Content - Clean 100% width fitting on desktop without horizontal scrollbar */}
         <div style={{ overflowX: 'auto', width: '100%' }}>
-          <table id="admin-payments-table" style={{ width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <table id="admin-payments-table" style={{ minWidth: '720px', width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>DATE & TIME</th>

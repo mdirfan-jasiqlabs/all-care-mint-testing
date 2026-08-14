@@ -106,7 +106,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen lg:h-screen lg:max-h-screen w-screen max-w-screen overflow-x-hidden lg:overflow-hidden bg-[#040810] text-slate-100 flex items-center justify-center p-4 sm:p-6 relative font-sans select-none">
+    <div className="min-h-screen lg:h-screen lg:max-h-screen w-full max-w-full overflow-x-hidden lg:overflow-hidden bg-[#040810] text-slate-100 flex items-center justify-center p-3 sm:p-6 relative font-sans select-none">
       {/* Subtle Background Ambient Radial Glow */}
       <div 
         className="absolute inset-0 pointer-events-none"

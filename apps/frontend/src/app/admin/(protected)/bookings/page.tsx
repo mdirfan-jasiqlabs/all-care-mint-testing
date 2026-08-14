@@ -972,7 +972,7 @@ export default function AdminBookingsPage() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flex: '1', justifyContent: 'flex-end' }}>
             {/* Search Input */}
-            <div style={{ position: 'relative', width: '100%', maxWidth: '320px' }}>
+            <div className="w-full sm:max-w-[320px]" style={{ position: 'relative' }}>
               <Search
                 size={14}
                 style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
@@ -1071,7 +1071,7 @@ export default function AdminBookingsPage() {
         ) : (
           <div>
             <div style={{ overflowX: 'auto', width: '100%' }}>
-              <table style={{ width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+              <table style={{ minWidth: '700px', width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
                 <thead>
                   <tr
                     style={{

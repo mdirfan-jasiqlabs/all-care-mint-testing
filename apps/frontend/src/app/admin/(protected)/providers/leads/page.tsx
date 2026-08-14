@@ -276,6 +276,7 @@ function ProviderLeadsPageContent() {
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           gap: '24px',
           paddingBottom: '2px',
+          overflowX: 'auto',
         }}
       >
         <Link
@@ -672,7 +673,7 @@ function ProviderLeadsPageContent() {
           </div>
         ) : (
           <div style={{ width: '100%', overflowX: 'auto' }}>
-            <table style={{ width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+            <table style={{ minWidth: '600px', width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
               <thead>
                 <tr
                   style={{
