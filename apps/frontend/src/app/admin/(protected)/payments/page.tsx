@@ -40,11 +40,11 @@ const inrFormatter = new Intl.NumberFormat('en-IN', {
 
 const getCustomerAvatarColor = (name: string) => {
   const palette = [
-    { bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.3)', color: '#34d399' },
-    { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)', color: '#60a5fa' },
-    { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)', color: '#fbbf24' },
-    { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)', color: '#a78bfa' },
-    { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)', color: '#f472b6' },
+    { bg: 'var(--admin-badge-active-bg)', border: 'var(--admin-badge-active-border)', color: 'var(--admin-badge-active-text)' },
+    { bg: 'var(--admin-badge-assigned-bg)', border: 'var(--admin-badge-assigned-border)', color: 'var(--admin-badge-assigned-text)' },
+    { bg: 'var(--admin-badge-pending-bg)', border: 'var(--admin-badge-pending-border)', color: 'var(--admin-badge-pending-text)' },
+    { bg: 'var(--admin-badge-purple-bg)', border: 'var(--admin-badge-purple-border)', color: 'var(--admin-badge-purple-text)' },
+    { bg: 'var(--admin-badge-teal-bg)', border: 'var(--admin-badge-teal-border)', color: 'var(--admin-badge-teal-text)' },
   ];
   let hash = 0;
   for (let i = 0; i < (name || '').length; i++) {
@@ -252,6 +252,9 @@ export default function AdminPaymentsPage() {
 
   const renderMethodBadge = (method: string) => {
     const isCash = method === 'CASH';
+    const bg = isCash ? 'var(--admin-badge-assigned-bg)' : 'var(--admin-badge-purple-bg)';
+    const color = isCash ? 'var(--admin-badge-assigned-text)' : 'var(--admin-badge-purple-text)';
+    const border = isCash ? 'var(--admin-badge-assigned-border)' : 'var(--admin-badge-purple-border)';
     return (
       <span
         style={{
@@ -263,9 +266,9 @@ export default function AdminPaymentsPage() {
           fontSize: '11px',
           fontWeight: 700,
           letterSpacing: '0.2px',
-          backgroundColor: isCash ? 'rgba(59, 130, 246, 0.14)' : 'rgba(168, 85, 247, 0.14)',
-          color: isCash ? '#60a5fa' : '#c084fc',
-          border: isCash ? '1px solid rgba(96, 165, 250, 0.28)' : '1px solid rgba(192, 132, 252, 0.28)',
+          backgroundColor: bg,
+          color,
+          border: `1px solid ${border}`,
           whiteSpace: 'nowrap',
         }}
       >
@@ -276,34 +279,30 @@ export default function AdminPaymentsPage() {
   };
 
   const renderStatusBadge = (status: string) => {
-    let bg = 'rgba(148, 163, 184, 0.14)';
-    let color = '#94a3b8';
-    let border = 'rgba(148, 163, 184, 0.28)';
+    let bg = 'var(--admin-surface-hover)';
+    let color = 'var(--admin-text-muted)';
+    let border = 'var(--admin-border)';
 
     if (status === 'PAYMENT_SUCCESS') {
-      bg = 'rgba(16, 185, 129, 0.14)';
-      color = '#34d399';
-      border = 'rgba(52, 211, 153, 0.28)';
-    } else if (status === 'CASH_PENDING') {
-      bg = 'rgba(245, 158, 11, 0.14)';
-      color = '#fbbf24';
-      border = 'rgba(251, 191, 36, 0.28)';
+      bg = 'var(--admin-badge-active-bg)';
+      color = 'var(--admin-badge-active-text)';
+      border = 'var(--admin-badge-active-border)';
+    } else if (status === 'CASH_PENDING' || status === 'PAYMENT_PENDING') {
+      bg = 'var(--admin-badge-pending-bg)';
+      color = 'var(--admin-badge-pending-text)';
+      border = 'var(--admin-badge-pending-border)';
     } else if (status === 'CASH_SETTLED') {
-      bg = 'rgba(100, 116, 139, 0.18)';
-      color = '#cbd5e1';
-      border = 'rgba(203, 213, 225, 0.28)';
+      bg = 'var(--admin-badge-assigned-bg)';
+      color = 'var(--admin-badge-assigned-text)';
+      border = 'var(--admin-badge-assigned-border)';
     } else if (status === 'PAYMENT_FAILED') {
-      bg = 'rgba(239, 68, 68, 0.14)';
-      color = '#f87171';
-      border = 'rgba(248, 113, 113, 0.28)';
-    } else if (status === 'PAYMENT_PENDING') {
-      bg = 'rgba(234, 179, 8, 0.14)';
-      color = '#facc15';
-      border = 'rgba(250, 204, 21, 0.28)';
+      bg = 'var(--admin-badge-inactive-bg)';
+      color = 'var(--admin-badge-inactive-text)';
+      border = 'var(--admin-badge-inactive-border)';
     } else if (status === 'CANCELLED') {
-      bg = 'rgba(148, 163, 184, 0.14)';
-      color = '#94a3b8';
-      border = 'rgba(148, 163, 184, 0.28)';
+      bg = 'var(--admin-surface-hover)';
+      color = 'var(--admin-text-muted)';
+      border = 'var(--admin-border)';
     }
 
     return (
@@ -379,7 +378,7 @@ export default function AdminPaymentsPage() {
             gap: '8px',
             padding: '10px 18px',
             backgroundColor: '#10b981',
-            color: '#020617',
+            color: '#ffffff',
             fontWeight: 700,
             fontSize: '13px',
             borderRadius: '8px',
@@ -579,7 +578,7 @@ export default function AdminPaymentsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Transactions</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-purple-bg)', border: '1px solid var(--admin-badge-purple-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-kpi-purple-text)' }}>
                 <Receipt size={16} />
               </div>
             </div>
@@ -609,12 +608,12 @@ export default function AdminPaymentsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Amount</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-active-bg)', border: '1px solid var(--admin-badge-active-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-accent)' }}>
                 <Wallet size={16} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#34d399', letterSpacing: '-0.02em' }} className="truncate font-mono">
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-accent)', letterSpacing: '-0.02em' }} className="truncate font-mono">
                 {formatCurrency(totalAmount)}
               </div>
               <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
@@ -639,7 +638,7 @@ export default function AdminPaymentsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Online Payments</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-assigned-bg)', border: '1px solid var(--admin-badge-assigned-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-kpi-blue-text)' }}>
                 <CreditCard size={16} />
               </div>
             </div>
@@ -669,7 +668,7 @@ export default function AdminPaymentsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Cash Payments</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-pending-bg)', border: '1px solid var(--admin-badge-pending-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-kpi-amber-text)' }}>
                 <Banknote size={16} />
               </div>
             </div>
@@ -699,12 +698,12 @@ export default function AdminPaymentsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Success Rate</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(20, 184, 166, 0.12)', border: '1px solid rgba(20, 184, 166, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2dd4bf' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-teal-bg)', border: '1px solid var(--admin-badge-teal-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-kpi-teal-text)' }}>
                 <ShieldCheck size={16} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#2dd4bf', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-kpi-teal-text)', letterSpacing: '-0.02em' }}>
                 {`${successRate}%`}
               </div>
               <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
@@ -741,13 +740,13 @@ export default function AdminPaymentsPage() {
           </h2>
           <span
             style={{
-              backgroundColor: 'rgba(16, 185, 129, 0.12)',
-              color: '#10b981',
+              backgroundColor: 'var(--admin-badge-active-bg)',
+              color: 'var(--admin-badge-active-text)',
               fontSize: '11px',
               fontWeight: 700,
               padding: '2px 8px',
               borderRadius: '10px',
-              border: '1px solid rgba(16, 185, 129, 0.25)',
+              border: '1px solid var(--admin-badge-active-border)',
             }}
           >
             {loading ? 'Loading...' : `${payments.length} records`}
@@ -818,7 +817,7 @@ export default function AdminPaymentsPage() {
                       <div style={{ width: '70px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
                     </td>
                     <td style={{ padding: '10px 12px' }}>
-                      <div style={{ width: '90px', height: '20px', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderRadius: '5px' }} />
+                      <div style={{ width: '90px', height: '20px', backgroundColor: 'var(--admin-badge-sky-bg)', borderRadius: '5px' }} />
                     </td>
                     <td style={{ padding: '10px 12px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -833,7 +832,7 @@ export default function AdminPaymentsPage() {
                       <div style={{ width: '90px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
                     </td>
                     <td style={{ padding: '10px 12px' }}>
-                      <div style={{ width: '70px', height: '14px', backgroundColor: 'rgba(16, 185, 129, 0.12)', borderRadius: '4px' }} />
+                      <div style={{ width: '70px', height: '14px', backgroundColor: 'var(--admin-badge-active-bg)', borderRadius: '4px' }} />
                     </td>
                     <td style={{ padding: '10px 12px' }}>
                       <div style={{ width: '60px', height: '18px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '6px' }} />
@@ -881,7 +880,7 @@ export default function AdminPaymentsPage() {
                       </td>
 
                       {/* Booking ID */}
-                      <td style={{ padding: '8px 10px', fontSize: '11px', fontWeight: 700, color: '#38bdf8', fontFamily: 'monospace', letterSpacing: '0.2px', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '8px 10px', fontSize: '11px', fontWeight: 700, color: 'var(--admin-badge-sky-text)', fontFamily: 'monospace', letterSpacing: '0.2px', whiteSpace: 'nowrap' }}>
                         {row.booking_id}
                       </td>
 
@@ -942,7 +941,7 @@ export default function AdminPaymentsPage() {
                       </td>
 
                       {/* Amount */}
-                      <td style={{ padding: '8px 10px', fontSize: '12px', fontWeight: 800, color: '#34d399', whiteSpace: 'nowrap' }} className="font-mono">
+                      <td style={{ padding: '8px 10px', fontSize: '12px', fontWeight: 800, color: 'var(--admin-accent)', whiteSpace: 'nowrap' }} className="font-mono">
                         ₹{row.amount_inr?.toLocaleString()}
                       </td>
 

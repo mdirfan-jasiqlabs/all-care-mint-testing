@@ -34,11 +34,11 @@ function getAvatarInitials(name: string): string {
 }
 
 const AVATAR_COLORS = [
-  { bg: 'rgba(16, 185, 129, 0.15)', text: '#34d399', border: 'rgba(16, 185, 129, 0.3)' },
-  { bg: 'rgba(59, 130, 246, 0.15)', text: '#60a5fa', border: 'rgba(59, 130, 246, 0.3)' },
-  { bg: 'rgba(245, 158, 11, 0.15)', text: '#fbbf24', border: 'rgba(245, 158, 11, 0.3)' },
-  { bg: 'rgba(239, 68, 68, 0.15)', text: '#f87171', border: 'rgba(239, 68, 68, 0.3)' },
-  { bg: 'rgba(168, 85, 247, 0.15)', text: '#c084fc', border: 'rgba(168, 85, 247, 0.3)' },
+  { bg: 'var(--admin-badge-active-bg)', text: 'var(--admin-badge-active-text)', border: 'var(--admin-badge-active-border)' },
+  { bg: 'var(--admin-badge-assigned-bg)', text: 'var(--admin-badge-assigned-text)', border: 'var(--admin-badge-assigned-border)' },
+  { bg: 'var(--admin-badge-pending-bg)', text: 'var(--admin-badge-pending-text)', border: 'var(--admin-badge-pending-border)' },
+  { bg: 'var(--admin-badge-inactive-bg)', text: 'var(--admin-badge-inactive-text)', border: 'var(--admin-badge-inactive-border)' },
+  { bg: 'rgba(168, 85, 247, 0.14)', text: 'var(--admin-kpi-purple-text)', border: 'rgba(168, 85, 247, 0.28)' },
 ];
 
 function getAvatarColor(name: string) {
@@ -53,33 +53,33 @@ function getAvatarColor(name: string) {
 function getStatusBadgeStyles(status: string) {
   if (status === 'APPROVED') {
     return {
-      backgroundColor: 'rgba(16, 185, 129, 0.14)',
-      color: '#34d399',
-      border: '1px solid rgba(52, 211, 153, 0.28)',
+      backgroundColor: 'var(--admin-badge-active-bg)',
+      color: 'var(--admin-badge-active-text)',
+      border: '1px solid var(--admin-badge-active-border)',
     };
   } else if (status === 'PENDING_REVIEW') {
     return {
-      backgroundColor: 'rgba(245, 158, 11, 0.14)',
-      color: '#fbbf24',
-      border: '1px solid rgba(251, 191, 36, 0.28)',
+      backgroundColor: 'var(--admin-badge-pending-bg)',
+      color: 'var(--admin-badge-pending-text)',
+      border: '1px solid var(--admin-badge-pending-border)',
     };
   } else if (status === 'SUSPENDED') {
     return {
-      backgroundColor: 'rgba(239, 68, 68, 0.14)',
-      color: '#f87171',
-      border: '1px solid rgba(248, 113, 113, 0.28)',
+      backgroundColor: 'var(--admin-badge-inactive-bg)',
+      color: 'var(--admin-badge-inactive-text)',
+      border: '1px solid var(--admin-badge-inactive-border)',
     };
   } else if (status === 'REJECTED') {
     return {
-      backgroundColor: 'rgba(148, 163, 184, 0.14)',
-      color: '#94a3b8',
-      border: '1px solid rgba(148, 163, 184, 0.28)',
+      backgroundColor: 'var(--admin-surface-hover)',
+      color: 'var(--admin-text-muted)',
+      border: '1px solid var(--admin-border)',
     };
   }
   return {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    color: '#94a3b8',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'var(--admin-surface-hover)',
+    color: 'var(--admin-text-muted)',
+    border: '1px solid var(--admin-border)',
   };
 }
 
@@ -94,10 +94,12 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
       title: 'Total Providers',
       value: kpiCounts.total,
       subtext: 'All registered providers',
-      iconColor: '#10b981',
-      iconBg: 'rgba(16, 185, 129, 0.12)',
+      iconColor: 'var(--admin-accent)',
+      iconBg: 'var(--admin-badge-active-bg)',
+      iconBorder: 'var(--admin-badge-active-border)',
+      valueColor: 'var(--admin-text-primary)',
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
           <circle cx="9" cy="7" r="4"></circle>
           <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -109,12 +111,15 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
       title: 'Pending Review',
       value: kpiCounts.pending,
       subtext: 'Awaiting verification',
-      iconColor: '#f59e0b',
-      iconBg: 'rgba(245, 158, 11, 0.12)',
+      iconColor: 'var(--admin-badge-inactive-text)',
+      iconBg: 'var(--admin-badge-inactive-bg)',
+      iconBorder: 'var(--admin-badge-inactive-border)',
+      valueColor: 'var(--admin-badge-inactive-text)',
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
-          <polyline points="12 6 12 12 16 14"></polyline>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
         </svg>
       ),
     },
@@ -122,10 +127,12 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
       title: 'Approved',
       value: kpiCounts.approved,
       subtext: 'Active providers',
-      iconColor: '#10b981',
-      iconBg: 'rgba(16, 185, 129, 0.12)',
+      iconColor: 'var(--admin-badge-active-text)',
+      iconBg: 'var(--admin-badge-active-bg)',
+      iconBorder: 'var(--admin-badge-active-border)',
+      valueColor: 'var(--admin-badge-active-text)',
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           <polyline points="9 12 11 14 15 10"></polyline>
         </svg>
@@ -135,10 +142,12 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
       title: 'Suspended',
       value: kpiCounts.suspended,
       subtext: 'Temporarily suspended',
-      iconColor: '#ef4444',
-      iconBg: 'rgba(239, 68, 68, 0.12)',
+      iconColor: 'var(--admin-kpi-amber-text)',
+      iconBg: 'var(--admin-badge-pending-bg)',
+      iconBorder: 'var(--admin-badge-pending-border)',
+      valueColor: 'var(--admin-kpi-amber-text)',
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="10" y1="15" x2="10" y2="9"></line>
           <line x1="14" y1="15" x2="14" y2="9"></line>
@@ -149,10 +158,12 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
       title: 'Rejected',
       value: kpiCounts.rejected,
       subtext: 'Not approved',
-      iconColor: '#a855f7',
+      iconColor: 'var(--admin-kpi-purple-text)',
       iconBg: 'rgba(168, 85, 247, 0.12)',
+      iconBorder: 'rgba(168, 85, 247, 0.25)',
+      valueColor: 'var(--admin-kpi-purple-text)',
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
         </svg>
@@ -166,26 +177,41 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
         <div
           key={idx}
           style={{
+            padding: '14px 16px',
             backgroundColor: 'var(--admin-card-bg)',
-            border: '1px solid var(--admin-border)',
             borderRadius: '12px',
-            padding: '12px 14px',
+            border: '1px solid var(--admin-border)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
+            gap: '8px',
+            minHeight: '104px',
             boxSizing: 'border-box',
             minWidth: 0,
-            minHeight: '104px',
           }}
         >
-          {/* Top Row: Icon + Large Count Value */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '8px' }}>
+          {/* Top Row: Title on Left, Icon Badge on Right */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <span
+              style={{
+                fontSize: '12px',
+                color: 'var(--admin-text-secondary)',
+                fontWeight: 600,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+              title={card.title}
+            >
+              {card.title}
+            </span>
             <div
               style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '10px',
+                width: '30px',
+                height: '30px',
+                borderRadius: '7px',
                 backgroundColor: card.iconBg,
+                border: `1px solid ${card.iconBorder}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -195,32 +221,24 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
             >
               {card.icon}
             </div>
-            <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--admin-text-primary)', lineHeight: 1 }}>
-              {card.value}
-            </div>
           </div>
 
-          {/* Bottom Labels: Title + Subtext */}
-          <div style={{ minWidth: 0, width: '100%' }}>
-            <div
-              style={{
-                fontSize: '12px',
-                fontWeight: 700,
-                color: 'var(--admin-text-primary)',
-                lineHeight: 1.25,
-                wordBreak: 'break-word',
-              }}
-            >
-              {card.title}
+          {/* Bottom Row: Large Metric Count + Subtext */}
+          <div>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: card.valueColor, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+              {card.value.toLocaleString()}
             </div>
             <div
               style={{
-                fontSize: '10px',
+                fontSize: '11px',
                 color: 'var(--admin-text-muted)',
                 marginTop: '3px',
-                lineHeight: 1.2,
-                wordBreak: 'break-word',
+                fontWeight: 500,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
               }}
+              title={card.subtext}
             >
               {card.subtext}
             </div>
@@ -355,8 +373,8 @@ const ProviderTableRow = React.memo(function ProviderTableRow({
           }}
           style={{
             backgroundColor: 'transparent',
-            color: '#10b981',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
+            color: 'var(--admin-accent)',
+            border: '1px solid var(--admin-badge-active-border)',
             borderRadius: '6px',
             padding: '4px 10px',
             fontSize: '11px',
@@ -366,12 +384,12 @@ const ProviderTableRow = React.memo(function ProviderTableRow({
             whiteSpace: 'nowrap',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.15)';
-            e.currentTarget.style.borderColor = '#10b981';
+            e.currentTarget.style.backgroundColor = 'var(--admin-badge-active-bg)';
+            e.currentTarget.style.borderColor = 'var(--admin-accent)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+            e.currentTarget.style.borderColor = 'var(--admin-badge-active-border)';
           }}
         >
           View Details
@@ -680,7 +698,7 @@ function ProvidersPageContent() {
           onClick={() => setModalOpen(true)}
           style={{
             backgroundColor: '#10b981',
-            color: '#020617',
+            color: '#ffffff',
             border: 'none',
             borderRadius: '8px',
             padding: '9px 16px',
@@ -723,8 +741,8 @@ function ProvidersPageContent() {
             fontSize: '13px',
             fontWeight: 700,
             textDecoration: 'none',
-            color: '#10b981',
-            borderBottom: '2px solid #10b981',
+            color: 'var(--admin-accent)',
+            borderBottom: '2px solid var(--admin-accent)',
             display: 'inline-block',
             whiteSpace: 'nowrap',
           }}
@@ -857,9 +875,9 @@ function ProvidersPageContent() {
                       setPage(1);
                     }}
                     style={{
-                      backgroundColor: isActive ? 'rgba(16, 185, 129, 0.14)' : 'transparent',
-                      border: isActive ? '1px solid #10b981' : '1px solid var(--admin-border)',
-                      color: isActive ? '#10b981' : 'var(--admin-text-secondary)',
+                      backgroundColor: isActive ? 'var(--admin-badge-active-bg)' : 'transparent',
+                      border: isActive ? '1px solid var(--admin-accent)' : '1px solid var(--admin-border)',
+                      color: isActive ? 'var(--admin-accent)' : 'var(--admin-text-secondary)',
                       borderRadius: '6px',
                       padding: '5px 10px',
                       fontSize: '11px',
@@ -889,7 +907,7 @@ function ProvidersPageContent() {
               onClick={fetchProviders}
               style={{
                 backgroundColor: '#10b981',
-                color: '#020617',
+                color: '#ffffff',
                 border: 'none',
                 borderRadius: '8px',
                 padding: '8px 20px',
@@ -1002,9 +1020,9 @@ function ProvidersPageContent() {
                           height: '28px',
                           padding: '0 6px',
                           borderRadius: '6px',
-                          backgroundColor: isCurrent ? 'rgba(16, 185, 129, 0.14)' : 'var(--admin-surface-hover)',
-                          border: isCurrent ? '1px solid #10b981' : '1px solid var(--admin-border)',
-                          color: isCurrent ? '#10b981' : 'var(--admin-text-secondary)',
+                          backgroundColor: isCurrent ? 'var(--admin-badge-active-bg)' : 'var(--admin-surface-hover)',
+                          border: isCurrent ? '1px solid var(--admin-accent)' : '1px solid var(--admin-border)',
+                          color: isCurrent ? 'var(--admin-accent)' : 'var(--admin-text-secondary)',
                           fontWeight: isCurrent ? 700 : 500,
                           cursor: 'pointer',
                           fontSize: '11px',
@@ -1228,7 +1246,7 @@ function ProvidersPageContent() {
                     border: 'none',
                     borderRadius: '8px',
                     padding: '10px',
-                    color: '#020617',
+                    color: '#ffffff',
                     fontWeight: 700,
                     fontSize: '13px',
                     cursor: 'pointer',
@@ -1270,23 +1288,24 @@ function ProvidersKpiSkeleton() {
             backgroundColor: 'var(--admin-card-bg)',
             border: '1px solid var(--admin-border)',
             borderRadius: '12px',
-            padding: '12px 14px',
+            padding: '14px 16px',
             minHeight: '104px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
+            gap: '8px',
             boxSizing: 'border-box',
             minWidth: 0,
           }}
           className="animate-pulse"
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'var(--admin-skeleton-bg)', flexShrink: 0 }} />
-            <div style={{ width: '40px', height: '24px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '80px', height: '12px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-skeleton-bg)', flexShrink: 0 }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '100%' }}>
-            <div style={{ width: '90px', height: '12px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
-            <div style={{ width: '70px', height: '10px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '50px', height: '22px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '90px', height: '10px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
           </div>
         </div>
       ))}

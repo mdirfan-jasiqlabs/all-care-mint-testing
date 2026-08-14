@@ -55,12 +55,12 @@ function getAvatarInitials(name: string): string {
 }
 
 const AVATAR_COLORS = [
-  { bg: 'rgba(16, 185, 129, 0.15)', text: '#10b981', border: 'rgba(16, 185, 129, 0.3)' },
-  { bg: 'rgba(245, 158, 11, 0.15)', text: '#f59e0b', border: 'rgba(245, 158, 11, 0.3)' },
-  { bg: 'rgba(20, 184, 166, 0.15)', text: '#14b8a6', border: 'rgba(20, 184, 166, 0.3)' },
-  { bg: 'rgba(239, 68, 68, 0.15)', text: '#ef4444', border: 'rgba(239, 68, 68, 0.3)' },
-  { bg: 'rgba(168, 85, 247, 0.15)', text: '#a855f7', border: 'rgba(168, 85, 247, 0.3)' },
-  { bg: 'rgba(59, 130, 246, 0.15)', text: '#3b82f6', border: 'rgba(59, 130, 246, 0.3)' },
+  { bg: 'var(--admin-badge-active-bg)', text: 'var(--admin-badge-active-text)', border: 'var(--admin-badge-active-border)' },
+  { bg: 'var(--admin-badge-pending-bg)', text: 'var(--admin-badge-pending-text)', border: 'var(--admin-badge-pending-border)' },
+  { bg: 'var(--admin-badge-assigned-bg)', text: 'var(--admin-badge-assigned-text)', border: 'var(--admin-badge-assigned-border)' },
+  { bg: 'var(--admin-badge-inactive-bg)', text: 'var(--admin-badge-inactive-text)', border: 'var(--admin-badge-inactive-border)' },
+  { bg: 'rgba(168, 85, 247, 0.15)', text: 'var(--admin-kpi-purple-text)', border: 'rgba(168, 85, 247, 0.3)' },
+  { bg: 'var(--admin-badge-assigned-bg)', text: 'var(--admin-kpi-blue-text)', border: 'var(--admin-badge-assigned-border)' },
 ];
 
 function getAvatarColor(name: string) {
@@ -217,46 +217,46 @@ export default function ProviderDetailPage() {
     return (
       <div className="space-y-6 max-w-7xl mx-auto animate-pulse">
         {/* Back Button Skeleton */}
-        <div className="h-4 w-48 bg-slate-800/80 rounded-md" />
+        <div className="h-4 w-48 rounded-md" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
 
         {/* Hero Card Skeleton */}
-        <div className="bg-[#0f172a]/70 border border-slate-800 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-2xl bg-slate-800/80" />
+            <div className="w-16 h-16 rounded-2xl" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
             <div className="space-y-2">
-              <div className="h-7 w-40 bg-slate-800/80 rounded-lg" />
-              <div className="h-4 w-64 bg-slate-800/60 rounded-md" />
+              <div className="h-7 w-40 rounded-lg" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
+              <div className="h-4 w-64 rounded-md" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
             </div>
           </div>
-          <div className="h-8 w-28 bg-slate-800/80 rounded-full" />
+          <div className="h-8 w-28 rounded-full" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
         </div>
 
         {/* Main 2-Column Layout Skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column Skeleton */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="bg-[#0f172a]/70 border border-slate-800 rounded-2xl p-6 space-y-6">
-              <div className="h-5 w-32 bg-slate-800/80 rounded-md" />
+            <div className="rounded-2xl p-6 space-y-6" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
+              <div className="h-5 w-32 rounded-md" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
               <div className="space-y-4">
-                <div className="h-10 bg-slate-800/40 rounded-xl" />
-                <div className="h-10 bg-slate-800/40 rounded-xl" />
+                <div className="h-10 rounded-xl" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
+                <div className="h-10 rounded-xl" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
               </div>
-              <div className="pt-4 border-t border-slate-800/80 space-y-4">
-                <div className="h-4 w-36 bg-slate-800/80 rounded-md" />
-                <div className="h-24 bg-slate-800/40 rounded-xl" />
+              <div className="pt-4 border-t space-y-4" style={{ borderColor: 'var(--admin-border)' }}>
+                <div className="h-4 w-36 rounded-md" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
+                <div className="h-24 rounded-xl" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
               </div>
             </div>
           </div>
 
           {/* Right Column Skeleton */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="bg-[#0f172a]/70 border border-slate-800 rounded-2xl p-6 space-y-6">
-              <div className="h-5 w-44 bg-slate-800/80 rounded-md" />
-              <div className="h-4 w-full bg-slate-800/50 rounded-md" />
+            <div className="rounded-2xl p-6 space-y-6" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
+              <div className="h-5 w-44 rounded-md" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
+              <div className="h-4 w-full rounded-md" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
               <div className="space-y-3">
-                <div className="h-16 bg-slate-800/40 rounded-xl" />
-                <div className="h-16 bg-slate-800/40 rounded-xl" />
-                <div className="h-16 bg-slate-800/40 rounded-xl" />
+                <div className="h-16 rounded-xl" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
+                <div className="h-16 rounded-xl" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
+                <div className="h-16 rounded-xl" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
               </div>
             </div>
           </div>
@@ -268,17 +268,18 @@ export default function ProviderDetailPage() {
 
   if (!provider) {
     return (
-      <div className="max-w-xl mx-auto my-16 bg-[#0f172a] border border-red-500/20 rounded-2xl p-8 text-center space-y-4 shadow-xl">
-        <div className="w-14 h-14 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-400">
+      <div className="max-w-xl mx-auto my-16 rounded-2xl p-8 text-center space-y-4 shadow-xl" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-badge-inactive-border)' }}>
+        <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto" style={{ backgroundColor: 'var(--admin-badge-inactive-bg)', border: '1px solid var(--admin-badge-inactive-border)', color: 'var(--admin-badge-inactive-text)' }}>
           <XCircle className="w-7 h-7" />
         </div>
-        <h2 className="text-xl font-bold text-white">Provider Not Found</h2>
-        <p className="text-sm text-slate-400">
+        <h2 className="text-xl font-bold" style={{ color: 'var(--admin-text-primary)' }}>Provider Not Found</h2>
+        <p className="text-sm" style={{ color: 'var(--admin-text-secondary)' }}>
           The provider details you requested could not be located or may have been removed.
         </p>
         <button
           onClick={() => router.push('/admin/providers')}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium transition-colors border border-slate-700"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-colors cursor-pointer"
+          style={{ backgroundColor: 'var(--admin-surface-hover)', border: '1px solid var(--admin-border)', color: 'var(--admin-text-primary)' }}
         >
           <ArrowLeft className="w-4 h-4" /> Back to Providers Directory
         </button>
@@ -304,7 +305,12 @@ export default function ProviderDetailPage() {
       <div>
         <button
           onClick={() => router.push('/admin/providers')}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-400/90 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/40 border border-emerald-500/20 hover:border-emerald-500/40 px-3.5 py-1.5 rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 cursor-pointer"
+          className="inline-flex items-center gap-2 text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 cursor-pointer"
+          style={{
+            backgroundColor: 'var(--admin-badge-active-bg)',
+            border: '1px solid var(--admin-badge-active-border)',
+            color: 'var(--admin-badge-active-text)',
+          }}
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Providers Directory</span>
@@ -345,26 +351,26 @@ export default function ProviderDetailPage() {
           {/* Status Badge */}
           <div className="shrink-0">
             {provider.status === 'APPROVED' && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 uppercase tracking-wider">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--admin-badge-active-bg)', color: 'var(--admin-badge-active-text)', border: '1px solid var(--admin-badge-active-border)' }}>
+                <ShieldCheck className="w-4 h-4" />
                 <span>Approved</span>
               </span>
             )}
             {provider.status === 'PENDING_REVIEW' && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 uppercase tracking-wider">
-                <Clock className="w-4 h-4 text-amber-400" />
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--admin-badge-pending-bg)', color: 'var(--admin-badge-pending-text)', border: '1px solid var(--admin-badge-pending-border)' }}>
+                <Clock className="w-4 h-4" />
                 <span>Pending Review</span>
               </span>
             )}
             {provider.status === 'SUSPENDED' && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/30 uppercase tracking-wider">
-                <AlertTriangle className="w-4 h-4 text-red-400" />
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--admin-badge-inactive-bg)', color: 'var(--admin-badge-inactive-text)', border: '1px solid var(--admin-badge-inactive-border)' }}>
+                <AlertTriangle className="w-4 h-4" />
                 <span>Suspended</span>
               </span>
             )}
             {provider.status === 'REJECTED' && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-500/15 text-slate-400 border border-slate-500/30 uppercase tracking-wider">
-                <XCircle className="w-4 h-4 text-slate-400" />
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider" style={{ backgroundColor: 'var(--admin-surface-hover)', color: 'var(--admin-text-muted)', border: '1px solid var(--admin-border)' }}>
+                <XCircle className="w-4 h-4" />
                 <span>Rejected</span>
               </span>
             )}
@@ -430,7 +436,7 @@ export default function ProviderDetailPage() {
                   <button
                     disabled={submitting}
                     onClick={() => triggerStatusConfirm('APPROVED')}
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all shadow-md shadow-emerald-500/10 disabled:opacity-50 cursor-pointer"
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-xs transition-all shadow-md shadow-emerald-500/10 disabled:opacity-50 cursor-pointer"
                   >
                     <UserCheck className="w-4 h-4" />
                     <span>Approve</span>
@@ -449,13 +455,13 @@ export default function ProviderDetailPage() {
 
               {/* APPROVED Actions (Suspend Danger Zone Card) */}
               {provider.status === 'APPROVED' && (
-                <div className="bg-red-950/20 border border-red-500/20 rounded-xl p-4 space-y-3">
+                <div className="rounded-xl p-4 space-y-3" style={{ backgroundColor: 'var(--admin-badge-inactive-bg)', border: '1px solid var(--admin-badge-inactive-border)' }}>
                   <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-red-500/10 text-red-400 shrink-0">
+                    <div className="p-2 rounded-lg shrink-0" style={{ backgroundColor: 'var(--admin-card-bg)', color: 'var(--admin-badge-inactive-text)' }}>
                       <ShieldAlert className="w-4 h-4" />
                     </div>
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-red-400">Suspend Account</div>
+                      <div className="text-xs font-bold" style={{ color: 'var(--admin-badge-inactive-text)' }}>Suspend Account</div>
                       <div className="text-xs leading-snug" style={{ color: 'var(--admin-text-secondary)' }}>
                         This will suspend the provider and restrict new bookings.
                       </div>
@@ -464,7 +470,8 @@ export default function ProviderDetailPage() {
                   <button
                     disabled={submitting}
                     onClick={() => triggerStatusConfirm('SUSPENDED')}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 font-bold text-xs transition-all disabled:opacity-50 cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-bold text-xs transition-all disabled:opacity-50 cursor-pointer"
+                    style={{ backgroundColor: 'var(--admin-badge-inactive-bg)', border: '1px solid var(--admin-badge-inactive-border)', color: 'var(--admin-badge-inactive-text)' }}
                   >
                     <Ban className="w-3.5 h-3.5" />
                     <span>Suspend Account</span>
@@ -474,13 +481,13 @@ export default function ProviderDetailPage() {
 
               {/* SUSPENDED Actions */}
               {provider.status === 'SUSPENDED' && (
-                <div className="bg-emerald-950/20 border border-emerald-500/20 rounded-xl p-4 space-y-3">
+                <div className="rounded-xl p-4 space-y-3" style={{ backgroundColor: 'var(--admin-badge-active-bg)', border: '1px solid var(--admin-badge-active-border)' }}>
                   <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 shrink-0">
+                    <div className="p-2 rounded-lg shrink-0" style={{ backgroundColor: 'var(--admin-card-bg)', color: 'var(--admin-badge-active-text)' }}>
                       <ShieldCheck className="w-4 h-4" />
                     </div>
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-emerald-400">Re-Approve Account</div>
+                      <div className="text-xs font-bold" style={{ color: 'var(--admin-badge-active-text)' }}>Re-Approve Account</div>
                       <div className="text-xs leading-snug" style={{ color: 'var(--admin-text-secondary)' }}>
                         Restore provider access and re-enable automated & manual job allocations.
                       </div>
@@ -489,7 +496,8 @@ export default function ProviderDetailPage() {
                   <button
                     disabled={submitting}
                     onClick={() => triggerStatusConfirm('APPROVED')}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all disabled:opacity-50 shadow-md shadow-emerald-500/10 cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-bold text-xs transition-all disabled:opacity-50 cursor-pointer"
+                    style={{ backgroundColor: 'var(--admin-accent)', color: '#ffffff' }}
                   >
                     <UserCheck className="w-4 h-4" />
                     <span>Re-Approve Account</span>
@@ -502,7 +510,7 @@ export default function ProviderDetailPage() {
                 <div className="border rounded-xl p-4 space-y-3" style={{ backgroundColor: 'var(--admin-surface-hover)', borderColor: 'var(--admin-border)' }}>
                   <div className="flex items-start gap-3">
                     <div className="p-2 rounded-lg shrink-0" style={{ backgroundColor: 'var(--admin-card-bg)' }}>
-                      <UserCheck className="w-4 h-4 text-emerald-400" />
+                      <UserCheck className="w-4 h-4" style={{ color: 'var(--admin-accent)' }} />
                     </div>
                     <div className="space-y-0.5">
                       <div className="text-xs font-bold" style={{ color: 'var(--admin-text-primary)' }}>Approve Account</div>
@@ -514,7 +522,8 @@ export default function ProviderDetailPage() {
                   <button
                     disabled={submitting}
                     onClick={() => triggerStatusConfirm('APPROVED')}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all disabled:opacity-50 shadow-md shadow-emerald-500/10 cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-bold text-xs transition-all disabled:opacity-50 cursor-pointer"
+                    style={{ backgroundColor: 'var(--admin-accent)', color: '#ffffff' }}
                   >
                     <UserCheck className="w-4 h-4" />
                     <span>Approve Account</span>
@@ -531,7 +540,7 @@ export default function ProviderDetailPage() {
             {/* Section Header */}
             <div className="space-y-1.5 pb-4 border-b" style={{ borderColor: 'var(--admin-border)' }}>
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                <div className="p-2 rounded-xl" style={{ backgroundColor: 'var(--admin-badge-active-bg)', border: '1px solid var(--admin-badge-active-border)', color: 'var(--admin-badge-active-text)' }}>
                   <Briefcase className="w-4 h-4" />
                 </div>
                 <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--admin-text-primary)' }}>
@@ -558,8 +567,8 @@ export default function ProviderDetailPage() {
                     <div
                       key={cat.id}
                       style={{
-                        backgroundColor: isMapped ? 'rgba(16, 185, 129, 0.08)' : 'var(--admin-surface-hover)',
-                        borderColor: isMapped ? 'rgba(16, 185, 129, 0.25)' : 'var(--admin-border)',
+                        backgroundColor: isMapped ? 'var(--admin-badge-active-bg)' : 'var(--admin-surface-hover)',
+                        borderColor: isMapped ? 'var(--admin-badge-active-border)' : 'var(--admin-border)',
                       }}
                       className="flex items-center justify-between gap-4 p-4 rounded-xl transition-all border"
                     >
@@ -567,7 +576,7 @@ export default function ProviderDetailPage() {
                         <div className="text-sm font-bold truncate flex items-center gap-2" style={{ color: 'var(--admin-text-primary)' }}>
                           <span>{cat.name}</span>
                           {isMapped && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block shrink-0" />
+                            <span className="w-1.5 h-1.5 rounded-full inline-block shrink-0" style={{ backgroundColor: 'var(--admin-badge-active-text)' }} />
                           )}
                         </div>
                         <div className="text-xs line-clamp-2" style={{ color: 'var(--admin-text-muted)' }}>
@@ -581,7 +590,12 @@ export default function ProviderDetailPage() {
                           <button
                             disabled={submitting}
                             onClick={() => handleRemoveCategory(cat.id)}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/25 transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-500/30 cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer"
+                            style={{
+                              backgroundColor: 'var(--admin-badge-inactive-bg)',
+                              border: '1px solid var(--admin-badge-inactive-border)',
+                              color: 'var(--admin-badge-inactive-text)',
+                            }}
                           >
                             {isCurrentPending ? (
                               <>
@@ -599,7 +613,12 @@ export default function ProviderDetailPage() {
                           <button
                             disabled={submitting}
                             onClick={() => handleAddCategory(cat.id)}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer"
+                            style={{
+                              backgroundColor: 'var(--admin-badge-active-bg)',
+                              border: '1px solid var(--admin-badge-active-border)',
+                              color: 'var(--admin-badge-active-text)',
+                            }}
                           >
                             {isCurrentPending ? (
                               <>

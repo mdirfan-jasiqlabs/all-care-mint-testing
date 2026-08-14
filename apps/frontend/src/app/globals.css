@@ -64,6 +64,15 @@
   --admin-badge-inactive-bg: rgba(239, 68, 68, 0.14);
   --admin-badge-inactive-border: rgba(248, 113, 113, 0.28);
   --admin-badge-inactive-text: #f87171;
+  --admin-badge-purple-bg: rgba(168, 85, 247, 0.14);
+  --admin-badge-purple-border: rgba(192, 132, 252, 0.28);
+  --admin-badge-purple-text: #c084fc;
+  --admin-badge-teal-bg: rgba(20, 184, 166, 0.14);
+  --admin-badge-teal-border: rgba(45, 212, 191, 0.28);
+  --admin-badge-teal-text: #2dd4bf;
+  --admin-badge-sky-bg: rgba(56, 189, 248, 0.12);
+  --admin-badge-sky-border: rgba(56, 189, 248, 0.25);
+  --admin-badge-sky-text: #38bdf8;
   --admin-btn-secondary-bg: rgba(255, 255, 255, 0.04);
   --admin-btn-secondary-border: rgba(255, 255, 255, 0.08);
   --admin-btn-secondary-text: #e2e8f0;
@@ -71,6 +80,7 @@
   --admin-kpi-blue-text: #60a5fa;
   --admin-kpi-amber-text: #fbbf24;
   --admin-kpi-purple-text: #c084fc;
+  --admin-kpi-teal-text: #2dd4bf;
 }
 
 [data-admin-theme="light"] {
@@ -110,6 +120,15 @@
   --admin-badge-inactive-bg: rgba(239, 68, 68, 0.1);
   --admin-badge-inactive-border: rgba(220, 38, 38, 0.25);
   --admin-badge-inactive-text: #dc2626;
+  --admin-badge-purple-bg: rgba(168, 85, 247, 0.1);
+  --admin-badge-purple-border: rgba(147, 51, 234, 0.25);
+  --admin-badge-purple-text: #7e22ce;
+  --admin-badge-teal-bg: rgba(20, 184, 166, 0.1);
+  --admin-badge-teal-border: rgba(13, 148, 136, 0.25);
+  --admin-badge-teal-text: #0f766e;
+  --admin-badge-sky-bg: rgba(2, 132, 199, 0.1);
+  --admin-badge-sky-border: rgba(2, 132, 199, 0.25);
+  --admin-badge-sky-text: #0284c7;
   --admin-btn-secondary-bg: #f1f5f9;
   --admin-btn-secondary-border: #cbd5e1;
   --admin-btn-secondary-text: #334155;
@@ -117,6 +136,7 @@
   --admin-kpi-blue-text: #2563eb;
   --admin-kpi-amber-text: #d97706;
   --admin-kpi-purple-text: #9333ea;
+  --admin-kpi-teal-text: #0f766e;
 }
 
 * {

@@ -505,11 +505,11 @@ function AdminLoginForm() {
                 id="btn-submit"
                 type="submit"
                 disabled={loading || !!success || isOffline}
-                className="w-full py-3.5 px-6 bg-[#10b981] hover:bg-[#059669] active:bg-[#047857] text-[#040810] font-extrabold text-sm rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-lg shadow-[#10b981]/25 hover:shadow-[#10b981]/35 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none cursor-pointer mt-3"
+                className="w-full py-3.5 px-6 bg-[#10b981] hover:bg-[#059669] active:bg-[#047857] text-white font-extrabold text-sm rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-lg shadow-[#10b981]/25 hover:shadow-[#10b981]/35 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none cursor-pointer mt-3"
               >
                 {loading ? (
                   <>
-                    <span className="w-4 h-4 border-2 border-[#040810]/30 border-t-[#040810] rounded-full animate-spin"></span>
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                     <span>Authenticating...</span>
                   </>
                 ) : (

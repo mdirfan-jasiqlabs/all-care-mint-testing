@@ -52,11 +52,11 @@ function getAvatarColor(name: string): { bg: string; text: string; border: strin
   const key = name || '';
   if (avatarColorCacheMap.has(key)) return avatarColorCacheMap.get(key)!;
   const colors = [
-    { bg: 'rgba(99, 102, 241, 0.16)', text: '#818cf8', border: 'rgba(129, 140, 248, 0.3)' },
-    { bg: 'rgba(168, 85, 247, 0.16)', text: '#c084fc', border: 'rgba(192, 132, 252, 0.3)' },
-    { bg: 'rgba(59, 130, 246, 0.16)', text: '#60a5fa', border: 'rgba(96, 165, 250, 0.3)' },
-    { bg: 'rgba(20, 184, 166, 0.16)', text: '#2dd4bf', border: 'rgba(45, 212, 191, 0.3)' },
-    { bg: 'rgba(245, 158, 11, 0.16)', text: '#fbbf24', border: 'rgba(251, 191, 36, 0.3)' },
+    { bg: 'var(--admin-badge-assigned-bg)', text: 'var(--admin-badge-assigned-text)', border: 'var(--admin-badge-assigned-border)' },
+    { bg: 'var(--admin-badge-purple-bg)', text: 'var(--admin-badge-purple-text)', border: 'var(--admin-badge-purple-border)' },
+    { bg: 'var(--admin-badge-active-bg)', text: 'var(--admin-badge-active-text)', border: 'var(--admin-badge-active-border)' },
+    { bg: 'var(--admin-badge-teal-bg)', text: 'var(--admin-badge-teal-text)', border: 'var(--admin-badge-teal-border)' },
+    { bg: 'var(--admin-badge-pending-bg)', text: 'var(--admin-badge-pending-text)', border: 'var(--admin-badge-pending-border)' },
   ];
   let hash = 0;
   for (let i = 0; i < key.length; i++) {
@@ -430,7 +430,7 @@ export default function AdminReportsPage() {
             gap: '8px',
             padding: '10px 18px',
             backgroundColor: loading || !!errorMsg ? 'var(--admin-surface-hover)' : '#10b981',
-            color: loading || !!errorMsg ? 'var(--admin-text-muted)' : '#020617',
+            color: loading || !!errorMsg ? 'var(--admin-text-muted)' : '#ffffff',
             fontWeight: 700,
             fontSize: '13px',
             borderRadius: '8px',
@@ -464,7 +464,7 @@ export default function AdminReportsPage() {
         {/* Report Type Select */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '2 1 220px', minWidth: '200px' }}>
           <label style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <FileChartColumn size={12} color="#10b981" />
+            <FileChartColumn size={12} color="var(--admin-text-muted)" />
             Report Type
           </label>
           <select
@@ -493,7 +493,7 @@ export default function AdminReportsPage() {
         {/* Start Date */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 150px', minWidth: '130px' }}>
           <label style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <CalendarDays size={12} color="#10b981" />
+            <CalendarDays size={12} color="var(--admin-text-muted)" />
             Start Date
           </label>
           <input
@@ -520,7 +520,7 @@ export default function AdminReportsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 170px', minWidth: '150px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <label style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <CalendarDays size={12} color="#10b981" />
+              <CalendarDays size={12} color="var(--admin-text-muted)" />
               End Date
             </label>
             <span style={{ fontSize: '10px', color: 'var(--admin-text-muted)' }}>(Max 90 days)</span>
@@ -612,7 +612,7 @@ export default function AdminReportsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Reports</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-assigned-bg)', border: '1px solid var(--admin-badge-assigned-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-kpi-blue-text)' }}>
                 <Files size={15} />
               </div>
             </div>
@@ -642,12 +642,12 @@ export default function AdminReportsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Revenue</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-active-bg)', border: '1px solid var(--admin-badge-active-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-accent)' }}>
                 <IndianRupee size={15} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#10b981', letterSpacing: '-0.02em' }} className="truncate font-mono">
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-accent)', letterSpacing: '-0.02em' }} className="truncate font-mono">
                 {inrFormatter.format(kpiMetrics.totalRevenue)}
               </div>
               <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
@@ -672,7 +672,7 @@ export default function AdminReportsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Bookings</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-purple-bg)', border: '1px solid var(--admin-badge-purple-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-kpi-purple-text)' }}>
                 <CalendarCheck2 size={15} />
               </div>
             </div>
@@ -702,7 +702,7 @@ export default function AdminReportsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Avg. Order Value</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-pending-bg)', border: '1px solid var(--admin-badge-pending-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-kpi-amber-text)' }}>
                 <WalletCards size={15} />
               </div>
             </div>
@@ -732,12 +732,12 @@ export default function AdminReportsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Completed Bookings</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(20, 184, 166, 0.12)', border: '1px solid rgba(20, 184, 166, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2dd4bf' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-teal-bg)', border: '1px solid var(--admin-badge-teal-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-kpi-teal-text)' }}>
                 <BadgeCheck size={15} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#2dd4bf', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-kpi-teal-text)', letterSpacing: '-0.02em' }}>
                 {kpiMetrics.completedBookings}
               </div>
               <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
@@ -770,9 +770,9 @@ export default function AdminReportsPage() {
                 borderRadius: '9999px',
                 fontSize: '11px',
                 fontWeight: 700,
-                backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                color: '#10b981',
-                border: '1px solid rgba(16, 185, 129, 0.25)',
+                backgroundColor: 'var(--admin-badge-active-bg)',
+                color: 'var(--admin-badge-active-text)',
+                border: '1px solid var(--admin-badge-active-border)',
               }}
             >
               {totalRecords} entries
@@ -805,7 +805,7 @@ export default function AdminReportsPage() {
           <ReportsTableSkeleton />
         ) : processedData.length === 0 ? (
           <div style={{ padding: '36px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--admin-surface-hover)', border: '1px solid var(--admin-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--admin-surface-hover)', border: '1px solid var(--admin-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-accent)' }}>
               <FileSearch size={20} />
             </div>
             <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--admin-text-primary)', margin: 0 }}>No report data found</h3>
@@ -834,43 +834,43 @@ export default function AdminReportsPage() {
             <table style={{ minWidth: '700px', width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
               <thead>
                 <tr style={{ backgroundColor: 'var(--admin-table-header-bg)', borderBottom: '1px solid var(--admin-border)', color: 'var(--admin-text-muted)' }}>
-                  <th onClick={() => handleSort('date')} style={{ padding: '10px 12px', width: '13%' }} className="cursor-pointer hover:text-emerald-400 transition-colors select-none group">
+                  <th onClick={() => handleSort('date')} style={{ padding: '10px 12px', width: '13%' }} className="cursor-pointer hover:text-emerald-500 transition-colors select-none group">
                     <div className="flex items-center">
                       <span>Date</span>
                       {renderSortIcon('date')}
                     </div>
                   </th>
-                  <th onClick={() => handleSort('booking_id')} style={{ padding: '10px 12px', width: '15%' }} className="cursor-pointer hover:text-emerald-400 transition-colors select-none group">
+                  <th onClick={() => handleSort('booking_id')} style={{ padding: '10px 12px', width: '15%' }} className="cursor-pointer hover:text-emerald-500 transition-colors select-none group">
                     <div className="flex items-center">
                       <span>Booking ID</span>
                       {renderSortIcon('booking_id')}
                     </div>
                   </th>
-                  <th onClick={() => handleSort('customer_name')} style={{ padding: '10px 12px', width: '20%' }} className="cursor-pointer hover:text-emerald-400 transition-colors select-none group">
+                  <th onClick={() => handleSort('customer_name')} style={{ padding: '10px 12px', width: '20%' }} className="cursor-pointer hover:text-emerald-500 transition-colors select-none group">
                     <div className="flex items-center">
                       <span>Customer</span>
                       {renderSortIcon('customer_name')}
                     </div>
                   </th>
-                  <th onClick={() => handleSort('service_name')} style={{ padding: '10px 12px', width: '22%' }} className="cursor-pointer hover:text-emerald-400 transition-colors select-none group">
+                  <th onClick={() => handleSort('service_name')} style={{ padding: '10px 12px', width: '22%' }} className="cursor-pointer hover:text-emerald-500 transition-colors select-none group">
                     <div className="flex items-center">
                       <span>Service</span>
                       {renderSortIcon('service_name')}
                     </div>
                   </th>
-                  <th onClick={() => handleSort('amount_inr')} style={{ padding: '10px 12px', width: '11%' }} className="cursor-pointer hover:text-emerald-400 transition-colors select-none group">
+                  <th onClick={() => handleSort('amount_inr')} style={{ padding: '10px 12px', width: '11%' }} className="cursor-pointer hover:text-emerald-500 transition-colors select-none group">
                     <div className="flex items-center">
                       <span>Amount (INR)</span>
                       {renderSortIcon('amount_inr')}
                     </div>
                   </th>
-                  <th onClick={() => handleSort('payment_method')} style={{ padding: '10px 12px', width: '10%' }} className="cursor-pointer hover:text-emerald-400 transition-colors select-none group">
+                  <th onClick={() => handleSort('payment_method')} style={{ padding: '10px 12px', width: '10%' }} className="cursor-pointer hover:text-emerald-500 transition-colors select-none group">
                     <div className="flex items-center">
                       <span>Method</span>
                       {renderSortIcon('payment_method')}
                     </div>
                   </th>
-                  <th onClick={() => handleSort('status')} style={{ padding: '10px 12px', width: '9%' }} className="cursor-pointer hover:text-emerald-400 transition-colors select-none group">
+                  <th onClick={() => handleSort('status')} style={{ padding: '10px 12px', width: '9%' }} className="cursor-pointer hover:text-emerald-500 transition-colors select-none group">
                     <div className="flex items-center">
                       <span>Status</span>
                       {renderSortIcon('status')}
@@ -908,9 +908,9 @@ export default function AdminReportsPage() {
                             fontWeight: 700,
                             padding: '3px 7px',
                             borderRadius: '5px',
-                            backgroundColor: 'rgba(56, 189, 248, 0.12)',
-                            color: '#38bdf8',
-                            border: '1px solid rgba(56, 189, 248, 0.25)',
+                            backgroundColor: 'var(--admin-badge-sky-bg)',
+                            color: 'var(--admin-badge-sky-text)',
+                            border: '1px solid var(--admin-badge-sky-border)',
                             whiteSpace: 'nowrap',
                           }}
                         >
@@ -953,7 +953,7 @@ export default function AdminReportsPage() {
                       </td>
 
                       {/* Amount */}
-                      <td style={{ padding: '10px 12px', color: '#10b981', fontWeight: 700 }} className="font-mono whitespace-nowrap">
+                      <td style={{ padding: '10px 12px', color: 'var(--admin-accent)', fontWeight: 700 }} className="font-mono whitespace-nowrap">
                         {inrFormatter.format(Number(row.amount_inr) || 0)}
                       </td>
 
@@ -969,22 +969,22 @@ export default function AdminReportsPage() {
                             textTransform: 'uppercase',
                             backgroundColor:
                               row.payment_method === 'ONLINE'
-                                ? 'rgba(59, 130, 246, 0.14)'
+                                ? 'var(--admin-badge-assigned-bg)'
                                 : row.payment_method === 'WALLET'
-                                ? 'rgba(20, 184, 166, 0.14)'
-                                : 'rgba(168, 85, 247, 0.14)',
+                                ? 'var(--admin-badge-teal-bg)'
+                                : 'var(--admin-badge-purple-bg)',
                             color:
                               row.payment_method === 'ONLINE'
-                                ? '#60a5fa'
+                                ? 'var(--admin-badge-assigned-text)'
                                 : row.payment_method === 'WALLET'
-                                ? '#2dd4bf'
-                                : '#c084fc',
+                                ? 'var(--admin-badge-teal-text)'
+                                : 'var(--admin-badge-purple-text)',
                             border:
                               row.payment_method === 'ONLINE'
-                                ? '1px solid rgba(96, 165, 250, 0.28)'
+                                ? '1px solid var(--admin-badge-assigned-border)'
                                 : row.payment_method === 'WALLET'
-                                ? '1px solid rgba(45, 212, 191, 0.28)'
-                                : '1px solid rgba(192, 132, 252, 0.28)',
+                                ? '1px solid var(--admin-badge-teal-border)'
+                                : '1px solid var(--admin-badge-purple-border)',
                             whiteSpace: 'nowrap',
                           }}
                         >
@@ -1005,22 +1005,22 @@ export default function AdminReportsPage() {
                             fontWeight: 700,
                             backgroundColor:
                               row.status === 'COMPLETED'
-                                ? 'rgba(16, 185, 129, 0.14)'
+                                ? 'var(--admin-badge-active-bg)'
                                 : row.status === 'PENDING'
-                                ? 'rgba(245, 158, 11, 0.14)'
-                                : 'rgba(239, 68, 68, 0.14)',
+                                ? 'var(--admin-badge-pending-bg)'
+                                : 'var(--admin-badge-inactive-bg)',
                             color:
                               row.status === 'COMPLETED'
-                                ? '#34d399'
+                                ? 'var(--admin-badge-active-text)'
                                 : row.status === 'PENDING'
-                                ? '#fbbf24'
-                                : '#f87171',
+                                ? 'var(--admin-badge-pending-text)'
+                                : 'var(--admin-badge-inactive-text)',
                             border:
                               row.status === 'COMPLETED'
-                                ? '1px solid rgba(52, 211, 153, 0.28)'
+                                ? '1px solid var(--admin-badge-active-border)'
                                 : row.status === 'PENDING'
-                                ? '1px solid rgba(251, 191, 36, 0.28)'
-                                : '1px solid rgba(248, 113, 113, 0.28)',
+                                ? '1px solid var(--admin-badge-pending-border)'
+                                : '1px solid var(--admin-badge-inactive-border)',
                             whiteSpace: 'nowrap',
                           }}
                         >
@@ -1031,10 +1031,10 @@ export default function AdminReportsPage() {
                               borderRadius: '50%',
                               backgroundColor:
                                 row.status === 'COMPLETED'
-                                  ? '#34d399'
+                                  ? 'var(--admin-badge-active-text)'
                                   : row.status === 'PENDING'
-                                  ? '#fbbf24'
-                                  : '#f87171',
+                                  ? 'var(--admin-badge-pending-text)'
+                                  : 'var(--admin-badge-inactive-text)',
                             }}
                           />
                           {row.status}

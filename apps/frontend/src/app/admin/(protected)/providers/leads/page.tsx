@@ -36,11 +36,11 @@ interface ProviderLead {
 
 const getApplicantAvatarStyle = (name: string, index: number) => {
   const palette = [
-    { bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.3)', color: '#34d399' },
-    { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)', color: '#60a5fa' },
-    { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)', color: '#fbbf24' },
-    { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)', color: '#a78bfa' },
-    { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)', color: '#f472b6' },
+    { bg: 'var(--admin-badge-active-bg)', border: 'var(--admin-badge-active-border)', color: 'var(--admin-badge-active-text)' },
+    { bg: 'var(--admin-badge-assigned-bg)', border: 'var(--admin-badge-assigned-border)', color: 'var(--admin-badge-assigned-text)' },
+    { bg: 'var(--admin-badge-pending-bg)', border: 'var(--admin-badge-pending-border)', color: 'var(--admin-badge-pending-text)' },
+    { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)', color: 'var(--admin-kpi-purple-text)' },
+    { bg: 'var(--admin-badge-inactive-bg)', border: 'var(--admin-badge-inactive-border)', color: 'var(--admin-badge-inactive-text)' },
   ];
   return palette[index % palette.length];
 };
@@ -254,15 +254,15 @@ function ProviderLeadsPageContent() {
             padding: '8px 16px',
             borderRadius: '8px',
             backgroundColor: 'var(--admin-card-bg)',
-            color: '#38bdf8',
-            border: '1px solid rgba(56, 189, 248, 0.3)',
+            color: 'var(--admin-kpi-blue-text)',
+            border: '1px solid var(--admin-badge-assigned-border)',
             fontWeight: 700,
             fontSize: '12px',
             textDecoration: 'none',
-            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
             transition: 'all 0.2s ease',
           }}
-          className="hover:border-[#38bdf8] hover:bg-[rgba(56,189,248,0.08)]"
+          className="hover:border-[var(--admin-kpi-blue-text)] hover:bg-[var(--admin-badge-assigned-bg)]"
         >
           <ExternalLink size={14} />
           <span>Public Application Form</span>
@@ -303,8 +303,8 @@ function ProviderLeadsPageContent() {
             padding: '8px 4px 10px 4px',
             fontSize: '13px',
             fontWeight: 700,
-            color: '#10b981',
-            borderBottom: '2px solid #10b981',
+            color: 'var(--admin-accent)',
+            borderBottom: '2px solid var(--admin-accent)',
             textDecoration: 'none',
             display: 'flex',
             alignItems: 'center',
@@ -358,12 +358,12 @@ function ProviderLeadsPageContent() {
                   width: '30px',
                   height: '30px',
                   borderRadius: '7px',
-                  backgroundColor: 'rgba(59, 130, 246, 0.12)',
-                  border: '1px solid rgba(59, 130, 246, 0.25)',
+                  backgroundColor: 'var(--admin-badge-assigned-bg)',
+                  border: '1px solid var(--admin-badge-assigned-border)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#60a5fa',
+                  color: 'var(--admin-kpi-blue-text)',
                   flexShrink: 0,
                 }}
               >
@@ -401,12 +401,12 @@ function ProviderLeadsPageContent() {
                   width: '30px',
                   height: '30px',
                   borderRadius: '7px',
-                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
-                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                  backgroundColor: 'var(--admin-badge-inactive-bg)',
+                  border: '1px solid var(--admin-badge-inactive-border)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#f87171',
+                  color: 'var(--admin-badge-inactive-text)',
                   flexShrink: 0,
                 }}
               >
@@ -414,7 +414,7 @@ function ProviderLeadsPageContent() {
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f87171', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-badge-inactive-text)', letterSpacing: '-0.02em' }}>
                 {stats.newLeads.toLocaleString()}
               </div>
               <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
@@ -444,12 +444,12 @@ function ProviderLeadsPageContent() {
                   width: '30px',
                   height: '30px',
                   borderRadius: '7px',
-                  backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                  border: '1px solid rgba(16, 185, 129, 0.25)',
+                  backgroundColor: 'var(--admin-badge-active-bg)',
+                  border: '1px solid var(--admin-badge-active-border)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#10b981',
+                  color: 'var(--admin-badge-active-text)',
                   flexShrink: 0,
                 }}
               >
@@ -457,7 +457,7 @@ function ProviderLeadsPageContent() {
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#10b981', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-badge-active-text)', letterSpacing: '-0.02em' }}>
                 {stats.acknowledged.toLocaleString()}
               </div>
               <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
@@ -605,9 +605,9 @@ function ProviderLeadsPageContent() {
                       setPage(1);
                     }}
                     style={{
-                      backgroundColor: isActive ? 'rgba(16, 185, 129, 0.15)' : 'var(--admin-card-bg)',
-                      border: isActive ? '1px solid #10b981' : '1px solid var(--admin-border)',
-                      color: isActive ? '#10b981' : 'var(--admin-text-secondary)',
+                      backgroundColor: isActive ? 'var(--admin-badge-active-bg)' : 'var(--admin-card-bg)',
+                      border: isActive ? '1px solid var(--admin-accent)' : '1px solid var(--admin-border)',
+                      color: isActive ? 'var(--admin-accent)' : 'var(--admin-text-secondary)',
                       borderRadius: '6px',
                       padding: '5px 10px',
                       fontSize: '11px',
@@ -740,9 +740,9 @@ function ProviderLeadsPageContent() {
                                 {!lead.isAcknowledged && (
                                   <span
                                     style={{
-                                      backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                                      color: '#f87171',
-                                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                                      backgroundColor: 'var(--admin-badge-inactive-bg)',
+                                      color: 'var(--admin-badge-inactive-text)',
+                                      border: '1px solid var(--admin-badge-inactive-border)',
                                       fontSize: '9px',
                                       fontWeight: 800,
                                       borderRadius: '4px',
@@ -765,7 +765,7 @@ function ProviderLeadsPageContent() {
                         {/* Mobile Number */}
                         <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Phone size={12} style={{ color: '#34d399', flexShrink: 0 }} />
+                            <Phone size={12} style={{ color: 'var(--admin-accent)', flexShrink: 0 }} />
                             <a
                               href={`tel:${lead.mobileNumber}`}
                               style={{ color: 'var(--admin-text-secondary)', textDecoration: 'none', fontWeight: 600, fontFamily: 'monospace', fontSize: '12px' }}
@@ -802,9 +802,9 @@ function ProviderLeadsPageContent() {
                               gap: '4px',
                               padding: '3px 8px',
                               borderRadius: '6px',
-                              backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                              border: '1px solid rgba(59, 130, 246, 0.2)',
-                              color: '#60a5fa',
+                              backgroundColor: 'var(--admin-badge-assigned-bg)',
+                              border: '1px solid var(--admin-badge-assigned-border)',
+                              color: 'var(--admin-badge-assigned-text)',
                               fontSize: '11px',
                               fontWeight: 600,
                               maxWidth: '160px',
@@ -831,9 +831,9 @@ function ProviderLeadsPageContent() {
                               fontSize: '10px',
                               fontWeight: 700,
                               textTransform: 'uppercase',
-                              backgroundColor: lead.isAcknowledged ? 'rgba(100, 116, 139, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                              border: lead.isAcknowledged ? '1px solid rgba(100, 116, 139, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
-                              color: lead.isAcknowledged ? 'var(--admin-text-secondary)' : '#f87171',
+                              backgroundColor: lead.isAcknowledged ? 'var(--admin-surface-hover)' : 'var(--admin-badge-inactive-bg)',
+                              border: lead.isAcknowledged ? '1px solid var(--admin-border)' : '1px solid var(--admin-badge-inactive-border)',
+                              color: lead.isAcknowledged ? 'var(--admin-text-secondary)' : 'var(--admin-badge-inactive-text)',
                             }}
                           >
                             <span
@@ -841,7 +841,7 @@ function ProviderLeadsPageContent() {
                                 width: '5px',
                                 height: '5px',
                                 borderRadius: '50%',
-                                backgroundColor: lead.isAcknowledged ? 'var(--admin-text-muted)' : '#ef4444',
+                                backgroundColor: lead.isAcknowledged ? 'var(--admin-text-muted)' : 'var(--admin-badge-inactive-text)',
                               }}
                             />
                             <span>{lead.isAcknowledged ? 'Acknowledged' : 'New Lead'}</span>
@@ -875,9 +875,9 @@ function ProviderLeadsPageContent() {
                                 gap: '5px',
                                 padding: '5px 12px',
                                 borderRadius: '6px',
-                                backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                                border: '1px solid rgba(16, 185, 129, 0.3)',
-                                color: '#34d399',
+                                backgroundColor: 'var(--admin-badge-active-bg)',
+                                border: '1px solid var(--admin-badge-active-border)',
+                                color: 'var(--admin-badge-active-text)',
                                 fontSize: '11px',
                                 fontWeight: 600,
                                 cursor: onboardingId === lead.id ? 'wait' : 'pointer',
@@ -885,7 +885,7 @@ function ProviderLeadsPageContent() {
                                 transition: 'all 0.12s ease',
                                 opacity: onboardingId === lead.id ? 0.7 : 1,
                               }}
-                              className="hover:bg-[rgba(16,185,129,0.25)] hover:border-[#10b981]"
+                              className="hover:bg-[var(--admin-surface-hover)]"
                             >
                               {onboardingId === lead.id ? (
                                 <>

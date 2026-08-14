@@ -50,11 +50,11 @@ function getAvatarColor(name: string): { bg: string; text: string; border: strin
   const key = name || '';
   if (avatarColorCacheMap.has(key)) return avatarColorCacheMap.get(key)!;
   const colors = [
-    { bg: 'rgba(99, 102, 241, 0.16)', text: '#818cf8', border: 'rgba(129, 140, 248, 0.3)' },
-    { bg: 'rgba(168, 85, 247, 0.16)', text: '#c084fc', border: 'rgba(192, 132, 252, 0.3)' },
-    { bg: 'rgba(59, 130, 246, 0.16)', text: '#60a5fa', border: 'rgba(96, 165, 250, 0.3)' },
-    { bg: 'rgba(20, 184, 166, 0.16)', text: '#2dd4bf', border: 'rgba(45, 212, 191, 0.3)' },
-    { bg: 'rgba(245, 158, 11, 0.16)', text: '#fbbf24', border: 'rgba(251, 191, 36, 0.3)' },
+    { bg: 'var(--admin-badge-assigned-bg)', text: 'var(--admin-badge-assigned-text)', border: 'var(--admin-badge-assigned-border)' },
+    { bg: 'var(--admin-badge-purple-bg)', text: 'var(--admin-badge-purple-text)', border: 'var(--admin-badge-purple-border)' },
+    { bg: 'var(--admin-badge-active-bg)', text: 'var(--admin-badge-active-text)', border: 'var(--admin-badge-active-border)' },
+    { bg: 'var(--admin-badge-teal-bg)', text: 'var(--admin-badge-teal-text)', border: 'var(--admin-badge-teal-border)' },
+    { bg: 'var(--admin-badge-pending-bg)', text: 'var(--admin-badge-pending-text)', border: 'var(--admin-badge-pending-border)' },
   ];
   let hash = 0;
   for (let i = 0; i < key.length; i++) {
@@ -191,8 +191,8 @@ export default function AdminRatingsPage() {
               key={star}
               size={14}
               style={{
-                fill: star <= score ? '#f59e0b' : '#1e293b',
-                color: star <= score ? '#f59e0b' : '#334155',
+                fill: star <= score ? '#f59e0b' : 'transparent',
+                color: star <= score ? '#f59e0b' : 'var(--admin-border)',
               }}
             />
           ))}
@@ -203,9 +203,9 @@ export default function AdminRatingsPage() {
             fontWeight: 700,
             padding: '2px 7px',
             borderRadius: '9999px',
-            backgroundColor: isLowRating ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-            color: isLowRating ? '#f87171' : '#34d399',
-            border: isLowRating ? '1px solid rgba(248, 113, 113, 0.3)' : '1px solid rgba(52, 211, 153, 0.3)',
+            backgroundColor: isLowRating ? 'var(--admin-badge-inactive-bg)' : 'var(--admin-badge-active-bg)',
+            color: isLowRating ? 'var(--admin-badge-inactive-text)' : 'var(--admin-badge-active-text)',
+            border: isLowRating ? '1px solid var(--admin-badge-inactive-border)' : '1px solid var(--admin-badge-active-border)',
             letterSpacing: '0.2px',
           }}
         >
@@ -429,7 +429,7 @@ export default function AdminRatingsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Reviews</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-purple-bg)', border: '1px solid var(--admin-badge-purple-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-kpi-purple-text)' }}>
                 <UsersRound size={16} />
               </div>
             </div>
@@ -458,7 +458,7 @@ export default function AdminRatingsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Average Rating</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-active-bg)', border: '1px solid var(--admin-badge-active-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-accent)' }}>
                 <Star size={16} className="fill-emerald-400/30" />
               </div>
             </div>
@@ -487,7 +487,7 @@ export default function AdminRatingsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>5 Star Reviews</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-assigned-bg)', border: '1px solid var(--admin-badge-assigned-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-kpi-blue-text)' }}>
                 <ThumbsUp size={16} />
               </div>
             </div>
@@ -516,12 +516,12 @@ export default function AdminRatingsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Low Rated (≤2★)</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-inactive-bg)', border: '1px solid var(--admin-badge-inactive-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-badge-inactive-text)' }}>
                 <AlertTriangle size={16} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: lowRatingCount > 0 ? '#f87171' : 'var(--admin-text-primary)', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: lowRatingCount > 0 ? 'var(--admin-badge-inactive-text)' : 'var(--admin-text-primary)', letterSpacing: '-0.02em' }}>
                 {`${lowRatingCount} ${ratings.length > 0 ? `(${((lowRatingCount / ratings.length) * 100).toFixed(0)}%)` : ''}`}
               </div>
               <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
@@ -545,7 +545,7 @@ export default function AdminRatingsPage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Comments</span>
-              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(20, 184, 166, 0.12)', border: '1px solid rgba(20, 184, 166, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2dd4bf' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-badge-teal-bg)', border: '1px solid var(--admin-badge-teal-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-kpi-teal-text)' }}>
                 <MessageSquareText size={16} />
               </div>
             </div>
@@ -580,7 +580,7 @@ export default function AdminRatingsPage() {
               padding: '12px 18px',
               backgroundColor: 'rgba(239, 68, 68, 0.08)',
               borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
-              color: '#f87171',
+              color: 'var(--admin-badge-inactive-text)',
               fontSize: '13px',
               display: 'flex',
               justifyContent: 'space-between',
@@ -624,7 +624,7 @@ export default function AdminRatingsPage() {
                   style={{
                     padding: '12px 14px',
                     fontSize: '11px',
-                    color: sortBy === 'date' ? '#38bdf8' : 'var(--admin-text-muted)',
+                    color: sortBy === 'date' ? 'var(--admin-badge-sky-text)' : 'var(--admin-text-muted)',
                     textTransform: 'uppercase',
                     fontWeight: 700,
                     letterSpacing: '0.4px',
@@ -663,7 +663,7 @@ export default function AdminRatingsPage() {
                   style={{
                     padding: '12px 14px',
                     fontSize: '11px',
-                    color: sortBy === 'rating' ? '#38bdf8' : 'var(--admin-text-muted)',
+                    color: sortBy === 'rating' ? 'var(--admin-badge-sky-text)' : 'var(--admin-text-muted)',
                     textTransform: 'uppercase',
                     fontWeight: 700,
                     letterSpacing: '0.4px',
@@ -697,7 +697,7 @@ export default function AdminRatingsPage() {
                       <div style={{ width: '80px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
                     </td>
                     <td style={{ padding: '12px 14px' }}>
-                      <div style={{ width: '90px', height: '20px', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderRadius: '5px' }} />
+                      <div style={{ width: '90px', height: '20px', backgroundColor: 'var(--admin-badge-sky-bg)', borderRadius: '5px' }} />
                     </td>
                     <td style={{ padding: '12px 14px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -709,7 +709,7 @@ export default function AdminRatingsPage() {
                       <div style={{ width: '110px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
                     </td>
                     <td style={{ padding: '12px 14px' }}>
-                      <div style={{ width: '80px', height: '16px', backgroundColor: 'rgba(245, 158, 11, 0.12)', borderRadius: '4px' }} />
+                      <div style={{ width: '80px', height: '16px', backgroundColor: 'var(--admin-badge-pending-bg)', borderRadius: '4px' }} />
                     </td>
                     <td style={{ padding: '12px 14px' }}>
                       <div style={{ width: '180px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
@@ -766,8 +766,8 @@ export default function AdminRatingsPage() {
                       key={row.id}
                       style={{
                         borderBottom: '1px solid var(--admin-border-subtle)',
-                        backgroundColor: isLow ? 'rgba(239, 68, 68, 0.04)' : 'transparent',
-                        borderLeft: isLow ? '3px solid #ef4444' : '3px solid transparent',
+                        backgroundColor: isLow ? 'var(--admin-badge-inactive-bg)' : 'transparent',
+                        borderLeft: isLow ? '3px solid var(--admin-badge-inactive-text)' : '3px solid transparent',
                         transition: 'background-color 0.15s ease',
                       }}
                       className="hover:bg-[var(--admin-surface-hover)]"
@@ -816,9 +816,9 @@ export default function AdminRatingsPage() {
                               width: '28px',
                               height: '28px',
                               borderRadius: '50%',
-                              backgroundColor: 'rgba(16, 185, 129, 0.14)',
-                              color: '#34d399',
-                              border: '1px solid rgba(52, 211, 153, 0.28)',
+                              backgroundColor: 'var(--admin-badge-active-bg)',
+                              color: 'var(--admin-accent)',
+                              border: '1px solid var(--admin-badge-active-border)',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -832,7 +832,7 @@ export default function AdminRatingsPage() {
                       </td>
 
                       {/* Booking ID */}
-                      <td style={{ padding: '12px 14px', fontSize: '13px', fontFamily: 'monospace', color: '#34d399', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '12px 14px', fontSize: '13px', fontFamily: 'monospace', color: 'var(--admin-badge-sky-text)', fontWeight: 600, whiteSpace: 'nowrap' }}>
                         {row.booking_id}
                       </td>
 
