@@ -765,19 +765,9 @@ function ProvidersPageContent() {
         }}
       >
         {/* Search & Filter Toolbar Header */}
-        <div
-          style={{
-            padding: '14px 16px',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '12px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
+        <div className="p-3.5 sm:p-4 border-b border-white/[0.08] flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+            <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0, whiteSpace: 'nowrap' }}>
               Registered Directory
             </h2>
             <span
@@ -789,15 +779,16 @@ function ProvidersPageContent() {
                 padding: '2px 8px',
                 borderRadius: '10px',
                 border: '1px solid rgba(16, 185, 129, 0.25)',
+                whiteSpace: 'nowrap',
               }}
             >
               {total} total
             </span>
           </div>
 
-          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 w-full sm:w-auto sm:ml-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full xl:w-auto xl:ml-auto">
             {/* Search Input */}
-            <div className="w-full sm:max-w-[300px]" style={{ position: 'relative' }}>
+            <div className="w-full sm:w-[240px] md:w-[260px] shrink-0" style={{ position: 'relative' }}>
               <svg
                 width="14"
                 height="14"
@@ -822,7 +813,7 @@ function ProvidersPageContent() {
                   backgroundColor: '#090d16',
                   border: '1px solid rgba(255, 255, 255, 0.12)',
                   borderRadius: '8px',
-                  padding: '8px 28px 8px 32px',
+                  padding: '7px 28px 7px 32px',
                   color: '#f8fafc',
                   fontSize: '12px',
                   outline: 'none',
@@ -850,7 +841,7 @@ function ProvidersPageContent() {
             </div>
 
             {/* Status Filter Pills */}
-            <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
+            <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto shrink-0 scrollbar-none pb-1 sm:pb-0">
               {[
                 { key: 'ALL', label: 'All' },
                 { key: 'PENDING_REVIEW', label: 'Pending Review' },
