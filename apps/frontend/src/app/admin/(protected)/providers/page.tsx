@@ -161,7 +161,7 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 w-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 w-full">
       {cards.map((card, idx) => (
         <div
           key={idx}
@@ -177,7 +177,6 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
             minWidth: 0,
             minHeight: '104px',
           }}
-          className={idx === 4 ? 'col-span-2 sm:col-span-1 lg:col-span-1' : ''}
         >
           {/* Top Row: Icon + Large Count Value */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '8px' }}>
@@ -1270,7 +1269,7 @@ export default function ProvidersPage() {
 function ProvidersKpiSkeleton() {
   return (
     <div
-      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 w-full"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 w-full"
       aria-busy="true"
       aria-label="Loading provider statistics"
     >
@@ -1289,7 +1288,7 @@ function ProvidersKpiSkeleton() {
             boxSizing: 'border-box',
             minWidth: 0,
           }}
-          className={`animate-pulse ${i === 5 ? 'col-span-2 sm:col-span-1 lg:col-span-1' : ''}`}
+          className="animate-pulse"
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
             <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(255, 255, 255, 0.08)', flexShrink: 0 }} />
