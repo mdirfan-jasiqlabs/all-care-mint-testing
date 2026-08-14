@@ -970,7 +970,7 @@ export default function AdminBookingsPage() {
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flex: '1', justifyContent: 'flex-end' }}>
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 w-full sm:w-auto sm:ml-auto">
             {/* Search Input */}
             <div className="w-full sm:max-w-[320px]" style={{ position: 'relative' }}>
               <Search
@@ -987,7 +987,7 @@ export default function AdminBookingsPage() {
                   backgroundColor: '#090d16',
                   border: '1px solid rgba(255, 255, 255, 0.12)',
                   borderRadius: '8px',
-                  padding: '7px 28px 7px 32px',
+                  padding: '8px 28px 8px 32px',
                   color: '#f8fafc',
                   fontSize: '12px',
                   outline: 'none',
@@ -1015,7 +1015,7 @@ export default function AdminBookingsPage() {
             </div>
 
             {/* Date Filter Input */}
-            <div style={{ position: 'relative', width: '170px' }}>
+            <div className="w-full sm:w-[170px]" style={{ position: 'relative' }}>
               <input
                 type="date"
                 value={dateFilter}
@@ -1028,7 +1028,7 @@ export default function AdminBookingsPage() {
                   backgroundColor: '#090d16',
                   border: '1px solid rgba(255, 255, 255, 0.12)',
                   borderRadius: '8px',
-                  padding: '6px 10px',
+                  padding: '7px 10px',
                   color: '#f8fafc',
                   fontSize: '12px',
                   colorScheme: 'dark',
@@ -1053,6 +1053,7 @@ export default function AdminBookingsPage() {
                   fontWeight: 600,
                   cursor: 'pointer',
                 }}
+                className="self-start sm:self-auto pt-1 sm:pt-0"
               >
                 <RotateCcw size={13} />
                 <span>Reset</span>
