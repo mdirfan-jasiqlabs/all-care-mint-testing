@@ -818,11 +818,7 @@ export class AnalyticsService {
 
     const csvStream = Readable.from(asyncGenerator());
 
-    if (typeof res.header === 'function' && typeof res.send === 'function') {
-      res.header('Content-Type', 'text/csv; charset=utf-8');
-      res.header('Content-Disposition', `attachment; filename="${filename}"`);
-      return res.send(csvStream);
-    } else if (res.raw && typeof res.raw.setHeader === 'function') {
+    if (res.raw && typeof res.raw.setHeader === 'function') {
       res.raw.setHeader('Content-Type', 'text/csv; charset=utf-8');
       res.raw.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       return csvStream.pipe(res.raw);
@@ -830,6 +826,13 @@ export class AnalyticsService {
       res.setHeader('Content-Type', 'text/csv; charset=utf-8');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       return csvStream.pipe(res);
+    } else if (typeof res.header === 'function') {
+      res.header('Content-Type', 'text/csv; charset=utf-8');
+      res.header('Content-Disposition', `attachment; filename="${filename}"`);
+      if (typeof res.pipe === 'function') {
+        return csvStream.pipe(res);
+      }
+      return res.send(csvStream);
     }
   }
 

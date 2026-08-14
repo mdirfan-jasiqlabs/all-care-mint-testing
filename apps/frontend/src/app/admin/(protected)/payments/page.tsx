@@ -143,6 +143,37 @@ export default function AdminPaymentsPage() {
     if (exporting) return;
     setExporting(true);
     try {
+      // Fast Instant Path: If payment records are already in memory, trigger instant download (0ms)
+      if (payments && payments.length > 0) {
+        const headers = ['Date', 'Booking ID', 'Customer Name', 'Service Name', 'Provider Name', 'Amount (INR)', 'Payment Method', 'Status'];
+        const csvRows = [headers.join(',')];
+
+        for (const p of payments) {
+          const dateStr = p.date ? p.date.split('T')[0] : '';
+          const bId = p.booking_id || '';
+          const custStr = `"${(p.customer_name || 'Customer').replace(/"/g, '""')}"`;
+          const svcStr = `"${(p.service_name || 'Service').replace(/"/g, '""')}"`;
+          const provStr = `"${(p.provider_name || 'Provider').replace(/"/g, '""')}"`;
+          const amount = p.amount_inr || 0;
+          const method = `"${(p.payment_method || '').replace(/"/g, '""')}"`;
+          const status = `"${(p.status || '').replace(/"/g, '""')}"`;
+
+          csvRows.push(`${dateStr},${bId},${custStr},${svcStr},${provStr},${amount},${method},${status}`);
+        }
+
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `payments-report-${Date.now()}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        addToast('CSV export downloaded successfully', 'success');
+        return;
+      }
+
       const params = new URLSearchParams();
       if (methodFilter) params.append('method', methodFilter);
       if (statusFilter) params.append('status', statusFilter);
@@ -328,7 +359,7 @@ export default function AdminPaymentsPage() {
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px',
-            padding: '9px 18px',
+            padding: '10px 18px',
             backgroundColor: '#10b981',
             color: '#020617',
             fontWeight: 700,
@@ -341,7 +372,7 @@ export default function AdminPaymentsPage() {
             transition: 'all 0.15s ease',
             whiteSpace: 'nowrap',
           }}
-          className="hover:bg-[#34d399]"
+          className="hover:bg-[#34d399] w-full sm:w-auto active:scale-[0.98]"
         >
           {exporting ? <RefreshCw size={15} className="animate-spin" /> : <Download size={15} />}
           {exporting ? 'Exporting...' : 'Export CSV'}

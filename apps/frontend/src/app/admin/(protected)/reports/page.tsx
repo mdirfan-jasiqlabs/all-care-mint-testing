@@ -211,6 +211,39 @@ export default function AdminReportsPage() {
   const handleExportCsv = async () => {
     if (!validateDates(dateFrom, dateTo)) return;
 
+    // Fast Instant Path: If report data is already available in memory, download instantly (0ms)
+    if (reportData && reportData.length > 0) {
+      try {
+        const headers = ['Date', 'Booking Reference ID', 'Customer Name', 'Service Name', 'Amount (INR)', 'Payment Method', 'Status'];
+        const csvRows = [headers.join(',')];
+
+        for (const item of reportData) {
+          const dateStr = item.date ? item.date.split('T')[0] : '';
+          const refStr = item.booking_reference || item.booking_id || '';
+          const custStr = `"${(item.customer_name || 'Customer').replace(/"/g, '""')}"`;
+          const svcStr = `"${(item.service_name || 'Service').replace(/"/g, '""')}"`;
+          const amount = item.amount_inr || 0;
+          const method = `"${(item.payment_method || '').replace(/"/g, '""')}"`;
+          const status = `"${(item.status || '').replace(/"/g, '""')}"`;
+
+          csvRows.push(`${dateStr},${refStr},${custStr},${svcStr},${amount},${method},${status}`);
+        }
+
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.setAttribute('download', `report-${type}-${dateFrom}-${dateTo}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+        return;
+      } catch (err) {
+        console.warn('Fast client-side CSV export fallback triggered', err);
+      }
+    }
+
     setLoading(true);
     setErrorMsg(null);
     try {
@@ -377,7 +410,7 @@ export default function AdminReportsPage() {
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px',
-            padding: '9px 18px',
+            padding: '10px 18px',
             backgroundColor: loading || !!errorMsg ? '#334155' : '#10b981',
             color: '#020617',
             fontWeight: 700,
@@ -389,8 +422,8 @@ export default function AdminReportsPage() {
             boxShadow: loading || !!errorMsg ? 'none' : '0 4px 14px rgba(16, 185, 129, 0.25)',
             transition: 'all 0.15s ease',
             whiteSpace: 'nowrap',
-            alignSelf: 'flex-start',
           }}
+          className="w-full sm:w-auto hover:bg-[#34d399] active:scale-[0.98]"
         >
           {loading ? <RefreshCw size={15} className="animate-spin" /> : <Download size={15} />}
           <span>Export CSV</span>
