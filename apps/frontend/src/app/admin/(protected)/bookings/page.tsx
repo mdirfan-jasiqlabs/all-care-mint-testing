@@ -940,19 +940,9 @@ export default function AdminBookingsPage() {
         }}
       >
         {/* Search & Filter Toolbar Header */}
-        <div
-          style={{
-            padding: '14px 16px',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '12px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
+        <div className="p-3.5 sm:p-4 border-b border-white/[0.08] flex flex-col md:flex-row md:items-center justify-between gap-3 w-full">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+            <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0, whiteSpace: 'nowrap' }}>
               Service Bookings
             </h2>
             <span
@@ -964,15 +954,16 @@ export default function AdminBookingsPage() {
                 padding: '2px 8px',
                 borderRadius: '10px',
                 border: '1px solid rgba(16, 185, 129, 0.25)',
+                whiteSpace: 'nowrap',
               }}
             >
               {total} total
             </span>
           </div>
 
-          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 w-full sm:w-auto sm:ml-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto md:ml-auto">
             {/* Search Input */}
-            <div className="w-full sm:max-w-[320px]" style={{ position: 'relative' }}>
+            <div className="w-full sm:w-[260px] md:w-[280px] shrink-0" style={{ position: 'relative' }}>
               <Search
                 size={14}
                 style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
@@ -1015,7 +1006,7 @@ export default function AdminBookingsPage() {
             </div>
 
             {/* Date Filter Input */}
-            <div className="w-full sm:w-[170px]" style={{ position: 'relative' }}>
+            <div className="w-full sm:w-[160px] shrink-0" style={{ position: 'relative' }}>
               <input
                 type="date"
                 value={dateFilter}
@@ -1052,8 +1043,9 @@ export default function AdminBookingsPage() {
                   fontSize: '12px',
                   fontWeight: 600,
                   cursor: 'pointer',
+                  whiteSpace: 'nowrap',
                 }}
-                className="self-start sm:self-auto pt-1 sm:pt-0"
+                className="self-start sm:self-auto pt-1 sm:pt-0 shrink-0"
               >
                 <RotateCcw size={13} />
                 <span>Reset</span>

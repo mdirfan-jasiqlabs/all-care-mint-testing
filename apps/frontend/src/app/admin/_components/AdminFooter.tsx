@@ -6,23 +6,13 @@ export default function AdminFooter() {
   return (
     <footer
       id="admin-footer"
-      style={{
-        backgroundColor: '#020617', // slate-950
-        padding: '16px 32px',
-        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        fontSize: '12px',
-        color: '#64748b', // slate-500
-        width: '100%',
-        zIndex: 10,
-      }}
+      className="w-full px-4 sm:px-8 py-3.5 border-t border-white/[0.08] bg-[#020617] text-slate-400 text-xs flex items-center justify-start z-10 shrink-0"
     >
-      <span>© 2026 All Care Mint Operations Team</span>
-      <div style={{ display: 'flex', gap: '16px' }}>
-        <a href="#" style={{ color: '#64748b', textDecoration: 'none', transition: 'color 0.2s' }} className="hover-light">Security Policy</a>
-        <a href="#" style={{ color: '#64748b', textDecoration: 'none', transition: 'color 0.2s' }} className="hover-light">System Status</a>
+      <div className="flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse" />
+        <span className="font-medium text-slate-400">
+          © {new Date().getFullYear()} All Care Mint Operations Team
+        </span>
       </div>
     </footer>
   );

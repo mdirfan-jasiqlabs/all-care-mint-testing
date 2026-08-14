@@ -609,18 +609,6 @@ export default function AdminBookingDetailPage() {
         </div>
       </div>
 
-      {/* FOOTER BAR */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-slate-800/60 text-xs text-slate-500 mt-4">
-        <span>© 2026 All Care Mint Operations Team</span>
-        <div className="flex items-center gap-4">
-          <span className="hover:text-slate-400 cursor-pointer">Security Policy</span>
-          <span className="flex items-center gap-1.5 text-slate-400">
-            System Status
-            <span className="w-2 h-2 rounded-full bg-[#10B981] inline-block" />
-          </span>
-        </div>
-      </div>
-
       {/* Top-Center Accessible Toast Notification Queue */}
       {activeToast && (
         <div
