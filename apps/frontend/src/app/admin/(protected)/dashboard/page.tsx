@@ -145,7 +145,7 @@ const DashboardChart = React.memo(function DashboardChart({
         backgroundColor: '#090d16',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         borderRadius: '12px',
-        padding: '18px 20px',
+        padding: '16px',
         display: 'flex',
         flexDirection: 'column',
         gap: '16px',
@@ -153,14 +153,15 @@ const DashboardChart = React.memo(function DashboardChart({
         width: '100%',
         boxSizing: 'border-box',
       }}
+      className="p-3.5 sm:p-5"
     >
       {/* Chart Header Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
         <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#f8fafc', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
           BOOKING VOLUME DISTRIBUTION (MONTHLY)
         </h3>
 
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative' }} className="self-start sm:self-auto">
           <select
             value={chartYearFilter}
             onChange={(e) => onChartYearChange(e.target.value)}
@@ -170,7 +171,7 @@ const DashboardChart = React.memo(function DashboardChart({
               borderRadius: '8px',
               fontSize: '12px',
               fontWeight: 500,
-              padding: '5px 28px 5px 10px',
+              padding: '6px 28px 6px 10px',
               color: '#f8fafc',
               cursor: 'pointer',
               outline: 'none',
@@ -190,7 +191,7 @@ const DashboardChart = React.memo(function DashboardChart({
       </div>
 
       {/* Chart Legend */}
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '24px', fontSize: '12px', color: '#cbd5e1' }}>
+      <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-slate-300">
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
           <span style={{ fontWeight: 500 }}>Bookings</span>
@@ -202,7 +203,8 @@ const DashboardChart = React.memo(function DashboardChart({
       </div>
 
       {/* Interactive Dual-Series SVG Chart Container */}
-      <div style={{ position: 'relative', width: '100%', minHeight: '240px', overflowX: 'auto' }}>
+      <div className="relative w-full overflow-x-auto min-h-[220px] sm:min-h-[240px]">
+        <div className="min-w-[550px] sm:min-w-0 w-full">
         <svg
           viewBox={`0 0 ${chartWidth} ${chartHeight}`}
           style={{ width: '100%', height: 'auto', display: 'block', overflow: 'visible' }}
@@ -386,6 +388,7 @@ const DashboardChart = React.memo(function DashboardChart({
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
@@ -760,7 +763,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Action Button & Date Filter Dropdown Pinned to Far Right */}
-          <div className="flex flex-wrap items-center gap-2.5 sm:ml-auto">
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 w-full sm:w-auto sm:ml-auto">
             <button
               onClick={handleExportCsv}
               disabled={isExportingCsv}
@@ -769,24 +772,25 @@ export default function AdminDashboardPage() {
                 color: '#020617',
                 border: 'none',
                 borderRadius: '8px',
-                padding: '8px 14px',
+                padding: '9px 14px',
                 fontWeight: 700,
                 fontSize: '12px',
                 cursor: isExportingCsv ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '6px',
                 transition: 'all 0.15s ease',
                 opacity: isExportingCsv ? 0.7 : 1,
                 whiteSpace: 'nowrap',
               }}
-              className="hover:bg-[#34d399]"
+              className="hover:bg-[#34d399] w-full sm:w-auto active:scale-[0.98]"
             >
               <Download size={14} />
               <span>{isExportingCsv ? 'Exporting...' : 'Export Ledger CSV'}</span>
             </button>
 
-            <div style={{ position: 'relative' }}>
+            <div style={{ position: 'relative' }} className="w-full sm:w-auto">
               <select
                 id="date-filter"
                 value={filterPeriod}
@@ -797,13 +801,14 @@ export default function AdminDashboardPage() {
                   borderRadius: '8px',
                   fontSize: '12px',
                   fontWeight: 500,
-                  padding: '7px 28px 7px 12px',
+                  padding: '8px 28px 8px 12px',
                   color: '#f8fafc',
                   cursor: 'pointer',
                   outline: 'none',
                   appearance: 'none',
                   WebkitAppearance: 'none',
                   whiteSpace: 'nowrap',
+                  width: '100%',
                 }}
               >
                 <option value="30">Last 30 Days</option>
@@ -819,7 +824,7 @@ export default function AdminDashboardPage() {
             </div>
 
             {filterPeriod === 'custom' && (
-              <div id="custom-date-container" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
+              <div id="custom-date-container" className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto text-xs">
                 <input
                   type="date"
                   id="start-date"
@@ -829,14 +834,15 @@ export default function AdminDashboardPage() {
                     backgroundColor: '#090d16',
                     border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
                     borderRadius: '6px',
-                    padding: '5px 8px',
+                    padding: '6px 8px',
                     color: '#f8fafc',
                     colorScheme: 'dark',
                     fontSize: '11px',
                     outline: 'none',
+                    width: '100%',
                   }}
                 />
-                <span style={{ color: '#64748b' }}>to</span>
+                <span style={{ color: '#64748b', textAlign: 'center' }}>to</span>
                 <input
                   type="date"
                   id="end-date"
@@ -846,11 +852,12 @@ export default function AdminDashboardPage() {
                     backgroundColor: '#090d16',
                     border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
                     borderRadius: '6px',
-                    padding: '5px 8px',
+                    padding: '6px 8px',
                     color: '#f8fafc',
                     colorScheme: 'dark',
                     fontSize: '11px',
                     outline: 'none',
+                    width: '100%',
                   }}
                 />
               </div>
