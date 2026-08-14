@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import BrandLogo from '@/components/BrandLogo';
 import { LogOut, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
+import AdminThemeSwitcher from './AdminThemeSwitcher';
 
 interface AdminHeaderProps {
   onMenuClick?: () => void;
@@ -46,27 +47,41 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full h-16 sm:h-[72px] px-3 sm:px-6 bg-[#060b13]/95 backdrop-blur-md border-b border-white/[0.06] flex items-center justify-between box-border">
+    <header
+      className="sticky top-0 z-30 w-full h-16 sm:h-[72px] px-3 sm:px-6 backdrop-blur-md flex items-center justify-between box-border transition-colors duration-200"
+      style={{
+        backgroundColor: 'var(--admin-header-bg)',
+        borderBottom: '1px solid var(--admin-border)',
+      }}
+    >
       {/* Left side: Brand Logo only */}
       <div className="flex items-center gap-2 min-w-0">
         <BrandLogo href="/admin/dashboard" size="sm" className="sm:hidden" alt="All care mint Admin" />
         <BrandLogo href="/admin/dashboard" size="md" className="hidden sm:block" alt="All care mint Admin" />
       </div>
 
-      {/* Right side: Hamburger on Mobile (< lg), Log Out on Desktop (>= lg) */}
+      {/* Right side: Theme Switcher + Hamburger on Mobile (< lg) / Log Out on Desktop (>= lg) */}
       <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        {/* Theme Switcher */}
+        <AdminThemeSwitcher />
+
         {/* Animated Hamburger Toggle Button: ONLY visible on screens < 1024px (lg:hidden) */}
         <motion.button
           type="button"
           onClick={onMenuClick}
           aria-label="Open menu"
           title="Open menu"
-          whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+          whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.88, rotate: -90, transition: { duration: 0.15 } }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="flex lg:hidden items-center justify-center w-10 h-10 rounded-xl bg-white/[0.05] border border-white/10 text-slate-200 hover:text-white cursor-pointer outline-none flex-shrink-0"
+          className="flex lg:hidden items-center justify-center w-10 h-10 rounded-xl cursor-pointer outline-none flex-shrink-0"
+          style={{
+            backgroundColor: 'var(--admin-input-bg)',
+            border: '1px solid var(--admin-border)',
+            color: 'var(--admin-text-secondary)',
+          }}
         >
-          <Menu className="w-5 h-5 text-slate-200" />
+          <Menu className="w-5 h-5" style={{ color: 'var(--admin-text-primary)' }} />
         </motion.button>
 
         {/* Desktop Log Out Button: ONLY visible on screens >= 1024px */}

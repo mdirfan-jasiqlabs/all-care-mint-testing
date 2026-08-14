@@ -63,7 +63,7 @@ export default function ConfirmModal({
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(9, 11, 17, 0.8)',
+        backgroundColor: 'var(--admin-modal-backdrop)',
         backdropFilter: 'blur(8px)',
         zIndex: 10000,
         display: 'flex',
@@ -77,11 +77,11 @@ export default function ConfirmModal({
         style={{
           width: '100%',
           maxWidth: '460px',
-          backgroundColor: '#0f172a',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          backgroundColor: 'var(--admin-modal-bg)',
+          border: '1px solid var(--admin-border)',
           borderRadius: '16px',
           padding: '28px',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)',
           animation: 'cardFadeIn 0.2s ease-out',
         }}
         onClick={(e) => e.stopPropagation()}
@@ -91,13 +91,13 @@ export default function ConfirmModal({
             style={{
               fontSize: '18px',
               fontWeight: 700,
-              color: '#ffffff',
+              color: 'var(--admin-text-primary)',
               marginBottom: '10px',
             }}
           >
             {title}
           </h3>
-          <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.5' }}>
+          <p style={{ fontSize: '14px', color: 'var(--admin-text-secondary)', lineHeight: '1.5' }}>
             {message}
           </p>
         </div>
@@ -110,9 +110,9 @@ export default function ConfirmModal({
             style={{
               padding: '10px 18px',
               borderRadius: '8px',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: '1px solid var(--admin-border)',
               backgroundColor: 'transparent',
-              color: isLoading ? '#64748b' : '#cbd5e1',
+              color: isLoading ? 'var(--admin-text-muted)' : 'var(--admin-text-secondary)',
               fontSize: '14px',
               fontWeight: 600,
               cursor: isLoading ? 'not-allowed' : 'pointer',

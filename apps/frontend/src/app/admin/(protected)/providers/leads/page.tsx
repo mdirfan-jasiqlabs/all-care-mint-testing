@@ -209,7 +209,7 @@ function ProviderLeadsPageContent() {
   };
 
   return (
-    <div style={{ maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div style={{ maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', color: 'var(--admin-text-primary)' }}>
       {/* 1. Header & Action Link */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -231,14 +231,14 @@ function ProviderLeadsPageContent() {
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
+              <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em', margin: 0 }}>
                 Provider Application Leads
               </h1>
               <div style={{ color: '#10b981', display: 'flex', alignItems: 'center' }}>
                 <CheckCircle2 size={16} />
               </div>
             </div>
-            <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0, marginTop: '2px' }}>
+            <p style={{ color: 'var(--admin-text-secondary)', fontSize: '13px', margin: 0, marginTop: '2px' }}>
               Review incoming registration applications submitted by prospective service providers.
             </p>
           </div>
@@ -253,13 +253,13 @@ function ProviderLeadsPageContent() {
             gap: '8px',
             padding: '8px 16px',
             borderRadius: '8px',
-            backgroundColor: '#090d16',
+            backgroundColor: 'var(--admin-card-bg)',
             color: '#38bdf8',
             border: '1px solid rgba(56, 189, 248, 0.3)',
             fontWeight: 700,
             fontSize: '12px',
             textDecoration: 'none',
-            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
             transition: 'all 0.2s ease',
           }}
           className="hover:border-[#38bdf8] hover:bg-[rgba(56,189,248,0.08)]"
@@ -273,7 +273,7 @@ function ProviderLeadsPageContent() {
       <div
         style={{
           display: 'flex',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          borderBottom: '1px solid var(--admin-border)',
           gap: '24px',
           paddingBottom: '2px',
           overflowX: 'auto',
@@ -285,7 +285,7 @@ function ProviderLeadsPageContent() {
             padding: '8px 4px 10px 4px',
             fontSize: '13px',
             fontWeight: 600,
-            color: '#94a3b8',
+            color: 'var(--admin-text-secondary)',
             borderBottom: '2px solid transparent',
             textDecoration: 'none',
             display: 'flex',
@@ -293,7 +293,6 @@ function ProviderLeadsPageContent() {
             gap: '6px',
             transition: 'all 0.2s ease',
           }}
-          className="hover:text-slate-200"
         >
           <Users size={15} />
           <span>Registered Providers Directory</span>
@@ -342,9 +341,9 @@ function ProviderLeadsPageContent() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -353,7 +352,7 @@ function ProviderLeadsPageContent() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Applications</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Applications</span>
               <div
                 style={{
                   width: '30px',
@@ -372,10 +371,10 @@ function ProviderLeadsPageContent() {
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em' }}>
                 {stats.total.toLocaleString()}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 All prospective provider leads
               </div>
             </div>
@@ -385,9 +384,9 @@ function ProviderLeadsPageContent() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -396,7 +395,7 @@ function ProviderLeadsPageContent() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>New / Pending</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>New / Pending</span>
               <div
                 style={{
                   width: '30px',
@@ -418,7 +417,7 @@ function ProviderLeadsPageContent() {
               <div style={{ fontSize: '22px', fontWeight: 800, color: '#f87171', letterSpacing: '-0.02em' }}>
                 {stats.newLeads.toLocaleString()}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 Require initial admin review
               </div>
             </div>
@@ -428,9 +427,9 @@ function ProviderLeadsPageContent() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -439,7 +438,7 @@ function ProviderLeadsPageContent() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Acknowledged</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Acknowledged</span>
               <div
                 style={{
                   width: '30px',
@@ -461,7 +460,7 @@ function ProviderLeadsPageContent() {
               <div style={{ fontSize: '22px', fontWeight: 800, color: '#10b981', letterSpacing: '-0.02em' }}>
                 {stats.acknowledged.toLocaleString()}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 Reviewed by admin team
               </div>
             </div>
@@ -471,9 +470,9 @@ function ProviderLeadsPageContent() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -482,7 +481,7 @@ function ProviderLeadsPageContent() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Service Areas</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Service Areas</span>
               <div
                 style={{
                   width: '30px',
@@ -501,10 +500,10 @@ function ProviderLeadsPageContent() {
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em' }}>
                 {stats.uniqueAreas.toLocaleString()}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 Distinct locations represented
               </div>
             </div>
@@ -515,18 +514,18 @@ function ProviderLeadsPageContent() {
       {/* 4. Main High-Density Data Card */}
       <div
         style={{
-          backgroundColor: '#090d16',
+          backgroundColor: 'var(--admin-card-bg)',
           borderRadius: '12px',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: '1px solid var(--admin-border)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
         }}
       >
         {/* Search & Filter Toolbar Header */}
-        <div className="p-3.5 sm:p-4 border-b border-white/[0.08] flex flex-col lg:flex-row lg:items-center justify-between gap-3 w-full">
+        <div className="p-3.5 sm:p-4 border-b flex flex-col lg:flex-row lg:items-center justify-between gap-3 w-full" style={{ borderColor: 'var(--admin-border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-            <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0, whiteSpace: 'nowrap' }}>
+            <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--admin-text-primary)', margin: 0, whiteSpace: 'nowrap' }}>
               Applicant Leads
             </h2>
             <span
@@ -550,7 +549,7 @@ function ProviderLeadsPageContent() {
             <div className="w-full sm:w-[260px] lg:w-[280px] shrink-0" style={{ position: 'relative' }}>
               <Search
                 size={14}
-                style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
+                style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--admin-text-muted)' }}
               />
               <input
                 type="text"
@@ -559,11 +558,11 @@ function ProviderLeadsPageContent() {
                 onChange={(e) => setSearch(e.target.value)}
                 style={{
                   width: '100%',
-                  backgroundColor: '#090d16',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  backgroundColor: 'var(--admin-input-bg)',
+                  border: '1px solid var(--admin-input-border)',
                   borderRadius: '8px',
                   padding: '7px 28px 7px 32px',
-                  color: '#f8fafc',
+                  color: 'var(--admin-text-primary)',
                   fontSize: '12px',
                   outline: 'none',
                   boxSizing: 'border-box',
@@ -580,7 +579,7 @@ function ProviderLeadsPageContent() {
                     transform: 'translateY(-50%)',
                     background: 'none',
                     border: 'none',
-                    color: '#64748b',
+                    color: 'var(--admin-text-muted)',
                     cursor: 'pointer',
                   }}
                 >
@@ -591,7 +590,7 @@ function ProviderLeadsPageContent() {
 
             {/* Status Filter Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto shrink-0 scrollbar-none pb-1 sm:pb-0">
-              <Filter size={13} style={{ color: '#64748b', marginRight: '2px', flexShrink: 0 }} />
+              <Filter size={13} style={{ color: 'var(--admin-text-muted)', marginRight: '2px', flexShrink: 0 }} />
               {[
                 { id: 'ALL', label: 'All Leads' },
                 { id: 'UNACKNOWLEDGED', label: 'New Leads' },
@@ -606,9 +605,9 @@ function ProviderLeadsPageContent() {
                       setPage(1);
                     }}
                     style={{
-                      backgroundColor: isActive ? 'rgba(16, 185, 129, 0.15)' : '#090d16',
-                      border: isActive ? '1px solid #10b981' : '1px solid rgba(255, 255, 255, 0.1)',
-                      color: isActive ? '#10b981' : '#94a3b8',
+                      backgroundColor: isActive ? 'rgba(16, 185, 129, 0.15)' : 'var(--admin-card-bg)',
+                      border: isActive ? '1px solid #10b981' : '1px solid var(--admin-border)',
+                      color: isActive ? '#10b981' : 'var(--admin-text-secondary)',
                       borderRadius: '6px',
                       padding: '5px 10px',
                       fontSize: '11px',
@@ -669,9 +668,9 @@ function ProviderLeadsPageContent() {
               <thead>
                 <tr
                   style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                    color: '#64748b',
+                    backgroundColor: 'var(--admin-table-header-bg)',
+                    borderBottom: '1px solid var(--admin-border)',
+                    color: 'var(--admin-text-muted)',
                     fontSize: '10px',
                     fontWeight: 700,
                     textTransform: 'uppercase',
@@ -689,8 +688,8 @@ function ProviderLeadsPageContent() {
               <tbody>
                 {leads.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ padding: '36px 12px', textAlign: 'center', color: '#64748b' }}>
-                      <div style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8', marginBottom: '2px' }}>
+                    <td colSpan={6} style={{ padding: '36px 12px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>
+                      <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--admin-text-secondary)', marginBottom: '2px' }}>
                         No provider application leads found
                       </div>
                       <div style={{ fontSize: '12px' }}>
@@ -707,10 +706,10 @@ function ProviderLeadsPageContent() {
                       <tr
                         key={lead.id}
                         style={{
-                          borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                          borderBottom: '1px solid var(--admin-border-subtle)',
                           transition: 'background-color 0.12s ease',
                         }}
-                        className="hover:bg-[rgba(255,255,255,0.02)]"
+                        className="hover:bg-[var(--admin-surface-hover)]"
                       >
                         {/* Applicant Name with Compact Avatar */}
                         <td style={{ padding: '10px 12px' }}>
@@ -734,7 +733,7 @@ function ProviderLeadsPageContent() {
                               {initials}
                             </div>
                             <div style={{ minWidth: 0, overflow: 'hidden' }}>
-                              <div style={{ fontWeight: 700, color: '#f8fafc', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                              <div style={{ fontWeight: 700, color: 'var(--admin-text-primary)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
                                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '170px' }} title={lead.name}>
                                   {lead.name}
                                 </span>
@@ -756,7 +755,7 @@ function ProviderLeadsPageContent() {
                                   </span>
                                 )}
                               </div>
-                              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '1px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              <div style={{ fontSize: '10px', color: 'var(--admin-text-muted)', marginTop: '1px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 ID: {lead.id.substring(0, 8)}
                               </div>
                             </div>
@@ -769,7 +768,7 @@ function ProviderLeadsPageContent() {
                             <Phone size={12} style={{ color: '#34d399', flexShrink: 0 }} />
                             <a
                               href={`tel:${lead.mobileNumber}`}
-                              style={{ color: '#cbd5e1', textDecoration: 'none', fontWeight: 600, fontFamily: 'monospace', fontSize: '12px' }}
+                              style={{ color: 'var(--admin-text-secondary)', textDecoration: 'none', fontWeight: 600, fontFamily: 'monospace', fontSize: '12px' }}
                             >
                               {lead.mobileNumber}
                             </a>
@@ -779,14 +778,14 @@ function ProviderLeadsPageContent() {
                               style={{
                                 background: 'none',
                                 border: 'none',
-                                color: '#64748b',
+                                color: 'var(--admin-text-muted)',
                                 cursor: 'pointer',
                                 padding: '2px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 flexShrink: 0,
                               }}
-                              className="hover:text-slate-200"
+                              className="hover:text-emerald-400"
                             >
                               <Copy size={11} />
                             </button>
@@ -834,7 +833,7 @@ function ProviderLeadsPageContent() {
                               textTransform: 'uppercase',
                               backgroundColor: lead.isAcknowledged ? 'rgba(100, 116, 139, 0.15)' : 'rgba(239, 68, 68, 0.15)',
                               border: lead.isAcknowledged ? '1px solid rgba(100, 116, 139, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
-                              color: lead.isAcknowledged ? '#94a3b8' : '#f87171',
+                              color: lead.isAcknowledged ? 'var(--admin-text-secondary)' : '#f87171',
                             }}
                           >
                             <span
@@ -842,7 +841,7 @@ function ProviderLeadsPageContent() {
                                 width: '5px',
                                 height: '5px',
                                 borderRadius: '50%',
-                                backgroundColor: lead.isAcknowledged ? '#94a3b8' : '#ef4444',
+                                backgroundColor: lead.isAcknowledged ? 'var(--admin-text-muted)' : '#ef4444',
                               }}
                             />
                             <span>{lead.isAcknowledged ? 'Acknowledged' : 'New Lead'}</span>
@@ -852,12 +851,12 @@ function ProviderLeadsPageContent() {
                         {/* Submitted Date */}
                         <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Clock size={12} style={{ color: '#64748b', flexShrink: 0 }} />
+                            <Clock size={12} style={{ color: 'var(--admin-text-muted)', flexShrink: 0 }} />
                             <div>
-                              <div style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '11px' }}>
+                              <div style={{ color: 'var(--admin-text-primary)', fontWeight: 600, fontSize: '11px' }}>
                                 {new Date(lead.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                               </div>
-                              <div style={{ color: '#64748b', fontSize: '10px', marginTop: '1px' }}>
+                              <div style={{ color: 'var(--admin-text-muted)', fontSize: '10px', marginTop: '1px' }}>
                                 {new Date(lead.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
                               </div>
                             </div>
@@ -919,16 +918,16 @@ function ProviderLeadsPageContent() {
               justifyContent: 'space-between',
               alignItems: 'center',
               padding: '12px 16px',
-              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-              backgroundColor: 'rgba(255, 255, 255, 0.01)',
+              borderTop: '1px solid var(--admin-border)',
+              backgroundColor: 'var(--admin-card-bg)',
               flexWrap: 'wrap',
               gap: '8px',
             }}
           >
-            <span style={{ fontSize: '12px', color: '#64748b' }}>
-              Showing <strong style={{ color: '#f8fafc' }}>{(page - 1) * limit + 1}</strong> to{' '}
-              <strong style={{ color: '#f8fafc' }}>{Math.min(page * limit, total)}</strong> of{' '}
-              <strong style={{ color: '#f8fafc' }}>{total}</strong> applicant leads
+            <span style={{ fontSize: '12px', color: 'var(--admin-text-muted)' }}>
+              Showing <strong style={{ color: 'var(--admin-text-primary)' }}>{(page - 1) * limit + 1}</strong> to{' '}
+              <strong style={{ color: 'var(--admin-text-primary)' }}>{Math.min(page * limit, total)}</strong> of{' '}
+              <strong style={{ color: 'var(--admin-text-primary)' }}>{total}</strong> applicant leads
             </span>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -939,9 +938,9 @@ function ProviderLeadsPageContent() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '3px',
-                  backgroundColor: '#090d16',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: page === 1 ? '#475569' : '#f8fafc',
+                  backgroundColor: 'var(--admin-surface-hover)',
+                  border: '1px solid var(--admin-border)',
+                  color: page === 1 ? 'var(--admin-text-muted)' : 'var(--admin-text-primary)',
                   borderRadius: '6px',
                   padding: '5px 10px',
                   fontSize: '11px',
@@ -954,7 +953,7 @@ function ProviderLeadsPageContent() {
                 <span>Previous</span>
               </button>
 
-              <span style={{ fontSize: '11px', color: '#94a3b8', padding: '0 6px' }}>
+              <span style={{ fontSize: '11px', color: 'var(--admin-text-secondary)', padding: '0 6px' }}>
                 {page} / {totalPages}
               </span>
 
@@ -965,9 +964,9 @@ function ProviderLeadsPageContent() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '3px',
-                  backgroundColor: '#090d16',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: page >= totalPages ? '#475569' : '#f8fafc',
+                  backgroundColor: 'var(--admin-surface-hover)',
+                  border: '1px solid var(--admin-border)',
+                  color: page >= totalPages ? 'var(--admin-text-muted)' : 'var(--admin-text-primary)',
                   borderRadius: '6px',
                   padding: '5px 10px',
                   fontSize: '11px',
@@ -1003,9 +1002,9 @@ function LeadsKpiSkeleton() {
           key={i}
           style={{
             padding: '14px 16px',
-            backgroundColor: '#090d16',
+            backgroundColor: 'var(--admin-card-bg)',
             borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            border: '1px solid var(--admin-border)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -1015,12 +1014,12 @@ function LeadsKpiSkeleton() {
           className="animate-pulse"
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ width: '90px', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }} />
+            <div style={{ width: '90px', height: '12px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-skeleton-bg)' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <div style={{ width: '80px', height: '22px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }} />
-            <div style={{ width: '110px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }} />
+            <div style={{ width: '80px', height: '22px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '110px', height: '10px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
           </div>
         </div>
       ))}

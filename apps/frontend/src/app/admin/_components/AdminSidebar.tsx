@@ -143,7 +143,7 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
       gap: '12px',
       padding: '10px 14px',
       borderRadius: '10px',
-      color: isActive ? '#10b981' : '#94a3b8',
+      color: isActive ? '#10b981' : 'var(--admin-text-secondary)',
       backgroundColor: isActive ? 'rgba(16, 185, 129, 0.12)' : 'transparent',
       border: isActive ? '1px solid rgba(16, 185, 129, 0.25)' : '1px solid transparent',
       fontSize: '13px',
@@ -163,7 +163,7 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
         <div
           style={{
             fontSize: '11px',
-            color: '#64748b',
+            color: 'var(--admin-text-muted)',
             fontWeight: 700,
             textTransform: 'uppercase',
             letterSpacing: '0.8px',
@@ -178,28 +178,28 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
             onClick={() => handleNav('/admin/dashboard')}
             style={getLinkStyle('dashboard')}
           >
-            <House size={18} color={activePage === 'dashboard' ? '#10b981' : '#94a3b8'} />
+            <House size={18} color={activePage === 'dashboard' ? '#10b981' : 'var(--admin-text-secondary)'} />
             <span>Dashboard</span>
           </button>
           <button
             onClick={() => handleNav('/admin/catalog/categories')}
             style={getLinkStyle('catalog')}
           >
-            <LayoutGrid size={18} color={activePage === 'catalog' ? '#10b981' : '#94a3b8'} />
+            <LayoutGrid size={18} color={activePage === 'catalog' ? '#10b981' : 'var(--admin-text-secondary)'} />
             <span>Service Catalog</span>
           </button>
           <button
             onClick={() => handleNav('/admin/bookings')}
             style={getLinkStyle('bookings')}
           >
-            <CalendarDays size={18} color={activePage === 'bookings' ? '#10b981' : '#94a3b8'} />
+            <CalendarDays size={18} color={activePage === 'bookings' ? '#10b981' : 'var(--admin-text-secondary)'} />
             <span>Manage Bookings</span>
           </button>
           <button
             onClick={() => handleNav('/admin/providers')}
             style={getLinkStyle('providers')}
           >
-            <Users size={18} color={activePage === 'providers' ? '#10b981' : '#94a3b8'} />
+            <Users size={18} color={activePage === 'providers' ? '#10b981' : 'var(--admin-text-secondary)'} />
             <span>Providers Directory</span>
           </button>
           <button
@@ -207,7 +207,7 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
             style={getLinkStyle('provider-leads')}
             aria-live="polite"
           >
-            <ClipboardCheck size={18} color={activePage === 'provider-leads' ? '#10b981' : '#94a3b8'} />
+            <ClipboardCheck size={18} color={activePage === 'provider-leads' ? '#10b981' : 'var(--admin-text-secondary)'} />
             <span style={{ flex: 1 }}>Provider Application Leads</span>
             {badgeCount > 0 && (
               <span
@@ -231,21 +231,21 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
             onClick={() => handleNav('/admin/payments')}
             style={getLinkStyle('payments')}
           >
-            <Wallet size={18} color={activePage === 'payments' ? '#10b981' : '#94a3b8'} />
+            <Wallet size={18} color={activePage === 'payments' ? '#10b981' : 'var(--admin-text-secondary)'} />
             <span>Payments & Cash Ledger</span>
           </button>
           <button
             onClick={() => handleNav('/admin/ratings')}
             style={getLinkStyle('ratings')}
           >
-            <Star size={18} color={activePage === 'ratings' ? '#10b981' : '#94a3b8'} />
+            <Star size={18} color={activePage === 'ratings' ? '#10b981' : 'var(--admin-text-secondary)'} />
             <span>Provider Ratings & Feedback</span>
           </button>
           <button
             onClick={() => handleNav('/admin/reports')}
             style={getLinkStyle('reports')}
           >
-            <ChartNoAxesCombined size={18} color={activePage === 'reports' ? '#10b981' : '#94a3b8'} />
+            <ChartNoAxesCombined size={18} color={activePage === 'reports' ? '#10b981' : 'var(--admin-text-secondary)'} />
             <span>Analytics & Reports</span>
           </button>
         </nav>
@@ -261,13 +261,14 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
         className="hidden lg:flex"
         style={{
           width: '260px',
-          backgroundColor: '#060b13',
-          borderRight: '1px solid rgba(255, 255, 255, 0.06)',
+          backgroundColor: 'var(--admin-sidebar-bg)',
+          borderRight: '1px solid var(--admin-border)',
           padding: '24px 16px',
           flexDirection: 'column',
           gap: '24px',
           flexShrink: 0,
           overflowY: 'auto',
+          transition: 'background-color 0.2s ease, border-color 0.2s ease',
         }}
       >
         {navContent}
@@ -282,7 +283,7 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
             style={{
               position: 'fixed',
               inset: 0,
-              backgroundColor: 'rgba(2, 6, 23, 0.75)',
+              backgroundColor: 'var(--admin-modal-backdrop)',
               backdropFilter: 'blur(4px)',
             }}
           />
@@ -293,19 +294,19 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
               position: 'relative',
               width: '280px',
               maxWidth: '85vw',
-              backgroundColor: '#020617',
-              borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+              backgroundColor: 'var(--admin-drawer-bg)',
+              borderRight: '1px solid var(--admin-border)',
               height: '100%',
               padding: '20px 16px',
               display: 'flex',
               flexDirection: 'column',
               gap: '20px',
               zIndex: 51,
-              boxShadow: '8px 0 24px rgba(0, 0, 0, 0.5)',
+              boxShadow: '8px 0 24px rgba(0, 0, 0, 0.3)',
               overflowY: 'auto',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '12px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '12px', borderBottom: '1px solid var(--admin-border)' }}>
               <span style={{ fontSize: '14px', fontWeight: 700, color: '#10b981' }}>Navigation</span>
               <button
                 type="button"
@@ -315,9 +316,9 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
                   width: '36px',
                   height: '36px',
                   borderRadius: '8px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#94a3b8',
+                  backgroundColor: 'var(--admin-input-bg)',
+                  border: '1px solid var(--admin-border)',
+                  color: 'var(--admin-text-secondary)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -330,7 +331,7 @@ export default function AdminSidebar({ activePage: activePageProp, isOpen = fals
 
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               {navContent}
-              <div style={{ paddingTop: '16px', marginTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div style={{ paddingTop: '16px', marginTop: '16px', borderTop: '1px solid var(--admin-border)' }}>
                 <button
                   type="button"
                   onClick={handleLogout}

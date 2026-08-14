@@ -219,7 +219,7 @@ export default function AdminRatingsPage() {
   const endRecord = Math.min(page * 20, totalRecords);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', color: 'var(--admin-text-primary)' }}>
       {/* 1. Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -239,11 +239,11 @@ export default function AdminRatingsPage() {
             >
               <Star size={20} className="fill-emerald-500/20" />
             </div>
-            <h1 id="admin-ratings-heading" style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', margin: 0, letterSpacing: '-0.02em' }}>
+            <h1 id="admin-ratings-heading" style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', margin: 0, letterSpacing: '-0.02em' }}>
               Provider Ratings & Feedback Ledger
             </h1>
           </div>
-          <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px', margin: 0, paddingLeft: '2px' }}>
+          <p style={{ fontSize: '13px', color: 'var(--admin-text-secondary)', marginTop: '4px', margin: 0, paddingLeft: '2px' }}>
             Audit customer reviews, identify low-rated providers (≤2 stars), and monitor service quality metrics.
           </p>
         </div>
@@ -256,20 +256,20 @@ export default function AdminRatingsPage() {
           flexWrap: 'wrap',
           gap: '12px',
           padding: '16px 18px',
-          backgroundColor: '#090d16',
+          backgroundColor: 'var(--admin-card-bg)',
           borderRadius: '12px',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: '1px solid var(--admin-border)',
           alignItems: 'flex-end',
         }}
       >
         {/* Search Provider / Customer */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 200px', minWidth: '180px' }}>
-          <label htmlFor="provider-search-input" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <Search size={12} color="#64748b" />
+          <label htmlFor="provider-search-input" style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Search size={12} color="var(--admin-text-muted)" />
             Search Provider / Customer
           </label>
           <div style={{ position: 'relative', width: '100%' }} className="relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--admin-text-muted)' }} />
             <input
               id="provider-search-input"
               type="text"
@@ -281,9 +281,9 @@ export default function AdminRatingsPage() {
               }}
               style={{
                 padding: '8px 12px 8px 34px',
-                backgroundColor: '#020617',
-                color: '#f8fafc',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
+                backgroundColor: 'var(--admin-input-bg)',
+                color: 'var(--admin-text-primary)',
+                border: '1px solid var(--admin-input-border)',
                 borderRadius: '8px',
                 fontSize: '13px',
                 width: '100%',
@@ -296,8 +296,8 @@ export default function AdminRatingsPage() {
 
         {/* Rating Filter */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 170px', minWidth: '160px' }}>
-          <label htmlFor="min-rating-select" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <Star size={12} color="#64748b" />
+          <label htmlFor="min-rating-select" style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Star size={12} color="var(--admin-text-muted)" />
             Filter by Rating
           </label>
           <select
@@ -309,9 +309,9 @@ export default function AdminRatingsPage() {
             }}
             style={{
               padding: '8px 12px',
-              backgroundColor: '#020617',
-              color: '#f8fafc',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: 'var(--admin-input-bg)',
+              color: 'var(--admin-text-primary)',
+              border: '1px solid var(--admin-input-border)',
               borderRadius: '8px',
               fontSize: '13px',
               height: '40px',
@@ -319,18 +319,18 @@ export default function AdminRatingsPage() {
               cursor: 'pointer',
             }}
           >
-            <option value="">All Ratings</option>
-            <option value="LOW">Low Ratings (1-2 Stars ⚠️)</option>
-            <option value="5">5 Stars Only</option>
-            <option value="4">4 Stars & Above</option>
-            <option value="3">3 Stars & Below</option>
+            <option value="" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>All Ratings</option>
+            <option value="LOW" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>Low Ratings (1-2 Stars ⚠️)</option>
+            <option value="5" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>5 Stars Only</option>
+            <option value="4" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>4 Stars & Above</option>
+            <option value="3" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>3 Stars & Below</option>
           </select>
         </div>
 
         {/* Date From */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 140px', minWidth: '130px' }}>
-          <label htmlFor="date-from-input" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <Calendar size={12} color="#64748b" />
+          <label htmlFor="date-from-input" style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Calendar size={12} color="var(--admin-text-muted)" />
             From Date
           </label>
           <input
@@ -343,13 +343,12 @@ export default function AdminRatingsPage() {
             }}
             style={{
               padding: '7px 10px',
-              backgroundColor: '#020617',
-              color: '#f8fafc',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: 'var(--admin-input-bg)',
+              color: 'var(--admin-text-primary)',
+              border: '1px solid var(--admin-input-border)',
               borderRadius: '8px',
               fontSize: '13px',
               height: '40px',
-              colorScheme: 'dark',
               outline: 'none',
             }}
           />
@@ -357,8 +356,8 @@ export default function AdminRatingsPage() {
 
         {/* Date To */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 140px', minWidth: '130px' }}>
-          <label htmlFor="date-to-input" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <Calendar size={12} color="#64748b" />
+          <label htmlFor="date-to-input" style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Calendar size={12} color="var(--admin-text-muted)" />
             To Date
           </label>
           <input
@@ -371,13 +370,12 @@ export default function AdminRatingsPage() {
             }}
             style={{
               padding: '7px 10px',
-              backgroundColor: '#020617',
-              color: '#f8fafc',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: 'var(--admin-input-bg)',
+              color: 'var(--admin-text-primary)',
+              border: '1px solid var(--admin-input-border)',
               borderRadius: '8px',
               fontSize: '13px',
               height: '40px',
-              colorScheme: 'dark',
               outline: 'none',
             }}
           />
@@ -394,9 +392,9 @@ export default function AdminRatingsPage() {
             justifyContent: 'center',
             gap: '6px',
             padding: '8px 14px',
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
-            color: isFiltersDirty ? '#f8fafc' : '#64748b',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
+            backgroundColor: 'var(--admin-surface-hover)',
+            color: isFiltersDirty ? 'var(--admin-text-primary)' : 'var(--admin-text-muted)',
+            border: '1px solid var(--admin-border)',
             borderRadius: '8px',
             fontSize: '13px',
             fontWeight: 600,
@@ -420,9 +418,9 @@ export default function AdminRatingsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -430,16 +428,16 @@ export default function AdminRatingsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Reviews</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Reviews</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
                 <UsersRound size={16} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em' }}>
                 {totalRecords}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 Total Ledger Matching
               </div>
             </div>
@@ -449,9 +447,9 @@ export default function AdminRatingsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -459,16 +457,16 @@ export default function AdminRatingsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Average Rating</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Average Rating</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399' }}>
                 <Star size={16} className="fill-emerald-400/30" />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em' }}>
                 {`${avgPageRating} / 5`}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 On Current Page
               </div>
             </div>
@@ -478,9 +476,9 @@ export default function AdminRatingsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -488,16 +486,16 @@ export default function AdminRatingsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>5 Star Reviews</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>5 Star Reviews</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
                 <ThumbsUp size={16} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em' }}>
                 {`${fiveStarCount} ${ratings.length > 0 ? `(${((fiveStarCount / ratings.length) * 100).toFixed(0)}%)` : ''}`}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 On Current Page
               </div>
             </div>
@@ -507,9 +505,9 @@ export default function AdminRatingsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -517,16 +515,16 @@ export default function AdminRatingsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Low Rated (≤2★)</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Low Rated (≤2★)</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f87171' }}>
                 <AlertTriangle size={16} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: lowRatingCount > 0 ? '#f87171' : '#f8fafc', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: lowRatingCount > 0 ? '#f87171' : 'var(--admin-text-primary)', letterSpacing: '-0.02em' }}>
                 {`${lowRatingCount} ${ratings.length > 0 ? `(${((lowRatingCount / ratings.length) * 100).toFixed(0)}%)` : ''}`}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 {lowRatingCount > 0 ? 'Requires Attention' : 'On Current Page'}
               </div>
             </div>
@@ -536,9 +534,9 @@ export default function AdminRatingsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -546,16 +544,16 @@ export default function AdminRatingsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Comments</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Comments</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(20, 184, 166, 0.12)', border: '1px solid rgba(20, 184, 166, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2dd4bf' }}>
                 <MessageSquareText size={16} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em' }}>
                 {commentsCount}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 Written Feedback on Page
               </div>
             </div>
@@ -566,9 +564,9 @@ export default function AdminRatingsPage() {
       {/* 4. Main Ratings Table Card */}
       <div
         style={{
-          backgroundColor: '#090d16',
+          backgroundColor: 'var(--admin-card-bg)',
           borderRadius: '12px',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: '1px solid var(--admin-border)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
@@ -619,14 +617,14 @@ export default function AdminRatingsPage() {
         <div style={{ overflowX: 'auto', width: '100%' }}>
           <table id="admin-ratings-table" style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <tr style={{ backgroundColor: 'var(--admin-table-header-bg)', borderBottom: '1px solid var(--admin-border)' }}>
                 <th
                   id="th-sort-date"
                   onClick={() => handleSort('date')}
                   style={{
                     padding: '12px 14px',
                     fontSize: '11px',
-                    color: sortBy === 'date' ? '#38bdf8' : '#94a3b8',
+                    color: sortBy === 'date' ? '#38bdf8' : 'var(--admin-text-muted)',
                     textTransform: 'uppercase',
                     fontWeight: 700,
                     letterSpacing: '0.4px',
@@ -647,15 +645,15 @@ export default function AdminRatingsPage() {
                   </div>
                 </th>
 
-                <th style={{ padding: '12px 14px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px' }}>
+                <th style={{ padding: '12px 14px', fontSize: '11px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px' }}>
                   CUSTOMER
                 </th>
 
-                <th style={{ padding: '12px 14px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px' }}>
+                <th style={{ padding: '12px 14px', fontSize: '11px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px' }}>
                   PROVIDER
                 </th>
 
-                <th style={{ padding: '12px 14px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>
+                <th style={{ padding: '12px 14px', fontSize: '11px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px', whiteSpace: 'nowrap' }}>
                   BOOKING ID
                 </th>
 
@@ -665,7 +663,7 @@ export default function AdminRatingsPage() {
                   style={{
                     padding: '12px 14px',
                     fontSize: '11px',
-                    color: sortBy === 'rating' ? '#38bdf8' : '#94a3b8',
+                    color: sortBy === 'rating' ? '#38bdf8' : 'var(--admin-text-muted)',
                     textTransform: 'uppercase',
                     fontWeight: 700,
                     letterSpacing: '0.4px',
@@ -686,7 +684,7 @@ export default function AdminRatingsPage() {
                   </div>
                 </th>
 
-                <th style={{ padding: '12px 14px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px' }}>
+                <th style={{ padding: '12px 14px', fontSize: '11px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.4px' }}>
                   CUSTOMER REVIEW / COMMENT
                 </th>
               </tr>
@@ -694,27 +692,27 @@ export default function AdminRatingsPage() {
             <tbody>
               {loading ? (
                 Array.from({ length: 6 }).map((_, idx) => (
-                  <tr key={`sk-row-${idx}`} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }} className="animate-pulse">
+                  <tr key={`sk-row-${idx}`} style={{ borderBottom: '1px solid var(--admin-border-subtle)' }} className="animate-pulse">
                     <td style={{ padding: '12px 14px' }}>
-                      <div style={{ width: '80px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                      <div style={{ width: '80px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
                     </td>
                     <td style={{ padding: '12px 14px' }}>
                       <div style={{ width: '90px', height: '20px', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderRadius: '5px' }} />
                     </td>
                     <td style={{ padding: '12px 14px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
-                        <div style={{ width: '100px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'var(--admin-skeleton-bg)' }} />
+                        <div style={{ width: '100px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
                       </div>
                     </td>
                     <td style={{ padding: '12px 14px' }}>
-                      <div style={{ width: '110px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                      <div style={{ width: '110px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
                     </td>
                     <td style={{ padding: '12px 14px' }}>
                       <div style={{ width: '80px', height: '16px', backgroundColor: 'rgba(245, 158, 11, 0.12)', borderRadius: '4px' }} />
                     </td>
                     <td style={{ padding: '12px 14px' }}>
-                      <div style={{ width: '180px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '4px' }} />
+                      <div style={{ width: '180px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
                     </td>
                   </tr>
                 ))
@@ -722,11 +720,11 @@ export default function AdminRatingsPage() {
                 <tr>
                   <td id="empty-ratings-state" colSpan={6} style={{ padding: '48px 16px', textAlign: 'center' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-                      <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                      <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'var(--admin-surface-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-text-muted)' }}>
                         <MessageSquareOff size={24} />
                       </div>
-                      <span style={{ fontSize: '15px', fontWeight: 700, color: '#f8fafc' }}>No ratings or reviews found</span>
-                      <span style={{ fontSize: '13px', color: '#64748b', maxWidth: '360px' }}>
+                      <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--admin-text-primary)' }}>No ratings or reviews found</span>
+                      <span style={{ fontSize: '13px', color: 'var(--admin-text-muted)', maxWidth: '360px' }}>
                         No provider ratings matching the current filter criteria were found. Try resetting the filters.
                       </span>
                       {isFiltersDirty && (
@@ -735,9 +733,9 @@ export default function AdminRatingsPage() {
                           style={{
                             marginTop: '8px',
                             padding: '8px 16px',
-                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                            color: '#f8fafc',
-                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            backgroundColor: 'var(--admin-surface-hover)',
+                            color: 'var(--admin-text-primary)',
+                            border: '1px solid var(--admin-border)',
                             borderRadius: '8px',
                             fontSize: '13px',
                             fontWeight: 600,
@@ -767,24 +765,24 @@ export default function AdminRatingsPage() {
                     <tr
                       key={row.id}
                       style={{
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                        borderBottom: '1px solid var(--admin-border-subtle)',
                         backgroundColor: isLow ? 'rgba(239, 68, 68, 0.04)' : 'transparent',
                         borderLeft: isLow ? '3px solid #ef4444' : '3px solid transparent',
                         transition: 'background-color 0.15s ease',
                       }}
-                      className="hover:bg-slate-800/30"
+                      className="hover:bg-[var(--admin-surface-hover)]"
                     >
                       {/* Date & Time */}
-                      <td style={{ padding: '12px 14px', fontSize: '13px', color: '#cbd5e1', whiteSpace: 'nowrap' }}>
-                        <div style={{ fontWeight: 600, color: '#f8fafc' }}>{dateStr}</div>
-                        <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      <td style={{ padding: '12px 14px', fontSize: '13px', color: 'var(--admin-text-secondary)', whiteSpace: 'nowrap' }}>
+                        <div style={{ fontWeight: 600, color: 'var(--admin-text-primary)' }}>{dateStr}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '3px' }}>
                           <Clock size={11} />
                           {timeStr}
                         </div>
                       </td>
 
                       {/* Customer */}
-                      <td style={{ padding: '12px 14px', fontSize: '13px', color: '#cbd5e1' }}>
+                      <td style={{ padding: '12px 14px', fontSize: '13px', color: 'var(--admin-text-secondary)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                           <div
                             style={{
@@ -805,13 +803,13 @@ export default function AdminRatingsPage() {
                             {customerInitials}
                           </div>
                           <div>
-                            <div style={{ fontWeight: 600, color: '#f8fafc' }}>{row.customer_name}</div>
+                            <div style={{ fontWeight: 600, color: 'var(--admin-text-primary)' }}>{row.customer_name}</div>
                           </div>
                         </div>
                       </td>
 
                       {/* Provider */}
-                      <td style={{ padding: '12px 14px', fontSize: '13px', fontWeight: 600, color: '#f8fafc' }}>
+                      <td style={{ padding: '12px 14px', fontSize: '13px', fontWeight: 600, color: 'var(--admin-text-primary)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <div
                             style={{
@@ -844,11 +842,11 @@ export default function AdminRatingsPage() {
                       </td>
 
                       {/* Customer Review / Comment */}
-                      <td style={{ padding: '12px 14px', fontSize: '13px', color: '#cbd5e1', maxWidth: '340px' }}>
+                      <td style={{ padding: '12px 14px', fontSize: '13px', color: 'var(--admin-text-secondary)', maxWidth: '340px' }}>
                         {row.review_text && row.review_text.trim() ? (
-                          <span style={{ color: '#e2e8f0', lineHeight: 1.4 }}>{row.review_text}</span>
+                          <span style={{ color: 'var(--admin-text-primary)', lineHeight: 1.4 }}>{row.review_text}</span>
                         ) : (
-                          <span style={{ fontStyle: 'italic', color: '#475569', fontSize: '12px' }}>No written review</span>
+                          <span style={{ fontStyle: 'italic', color: 'var(--admin-text-muted)', fontSize: '12px' }}>No written review</span>
                         )}
                       </td>
                     </tr>
@@ -868,16 +866,16 @@ export default function AdminRatingsPage() {
             alignItems: 'center',
             gap: '12px',
             padding: '12px 18px',
-            backgroundColor: '#0d131f',
-            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+            backgroundColor: 'var(--admin-card-bg)',
+            borderTop: '1px solid var(--admin-border)',
           }}
         >
-          <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 500 }}>
+          <span style={{ fontSize: '13px', color: 'var(--admin-text-muted)', fontWeight: 500 }}>
             {totalRecords > 0 ? (
               <>
-                Showing <strong style={{ color: '#f8fafc' }}>{startRecord}</strong> to{' '}
-                <strong style={{ color: '#f8fafc' }}>{endRecord}</strong> of{' '}
-                <strong style={{ color: '#f8fafc' }}>{totalRecords}</strong> results
+                Showing <strong style={{ color: 'var(--admin-text-primary)' }}>{startRecord}</strong> to{' '}
+                <strong style={{ color: 'var(--admin-text-primary)' }}>{endRecord}</strong> of{' '}
+                <strong style={{ color: 'var(--admin-text-primary)' }}>{totalRecords}</strong> results
               </>
             ) : (
               'Page 1 of 1'
@@ -894,9 +892,9 @@ export default function AdminRatingsPage() {
                 alignItems: 'center',
                 gap: '4px',
                 padding: '6px 14px',
-                backgroundColor: '#020617',
-                color: page <= 1 || loading ? '#64748b' : '#f8fafc',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
+                backgroundColor: 'var(--admin-surface-hover)',
+                color: page <= 1 || loading ? 'var(--admin-text-muted)' : 'var(--admin-text-primary)',
+                border: '1px solid var(--admin-border)',
                 borderRadius: '6px',
                 fontSize: '13px',
                 fontWeight: 600,
@@ -909,7 +907,7 @@ export default function AdminRatingsPage() {
               Previous
             </button>
 
-            <span style={{ fontSize: '12px', color: '#64748b', padding: '0 4px', fontWeight: 600 }}>
+            <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', padding: '0 4px', fontWeight: 600 }}>
               {page} / {totalPages}
             </span>
 
@@ -922,9 +920,9 @@ export default function AdminRatingsPage() {
                 alignItems: 'center',
                 gap: '4px',
                 padding: '6px 14px',
-                backgroundColor: '#020617',
-                color: page >= totalPages || loading ? '#64748b' : '#f8fafc',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
+                backgroundColor: 'var(--admin-surface-hover)',
+                color: page >= totalPages || loading ? 'var(--admin-text-muted)' : 'var(--admin-text-primary)',
+                border: '1px solid var(--admin-border)',
                 borderRadius: '6px',
                 fontSize: '13px',
                 fontWeight: 600,
@@ -951,9 +949,9 @@ function RatingsKpiSkeleton() {
           key={i}
           style={{
             padding: '14px 16px',
-            backgroundColor: '#090d16',
+            backgroundColor: 'var(--admin-card-bg)',
             borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            border: '1px solid var(--admin-border)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -963,12 +961,12 @@ function RatingsKpiSkeleton() {
           className="animate-pulse"
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ width: '80px', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }} />
+            <div style={{ width: '80px', height: '12px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-skeleton-bg)' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <div style={{ width: '100px', height: '22px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }} />
-            <div style={{ width: '70px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }} />
+            <div style={{ width: '100px', height: '22px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '70px', height: '10px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
           </div>
         </div>
       ))}

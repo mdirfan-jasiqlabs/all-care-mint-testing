@@ -3,8 +3,9 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import BrandLogo from '@/components/BrandLogo';
+import { AdminThemeProvider } from '../_components/AdminThemeContext';
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -106,7 +107,13 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen lg:h-screen lg:max-h-screen w-full max-w-full overflow-x-hidden lg:overflow-hidden bg-[#040810] text-slate-100 flex items-center justify-center p-3 sm:p-6 relative font-sans select-none">
+    <div
+      className="min-h-screen lg:h-screen lg:max-h-screen w-full max-w-full overflow-x-hidden lg:overflow-hidden flex items-center justify-center p-3 sm:p-6 relative font-sans select-none transition-colors duration-200"
+      style={{
+        backgroundColor: 'var(--admin-bg)',
+        color: 'var(--admin-text-primary)',
+      }}
+    >
       {/* Subtle Background Ambient Radial Glow */}
       <div 
         className="absolute inset-0 pointer-events-none"
@@ -124,15 +131,15 @@ export default function AdminLoginPage() {
 
       {/* RATE LIMIT LOCKOUT OVERLAY */}
       {showLockout && (
-        <div id="lockout-overlay" className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0a1120] border border-red-500/30 rounded-2xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl">
+        <div id="lockout-overlay" className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4" style={{ backgroundColor: 'var(--admin-modal-backdrop)' }}>
+          <div className="border border-red-500/30 rounded-2xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl" style={{ backgroundColor: 'var(--admin-modal-bg)' }}>
             <div className="w-14 h-14 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-3 border border-red-500/20">
               <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h2 className="text-lg font-bold text-white mb-2">IP Address Lockout Active</h2>
-            <p className="text-xs sm:text-sm text-slate-300 mb-5 leading-relaxed">
+            <h2 className="text-lg font-bold mb-2" style={{ color: 'var(--admin-text-primary)' }}>IP Address Lockout Active</h2>
+            <p className="text-xs sm:text-sm mb-5 leading-relaxed" style={{ color: 'var(--admin-text-secondary)' }}>
               Too many failed login attempts have been detected from your IP address. Please wait before retrying.
             </p>
             <button onClick={() => setShowLockout(false)} className="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs sm:text-sm font-semibold rounded-xl transition duration-200">
@@ -144,16 +151,16 @@ export default function AdminLoginPage() {
 
       {/* SYSTEM MAINTENANCE OVERLAY */}
       {showMaintenance && (
-        <div id="maintenance-overlay" className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0a1120] border border-amber-500/30 rounded-2xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl">
+        <div id="maintenance-overlay" className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4" style={{ backgroundColor: 'var(--admin-modal-backdrop)' }}>
+          <div className="border border-amber-500/30 rounded-2xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl" style={{ backgroundColor: 'var(--admin-modal-bg)' }}>
             <div className="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-3 border border-amber-500/20">
               <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
-            <h2 className="text-lg font-bold text-white mb-2">Console Under Maintenance</h2>
-            <p className="text-xs sm:text-sm text-slate-300 mb-5 leading-relaxed">
+            <h2 className="text-lg font-bold mb-2" style={{ color: 'var(--admin-text-primary)' }}>Console Under Maintenance</h2>
+            <p className="text-xs sm:text-sm mb-5 leading-relaxed" style={{ color: 'var(--admin-text-secondary)' }}>
               Admin Operations Console is temporarily offline for scheduled system upgrades. Please check back shortly.
             </p>
             <button onClick={() => setShowMaintenance(false)} className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white text-xs sm:text-sm font-semibold rounded-xl transition duration-200">
@@ -164,10 +171,22 @@ export default function AdminLoginPage() {
       )}
 
       {/* MAIN CONTAINER CARD (Strict 100vh on Desktop, Flexible on Mobile) */}
-      <div className="w-full max-w-[1220px] lg:h-full lg:max-h-[min(820px,calc(100vh-28px))] bg-[#060b15] border border-[#162234] rounded-2xl lg:rounded-[28px] overflow-hidden shadow-2xl shadow-black/90 grid grid-cols-1 lg:grid-cols-12 relative z-10 my-auto">
+      <div
+        className="w-full max-w-[1220px] lg:h-full lg:max-h-[min(820px,calc(100vh-28px))] border rounded-2xl lg:rounded-[28px] overflow-hidden shadow-2xl grid grid-cols-1 lg:grid-cols-12 relative z-10 my-auto transition-colors duration-200"
+        style={{
+          backgroundColor: 'var(--admin-card-bg)',
+          borderColor: 'var(--admin-border)',
+        }}
+      >
 
         {/* LEFT BRAND & SECURITY PANEL (Hidden on Mobile, Displayed on Desktop lg:flex lg:col-span-5) */}
-        <div className="hidden lg:flex lg:col-span-5 bg-[#050913] p-6 lg:p-8 xl:p-10 border-r border-[#141e2e] flex-col justify-between h-full overflow-hidden relative">
+        <div
+          className="hidden lg:flex lg:col-span-5 p-6 lg:p-8 xl:p-10 border-r flex-col justify-between h-full overflow-hidden relative transition-colors duration-200"
+          style={{
+            backgroundColor: 'var(--admin-bg-secondary)',
+            borderColor: 'var(--admin-border)',
+          }}
+        >
           
           {/* Top Header Block */}
           <div className="flex-shrink-0">
@@ -183,13 +202,13 @@ export default function AdminLoginPage() {
             </div>
 
             {/* Headline */}
-            <h1 className="text-2xl sm:text-3xl lg:text-[33px] xl:text-[35px] font-extrabold text-white leading-[1.16] tracking-tight mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-[33px] xl:text-[35px] font-extrabold leading-[1.16] tracking-tight mb-2" style={{ color: 'var(--admin-text-primary)' }}>
               Secure access to<br />
               your <span className="text-[#10b981]">dashboard</span>
             </h1>
 
             {/* Description */}
-            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-xs">
+            <p className="text-xs sm:text-sm leading-relaxed max-w-xs" style={{ color: 'var(--admin-text-secondary)' }}>
               Manage operations, users, services and system settings from one place.
             </p>
           </div>
@@ -204,21 +223,21 @@ export default function AdminLoginPage() {
 
               {/* Orbiting Badges */}
               {/* 1. Users Badge */}
-              <div className="absolute top-2 left-2 sm:left-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0c1626] border border-[#10b981]/35 flex items-center justify-center shadow-md shadow-black/50 text-[#10b981]">
+              <div className="absolute top-2 left-2 sm:left-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center shadow-md text-[#10b981]" style={{ backgroundColor: 'var(--admin-input-bg)', borderColor: 'var(--admin-border)' }}>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
 
               {/* 2. Analytics Badge */}
-              <div className="absolute top-2 right-2 sm:right-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0c1626] border border-[#10b981]/35 flex items-center justify-center shadow-md shadow-black/50 text-[#10b981]">
+              <div className="absolute top-2 right-2 sm:right-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center shadow-md text-[#10b981]" style={{ backgroundColor: 'var(--admin-input-bg)', borderColor: 'var(--admin-border)' }}>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
 
               {/* 3. Settings Badge */}
-              <div className="absolute bottom-4 right-2 sm:right-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0c1626] border border-[#10b981]/35 flex items-center justify-center shadow-md shadow-black/50 text-[#10b981]">
+              <div className="absolute bottom-4 right-2 sm:right-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center shadow-md text-[#10b981]" style={{ backgroundColor: 'var(--admin-input-bg)', borderColor: 'var(--admin-border)' }}>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 </svg>
@@ -269,48 +288,48 @@ export default function AdminLoginPage() {
           </div>
 
           {/* Bottom Security Benefits Row */}
-          <div className="pt-4 border-t border-[#141e2e] grid grid-cols-3 gap-2 text-left flex-shrink-0">
+          <div className="pt-4 border-t grid grid-cols-3 gap-2 text-left flex-shrink-0" style={{ borderColor: 'var(--admin-border)' }}>
             {/* Benefit 1 */}
             <div className="pr-1.5">
-              <div className="flex items-center gap-1.5 text-white font-semibold text-xs mb-0.5">
+              <div className="flex items-center gap-1.5 font-semibold text-xs mb-0.5" style={{ color: 'var(--admin-text-primary)' }}>
                 <svg className="w-3.5 h-3.5 text-[#10b981] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
                 <span>Secure</span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-slate-300 leading-tight">End-to-end protection</p>
+              <p className="text-[10px] sm:text-[11px] leading-tight" style={{ color: 'var(--admin-text-secondary)' }}>End-to-end protection</p>
             </div>
 
             {/* Benefit 2 */}
-            <div className="px-1.5 border-l border-[#141e2e]">
-              <div className="flex items-center gap-1.5 text-white font-semibold text-xs mb-0.5">
+            <div className="px-1.5 border-l" style={{ borderColor: 'var(--admin-border)' }}>
+              <div className="flex items-center gap-1.5 font-semibold text-xs mb-0.5" style={{ color: 'var(--admin-text-primary)' }}>
                 <svg className="w-3.5 h-3.5 text-[#10b981] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Reliable</span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-slate-300 leading-tight">99.9% system uptime</p>
+              <p className="text-[10px] sm:text-[11px] leading-tight" style={{ color: 'var(--admin-text-secondary)' }}>99.9% system uptime</p>
             </div>
 
             {/* Benefit 3 */}
-            <div className="pl-1.5 border-l border-[#141e2e]">
-              <div className="flex items-center gap-1.5 text-white font-semibold text-xs mb-0.5">
+            <div className="pl-1.5 border-l" style={{ borderColor: 'var(--admin-border)' }}>
+              <div className="flex items-center gap-1.5 font-semibold text-xs mb-0.5" style={{ color: 'var(--admin-text-primary)' }}>
                 <svg className="w-3.5 h-3.5 text-[#10b981] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Trusted</span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-slate-300 leading-tight">Data privacy first</p>
+              <p className="text-[10px] sm:text-[11px] leading-tight" style={{ color: 'var(--admin-text-secondary)' }}>Data privacy first</p>
             </div>
           </div>
 
         </div>
 
         {/* RIGHT LOGIN FORM PANEL (Full Width Mobile, 58.33% Width Desktop: lg:col-span-7) */}
-        <div className="col-span-1 lg:col-span-7 bg-[#060b15] p-5 sm:p-8 lg:p-10 xl:p-12 flex flex-col justify-between h-full overflow-y-auto lg:overflow-hidden">
+        <div className="col-span-1 lg:col-span-7 p-5 sm:p-8 lg:p-10 xl:p-12 flex flex-col justify-between h-full overflow-y-auto lg:overflow-hidden" style={{ backgroundColor: 'var(--admin-surface)' }}>
           
           {/* Top Mobile Branding (Shown ONLY on mobile < lg) */}
-          <div className="lg:hidden flex items-center justify-between pb-4 mb-4 border-b border-[#141e2e]">
+          <div className="lg:hidden flex items-center justify-between pb-4 mb-4 border-b" style={{ borderColor: 'var(--admin-border)' }}>
             <BrandLogo size="sm" href={null} priority alt="All care mint" />
             <div className="flex items-center gap-1.5">
               <span className="w-3 h-[2px] bg-[#10b981] rounded-full inline-block"></span>
@@ -322,7 +341,7 @@ export default function AdminLoginPage() {
           <div className="flex-1 flex flex-col justify-center">
             {/* Top Right SECURE CONSOLE Badge */}
             <div className="flex justify-between lg:justify-end items-center mb-5 lg:mb-8">
-              <span className="lg:hidden text-xs text-slate-400 font-medium">Secured Console</span>
+              <span className="lg:hidden text-xs font-medium" style={{ color: 'var(--admin-text-muted)' }}>Secured Console</span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider text-[#10b981] bg-[#042d27] border border-[#0fa976]/35 uppercase">
                 <svg className="w-3 h-3 text-[#10b981]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <rect x="5" y="11" width="14" height="10" rx="2" />
@@ -334,8 +353,8 @@ export default function AdminLoginPage() {
 
             {/* Title & Subtitle */}
             <div className="mb-5 lg:mb-8">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1">Sign In</h2>
-              <p className="text-slate-300 text-xs sm:text-sm">Access your administrative management dashboard</p>
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-1" style={{ color: 'var(--admin-text-primary)' }}>Sign In</h2>
+              <p className="text-xs sm:text-sm" style={{ color: 'var(--admin-text-secondary)' }}>Access your administrative management dashboard</p>
             </div>
 
             {/* ERROR ALERT BANNER */}
@@ -368,7 +387,7 @@ export default function AdminLoginPage() {
               
               {/* EMAIL FIELD */}
               <div>
-                <label htmlFor="email-input" className="block text-xs sm:text-sm font-semibold text-slate-200 mb-1.5">
+                <label htmlFor="email-input" className="block text-xs sm:text-sm font-semibold mb-1.5" style={{ color: 'var(--admin-text-primary)' }}>
                   Email Address
                 </label>
                 <div className="relative">
@@ -381,7 +400,14 @@ export default function AdminLoginPage() {
                     id="email-input"
                     type="email"
                     autoComplete="email"
-                    className="w-full pl-10 pr-4 py-3 bg-[#0c1425] border border-[#1e2d42] rounded-xl text-white text-base sm:text-sm placeholder-slate-500 focus:outline-none focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] transition duration-200 disabled:opacity-50"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl text-base sm:text-sm focus:outline-none focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] transition duration-200 disabled:opacity-50"
+                    style={{
+                      backgroundColor: 'var(--admin-input-bg)',
+                      borderColor: 'var(--admin-input-border)',
+                      color: 'var(--admin-text-primary)',
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                    }}
                     placeholder="admin@allcaremint.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -394,7 +420,7 @@ export default function AdminLoginPage() {
               {/* PASSWORD FIELD */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label htmlFor="password-input" className="block text-xs sm:text-sm font-semibold text-slate-200">
+                  <label htmlFor="password-input" className="block text-xs sm:text-sm font-semibold" style={{ color: 'var(--admin-text-primary)' }}>
                     Password
                   </label>
                   <a href="#" className="text-xs font-semibold text-[#10b981] hover:text-[#34d399] transition duration-150">
@@ -412,7 +438,14 @@ export default function AdminLoginPage() {
                     id="password-input"
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="current-password"
-                    className="w-full pl-10 pr-10 py-3 bg-[#0c1425] border border-[#1e2d42] rounded-xl text-white text-base sm:text-sm placeholder-slate-500 focus:outline-none focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] transition duration-200 disabled:opacity-50"
+                    className="w-full pl-10 pr-10 py-3 rounded-xl text-base sm:text-sm focus:outline-none focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] transition duration-200 disabled:opacity-50"
+                    style={{
+                      backgroundColor: 'var(--admin-input-bg)',
+                      borderColor: 'var(--admin-input-border)',
+                      color: 'var(--admin-text-primary)',
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                    }}
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -446,8 +479,8 @@ export default function AdminLoginPage() {
                   <div className={`w-[18px] h-[18px] rounded-[5px] border-2 transition-all duration-200 flex items-center justify-center flex-shrink-0 ${
                     rememberMe 
                       ? 'bg-[#10b981] border-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.4)]' 
-                      : 'bg-[#060b15] border-[#10b981] group-hover:border-[#34d399] group-hover:shadow-[0_0_6px_rgba(16,185,129,0.25)]'
-                  }`}>
+                      : 'border-[#10b981] group-hover:border-[#34d399] group-hover:shadow-[0_0_6px_rgba(16,185,129,0.25)]'
+                  }`} style={{ backgroundColor: rememberMe ? '#10b981' : 'var(--admin-input-bg)' }}>
                     <input
                       id="remember-me"
                       type="checkbox"
@@ -461,7 +494,7 @@ export default function AdminLoginPage() {
                       </svg>
                     )}
                   </div>
-                  <span className="text-xs sm:text-sm font-medium text-slate-200 group-hover:text-white transition-colors duration-150">
+                  <span className="text-xs sm:text-sm font-medium transition-colors duration-150" style={{ color: 'var(--admin-text-primary)' }}>
                     Remember me
                   </span>
                 </label>
@@ -493,7 +526,7 @@ export default function AdminLoginPage() {
           </div>
 
           {/* FOOTER RATE LIMIT INDICATOR (No Encryption Label as per requirement #14) */}
-          <div className="flex justify-end items-center gap-1.5 pt-4 mt-4 border-t border-[#141e2e] text-xs text-slate-400 flex-shrink-0">
+          <div className="flex justify-end items-center gap-1.5 pt-4 mt-4 border-t text-xs flex-shrink-0" style={{ borderColor: 'var(--admin-border)', color: 'var(--admin-text-muted)' }}>
             <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -504,6 +537,14 @@ export default function AdminLoginPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <AdminThemeProvider>
+      <AdminLoginForm />
+    </AdminThemeProvider>
   );
 }
 

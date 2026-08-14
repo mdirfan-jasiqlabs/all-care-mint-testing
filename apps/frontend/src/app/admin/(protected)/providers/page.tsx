@@ -166,8 +166,8 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
         <div
           key={idx}
           style={{
-            backgroundColor: '#090d16',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            backgroundColor: 'var(--admin-card-bg)',
+            border: '1px solid var(--admin-border)',
             borderRadius: '12px',
             padding: '12px 14px',
             display: 'flex',
@@ -195,7 +195,7 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
             >
               {card.icon}
             </div>
-            <div style={{ fontSize: '24px', fontWeight: 800, color: '#f8fafc', lineHeight: 1 }}>
+            <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--admin-text-primary)', lineHeight: 1 }}>
               {card.value}
             </div>
           </div>
@@ -206,7 +206,7 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
               style={{
                 fontSize: '12px',
                 fontWeight: 700,
-                color: '#e2e8f0',
+                color: 'var(--admin-text-primary)',
                 lineHeight: 1.25,
                 wordBreak: 'break-word',
               }}
@@ -216,7 +216,7 @@ const KpiCardsGrid = React.memo(function KpiCardsGrid({ kpiCounts, loading }: { 
             <div
               style={{
                 fontSize: '10px',
-                color: '#64748b',
+                color: 'var(--admin-text-muted)',
                 marginTop: '3px',
                 lineHeight: 1.2,
                 wordBreak: 'break-word',
@@ -261,12 +261,12 @@ const ProviderTableRow = React.memo(function ProviderTableRow({
         }
       }}
       style={{
-        borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+        borderBottom: '1px solid var(--admin-border-subtle)',
         cursor: 'pointer',
         transition: 'background-color 0.12s ease',
         outline: 'none',
       }}
-      className="hover:bg-[rgba(255,255,255,0.02)]"
+      className="hover:bg-[var(--admin-surface-hover)]"
     >
       {/* Provider Name + Avatar */}
       <td style={{ padding: '10px 12px' }}>
@@ -292,7 +292,7 @@ const ProviderTableRow = React.memo(function ProviderTableRow({
           <span
             style={{
               fontWeight: 700,
-              color: '#f8fafc',
+              color: 'var(--admin-text-primary)',
               fontSize: '12px',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -307,12 +307,12 @@ const ProviderTableRow = React.memo(function ProviderTableRow({
       </td>
 
       {/* Mobile Number */}
-      <td style={{ padding: '10px 12px', color: '#cbd5e1', fontSize: '12px', whiteSpace: 'nowrap' }}>
+      <td style={{ padding: '10px 12px', color: 'var(--admin-text-secondary)', fontSize: '12px', whiteSpace: 'nowrap' }}>
         {provider.mobileNumber}
       </td>
 
       {/* Service Categories */}
-      <td style={{ padding: '10px 12px', color: '#94a3b8', fontSize: '12px' }}>
+      <td style={{ padding: '10px 12px', color: 'var(--admin-text-muted)', fontSize: '12px' }}>
         <span
           style={{
             display: 'block',
@@ -642,7 +642,7 @@ function ProvidersPageContent() {
   };
 
   return (
-    <div style={{ maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', color: '#ffffff' }}>
+    <div style={{ maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', color: 'var(--admin-text-primary)' }}>
       {/* 1. PAGE HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -668,10 +668,10 @@ function ProvidersPageContent() {
             </svg>
           </div>
           <div>
-            <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
+            <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em', margin: 0 }}>
               Service Providers Directory
             </h1>
-            <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px', margin: 0, fontWeight: 400, lineHeight: 1.4 }}>
+            <p style={{ fontSize: '13px', color: 'var(--admin-text-secondary)', marginTop: '2px', margin: 0, fontWeight: 400, lineHeight: 1.4 }}>
               Onboard new service leads, manage approval/suspension status, and define skill capability mappings.
             </p>
           </div>
@@ -710,7 +710,7 @@ function ProvidersPageContent() {
         style={{
           display: 'flex',
           gap: '24px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          borderBottom: '1px solid var(--admin-border)',
           paddingBottom: '2px',
           overflowX: 'auto',
         }}
@@ -723,7 +723,7 @@ function ProvidersPageContent() {
             fontSize: '13px',
             fontWeight: 700,
             textDecoration: 'none',
-            color: '#f8fafc',
+            color: '#10b981',
             borderBottom: '2px solid #10b981',
             display: 'inline-block',
             whiteSpace: 'nowrap',
@@ -738,13 +738,12 @@ function ProvidersPageContent() {
             fontSize: '13px',
             fontWeight: 500,
             textDecoration: 'none',
-            color: '#94a3b8',
+            color: 'var(--admin-text-secondary)',
             borderBottom: '2px solid transparent',
             display: 'inline-block',
             transition: 'color 0.15s',
             whiteSpace: 'nowrap',
           }}
-          className="hover:text-slate-200"
         >
           Provider Application Leads
         </Link>
@@ -756,18 +755,18 @@ function ProvidersPageContent() {
       {/* 4. MAIN DIRECTORY TABLE CARD */}
       <div
         style={{
-          backgroundColor: '#090d16',
+          backgroundColor: 'var(--admin-card-bg)',
           borderRadius: '12px',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: '1px solid var(--admin-border)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
         }}
       >
         {/* Search & Filter Toolbar Header */}
-        <div className="p-3.5 sm:p-4 border-b border-white/[0.08] flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full">
+        <div className="p-3.5 sm:p-4 border-b flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full" style={{ borderColor: 'var(--admin-border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-            <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0, whiteSpace: 'nowrap' }}>
+            <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--admin-text-primary)', margin: 0, whiteSpace: 'nowrap' }}>
               Registered Directory
             </h2>
             <span
@@ -794,7 +793,7 @@ function ProvidersPageContent() {
                 height="14"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#64748b"
+                stroke="var(--admin-text-muted)"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -810,11 +809,11 @@ function ProvidersPageContent() {
                 onChange={(e) => setSearch(e.target.value)}
                 style={{
                   width: '100%',
-                  backgroundColor: '#090d16',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  backgroundColor: 'var(--admin-input-bg)',
+                  border: '1px solid var(--admin-input-border)',
                   borderRadius: '8px',
                   padding: '7px 28px 7px 32px',
-                  color: '#f8fafc',
+                  color: 'var(--admin-text-primary)',
                   fontSize: '12px',
                   outline: 'none',
                   boxSizing: 'border-box',
@@ -831,7 +830,7 @@ function ProvidersPageContent() {
                     transform: 'translateY(-50%)',
                     background: 'none',
                     border: 'none',
-                    color: '#64748b',
+                    color: 'var(--admin-text-muted)',
                     cursor: 'pointer',
                   }}
                 >
@@ -859,8 +858,8 @@ function ProvidersPageContent() {
                     }}
                     style={{
                       backgroundColor: isActive ? 'rgba(16, 185, 129, 0.14)' : 'transparent',
-                      border: isActive ? '1px solid #10b981' : '1px solid rgba(255, 255, 255, 0.08)',
-                      color: isActive ? '#10b981' : '#94a3b8',
+                      border: isActive ? '1px solid #10b981' : '1px solid var(--admin-border)',
+                      color: isActive ? '#10b981' : 'var(--admin-text-secondary)',
                       borderRadius: '6px',
                       padding: '5px 10px',
                       fontSize: '11px',
@@ -909,9 +908,9 @@ function ProvidersPageContent() {
                 <thead>
                   <tr
                     style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                      color: '#64748b',
+                      backgroundColor: 'var(--admin-table-header-bg)',
+                      borderBottom: '1px solid var(--admin-border)',
+                      color: 'var(--admin-text-muted)',
                       fontSize: '10px',
                       fontWeight: 700,
                       textTransform: 'uppercase',
@@ -928,8 +927,8 @@ function ProvidersPageContent() {
                 <tbody>
                   {providers.length === 0 ? (
                     <tr>
-                      <td colSpan={5} style={{ padding: '36px 12px', textAlign: 'center', color: '#64748b' }}>
-                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8', marginBottom: '2px' }}>
+                      <td colSpan={5} style={{ padding: '36px 12px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--admin-text-secondary)', marginBottom: '2px' }}>
                           No providers found
                         </div>
                         <div style={{ fontSize: '12px' }}>
@@ -954,16 +953,16 @@ function ProvidersPageContent() {
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: '12px 16px',
-                  borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.01)',
+                  borderTop: '1px solid var(--admin-border)',
+                  backgroundColor: 'var(--admin-card-bg)',
                   flexWrap: 'wrap',
                   gap: '8px',
                 }}
               >
-                <span style={{ fontSize: '12px', color: '#64748b' }}>
-                  Showing <strong style={{ color: '#f8fafc' }}>{(page - 1) * limit + 1}</strong> to{' '}
-                  <strong style={{ color: '#f8fafc' }}>{Math.min(page * limit, total)}</strong> of{' '}
-                  <strong style={{ color: '#f8fafc' }}>{total}</strong> providers
+                <span style={{ fontSize: '12px', color: 'var(--admin-text-muted)' }}>
+                  Showing <strong style={{ color: 'var(--admin-text-primary)' }}>{(page - 1) * limit + 1}</strong> to{' '}
+                  <strong style={{ color: 'var(--admin-text-primary)' }}>{Math.min(page * limit, total)}</strong> of{' '}
+                  <strong style={{ color: 'var(--admin-text-primary)' }}>{total}</strong> providers
                 </span>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -974,9 +973,9 @@ function ProvidersPageContent() {
                     style={{
                       padding: '4px 8px',
                       borderRadius: '6px',
-                      backgroundColor: '#090d16',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: page === 1 ? '#475569' : '#f8fafc',
+                      backgroundColor: 'var(--admin-surface-hover)',
+                      border: '1px solid var(--admin-border)',
+                      color: page === 1 ? 'var(--admin-text-muted)' : 'var(--admin-text-primary)',
                       cursor: page === 1 ? 'not-allowed' : 'pointer',
                       fontSize: '12px',
                     }}
@@ -988,7 +987,7 @@ function ProvidersPageContent() {
                   {getPageNumbers().map((num, idx) => {
                     if (num === '...') {
                       return (
-                        <span key={`dots-${idx}`} style={{ color: '#475569', padding: '0 4px', fontSize: '12px' }}>
+                        <span key={`dots-${idx}`} style={{ color: 'var(--admin-text-muted)', padding: '0 4px', fontSize: '12px' }}>
                           ...
                         </span>
                       );
@@ -1003,9 +1002,9 @@ function ProvidersPageContent() {
                           height: '28px',
                           padding: '0 6px',
                           borderRadius: '6px',
-                          backgroundColor: isCurrent ? 'rgba(16, 185, 129, 0.14)' : '#090d16',
-                          border: isCurrent ? '1px solid #10b981' : '1px solid rgba(255, 255, 255, 0.08)',
-                          color: isCurrent ? '#10b981' : '#94a3b8',
+                          backgroundColor: isCurrent ? 'rgba(16, 185, 129, 0.14)' : 'var(--admin-surface-hover)',
+                          border: isCurrent ? '1px solid #10b981' : '1px solid var(--admin-border)',
+                          color: isCurrent ? '#10b981' : 'var(--admin-text-secondary)',
                           fontWeight: isCurrent ? 700 : 500,
                           cursor: 'pointer',
                           fontSize: '11px',
@@ -1024,9 +1023,9 @@ function ProvidersPageContent() {
                     style={{
                       padding: '4px 8px',
                       borderRadius: '6px',
-                      backgroundColor: '#090d16',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: page >= totalPages ? '#475569' : '#f8fafc',
+                      backgroundColor: 'var(--admin-surface-hover)',
+                      border: '1px solid var(--admin-border)',
+                      color: page >= totalPages ? 'var(--admin-text-muted)' : 'var(--admin-text-primary)',
                       cursor: page >= totalPages ? 'not-allowed' : 'pointer',
                       fontSize: '12px',
                     }}
@@ -1049,7 +1048,7 @@ function ProvidersPageContent() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            backgroundColor: 'var(--admin-modal-backdrop)',
             backdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
@@ -1060,19 +1059,19 @@ function ProvidersPageContent() {
         >
           <div
             style={{
-              backgroundColor: '#090d16',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              backgroundColor: 'var(--admin-modal-bg)',
+              border: '1px solid var(--admin-border)',
               borderRadius: '16px',
               padding: '28px 24px',
               width: '100%',
               maxWidth: '480px',
               maxHeight: 'calc(100vh - 40px)',
               overflowY: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--admin-text-primary)', margin: 0 }}>
                 Onboard Service Provider
               </h2>
               <button
@@ -1080,7 +1079,7 @@ function ProvidersPageContent() {
                 style={{
                   backgroundColor: 'transparent',
                   border: 'none',
-                  color: '#64748b',
+                  color: 'var(--admin-text-muted)',
                   fontSize: '20px',
                   cursor: 'pointer',
                   padding: '4px',
@@ -1089,13 +1088,13 @@ function ProvidersPageContent() {
                 ✕
               </button>
             </div>
-            <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '24px', marginTop: 0 }}>
+            <p style={{ fontSize: '13px', color: 'var(--admin-text-secondary)', marginBottom: '24px', marginTop: 0 }}>
               Create a new provider profile. The initial status will be set to PENDING REVIEW.
             </p>
 
             <form onSubmit={handleAddProviderSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--admin-text-muted)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                   Full Name *
                 </label>
                 <input
@@ -1106,22 +1105,22 @@ function ProvidersPageContent() {
                   onChange={(e) => setFullName(e.target.value)}
                   style={{
                     width: '100%',
-                    backgroundColor: '#090d16',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    backgroundColor: 'var(--admin-input-bg)',
+                    border: '1px solid var(--admin-input-border)',
                     borderRadius: '8px',
                     padding: '10px 12px',
-                    color: '#ffffff',
+                    color: 'var(--admin-text-primary)',
                     fontSize: '13px',
                     outline: 'none',
                     boxSizing: 'border-box',
                   }}
                   onFocus={(e) => (e.currentTarget.style.borderColor = '#10b981')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--admin-input-border)')}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--admin-text-muted)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                   Mobile Number (Indian format) *
                 </label>
                 <input
@@ -1133,22 +1132,22 @@ function ProvidersPageContent() {
                   onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ''))}
                   style={{
                     width: '100%',
-                    backgroundColor: '#090d16',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    backgroundColor: 'var(--admin-input-bg)',
+                    border: '1px solid var(--admin-input-border)',
                     borderRadius: '8px',
                     padding: '10px 12px',
-                    color: '#ffffff',
+                    color: 'var(--admin-text-primary)',
                     fontSize: '13px',
                     outline: 'none',
                     boxSizing: 'border-box',
                   }}
                   onFocus={(e) => (e.currentTarget.style.borderColor = '#10b981')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--admin-input-border)')}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--admin-text-muted)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                   Primary Service Area *
                 </label>
                 <input
@@ -1159,30 +1158,30 @@ function ProvidersPageContent() {
                   onChange={(e) => setServiceArea(e.target.value)}
                   style={{
                     width: '100%',
-                    backgroundColor: '#090d16',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    backgroundColor: 'var(--admin-input-bg)',
+                    border: '1px solid var(--admin-input-border)',
                     borderRadius: '8px',
                     padding: '10px 12px',
-                    color: '#ffffff',
+                    color: 'var(--admin-text-primary)',
                     fontSize: '13px',
                     outline: 'none',
                     boxSizing: 'border-box',
                   }}
                   onFocus={(e) => (e.currentTarget.style.borderColor = '#10b981')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--admin-input-border)')}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--admin-text-muted)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                   Service Category Assignments *
                 </label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '140px', overflowY: 'auto', backgroundColor: '#090d16', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '140px', overflowY: 'auto', backgroundColor: 'var(--admin-input-bg)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--admin-input-border)' }}>
                   {availableCategories.length === 0 ? (
-                    <span style={{ fontSize: '12px', color: '#64748b' }}>No categories available</span>
+                    <span style={{ fontSize: '12px', color: 'var(--admin-text-muted)' }}>No categories available</span>
                   ) : (
                     availableCategories.map((cat) => (
-                      <label key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#ffffff', cursor: 'pointer' }}>
+                      <label key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--admin-text-primary)', cursor: 'pointer' }}>
                         <input
                           type="checkbox"
                           value={cat.id}
@@ -1209,10 +1208,10 @@ function ProvidersPageContent() {
                   style={{
                     flex: 1,
                     backgroundColor: 'transparent',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    border: '1px solid var(--admin-border)',
                     borderRadius: '8px',
                     padding: '10px',
-                    color: '#94a3b8',
+                    color: 'var(--admin-text-secondary)',
                     fontWeight: 600,
                     fontSize: '13px',
                     cursor: 'pointer',
@@ -1268,8 +1267,8 @@ function ProvidersKpiSkeleton() {
         <div
           key={i}
           style={{
-            backgroundColor: '#090d16',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            backgroundColor: 'var(--admin-card-bg)',
+            border: '1px solid var(--admin-border)',
             borderRadius: '12px',
             padding: '12px 14px',
             minHeight: '104px',
@@ -1282,12 +1281,12 @@ function ProvidersKpiSkeleton() {
           className="animate-pulse"
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(255, 255, 255, 0.08)', flexShrink: 0 }} />
-            <div style={{ width: '40px', height: '24px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }} />
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'var(--admin-skeleton-bg)', flexShrink: 0 }} />
+            <div style={{ width: '40px', height: '24px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '100%' }}>
-            <div style={{ width: '90px', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
-            <div style={{ width: '70px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }} />
+            <div style={{ width: '90px', height: '12px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '70px', height: '10px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
           </div>
         </div>
       ))}

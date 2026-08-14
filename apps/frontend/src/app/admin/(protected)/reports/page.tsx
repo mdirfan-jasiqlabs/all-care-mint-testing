@@ -389,7 +389,7 @@ export default function AdminReportsPage() {
   const endRecord = Math.min(startRecord + processedData.length - 1, totalRecords || processedData.length);
 
   return (
-    <div className="flex flex-col gap-5 text-slate-100 w-full pb-8">
+    <div className="flex flex-col gap-5 w-full pb-8" style={{ color: 'var(--admin-text-primary)' }}>
       {/* 1. Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -410,10 +410,10 @@ export default function AdminReportsPage() {
             <ChartNoAxesCombined size={20} />
           </div>
           <div>
-            <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', margin: 0, letterSpacing: '-0.02em' }}>
+            <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', margin: 0, letterSpacing: '-0.02em' }}>
               Operational Analytics & Reports
             </h1>
-            <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px', margin: 0 }}>
+            <p style={{ fontSize: '13px', color: 'var(--admin-text-secondary)', marginTop: '2px', margin: 0 }}>
               Generate revenue reports, booking ledgers, and download CSV exports for operator auditing.
             </p>
           </div>
@@ -429,8 +429,8 @@ export default function AdminReportsPage() {
             justifyContent: 'center',
             gap: '8px',
             padding: '10px 18px',
-            backgroundColor: loading || !!errorMsg ? '#334155' : '#10b981',
-            color: '#020617',
+            backgroundColor: loading || !!errorMsg ? 'var(--admin-surface-hover)' : '#10b981',
+            color: loading || !!errorMsg ? 'var(--admin-text-muted)' : '#020617',
             fontWeight: 700,
             fontSize: '13px',
             borderRadius: '8px',
@@ -455,15 +455,15 @@ export default function AdminReportsPage() {
           flexWrap: 'wrap',
           gap: '14px',
           padding: '16px 18px',
-          backgroundColor: '#090d16',
+          backgroundColor: 'var(--admin-card-bg)',
           borderRadius: '12px',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: '1px solid var(--admin-border)',
           alignItems: 'flex-end',
         }}
       >
         {/* Report Type Select */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '2 1 220px', minWidth: '200px' }}>
-          <label style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <label style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
             <FileChartColumn size={12} color="#10b981" />
             Report Type
           </label>
@@ -475,9 +475,9 @@ export default function AdminReportsPage() {
             }}
             style={{
               padding: '8px 12px',
-              backgroundColor: '#020617',
-              color: '#f8fafc',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: 'var(--admin-input-bg)',
+              color: 'var(--admin-text-primary)',
+              border: '1px solid var(--admin-input-border)',
               borderRadius: '8px',
               fontSize: '13px',
               height: '40px',
@@ -485,14 +485,14 @@ export default function AdminReportsPage() {
               cursor: 'pointer',
             }}
           >
-            <option value="revenue">Revenue & Settlements Report</option>
-            <option value="booking">Bookings Ledger Report</option>
+            <option value="revenue" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>Revenue & Settlements Report</option>
+            <option value="booking" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>Bookings Ledger Report</option>
           </select>
         </div>
 
         {/* Start Date */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 150px', minWidth: '130px' }}>
-          <label style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <label style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
             <CalendarDays size={12} color="#10b981" />
             Start Date
           </label>
@@ -505,13 +505,12 @@ export default function AdminReportsPage() {
             }}
             style={{
               padding: '7px 10px',
-              backgroundColor: '#020617',
-              color: '#f8fafc',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: 'var(--admin-input-bg)',
+              color: 'var(--admin-text-primary)',
+              border: '1px solid var(--admin-input-border)',
               borderRadius: '8px',
               fontSize: '13px',
               height: '40px',
-              colorScheme: 'dark',
               outline: 'none',
             }}
           />
@@ -520,11 +519,11 @@ export default function AdminReportsPage() {
         {/* End Date */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 170px', minWidth: '150px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <label style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <label style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
               <CalendarDays size={12} color="#10b981" />
               End Date
             </label>
-            <span style={{ fontSize: '10px', color: '#64748b' }}>(Max 90 days)</span>
+            <span style={{ fontSize: '10px', color: 'var(--admin-text-muted)' }}>(Max 90 days)</span>
           </div>
           <input
             type="date"
@@ -535,13 +534,12 @@ export default function AdminReportsPage() {
             }}
             style={{
               padding: '7px 10px',
-              backgroundColor: '#020617',
-              color: '#f8fafc',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: 'var(--admin-input-bg)',
+              color: 'var(--admin-text-primary)',
+              border: '1px solid var(--admin-input-border)',
               borderRadius: '8px',
               fontSize: '13px',
               height: '40px',
-              colorScheme: 'dark',
               outline: 'none',
             }}
           />
@@ -556,9 +554,9 @@ export default function AdminReportsPage() {
             justifyContent: 'center',
             gap: '6px',
             padding: '8px 14px',
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
-            color: '#f8fafc',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
+            backgroundColor: 'var(--admin-surface-hover)',
+            color: 'var(--admin-text-primary)',
+            border: '1px solid var(--admin-border)',
             borderRadius: '8px',
             fontSize: '13px',
             fontWeight: 600,
@@ -602,9 +600,9 @@ export default function AdminReportsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -613,16 +611,16 @@ export default function AdminReportsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Reports</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Reports</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
                 <Files size={15} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em' }}>
                 {kpiMetrics.totalReports.toLocaleString()}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 In Selected Range
               </div>
             </div>
@@ -632,9 +630,9 @@ export default function AdminReportsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -643,7 +641,7 @@ export default function AdminReportsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Revenue</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Revenue</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
                 <IndianRupee size={15} />
               </div>
@@ -652,7 +650,7 @@ export default function AdminReportsPage() {
               <div style={{ fontSize: '22px', fontWeight: 800, color: '#10b981', letterSpacing: '-0.02em' }} className="truncate font-mono">
                 {inrFormatter.format(kpiMetrics.totalRevenue)}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 In Selected Range
               </div>
             </div>
@@ -662,9 +660,9 @@ export default function AdminReportsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -673,16 +671,16 @@ export default function AdminReportsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Bookings</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Bookings</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
                 <CalendarCheck2 size={15} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em' }}>
                 {kpiMetrics.totalBookings.toLocaleString()}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 In Selected Range
               </div>
             </div>
@@ -692,9 +690,9 @@ export default function AdminReportsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -703,16 +701,16 @@ export default function AdminReportsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Avg. Order Value</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Avg. Order Value</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24' }}>
                 <WalletCards size={15} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }} className="truncate font-mono">
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em' }} className="truncate font-mono">
                 {inrFormatter.format(kpiMetrics.avgOrderValue)}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 In Selected Range
               </div>
             </div>
@@ -722,9 +720,9 @@ export default function AdminReportsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -733,7 +731,7 @@ export default function AdminReportsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Completed Bookings</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Completed Bookings</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(20, 184, 166, 0.12)', border: '1px solid rgba(20, 184, 166, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2dd4bf' }}>
                 <BadgeCheck size={15} />
               </div>
@@ -742,7 +740,7 @@ export default function AdminReportsPage() {
               <div style={{ fontSize: '22px', fontWeight: 800, color: '#2dd4bf', letterSpacing: '-0.02em' }}>
                 {kpiMetrics.completedBookings}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 {`${kpiMetrics.successRate.toFixed(1)}% Success Rate`}
               </div>
             </div>
@@ -754,9 +752,9 @@ export default function AdminReportsPage() {
       <div
         style={{
           padding: '18px',
-          backgroundColor: '#090d16',
+          backgroundColor: 'var(--admin-card-bg)',
           borderRadius: '12px',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: '1px solid var(--admin-border)',
           display: 'flex',
           flexDirection: 'column',
           gap: '14px',
@@ -765,7 +763,7 @@ export default function AdminReportsPage() {
         {/* Ledger Header & Search */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#f8fafc', margin: 0 }}>Report Results</h2>
+            <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--admin-text-primary)', margin: 0 }}>Report Results</h2>
             <span
               style={{
                 padding: '2px 8px',
@@ -782,7 +780,7 @@ export default function AdminReportsPage() {
           </div>
 
           <div className="relative w-full sm:w-72">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--admin-text-muted)' }} />
             <input
               type="text"
               placeholder="Search by Booking ID, Customer, or Service..."
@@ -791,9 +789,9 @@ export default function AdminReportsPage() {
               style={{
                 width: '100%',
                 padding: '7px 12px 7px 32px',
-                backgroundColor: '#020617',
-                color: '#f8fafc',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
+                backgroundColor: 'var(--admin-input-bg)',
+                color: 'var(--admin-text-primary)',
+                border: '1px solid var(--admin-input-border)',
                 borderRadius: '8px',
                 fontSize: '12px',
                 outline: 'none',
@@ -807,11 +805,11 @@ export default function AdminReportsPage() {
           <ReportsTableSkeleton />
         ) : processedData.length === 0 ? (
           <div style={{ padding: '36px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--admin-surface-hover)', border: '1px solid var(--admin-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
               <FileSearch size={20} />
             </div>
-            <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0 }}>No report data found</h3>
-            <p style={{ fontSize: '12px', color: '#64748b', margin: 0, maxWidth: '360px' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--admin-text-primary)', margin: 0 }}>No report data found</h3>
+            <p style={{ fontSize: '12px', color: 'var(--admin-text-muted)', margin: 0, maxWidth: '360px' }}>
               Try adjusting the selected report type, search query, or date range ({dateFrom} to {dateTo}).
             </p>
             <button
@@ -821,9 +819,9 @@ export default function AdminReportsPage() {
                 borderRadius: '6px',
                 fontSize: '12px',
                 fontWeight: 600,
-                backgroundColor: 'rgba(255, 255, 255, 0.06)',
-                color: '#f8fafc',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
+                backgroundColor: 'var(--admin-surface-hover)',
+                color: 'var(--admin-text-primary)',
+                border: '1px solid var(--admin-border)',
                 cursor: 'pointer',
               }}
             >
@@ -835,44 +833,44 @@ export default function AdminReportsPage() {
           <div className="w-full overflow-x-auto">
             <table style={{ minWidth: '700px', width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', color: '#64748b' }}>
-                  <th onClick={() => handleSort('date')} style={{ padding: '10px 12px', width: '13%' }} className="cursor-pointer hover:text-slate-200 transition-colors select-none group">
+                <tr style={{ backgroundColor: 'var(--admin-table-header-bg)', borderBottom: '1px solid var(--admin-border)', color: 'var(--admin-text-muted)' }}>
+                  <th onClick={() => handleSort('date')} style={{ padding: '10px 12px', width: '13%' }} className="cursor-pointer hover:text-emerald-400 transition-colors select-none group">
                     <div className="flex items-center">
                       <span>Date</span>
                       {renderSortIcon('date')}
                     </div>
                   </th>
-                  <th onClick={() => handleSort('booking_id')} style={{ padding: '10px 12px', width: '15%' }} className="cursor-pointer hover:text-slate-200 transition-colors select-none group">
+                  <th onClick={() => handleSort('booking_id')} style={{ padding: '10px 12px', width: '15%' }} className="cursor-pointer hover:text-emerald-400 transition-colors select-none group">
                     <div className="flex items-center">
                       <span>Booking ID</span>
                       {renderSortIcon('booking_id')}
                     </div>
                   </th>
-                  <th onClick={() => handleSort('customer_name')} style={{ padding: '10px 12px', width: '20%' }} className="cursor-pointer hover:text-slate-200 transition-colors select-none group">
+                  <th onClick={() => handleSort('customer_name')} style={{ padding: '10px 12px', width: '20%' }} className="cursor-pointer hover:text-emerald-400 transition-colors select-none group">
                     <div className="flex items-center">
                       <span>Customer</span>
                       {renderSortIcon('customer_name')}
                     </div>
                   </th>
-                  <th onClick={() => handleSort('service_name')} style={{ padding: '10px 12px', width: '22%' }} className="cursor-pointer hover:text-slate-200 transition-colors select-none group">
+                  <th onClick={() => handleSort('service_name')} style={{ padding: '10px 12px', width: '22%' }} className="cursor-pointer hover:text-emerald-400 transition-colors select-none group">
                     <div className="flex items-center">
                       <span>Service</span>
                       {renderSortIcon('service_name')}
                     </div>
                   </th>
-                  <th onClick={() => handleSort('amount_inr')} style={{ padding: '10px 12px', width: '11%' }} className="cursor-pointer hover:text-slate-200 transition-colors select-none group">
+                  <th onClick={() => handleSort('amount_inr')} style={{ padding: '10px 12px', width: '11%' }} className="cursor-pointer hover:text-emerald-400 transition-colors select-none group">
                     <div className="flex items-center">
                       <span>Amount (INR)</span>
                       {renderSortIcon('amount_inr')}
                     </div>
                   </th>
-                  <th onClick={() => handleSort('payment_method')} style={{ padding: '10px 12px', width: '10%' }} className="cursor-pointer hover:text-slate-200 transition-colors select-none group">
+                  <th onClick={() => handleSort('payment_method')} style={{ padding: '10px 12px', width: '10%' }} className="cursor-pointer hover:text-emerald-400 transition-colors select-none group">
                     <div className="flex items-center">
                       <span>Method</span>
                       {renderSortIcon('payment_method')}
                     </div>
                   </th>
-                  <th onClick={() => handleSort('status')} style={{ padding: '10px 12px', width: '9%' }} className="cursor-pointer hover:text-slate-200 transition-colors select-none group">
+                  <th onClick={() => handleSort('status')} style={{ padding: '10px 12px', width: '9%' }} className="cursor-pointer hover:text-emerald-400 transition-colors select-none group">
                     <div className="flex items-center">
                       <span>Status</span>
                       {renderSortIcon('status')}
@@ -890,14 +888,14 @@ export default function AdminReportsPage() {
                   return (
                     <tr
                       key={row.booking_id || idx}
-                      style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}
-                      className="hover:bg-slate-800/30 transition-colors"
+                      style={{ borderBottom: '1px solid var(--admin-border-subtle)' }}
+                      className="hover:bg-[var(--admin-surface-hover)] transition-colors"
                     >
                       {/* Date */}
-                      <td style={{ padding: '10px 12px', color: '#94a3b8' }}>
+                      <td style={{ padding: '10px 12px', color: 'var(--admin-text-secondary)' }}>
                         <div className="flex flex-col">
-                          <span style={{ fontWeight: 600, color: '#f8fafc' }}>{dateInfo.main}</span>
-                          {dateInfo.sub && <span style={{ fontSize: '11px', color: '#64748b' }}>{dateInfo.sub}</span>}
+                          <span style={{ fontWeight: 600, color: 'var(--admin-text-primary)' }}>{dateInfo.main}</span>
+                          {dateInfo.sub && <span style={{ fontSize: '11px', color: 'var(--admin-text-muted)' }}>{dateInfo.sub}</span>}
                         </div>
                       </td>
 
@@ -941,14 +939,14 @@ export default function AdminReportsPage() {
                           >
                             {initials}
                           </div>
-                          <span style={{ color: '#f8fafc', fontWeight: 500 }} className="truncate max-w-[130px] sm:max-w-[160px]" title={row.customer_name}>
+                          <span style={{ color: 'var(--admin-text-primary)', fontWeight: 500 }} className="truncate max-w-[130px] sm:max-w-[160px]" title={row.customer_name}>
                             {row.customer_name || 'Customer'}
                           </span>
                         </div>
                       </td>
 
                       {/* Service */}
-                      <td style={{ padding: '10px 12px', color: '#cbd5e1' }}>
+                      <td style={{ padding: '10px 12px', color: 'var(--admin-text-secondary)' }}>
                         <span className="truncate block max-w-[140px] sm:max-w-[200px]" title={row.service_name}>
                           {row.service_name || 'Service'}
                         </span>
@@ -1052,11 +1050,11 @@ export default function AdminReportsPage() {
 
         {/* Pagination Controls */}
         {processedData.length > 0 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-white/10 text-xs text-slate-400">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t text-xs" style={{ borderColor: 'var(--admin-border)', color: 'var(--admin-text-muted)' }}>
             <div>
-              Showing <span className="font-bold text-slate-200">{startRecord}</span> to{' '}
-              <span className="font-bold text-slate-200">{endRecord}</span> of{' '}
-              <span className="font-bold text-slate-200">{totalRecords}</span> results
+              Showing <span className="font-bold" style={{ color: 'var(--admin-text-primary)' }}>{startRecord}</span> to{' '}
+              <span className="font-bold" style={{ color: 'var(--admin-text-primary)' }}>{endRecord}</span> of{' '}
+              <span className="font-bold" style={{ color: 'var(--admin-text-primary)' }}>{totalRecords}</span> results
             </div>
 
             <div className="flex items-center gap-2">
@@ -1066,9 +1064,9 @@ export default function AdminReportsPage() {
                 style={{
                   padding: '6px 10px',
                   borderRadius: '6px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                  color: page <= 1 ? '#64748b' : '#f8fafc',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  backgroundColor: 'var(--admin-surface-hover)',
+                  color: page <= 1 ? 'var(--admin-text-muted)' : 'var(--admin-text-primary)',
+                  border: '1px solid var(--admin-border)',
                   cursor: page <= 1 ? 'not-allowed' : 'pointer',
                   opacity: page <= 1 ? 0.5 : 1,
                 }}
@@ -1076,7 +1074,7 @@ export default function AdminReportsPage() {
                 <ChevronLeft size={14} />
               </button>
 
-              <span style={{ padding: '4px 10px', borderRadius: '6px', backgroundColor: '#020617', border: '1px solid rgba(255, 255, 255, 0.12)', color: '#f8fafc', fontWeight: 600 }}>
+              <span style={{ padding: '4px 10px', borderRadius: '6px', backgroundColor: 'var(--admin-input-bg)', border: '1px solid var(--admin-input-border)', color: 'var(--admin-text-primary)', fontWeight: 600 }}>
                 Page {page} of {totalPages}
               </span>
 
@@ -1086,9 +1084,9 @@ export default function AdminReportsPage() {
                 style={{
                   padding: '6px 10px',
                   borderRadius: '6px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                  color: page >= totalPages ? '#64748b' : '#f8fafc',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  backgroundColor: 'var(--admin-surface-hover)',
+                  color: page >= totalPages ? 'var(--admin-text-muted)' : 'var(--admin-text-primary)',
+                  border: '1px solid var(--admin-border)',
                   cursor: page >= totalPages ? 'not-allowed' : 'pointer',
                   opacity: page >= totalPages ? 0.5 : 1,
                 }}
@@ -1106,9 +1104,9 @@ export default function AdminReportsPage() {
                   setPage(1);
                 }}
                 style={{
-                  backgroundColor: '#020617',
-                  color: '#f8fafc',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  backgroundColor: 'var(--admin-input-bg)',
+                  color: 'var(--admin-text-primary)',
+                  border: '1px solid var(--admin-input-border)',
                   borderRadius: '6px',
                   padding: '3px 8px',
                   fontSize: '12px',
@@ -1116,10 +1114,10 @@ export default function AdminReportsPage() {
                   cursor: 'pointer',
                 }}
               >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
+                <option value={10} style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>10</option>
+                <option value={20} style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>20</option>
+                <option value={50} style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>50</option>
+                <option value={100} style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>100</option>
               </select>
             </div>
           </div>
@@ -1138,9 +1136,9 @@ function ReportsKpiSkeleton() {
           key={i}
           style={{
             padding: '14px 16px',
-            backgroundColor: '#090d16',
+            backgroundColor: 'var(--admin-card-bg)',
             borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            border: '1px solid var(--admin-border)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -1150,12 +1148,12 @@ function ReportsKpiSkeleton() {
           className="animate-pulse"
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ width: '80px', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }} />
+            <div style={{ width: '80px', height: '12px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-skeleton-bg)' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <div style={{ width: '100px', height: '22px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }} />
-            <div style={{ width: '70px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }} />
+            <div style={{ width: '100px', height: '22px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '70px', height: '10px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
           </div>
         </div>
       ))}
@@ -1169,7 +1167,7 @@ function ReportsTableSkeleton() {
     <div className="w-full overflow-x-auto" aria-busy="true" aria-label="Loading reports table data">
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
         <thead>
-          <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', color: '#64748b' }}>
+          <tr style={{ backgroundColor: 'var(--admin-table-header-bg)', borderBottom: '1px solid var(--admin-border)', color: 'var(--admin-text-muted)' }}>
             <th style={{ padding: '10px 12px', width: '13%' }}>Date</th>
             <th style={{ padding: '10px 12px', width: '15%' }}>Booking ID</th>
             <th style={{ padding: '10px 12px', width: '20%' }}>Customer</th>
@@ -1181,30 +1179,30 @@ function ReportsTableSkeleton() {
         </thead>
         <tbody>
           {[1, 2, 3, 4, 5, 6, 7, 8].map((row) => (
-            <tr key={row} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }} className="animate-pulse">
+            <tr key={row} style={{ borderBottom: '1px solid var(--admin-border-subtle)' }} className="animate-pulse">
               <td style={{ padding: '12px' }}>
-                <div style={{ width: '70px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                <div style={{ width: '70px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
               </td>
               <td style={{ padding: '12px' }}>
                 <div style={{ width: '90px', height: '20px', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderRadius: '5px' }} />
               </td>
               <td style={{ padding: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{ width: '26px', height: '26px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
-                  <div style={{ width: '100px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                  <div style={{ width: '26px', height: '26px', borderRadius: '50%', backgroundColor: 'var(--admin-skeleton-bg)' }} />
+                  <div style={{ width: '100px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
                 </div>
               </td>
               <td style={{ padding: '12px' }}>
-                <div style={{ width: '130px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                <div style={{ width: '130px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
               </td>
               <td style={{ padding: '12px' }}>
                 <div style={{ width: '70px', height: '14px', backgroundColor: 'rgba(16, 185, 129, 0.12)', borderRadius: '4px' }} />
               </td>
               <td style={{ padding: '12px' }}>
-                <div style={{ width: '60px', height: '18px', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '6px' }} />
+                <div style={{ width: '60px', height: '18px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '6px' }} />
               </td>
               <td style={{ padding: '12px' }}>
-                <div style={{ width: '75px', height: '20px', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '999px' }} />
+                <div style={{ width: '75px', height: '20px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '999px' }} />
               </td>
             </tr>
           ))}

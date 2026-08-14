@@ -284,13 +284,14 @@ export default function AdminBookingDetailPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-[1600px] mx-auto pb-12">
+    <div className="flex flex-col gap-6 max-w-[1600px] mx-auto pb-12" style={{ color: 'var(--admin-text-primary)' }}>
       {/* BACK NAVIGATION LINK */}
       <div>
         <button
           type="button"
           onClick={() => router.push('/admin/bookings')}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
+          style={{ color: 'var(--admin-text-secondary)' }}
+          className="inline-flex items-center gap-2 text-xs font-semibold hover:text-white transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Bookings</span>
@@ -299,10 +300,10 @@ export default function AdminBookingDetailPage() {
 
       {/* PAGE TITLE & SUBTITLE */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight" style={{ color: 'var(--admin-text-primary)' }}>
           Booking Details & Assignment
         </h1>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1 font-normal">
+        <p className="text-xs sm:text-sm mt-1 font-normal" style={{ color: 'var(--admin-text-secondary)' }}>
           View booking details, customer information and provider assignment status.
         </p>
       </div>
@@ -314,13 +315,13 @@ export default function AdminBookingDetailPage() {
         <div className="lg:col-span-7 flex flex-col gap-6">
           
           {/* CARD 1: SERVICE INFORMATION */}
-          <div className="bg-[#090D16]/90 border border-slate-800/80 rounded-2xl p-6 shadow-xl backdrop-blur-md">
+          <div className="rounded-2xl p-6 shadow-xl backdrop-blur-md" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
             {/* Header */}
-            <div className="flex items-center gap-3 border-b border-slate-800/80 pb-4 mb-6">
+            <div className="flex items-center gap-3 border-b pb-4 mb-6" style={{ borderColor: 'var(--admin-border)' }}>
               <div className="w-8 h-8 rounded-lg bg-[#002B1D] border border-[#004D36] flex items-center justify-center text-[#10B981] flex-shrink-0">
                 <FileText className="w-4 h-4 text-[#10B981]" />
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-white">
+              <h2 className="text-base sm:text-lg font-bold" style={{ color: 'var(--admin-text-primary)' }}>
                 Service Information
               </h2>
             </div>
@@ -333,8 +334,8 @@ export default function AdminBookingDetailPage() {
                   <Wrench className="w-5 h-5 text-[#10B981]" />
                 </div>
                 <div>
-                  <span className="text-xs text-slate-400 font-medium block">Booked Service</span>
-                  <span className="text-sm font-bold text-white mt-0.5 block">
+                  <span className="text-xs font-medium block" style={{ color: 'var(--admin-text-secondary)' }}>Booked Service</span>
+                  <span className="text-sm font-bold mt-0.5 block" style={{ color: 'var(--admin-text-primary)' }}>
                     {booking.serviceNameSnapshot}
                   </span>
                 </div>
@@ -342,7 +343,7 @@ export default function AdminBookingDetailPage() {
 
               {/* Amount Charged */}
               <div>
-                <span className="text-xs text-slate-400 font-medium block">Amount Charged</span>
+                <span className="text-xs font-medium block" style={{ color: 'var(--admin-text-secondary)' }}>Amount Charged</span>
                 <span className="text-base sm:text-xl font-extrabold text-[#10B981] font-mono mt-0.5 block">
                   ₹{parseFloat(booking.servicePriceSnapshot).toFixed(2)}
                 </span>
@@ -350,12 +351,12 @@ export default function AdminBookingDetailPage() {
 
               {/* Date & Slot */}
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 flex-shrink-0 mt-0.5">
-                  <Calendar className="w-5 h-5 text-slate-300" />
+                <div className="w-10 h-10 rounded-xl border flex items-center justify-center flex-shrink-0 mt-0.5" style={{ backgroundColor: 'var(--admin-surface-hover)', borderColor: 'var(--admin-border)' }}>
+                  <Calendar className="w-5 h-5" style={{ color: 'var(--admin-text-secondary)' }} />
                 </div>
                 <div>
-                  <span className="text-xs text-slate-400 font-medium block">Date & Slot</span>
-                  <span className="text-xs sm:text-sm font-bold text-white mt-0.5 block">
+                  <span className="text-xs font-medium block" style={{ color: 'var(--admin-text-secondary)' }}>Date & Slot</span>
+                  <span className="text-xs sm:text-sm font-bold mt-0.5 block" style={{ color: 'var(--admin-text-primary)' }}>
                     {new Date(booking.slotDate).toLocaleDateString('en-IN', {
                       weekday: 'short',
                       day: 'numeric',
@@ -363,7 +364,7 @@ export default function AdminBookingDetailPage() {
                       year: 'numeric',
                     })}
                   </span>
-                  <span className="text-xs text-slate-400 font-normal mt-0.5 block">
+                  <span className="text-xs font-normal mt-0.5 block" style={{ color: 'var(--admin-text-secondary)' }}>
                     {booking.slotLabelSnapshot}
                   </span>
                 </div>
@@ -371,12 +372,12 @@ export default function AdminBookingDetailPage() {
 
               {/* Payment Method */}
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 flex-shrink-0 mt-0.5">
-                  <CreditCard className="w-5 h-5 text-slate-300" />
+                <div className="w-10 h-10 rounded-xl border flex items-center justify-center flex-shrink-0 mt-0.5" style={{ backgroundColor: 'var(--admin-surface-hover)', borderColor: 'var(--admin-border)' }}>
+                  <CreditCard className="w-5 h-5" style={{ color: 'var(--admin-text-secondary)' }} />
                 </div>
                 <div>
-                  <span className="text-xs text-slate-400 font-medium block">Payment Method</span>
-                  <span className="text-xs sm:text-sm font-bold text-white mt-0.5 block">
+                  <span className="text-xs font-medium block" style={{ color: 'var(--admin-text-secondary)' }}>Payment Method</span>
+                  <span className="text-xs sm:text-sm font-bold mt-0.5 block" style={{ color: 'var(--admin-text-primary)' }}>
                     {booking.paymentMethod === 'CASH_ON_SERVICE' ? 'Cash on Service' : 'Online Payment'}
                   </span>
                 </div>
@@ -385,13 +386,13 @@ export default function AdminBookingDetailPage() {
           </div>
 
           {/* CARD 2: CUSTOMER & ADDRESS */}
-          <div className="bg-[#090D16]/90 border border-slate-800/80 rounded-2xl p-6 shadow-xl backdrop-blur-md">
+          <div className="rounded-2xl p-6 shadow-xl backdrop-blur-md" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
             {/* Header */}
-            <div className="flex items-center gap-3 border-b border-slate-800/80 pb-4 mb-6">
+            <div className="flex items-center gap-3 border-b pb-4 mb-6" style={{ borderColor: 'var(--admin-border)' }}>
               <div className="w-8 h-8 rounded-lg bg-[#2E1065] border border-[#4C1D95] flex items-center justify-center text-[#A855F7] flex-shrink-0">
                 <User className="w-4 h-4 text-[#A855F7]" />
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-white">
+              <h2 className="text-base sm:text-lg font-bold" style={{ color: 'var(--admin-text-primary)' }}>
                 Customer & Address
               </h2>
             </div>
@@ -404,8 +405,8 @@ export default function AdminBookingDetailPage() {
                   <Home className="w-5 h-5 text-purple-400" />
                 </div>
                 <div>
-                  <span className="text-xs text-slate-400 font-medium block">Address Label</span>
-                  <span className="text-xs sm:text-sm font-bold text-white mt-0.5 block">
+                  <span className="text-xs font-medium block" style={{ color: 'var(--admin-text-secondary)' }}>Address Label</span>
+                  <span className="text-xs sm:text-sm font-bold mt-0.5 block" style={{ color: 'var(--admin-text-primary)' }}>
                     {booking.addressSnapshot?.label || 'Home'}
                   </span>
                 </div>
@@ -417,8 +418,8 @@ export default function AdminBookingDetailPage() {
                   <MapPin className="w-5 h-5 text-purple-400" />
                 </div>
                 <div>
-                  <span className="text-xs text-slate-400 font-medium block">Full Address</span>
-                  <span className="text-xs sm:text-sm font-medium text-slate-200 mt-0.5 block leading-relaxed">
+                  <span className="text-xs font-medium block" style={{ color: 'var(--admin-text-secondary)' }}>Full Address</span>
+                  <span className="text-xs sm:text-sm font-medium mt-0.5 block leading-relaxed" style={{ color: 'var(--admin-text-secondary)' }}>
                     {booking.addressSnapshot?.addressLine1}
                     {booking.addressSnapshot?.addressLine2 && `, ${booking.addressSnapshot.addressLine2}`}
                     <br />
@@ -430,40 +431,40 @@ export default function AdminBookingDetailPage() {
           </div>
 
           {/* CARD 3: STATUS TRANSITION LOGS */}
-          <div className="bg-[#090D16]/90 border border-slate-800/80 rounded-2xl p-6 shadow-xl backdrop-blur-md">
+          <div className="rounded-2xl p-6 shadow-xl backdrop-blur-md" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
             {/* Header */}
-            <div className="flex items-center gap-3 border-b border-slate-800/80 pb-4 mb-6">
+            <div className="flex items-center gap-3 border-b pb-4 mb-6" style={{ borderColor: 'var(--admin-border)' }}>
               <div className="w-8 h-8 rounded-lg bg-[#451A03] border border-[#78350F] text-[#F59E0B] flex items-center justify-center flex-shrink-0">
                 <Clock className="w-4 h-4 text-[#F59E0B]" />
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-white">
+              <h2 className="text-base sm:text-lg font-bold" style={{ color: 'var(--admin-text-primary)' }}>
                 Status Transition Logs
               </h2>
             </div>
 
             {/* Content */}
             {history.length === 0 ? (
-              <div className="bg-[#0F172A]/40 border border-dashed border-slate-800 rounded-xl p-8 flex flex-col items-center justify-center text-center gap-2">
-                <FileText className="w-8 h-8 text-slate-600 mb-1" />
-                <p className="text-xs sm:text-sm font-semibold text-slate-300">
+              <div className="border border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center gap-2" style={{ backgroundColor: 'var(--admin-surface-hover)', borderColor: 'var(--admin-border)' }}>
+                <FileText className="w-8 h-8 mb-1" style={{ color: 'var(--admin-text-muted)' }} />
+                <p className="text-xs sm:text-sm font-semibold" style={{ color: 'var(--admin-text-primary)' }}>
                   No transition logs recorded.
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs" style={{ color: 'var(--admin-text-muted)' }}>
                   Status changes will appear here.
                 </p>
               </div>
             ) : (
-              <div className="flex flex-col gap-4 pl-4 border-l border-slate-800/80 relative">
+              <div className="flex flex-col gap-4 pl-4 border-l relative" style={{ borderColor: 'var(--admin-border)' }}>
                 {history.map((h, i) => (
                   <div key={h.id} className="relative pl-4">
                     <div
                       className={`absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full ${
-                        i === 0 ? 'bg-[#10B981] shadow-[0_0_8px_#10B981]' : 'bg-slate-600'
+                        i === 0 ? 'bg-[#10B981] shadow-[0_0_8px_#10B981]' : 'bg-slate-500'
                       }`}
                     />
                     <div className="flex items-center justify-between">
-                      <span className="text-xs sm:text-sm font-bold text-white">{h.status}</span>
-                      <span className="text-[11px] text-slate-400">
+                      <span className="text-xs sm:text-sm font-bold" style={{ color: 'var(--admin-text-primary)' }}>{h.status}</span>
+                      <span className="text-[11px]" style={{ color: 'var(--admin-text-muted)' }}>
                         {new Date(h.createdAt).toLocaleString('en-IN', {
                           hour: '2-digit',
                           minute: '2-digit',
@@ -472,8 +473,8 @@ export default function AdminBookingDetailPage() {
                         })}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Updated by: <span className="text-slate-300 font-medium">{h.actorRole}</span>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--admin-text-secondary)' }}>
+                      Updated by: <span className="font-medium" style={{ color: 'var(--admin-text-primary)' }}>{h.actorRole}</span>
                       {h.note ? ` — "${h.note}"` : ''}
                     </p>
                   </div>
@@ -485,13 +486,13 @@ export default function AdminBookingDetailPage() {
 
         {/* RIGHT PANEL: PROVIDER ASSIGNMENT & ACTIONS (5 COLS) */}
         <div className="lg:col-span-5 flex flex-col gap-6">
-          <div className="bg-[#090D16]/90 border border-slate-800/80 rounded-2xl p-6 shadow-xl backdrop-blur-md flex flex-col gap-6">
+          <div className="rounded-2xl p-6 shadow-xl backdrop-blur-md flex flex-col gap-6" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
             {/* Header */}
-            <div className="flex items-center gap-3 border-b border-slate-800/80 pb-4">
+            <div className="flex items-center gap-3 border-b pb-4" style={{ borderColor: 'var(--admin-border)' }}>
               <div className="w-8 h-8 rounded-lg bg-[#064E3B] border border-[#059669] text-[#10B981] flex items-center justify-center flex-shrink-0">
                 <User className="w-4 h-4 text-[#10B981]" />
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-white">
+              <h2 className="text-base sm:text-lg font-bold" style={{ color: 'var(--admin-text-primary)' }}>
                 Provider Assignment
               </h2>
             </div>
@@ -499,23 +500,23 @@ export default function AdminBookingDetailPage() {
             {/* ASSIGNED PROVIDER DISPLAY */}
             {booking.providerId && assignedProvider ? (
               <div>
-                <span className="text-xs font-semibold text-slate-400 block mb-3">
+                <span className="text-xs font-semibold block mb-3" style={{ color: 'var(--admin-text-secondary)' }}>
                   Assigned Provider
                 </span>
-                <div className="bg-[#0F172A]/80 border border-slate-800/80 rounded-2xl p-4 flex items-start gap-4">
+                <div className="border rounded-2xl p-4 flex items-start gap-4" style={{ backgroundColor: 'var(--admin-surface-hover)', borderColor: 'var(--admin-border)' }}>
                   <div className="w-12 h-12 rounded-full bg-[#065F46] border border-[#059669]/40 text-[#10B981] font-extrabold text-sm flex items-center justify-center flex-shrink-0 shadow-inner">
                     {getProviderInitials(assignedProvider.displayName)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-extrabold text-white truncate">
+                    <h3 className="text-sm font-extrabold truncate" style={{ color: 'var(--admin-text-primary)' }}>
                       {assignedProvider.displayName}
                     </h3>
-                    <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-1">
-                      <Phone className="w-3.5 h-3.5 text-slate-500" />
+                    <div className="flex items-center gap-1.5 text-xs mt-1" style={{ color: 'var(--admin-text-secondary)' }}>
+                      <Phone className="w-3.5 h-3.5" style={{ color: 'var(--admin-text-muted)' }} />
                       <span>{assignedProvider.mobileNumber || '+91 76675 23718'}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-1">
-                      <MapPin className="w-3.5 h-3.5 text-slate-500" />
+                    <div className="flex items-center gap-1.5 text-xs mt-1" style={{ color: 'var(--admin-text-secondary)' }}>
+                      <MapPin className="w-3.5 h-3.5" style={{ color: 'var(--admin-text-muted)' }} />
                       <span>{assignedProvider.serviceArea || 'Bangalore'}</span>
                     </div>
                   </div>
@@ -523,10 +524,10 @@ export default function AdminBookingDetailPage() {
               </div>
             ) : booking.providerId ? (
               <div>
-                <span className="text-xs font-semibold text-slate-400 block mb-2">
+                <span className="text-xs font-semibold block mb-2" style={{ color: 'var(--admin-text-secondary)' }}>
                   Assigned Provider ID
                 </span>
-                <div className="bg-[#0F172A]/80 border border-slate-800/80 rounded-2xl p-4 text-xs font-mono text-white break-all">
+                <div className="border rounded-2xl p-4 text-xs font-mono break-all" style={{ backgroundColor: 'var(--admin-surface-hover)', borderColor: 'var(--admin-border)', color: 'var(--admin-text-primary)' }}>
                   {booking.providerId}
                 </div>
               </div>
@@ -541,19 +542,20 @@ export default function AdminBookingDetailPage() {
             {!isAssignmentLocked ? (
               <form onSubmit={handleAssignProvider} className="flex flex-col gap-4 pt-2">
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-2">
+                  <label className="text-xs font-semibold block mb-2" style={{ color: 'var(--admin-text-secondary)' }}>
                     Select Eligible Provider
                   </label>
                   <select
                     value={selectedProvider}
                     onChange={(e) => setSelectedProvider(e.target.value)}
                     disabled={submitting || loading}
-                    className="w-full bg-[#0F172A] border border-slate-800 rounded-xl px-4 py-3 text-xs sm:text-sm text-white outline-none focus:border-[#10B981]/60 disabled:opacity-50 cursor-pointer"
+                    style={{ backgroundColor: 'var(--admin-input-bg)', border: '1px solid var(--admin-input-border)', color: 'var(--admin-text-primary)' }}
+                    className="w-full rounded-xl px-4 py-3 text-xs sm:text-sm outline-none focus:border-[#10B981]/60 disabled:opacity-50 cursor-pointer"
                     required
                   >
-                    <option value="">-- Choose Provider --</option>
+                    <option value="" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>-- Choose Provider --</option>
                     {providers.map((p) => (
-                      <option key={p.id} value={p.id}>
+                      <option key={p.id} value={p.id} style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>
                         {p.displayName} ({p.serviceArea || 'General'})
                       </option>
                     ))}
@@ -579,15 +581,15 @@ export default function AdminBookingDetailPage() {
               </form>
             ) : (
               /* ASSIGNMENT LOCKED STATE BOX */
-              <div className="bg-[#0F172A]/90 border border-slate-800/80 rounded-2xl p-5 flex items-start gap-4">
+              <div className="border rounded-2xl p-5 flex items-start gap-4" style={{ backgroundColor: 'var(--admin-surface-hover)', borderColor: 'var(--admin-border)' }}>
                 <div className="w-10 h-10 rounded-xl bg-blue-950/60 border border-blue-800/40 text-blue-400 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Lock className="w-5 h-5 text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="text-xs sm:text-sm font-bold text-white">
+                  <h3 className="text-xs sm:text-sm font-bold" style={{ color: 'var(--admin-text-primary)' }}>
                     Assignment locked.
                   </h3>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-xs mt-1" style={{ color: 'var(--admin-text-secondary)' }}>
                     Booking status is in progress or resolved.
                   </p>
                 </div>

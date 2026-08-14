@@ -662,7 +662,7 @@ export default function UnifiedCatalogManager() {
   );
 
   return (
-    <div style={{ maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', color: '#ffffff' }}>
+    <div style={{ maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', color: 'var(--admin-text-primary)' }}>
       
       {/* 1. Page Header & Primary Action CTA */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
@@ -684,10 +684,10 @@ export default function UnifiedCatalogManager() {
             {activeTab === 'categories' ? <Folder size={20} /> : <Package size={20} />}
           </div>
           <div>
-            <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
+            <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em', margin: 0 }}>
               Service Catalog Manager
             </h1>
-            <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '2px', margin: 0, fontWeight: 400, lineHeight: 1.4 }}>
+            <p style={{ fontSize: '13px', color: 'var(--admin-text-secondary)', marginTop: '2px', margin: 0, fontWeight: 400, lineHeight: 1.4 }}>
               Manage service categories, configure fixed pricing, and adjust operational catalog structures.
             </p>
           </div>
@@ -750,7 +750,7 @@ export default function UnifiedCatalogManager() {
       <div
         style={{
           display: 'flex',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          borderBottom: '1px solid var(--admin-border)',
           gap: '24px',
           paddingBottom: '2px',
         }}
@@ -762,7 +762,7 @@ export default function UnifiedCatalogManager() {
             padding: '8px 4px 10px 4px',
             fontSize: '13px',
             fontWeight: activeTab === 'categories' ? 700 : 500,
-            color: activeTab === 'categories' ? '#f8fafc' : '#94a3b8',
+            color: activeTab === 'categories' ? '#10b981' : 'var(--admin-text-secondary)',
             background: 'none',
             border: 'none',
             borderBottom: activeTab === 'categories' ? '2px solid #10b981' : '2px solid transparent',
@@ -772,7 +772,6 @@ export default function UnifiedCatalogManager() {
             alignItems: 'center',
             gap: '8px',
           }}
-          className="hover:text-slate-200"
         >
           <span>Categories</span>
         </button>
@@ -783,7 +782,7 @@ export default function UnifiedCatalogManager() {
             padding: '8px 4px 10px 4px',
             fontSize: '13px',
             fontWeight: activeTab === 'services' ? 700 : 500,
-            color: activeTab === 'services' ? '#f8fafc' : '#94a3b8',
+            color: activeTab === 'services' ? '#10b981' : 'var(--admin-text-secondary)',
             background: 'none',
             border: 'none',
             borderBottom: activeTab === 'services' ? '2px solid #10b981' : '2px solid transparent',
@@ -793,7 +792,6 @@ export default function UnifiedCatalogManager() {
             alignItems: 'center',
             gap: '8px',
           }}
-          className="hover:text-slate-200"
         >
           <span>Services & Pricing</span>
         </button>
@@ -823,8 +821,8 @@ export default function UnifiedCatalogManager() {
           {/* KPI 1: Total Categories */}
           <div
             style={{
-              backgroundColor: '#090d16',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              backgroundColor: 'var(--admin-card-bg)',
+              border: '1px solid var(--admin-border)',
               borderRadius: '12px',
               padding: '12px 14px',
               height: '120px',
@@ -851,13 +849,13 @@ export default function UnifiedCatalogManager() {
               <Folder size={18} />
             </div>
             <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', lineHeight: 1.1 }}>
                 {totalCategories}
               </div>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--admin-text-primary)', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Total Categories
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ fontSize: '10px', color: 'var(--admin-text-muted)', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 All categories in catalog
               </div>
             </div>
@@ -866,8 +864,8 @@ export default function UnifiedCatalogManager() {
           {/* KPI 2: Active Categories */}
           <div
             style={{
-              backgroundColor: '#090d16',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              backgroundColor: 'var(--admin-card-bg)',
+              border: '1px solid var(--admin-border)',
               borderRadius: '12px',
               padding: '12px 14px',
               height: '120px',
@@ -894,13 +892,13 @@ export default function UnifiedCatalogManager() {
               <ShieldCheck size={18} />
             </div>
             <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', lineHeight: 1.1 }}>
                 {activeCategories}
               </div>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--admin-text-primary)', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Active Categories
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ fontSize: '10px', color: 'var(--admin-text-muted)', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Currently active
               </div>
             </div>
@@ -909,8 +907,8 @@ export default function UnifiedCatalogManager() {
           {/* KPI 3: Inactive Categories */}
           <div
             style={{
-              backgroundColor: '#090d16',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              backgroundColor: 'var(--admin-card-bg)',
+              border: '1px solid var(--admin-border)',
               borderRadius: '12px',
               padding: '12px 14px',
               height: '120px',
@@ -937,13 +935,13 @@ export default function UnifiedCatalogManager() {
               <PauseCircle size={18} />
             </div>
             <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', lineHeight: 1.1 }}>
                 {inactiveCategories}
               </div>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--admin-text-primary)', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Inactive Categories
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ fontSize: '10px', color: 'var(--admin-text-muted)', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Not active
               </div>
             </div>
@@ -952,8 +950,8 @@ export default function UnifiedCatalogManager() {
           {/* KPI 4: Total Services */}
           <div
             style={{
-              backgroundColor: '#090d16',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              backgroundColor: 'var(--admin-card-bg)',
+              border: '1px solid var(--admin-border)',
               borderRadius: '12px',
               padding: '12px 14px',
               height: '120px',
@@ -980,13 +978,13 @@ export default function UnifiedCatalogManager() {
               <Package size={18} />
             </div>
             <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', lineHeight: 1.1 }}>
                 {totalServices}
               </div>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--admin-text-primary)', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Total Services
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div style={{ fontSize: '10px', color: 'var(--admin-text-muted)', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Across catalog
               </div>
             </div>
@@ -997,18 +995,18 @@ export default function UnifiedCatalogManager() {
       {/* 4. MAIN CATALOG MANAGER TABLE CARD */}
       <div
         style={{
-          backgroundColor: '#090d16',
+          backgroundColor: 'var(--admin-card-bg)',
           borderRadius: '12px',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: '1px solid var(--admin-border)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
         }}
       >
         {/* Search & Filter Toolbar Header */}
-        <div className="p-3.5 sm:p-4 border-b border-white/[0.08] flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full">
+        <div className="p-3.5 sm:p-4 border-b flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full" style={{ borderColor: 'var(--admin-border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-            <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0, whiteSpace: 'nowrap' }}>
+            <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--admin-text-primary)', margin: 0, whiteSpace: 'nowrap' }}>
               {activeTab === 'categories' ? 'Catalog Categories' : 'Services & Pricing'}
             </h2>
             <span
@@ -1032,7 +1030,7 @@ export default function UnifiedCatalogManager() {
             <div className="relative w-full sm:w-[200px] md:w-[220px] lg:w-[240px] shrink-0">
               <Search
                 size={14}
-                style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }}
+                style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--admin-text-muted)' }}
               />
               <input
                 type="text"
@@ -1045,11 +1043,11 @@ export default function UnifiedCatalogManager() {
                 }
                 style={{
                   width: '100%',
-                  backgroundColor: '#090d16',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  backgroundColor: 'var(--admin-input-bg)',
+                  border: '1px solid var(--admin-input-border)',
                   borderRadius: '8px',
                   padding: '7px 28px 7px 32px',
-                  color: '#f8fafc',
+                  color: 'var(--admin-text-primary)',
                   fontSize: '12px',
                   outline: 'none',
                   boxSizing: 'border-box',
@@ -1068,7 +1066,7 @@ export default function UnifiedCatalogManager() {
                     transform: 'translateY(-50%)',
                     background: 'none',
                     border: 'none',
-                    color: '#64748b',
+                    color: 'var(--admin-text-muted)',
                     cursor: 'pointer',
                   }}
                 >
@@ -1079,29 +1077,29 @@ export default function UnifiedCatalogManager() {
 
             {/* Category Dropdown Selector */}
             <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
-              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' }}>Category:</span>
+              <span style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 600, whiteSpace: 'nowrap' }}>Category:</span>
               {activeTab === 'categories' ? (
                 <select
                   id="select-category-filter-cat-tab"
                   value={catCategoryFilter}
                   onChange={(e) => setCatCategoryFilter(e.target.value)}
                   style={{
-                    backgroundColor: '#090d16',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    backgroundColor: 'var(--admin-input-bg)',
+                    border: '1px solid var(--admin-input-border)',
                     borderRadius: '8px',
                     padding: '7px 10px',
-                    color: '#f8fafc',
+                    color: 'var(--admin-text-primary)',
                     fontSize: '12px',
                     outline: 'none',
                     cursor: 'pointer',
                     width: '100%',
                   }}
                 >
-                  <option value="ALL" style={{ backgroundColor: '#090d16', color: '#ffffff' }}>
+                  <option value="ALL" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>
                     All Categories
                   </option>
                   {categories.map((c) => (
-                    <option key={c.id} value={c.id} style={{ backgroundColor: '#090d16', color: '#ffffff' }}>
+                    <option key={c.id} value={c.id} style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>
                       {c.name}
                     </option>
                   ))}
@@ -1115,11 +1113,11 @@ export default function UnifiedCatalogManager() {
                     setSvcFormData((prev) => ({ ...prev, categoryId: e.target.value }));
                   }}
                   style={{
-                    backgroundColor: '#090d16',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    backgroundColor: 'var(--admin-input-bg)',
+                    border: '1px solid var(--admin-input-border)',
                     borderRadius: '8px',
                     padding: '7px 10px',
-                    color: '#f8fafc',
+                    color: 'var(--admin-text-primary)',
                     fontSize: '12px',
                     outline: 'none',
                     cursor: 'pointer',
@@ -1127,7 +1125,7 @@ export default function UnifiedCatalogManager() {
                   }}
                 >
                   {categories.map((c) => (
-                    <option key={c.id} value={c.id} style={{ backgroundColor: '#090d16', color: '#ffffff' }}>
+                    <option key={c.id} value={c.id} style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>
                       {c.name}
                     </option>
                   ))}
@@ -1137,7 +1135,7 @@ export default function UnifiedCatalogManager() {
 
             {/* Status Filter */}
             <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
-              <Filter size={13} style={{ color: '#64748b', flexShrink: 0 }} />
+              <Filter size={13} style={{ color: 'var(--admin-text-muted)', flexShrink: 0 }} />
               <select
                 value={activeTab === 'categories' ? catStatusFilter : svcStatusFilter}
                 onChange={(e) => {
@@ -1146,20 +1144,20 @@ export default function UnifiedCatalogManager() {
                   else setSvcStatusFilter(val);
                 }}
                 style={{
-                  backgroundColor: '#090d16',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  backgroundColor: 'var(--admin-input-bg)',
+                  border: '1px solid var(--admin-input-border)',
                   borderRadius: '8px',
                   padding: '7px 10px',
-                  color: '#f8fafc',
+                  color: 'var(--admin-text-primary)',
                   fontSize: '12px',
                   outline: 'none',
                   cursor: 'pointer',
                   width: '100%',
                 }}
               >
-                <option value="ALL" style={{ backgroundColor: '#090d16' }}>All Status</option>
-                <option value="ACTIVE" style={{ backgroundColor: '#090d16' }}>Active Only</option>
-                <option value="INACTIVE" style={{ backgroundColor: '#090d16' }}>Inactive Only</option>
+                <option value="ALL" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>All Status</option>
+                <option value="ACTIVE" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>Active Only</option>
+                <option value="INACTIVE" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>Inactive Only</option>
               </select>
             </div>
           </div>
@@ -1178,9 +1176,9 @@ export default function UnifiedCatalogManager() {
                   <thead>
                     <tr
                       style={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                        color: '#64748b',
+                        backgroundColor: 'var(--admin-table-header-bg)',
+                        borderBottom: '1px solid var(--admin-border)',
+                        color: 'var(--admin-text-muted)',
                         fontSize: '10px',
                         fontWeight: 700,
                         textTransform: 'uppercase',
@@ -1202,8 +1200,8 @@ export default function UnifiedCatalogManager() {
                   <tbody>
                     {filteredCategories.length === 0 ? (
                       <tr>
-                        <td colSpan={5} style={{ padding: '36px 12px', textAlign: 'center', color: '#64748b' }}>
-                          <div style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8', marginBottom: '2px' }}>
+                        <td colSpan={5} style={{ padding: '36px 12px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>
+                          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--admin-text-secondary)', marginBottom: '2px' }}>
                             No categories found
                           </div>
                           <div style={{ fontSize: '12px' }}>
@@ -1220,10 +1218,10 @@ export default function UnifiedCatalogManager() {
                           <tr
                             key={cat.id}
                             style={{
-                              borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                              borderBottom: '1px solid var(--admin-border-subtle)',
                               transition: 'background-color 0.12s ease',
                             }}
-                            className="hover:bg-[rgba(255,255,255,0.02)]"
+                            className="hover:bg-[var(--admin-table-row-hover)]"
                           >
                             {/* Category Name with Styled Icon Box */}
                             <td style={{ padding: '10px 12px' }}>
@@ -1248,7 +1246,7 @@ export default function UnifiedCatalogManager() {
                                   <span
                                     style={{
                                       fontWeight: 700,
-                                      color: '#f8fafc',
+                                      color: 'var(--admin-text-primary)',
                                       fontSize: '12px',
                                       overflow: 'hidden',
                                       textOverflow: 'ellipsis',
@@ -1264,7 +1262,7 @@ export default function UnifiedCatalogManager() {
                             </td>
 
                             {/* Description */}
-                            <td style={{ padding: '10px 12px', color: '#94a3b8', fontSize: '12px' }}>
+                            <td style={{ padding: '10px 12px', color: 'var(--admin-text-secondary)', fontSize: '12px' }}>
                               <span
                                 style={{
                                   display: 'block',
@@ -1288,9 +1286,9 @@ export default function UnifiedCatalogManager() {
                                   justifyContent: 'center',
                                   padding: '2px 8px',
                                   borderRadius: '6px',
-                                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                                  color: '#e2e8f0',
+                                  backgroundColor: 'var(--admin-surface-hover)',
+                                  border: '1px solid var(--admin-border)',
+                                  color: 'var(--admin-text-primary)',
                                   fontSize: '11px',
                                   fontWeight: 700,
                                 }}
@@ -1604,7 +1602,7 @@ export default function UnifiedCatalogManager() {
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(9, 11, 17, 0.75)',
+            backgroundColor: 'var(--admin-modal-backdrop)',
             backdropFilter: 'blur(6px)',
             display: 'flex',
             justifyContent: 'flex-end',
@@ -1617,20 +1615,20 @@ export default function UnifiedCatalogManager() {
               width: '100%',
               maxWidth: '440px',
               height: '100%',
-              backgroundColor: '#090d16',
-              borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
+              backgroundColor: 'var(--admin-modal-bg)',
+              borderLeft: '1px solid var(--admin-border)',
               padding: '28px 24px',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
               overflowY: 'auto',
-              boxShadow: '-10px 0 30px rgba(0, 0, 0, 0.5)',
+              boxShadow: '-10px 0 30px rgba(0, 0, 0, 0.3)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--admin-text-primary)', margin: 0 }}>
                   {editingCategory ? 'Edit Category' : 'Create Category'}
                 </h2>
                 <button
@@ -1638,7 +1636,7 @@ export default function UnifiedCatalogManager() {
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#64748b',
+                    color: 'var(--admin-text-muted)',
                     cursor: 'pointer',
                     padding: '4px',
                     display: 'flex',
@@ -1657,7 +1655,7 @@ export default function UnifiedCatalogManager() {
 
               <form onSubmit={handleCatSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--admin-text-secondary)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Category Name *
                   </label>
                   <input
@@ -1670,11 +1668,11 @@ export default function UnifiedCatalogManager() {
                     required
                     style={{
                       width: '100%',
-                      backgroundColor: '#090d16',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      backgroundColor: 'var(--admin-input-bg)',
+                      border: '1px solid var(--admin-input-border)',
                       borderRadius: '8px',
                       padding: '9px 12px',
-                      color: '#f8fafc',
+                      color: 'var(--admin-text-primary)',
                       fontSize: '13px',
                       outline: 'none',
                       boxSizing: 'border-box',
@@ -1683,7 +1681,7 @@ export default function UnifiedCatalogManager() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--admin-text-secondary)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Description
                   </label>
                   <textarea
@@ -1695,11 +1693,11 @@ export default function UnifiedCatalogManager() {
                     style={{
                       width: '100%',
                       height: '80px',
-                      backgroundColor: '#090d16',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      backgroundColor: 'var(--admin-input-bg)',
+                      border: '1px solid var(--admin-input-border)',
                       borderRadius: '8px',
                       padding: '9px 12px',
-                      color: '#f8fafc',
+                      color: 'var(--admin-text-primary)',
                       fontSize: '13px',
                       outline: 'none',
                       resize: 'none',
@@ -1709,7 +1707,7 @@ export default function UnifiedCatalogManager() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--admin-text-secondary)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Icon URL
                   </label>
                   <input
@@ -1720,23 +1718,23 @@ export default function UnifiedCatalogManager() {
                     onChange={(e) => setCatFormData({ ...catFormData, iconUrl: e.target.value })}
                     style={{
                       width: '100%',
-                      backgroundColor: '#090d16',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      backgroundColor: 'var(--admin-input-bg)',
+                      border: '1px solid var(--admin-input-border)',
                       borderRadius: '8px',
                       padding: '9px 12px',
-                      color: '#f8fafc',
+                      color: 'var(--admin-text-primary)',
                       fontSize: '13px',
                       outline: 'none',
                       boxSizing: 'border-box',
                     }}
                   />
-                  <small style={{ color: '#64748b', display: 'block', marginTop: '4px', fontSize: '11px' }}>
+                  <small style={{ color: 'var(--admin-text-muted)', display: 'block', marginTop: '4px', fontSize: '11px' }}>
                     Validated format: PNG or SVG URLs.
                   </small>
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--admin-text-secondary)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Display Order
                   </label>
                   <input
@@ -1746,11 +1744,11 @@ export default function UnifiedCatalogManager() {
                     onChange={(e) => setCatFormData({ ...catFormData, displayOrder: parseInt(e.target.value, 10) || 0 })}
                     style={{
                       width: '100%',
-                      backgroundColor: '#090d16',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      backgroundColor: 'var(--admin-input-bg)',
+                      border: '1px solid var(--admin-input-border)',
                       borderRadius: '8px',
                       padding: '9px 12px',
-                      color: '#f8fafc',
+                      color: 'var(--admin-text-primary)',
                       fontSize: '13px',
                       outline: 'none',
                       boxSizing: 'border-box',
@@ -1789,7 +1787,7 @@ export default function UnifiedCatalogManager() {
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(9, 11, 17, 0.75)',
+            backgroundColor: 'var(--admin-modal-backdrop)',
             backdropFilter: 'blur(6px)',
             display: 'flex',
             justifyContent: 'flex-end',
@@ -1802,20 +1800,20 @@ export default function UnifiedCatalogManager() {
               width: '100%',
               maxWidth: '440px',
               height: '100%',
-              backgroundColor: '#090d16',
-              borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
+              backgroundColor: 'var(--admin-modal-bg)',
+              borderLeft: '1px solid var(--admin-border)',
               padding: '28px 24px',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
               overflowY: 'auto',
-              boxShadow: '-10px 0 30px rgba(0, 0, 0, 0.5)',
+              boxShadow: '-10px 0 30px rgba(0, 0, 0, 0.3)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--admin-text-primary)', margin: 0 }}>
                   {editingService ? 'Edit Service Item' : 'Create Service Item'}
                 </h2>
                 <button
@@ -1823,7 +1821,7 @@ export default function UnifiedCatalogManager() {
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#64748b',
+                    color: 'var(--admin-text-muted)',
                     cursor: 'pointer',
                     padding: '4px',
                     display: 'flex',
@@ -1842,7 +1840,7 @@ export default function UnifiedCatalogManager() {
 
               <form onSubmit={handleSvcSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--admin-text-secondary)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Category *
                   </label>
                   <select
@@ -1853,18 +1851,18 @@ export default function UnifiedCatalogManager() {
                     disabled={!!editingService}
                     style={{
                       width: '100%',
-                      backgroundColor: '#090d16',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      backgroundColor: 'var(--admin-input-bg)',
+                      border: '1px solid var(--admin-input-border)',
                       borderRadius: '8px',
                       padding: '9px 12px',
-                      color: '#f8fafc',
+                      color: 'var(--admin-text-primary)',
                       fontSize: '13px',
                       outline: 'none',
                       boxSizing: 'border-box',
                     }}
                   >
                     {categories.map((c) => (
-                      <option key={c.id} value={c.id}>
+                      <option key={c.id} value={c.id} style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>
                         {c.name}
                       </option>
                     ))}
@@ -1872,7 +1870,7 @@ export default function UnifiedCatalogManager() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--admin-text-secondary)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Service Name *
                   </label>
                   <input
@@ -1885,11 +1883,11 @@ export default function UnifiedCatalogManager() {
                     required
                     style={{
                       width: '100%',
-                      backgroundColor: '#090d16',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      backgroundColor: 'var(--admin-input-bg)',
+                      border: '1px solid var(--admin-input-border)',
                       borderRadius: '8px',
                       padding: '9px 12px',
-                      color: '#f8fafc',
+                      color: 'var(--admin-text-primary)',
                       fontSize: '13px',
                       outline: 'none',
                       boxSizing: 'border-box',
@@ -1898,7 +1896,7 @@ export default function UnifiedCatalogManager() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--admin-text-secondary)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Fixed Price (₹) *
                   </label>
                   <input
@@ -1911,11 +1909,11 @@ export default function UnifiedCatalogManager() {
                     required
                     style={{
                       width: '100%',
-                      backgroundColor: '#090d16',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      backgroundColor: 'var(--admin-input-bg)',
+                      border: '1px solid var(--admin-input-border)',
                       borderRadius: '8px',
                       padding: '9px 12px',
-                      color: '#f8fafc',
+                      color: 'var(--admin-text-primary)',
                       fontSize: '13px',
                       outline: 'none',
                       boxSizing: 'border-box',
@@ -1924,7 +1922,7 @@ export default function UnifiedCatalogManager() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--admin-text-secondary)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Estimated Duration
                   </label>
                   <input
@@ -1936,11 +1934,11 @@ export default function UnifiedCatalogManager() {
                     maxLength={50}
                     style={{
                       width: '100%',
-                      backgroundColor: '#090d16',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      backgroundColor: 'var(--admin-input-bg)',
+                      border: '1px solid var(--admin-input-border)',
                       borderRadius: '8px',
                       padding: '9px 12px',
-                      color: '#f8fafc',
+                      color: 'var(--admin-text-primary)',
                       fontSize: '13px',
                       outline: 'none',
                       boxSizing: 'border-box',
@@ -1949,7 +1947,7 @@ export default function UnifiedCatalogManager() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--admin-text-secondary)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.04em' }}>
                     Description
                   </label>
                   <textarea
@@ -1960,11 +1958,11 @@ export default function UnifiedCatalogManager() {
                     style={{
                       width: '100%',
                       height: '80px',
-                      backgroundColor: '#090d16',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      backgroundColor: 'var(--admin-input-bg)',
+                      border: '1px solid var(--admin-input-border)',
                       borderRadius: '8px',
                       padding: '9px 12px',
-                      color: '#f8fafc',
+                      color: 'var(--admin-text-primary)',
                       fontSize: '13px',
                       outline: 'none',
                       resize: 'none',
@@ -2050,8 +2048,8 @@ function CatalogKpiSkeleton() {
         <div
           key={i}
           style={{
-            backgroundColor: '#090d16',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            backgroundColor: 'var(--admin-card-bg)',
+            border: '1px solid var(--admin-border)',
             borderRadius: '12px',
             padding: '12px 14px',
             height: '120px',
@@ -2062,11 +2060,11 @@ function CatalogKpiSkeleton() {
           }}
           className="animate-pulse"
         >
-          <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.08)', flexShrink: 0 }} />
+          <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'var(--admin-skeleton-bg)', flexShrink: 0 }} />
           <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <div style={{ width: '60px', height: '22px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }} />
-            <div style={{ width: '100px', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
-            <div style={{ width: '70px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }} />
+            <div style={{ width: '60px', height: '22px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '100px', height: '12px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '70px', height: '10px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
           </div>
         </div>
       ))}

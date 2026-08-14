@@ -339,7 +339,7 @@ export default function AdminPaymentsPage() {
   const isFiltersDirty = Boolean(methodFilter || statusFilter || dateFrom || dateTo);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', color: 'var(--admin-text-primary)' }}>
       {/* 1. Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -359,11 +359,11 @@ export default function AdminPaymentsPage() {
             >
               <WalletCards size={20} />
             </div>
-            <h1 id="admin-payments-heading" style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', margin: 0, letterSpacing: '-0.02em' }}>
+            <h1 id="admin-payments-heading" style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', margin: 0, letterSpacing: '-0.02em' }}>
               Payments & Financial Ledger
             </h1>
           </div>
-          <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px', margin: 0, paddingLeft: '2px' }}>
+          <p style={{ fontSize: '13px', color: 'var(--admin-text-secondary)', marginTop: '4px', margin: 0, paddingLeft: '2px' }}>
             Reconcile provider cash collections, audit online Razorpay transactions, and export financial reports.
           </p>
         </div>
@@ -404,16 +404,16 @@ export default function AdminPaymentsPage() {
           flexWrap: 'wrap',
           gap: '12px',
           padding: '16px 18px',
-          backgroundColor: '#090d16',
+          backgroundColor: 'var(--admin-card-bg)',
           borderRadius: '12px',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: '1px solid var(--admin-border)',
           alignItems: 'flex-end',
         }}
       >
         {/* Method Filter */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 150px', minWidth: '130px' }}>
-          <label htmlFor="method-filter-select" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <CreditCard size={12} color="#64748b" />
+          <label htmlFor="method-filter-select" style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <CreditCard size={12} color="var(--admin-text-muted)" />
             Payment Method
           </label>
           <select
@@ -425,9 +425,9 @@ export default function AdminPaymentsPage() {
             }}
             style={{
               padding: '8px 12px',
-              backgroundColor: '#090d16',
-              color: '#f8fafc',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: 'var(--admin-input-bg)',
+              color: 'var(--admin-text-primary)',
+              border: '1px solid var(--admin-input-border)',
               borderRadius: '8px',
               fontSize: '13px',
               height: '40px',
@@ -435,16 +435,16 @@ export default function AdminPaymentsPage() {
               cursor: 'pointer',
             }}
           >
-            <option value="">All Methods</option>
-            <option value="ONLINE">ONLINE</option>
-            <option value="CASH">CASH</option>
+            <option value="" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>All Methods</option>
+            <option value="ONLINE" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>ONLINE</option>
+            <option value="CASH" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>CASH</option>
           </select>
         </div>
 
         {/* Status Filter */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 170px', minWidth: '150px' }}>
-          <label htmlFor="status-filter-select" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <ShieldCheck size={12} color="#64748b" />
+          <label htmlFor="status-filter-select" style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <ShieldCheck size={12} color="var(--admin-text-muted)" />
             Payment Status
           </label>
           <select
@@ -456,9 +456,9 @@ export default function AdminPaymentsPage() {
             }}
             style={{
               padding: '8px 12px',
-              backgroundColor: '#090d16',
-              color: '#f8fafc',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: 'var(--admin-input-bg)',
+              color: 'var(--admin-text-primary)',
+              border: '1px solid var(--admin-input-border)',
               borderRadius: '8px',
               fontSize: '13px',
               height: '40px',
@@ -466,20 +466,20 @@ export default function AdminPaymentsPage() {
               cursor: 'pointer',
             }}
           >
-            <option value="">All Statuses</option>
-            <option value="PAYMENT_SUCCESS">PAYMENT_SUCCESS</option>
-            <option value="CASH_PENDING">CASH_PENDING</option>
-            <option value="CASH_SETTLED">CASH_SETTLED</option>
-            <option value="PAYMENT_FAILED">PAYMENT_FAILED</option>
-            <option value="PAYMENT_PENDING">PAYMENT_PENDING</option>
-            <option value="CANCELLED">CANCELLED</option>
+            <option value="" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>All Statuses</option>
+            <option value="PAYMENT_SUCCESS" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>PAYMENT_SUCCESS</option>
+            <option value="CASH_PENDING" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>CASH_PENDING</option>
+            <option value="CASH_SETTLED" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>CASH_SETTLED</option>
+            <option value="PAYMENT_FAILED" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>PAYMENT_FAILED</option>
+            <option value="PAYMENT_PENDING" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>PAYMENT_PENDING</option>
+            <option value="CANCELLED" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>CANCELLED</option>
           </select>
         </div>
 
         {/* Date From */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 140px', minWidth: '130px' }}>
-          <label htmlFor="date-from-input" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <Calendar size={12} color="#64748b" />
+          <label htmlFor="date-from-input" style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Calendar size={12} color="var(--admin-text-muted)" />
             From Date
           </label>
           <input
@@ -492,13 +492,12 @@ export default function AdminPaymentsPage() {
             }}
             style={{
               padding: '7px 10px',
-              backgroundColor: '#090d16',
-              color: '#f8fafc',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: 'var(--admin-input-bg)',
+              color: 'var(--admin-text-primary)',
+              border: '1px solid var(--admin-input-border)',
               borderRadius: '8px',
               fontSize: '13px',
               height: '40px',
-              colorScheme: 'dark',
               outline: 'none',
             }}
           />
@@ -506,8 +505,8 @@ export default function AdminPaymentsPage() {
 
         {/* Date To */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: '1 1 140px', minWidth: '130px' }}>
-          <label htmlFor="date-to-input" style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <Calendar size={12} color="#64748b" />
+          <label htmlFor="date-to-input" style={{ fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Calendar size={12} color="var(--admin-text-muted)" />
             To Date
           </label>
           <input
@@ -520,13 +519,12 @@ export default function AdminPaymentsPage() {
             }}
             style={{
               padding: '7px 10px',
-              backgroundColor: '#090d16',
-              color: '#f8fafc',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: 'var(--admin-input-bg)',
+              color: 'var(--admin-text-primary)',
+              border: '1px solid var(--admin-input-border)',
               borderRadius: '8px',
               fontSize: '13px',
               height: '40px',
-              colorScheme: 'dark',
               outline: 'none',
             }}
           />
@@ -543,9 +541,9 @@ export default function AdminPaymentsPage() {
             justifyContent: 'center',
             gap: '6px',
             padding: '8px 14px',
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
-            color: isFiltersDirty ? '#f8fafc' : '#64748b',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
+            backgroundColor: 'var(--admin-surface-hover)',
+            color: isFiltersDirty ? 'var(--admin-text-primary)' : 'var(--admin-text-muted)',
+            border: '1px solid var(--admin-border)',
             borderRadius: '8px',
             fontSize: '13px',
             fontWeight: 600,
@@ -569,9 +567,9 @@ export default function AdminPaymentsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -580,16 +578,16 @@ export default function AdminPaymentsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Transactions</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Transactions</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc' }}>
                 <Receipt size={16} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em' }}>
                 {totalCount}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 Loaded Page Ledger
               </div>
             </div>
@@ -599,9 +597,9 @@ export default function AdminPaymentsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -610,7 +608,7 @@ export default function AdminPaymentsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Total Amount</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Total Amount</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399' }}>
                 <Wallet size={16} />
               </div>
@@ -619,7 +617,7 @@ export default function AdminPaymentsPage() {
               <div style={{ fontSize: '22px', fontWeight: 800, color: '#34d399', letterSpacing: '-0.02em' }} className="truncate font-mono">
                 {formatCurrency(totalAmount)}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 Gross Volume
               </div>
             </div>
@@ -629,9 +627,9 @@ export default function AdminPaymentsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -640,16 +638,16 @@ export default function AdminPaymentsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Online Payments</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Online Payments</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
                 <CreditCard size={16} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }} className="truncate font-mono">
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em' }} className="truncate font-mono">
                 {formatCurrency(onlineAmount)}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 {onlinePercentage}% of Total
               </div>
             </div>
@@ -659,9 +657,9 @@ export default function AdminPaymentsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -670,16 +668,16 @@ export default function AdminPaymentsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Cash Payments</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Cash Payments</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24' }}>
                 <Banknote size={16} />
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }} className="truncate font-mono">
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em' }} className="truncate font-mono">
                 {formatCurrency(cashAmount)}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 {cashPercentage}% of Total
               </div>
             </div>
@@ -689,9 +687,9 @@ export default function AdminPaymentsPage() {
           <div
             style={{
               padding: '14px 16px',
-              backgroundColor: '#090d16',
+              backgroundColor: 'var(--admin-card-bg)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              border: '1px solid var(--admin-border)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -700,7 +698,7 @@ export default function AdminPaymentsPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>Success Rate</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', fontWeight: 600 }}>Success Rate</span>
               <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(20, 184, 166, 0.12)', border: '1px solid rgba(20, 184, 166, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2dd4bf' }}>
                 <ShieldCheck size={16} />
               </div>
@@ -709,7 +707,7 @@ export default function AdminPaymentsPage() {
               <div style={{ fontSize: '22px', fontWeight: 800, color: '#2dd4bf', letterSpacing: '-0.02em' }}>
                 {`${successRate}%`}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '2px', fontWeight: 500 }}>
                 Successful Transactions
               </div>
             </div>
@@ -720,9 +718,9 @@ export default function AdminPaymentsPage() {
       {/* 4. Main Ledger Table Card */}
       <div
         style={{
-          backgroundColor: '#090d16',
+          backgroundColor: 'var(--admin-card-bg)',
           borderRadius: '12px',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: '1px solid var(--admin-border)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
@@ -735,10 +733,10 @@ export default function AdminPaymentsPage() {
             justifyContent: 'space-between',
             alignItems: 'center',
             padding: '14px 18px',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            borderBottom: '1px solid var(--admin-border)',
           }}
         >
-          <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--admin-text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
             Transactions Ledger
           </h2>
           <span
@@ -801,47 +799,47 @@ export default function AdminPaymentsPage() {
         <div style={{ overflowX: 'auto', width: '100%' }}>
           <table id="admin-payments-table" style={{ minWidth: '720px', width: '100%', tableLayout: 'auto', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>DATE & TIME</th>
-                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>BOOKING ID</th>
-                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>CUSTOMER</th>
-                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>SERVICE</th>
-                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>AMOUNT</th>
-                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>METHOD</th>
-                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>STATUS</th>
-                <th style={{ padding: '8px 10px', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', textAlign: 'right', whiteSpace: 'nowrap' }}>ACTION</th>
+              <tr style={{ backgroundColor: 'var(--admin-table-header-bg)', borderBottom: '1px solid var(--admin-border)' }}>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>DATE & TIME</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>BOOKING ID</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>CUSTOMER</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>SERVICE</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>AMOUNT</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>METHOD</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>STATUS</th>
+                <th style={{ padding: '8px 10px', fontSize: '10px', color: 'var(--admin-text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px', textAlign: 'right', whiteSpace: 'nowrap' }}>ACTION</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 Array.from({ length: 6 }).map((_, idx) => (
-                  <tr key={`sk-row-${idx}`} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }} className="animate-pulse">
+                  <tr key={`sk-row-${idx}`} style={{ borderBottom: '1px solid var(--admin-border-subtle)' }} className="animate-pulse">
                     <td style={{ padding: '10px 12px' }}>
-                      <div style={{ width: '70px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                      <div style={{ width: '70px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
                     </td>
                     <td style={{ padding: '10px 12px' }}>
                       <div style={{ width: '90px', height: '20px', backgroundColor: 'rgba(56, 189, 248, 0.12)', borderRadius: '5px' }} />
                     </td>
                     <td style={{ padding: '10px 12px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
-                        <div style={{ width: '90px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'var(--admin-skeleton-bg)' }} />
+                        <div style={{ width: '90px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
                       </div>
                     </td>
                     <td style={{ padding: '10px 12px' }}>
-                      <div style={{ width: '110px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                      <div style={{ width: '110px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
                     </td>
                     <td style={{ padding: '10px 12px' }}>
-                      <div style={{ width: '90px', height: '14px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
+                      <div style={{ width: '90px', height: '14px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
                     </td>
                     <td style={{ padding: '10px 12px' }}>
                       <div style={{ width: '70px', height: '14px', backgroundColor: 'rgba(16, 185, 129, 0.12)', borderRadius: '4px' }} />
                     </td>
                     <td style={{ padding: '10px 12px' }}>
-                      <div style={{ width: '60px', height: '18px', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '6px' }} />
+                      <div style={{ width: '60px', height: '18px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '6px' }} />
                     </td>
                     <td style={{ padding: '10px 12px' }}>
-                      <div style={{ width: '75px', height: '20px', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '999px' }} />
+                      <div style={{ width: '75px', height: '20px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '999px' }} />
                     </td>
                   </tr>
                 ))
@@ -849,11 +847,11 @@ export default function AdminPaymentsPage() {
                 <tr>
                   <td id="empty-payments-state" colSpan={8} style={{ padding: '40px 16px', textAlign: 'center' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                      <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                      <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: 'var(--admin-surface-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-text-muted)' }}>
                         <Receipt size={22} />
                       </div>
-                      <span style={{ fontSize: '14px', fontWeight: 600, color: '#f8fafc' }}>No transactions found</span>
-                      <span style={{ fontSize: '12px', color: '#64748b', maxWidth: '340px' }}>
+                      <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--admin-text-primary)' }}>No transactions found</span>
+                      <span style={{ fontSize: '12px', color: 'var(--admin-text-muted)', maxWidth: '340px' }}>
                         No payment records matching the selected filter criteria were found. Try resetting the filters.
                       </span>
                     </div>
@@ -868,13 +866,13 @@ export default function AdminPaymentsPage() {
                     <tr
                       key={row.id}
                       style={{
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                        borderBottom: '1px solid var(--admin-border-subtle)',
                         transition: 'background-color 0.15s ease',
                       }}
-                      className="hover:bg-[rgba(255,255,255,0.02)]"
+                      className="hover:bg-[var(--admin-surface-hover)]"
                     >
                       {/* Date */}
-                      <td style={{ padding: '8px 10px', fontSize: '11px', color: '#cbd5e1', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '8px 10px', fontSize: '11px', color: 'var(--admin-text-secondary)', whiteSpace: 'nowrap' }}>
                         {new Date(row.date).toLocaleDateString('en-IN', {
                           day: 'numeric',
                           month: 'short',
@@ -911,7 +909,7 @@ export default function AdminPaymentsPage() {
                           <span
                             style={{
                               fontWeight: 600,
-                              color: '#f8fafc',
+                              color: 'var(--admin-text-primary)',
                               fontSize: '11px',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
@@ -930,7 +928,7 @@ export default function AdminPaymentsPage() {
                         <span
                           style={{
                             fontSize: '11px',
-                            color: '#cbd5e1',
+                            color: 'var(--admin-text-secondary)',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
@@ -987,7 +985,7 @@ export default function AdminPaymentsPage() {
                             {settlingId === row.id ? 'Settling...' : 'Mark Settled'}
                           </button>
                         ) : (
-                          <span style={{ fontSize: '12px', color: '#475569', paddingRight: '8px' }}>—</span>
+                          <span style={{ fontSize: '12px', color: 'var(--admin-text-muted)', paddingRight: '8px' }}>—</span>
                         )}
                       </td>
                     </tr>
@@ -1005,12 +1003,12 @@ export default function AdminPaymentsPage() {
             justifyContent: 'space-between',
             alignItems: 'center',
             padding: '12px 18px',
-            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-            backgroundColor: 'rgba(255, 255, 255, 0.01)',
+            borderTop: '1px solid var(--admin-border)',
+            backgroundColor: 'var(--admin-card-bg)',
           }}
         >
-          <span style={{ fontSize: '12px', color: '#64748b' }}>
-            Page <strong style={{ color: '#f8fafc' }}>{page}</strong> of <strong style={{ color: '#f8fafc' }}>{totalPages}</strong>
+          <span style={{ fontSize: '12px', color: 'var(--admin-text-muted)' }}>
+            Page <strong style={{ color: 'var(--admin-text-primary)' }}>{page}</strong> of <strong style={{ color: 'var(--admin-text-primary)' }}>{totalPages}</strong>
           </span>
           <div style={{ display: 'flex', gap: '6px' }}>
             <button
@@ -1021,9 +1019,9 @@ export default function AdminPaymentsPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '3px',
-                backgroundColor: '#090d16',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: page <= 1 ? '#475569' : '#f8fafc',
+                backgroundColor: 'var(--admin-surface-hover)',
+                border: '1px solid var(--admin-border)',
+                color: page <= 1 ? 'var(--admin-text-muted)' : 'var(--admin-text-primary)',
                 borderRadius: '6px',
                 padding: '5px 10px',
                 fontSize: '11px',
@@ -1044,9 +1042,9 @@ export default function AdminPaymentsPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '3px',
-                backgroundColor: '#090d16',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: page >= totalPages ? '#475569' : '#f8fafc',
+                backgroundColor: 'var(--admin-surface-hover)',
+                border: '1px solid var(--admin-border)',
+                color: page >= totalPages ? 'var(--admin-text-muted)' : 'var(--admin-text-primary)',
                 borderRadius: '6px',
                 padding: '5px 10px',
                 fontSize: '11px',
@@ -1074,9 +1072,9 @@ function PaymentsKpiSkeleton() {
           key={i}
           style={{
             padding: '14px 16px',
-            backgroundColor: '#090d16',
+            backgroundColor: 'var(--admin-card-bg)',
             borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            border: '1px solid var(--admin-border)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -1086,12 +1084,12 @@ function PaymentsKpiSkeleton() {
           className="animate-pulse"
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ width: '85px', height: '12px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '4px' }} />
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }} />
+            <div style={{ width: '85px', height: '12px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '30px', height: '30px', borderRadius: '7px', backgroundColor: 'var(--admin-skeleton-bg)' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <div style={{ width: '100px', height: '22px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px' }} />
-            <div style={{ width: '70px', height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }} />
+            <div style={{ width: '100px', height: '22px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
+            <div style={{ width: '70px', height: '10px', backgroundColor: 'var(--admin-skeleton-bg)', borderRadius: '4px' }} />
           </div>
         </div>
       ))}

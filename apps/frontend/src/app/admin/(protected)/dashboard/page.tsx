@@ -142,8 +142,8 @@ const DashboardChart = React.memo(function DashboardChart({
   return (
     <div
       style={{
-        backgroundColor: '#090d16',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
+        backgroundColor: 'var(--admin-card-bg)',
+        border: '1px solid var(--admin-border)',
         borderRadius: '12px',
         padding: '16px',
         display: 'flex',
@@ -157,7 +157,7 @@ const DashboardChart = React.memo(function DashboardChart({
     >
       {/* Chart Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
-        <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#f8fafc', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
+        <h3 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--admin-text-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>
           BOOKING VOLUME DISTRIBUTION (MONTHLY)
         </h3>
 
@@ -166,32 +166,32 @@ const DashboardChart = React.memo(function DashboardChart({
             value={chartYearFilter}
             onChange={(e) => onChartYearChange(e.target.value)}
             style={{
-              backgroundColor: '#090d16',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              backgroundColor: 'var(--admin-input-bg)',
+              border: '1px solid var(--admin-input-border)',
               borderRadius: '8px',
               fontSize: '12px',
               fontWeight: 500,
               padding: '6px 28px 6px 10px',
-              color: '#f8fafc',
+              color: 'var(--admin-text-primary)',
               cursor: 'pointer',
               outline: 'none',
               appearance: 'none',
               WebkitAppearance: 'none',
             }}
           >
-            <option value="this_year">This Year</option>
-            <option value="last_year">Last Year</option>
+            <option value="this_year" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>This Year</option>
+            <option value="last_year" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>Last Year</option>
           </select>
           <ChevronDown
             size={13}
-            color="#94a3b8"
+            color="var(--admin-text-secondary)"
             style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
           />
         </div>
       </div>
 
       {/* Chart Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-slate-300">
+      <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs" style={{ color: 'var(--admin-text-secondary)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
           <span style={{ fontWeight: 500 }}>Bookings</span>
@@ -231,13 +231,13 @@ const DashboardChart = React.memo(function DashboardChart({
                   y1={y}
                   x2={chartWidth - paddingRight}
                   y2={y}
-                  stroke="rgba(255, 255, 255, 0.05)"
+                  stroke="var(--admin-border-subtle)"
                   strokeDasharray="4 4"
                 />
                 <text
                   x={paddingLeft - 8}
                   y={y + 4}
-                  fill="#64748b"
+                  fill="var(--admin-text-muted)"
                   fontSize="10"
                   textAnchor="end"
                   fontFamily="sans-serif"
@@ -247,7 +247,7 @@ const DashboardChart = React.memo(function DashboardChart({
                 <text
                   x={chartWidth - paddingRight + 8}
                   y={y + 4}
-                  fill="#64748b"
+                  fill="var(--admin-text-muted)"
                   fontSize="10"
                   textAnchor="start"
                   fontFamily="sans-serif"
@@ -259,10 +259,10 @@ const DashboardChart = React.memo(function DashboardChart({
           })}
 
           {/* Y-Axis Titles */}
-          <text x={paddingLeft - 30} y={paddingTop - 10} fill="#64748b" fontSize="10" fontWeight="600">
+          <text x={paddingLeft - 30} y={paddingTop - 10} fill="var(--admin-text-muted)" fontSize="10" fontWeight="600">
             Bookings
           </text>
-          <text x={chartWidth - paddingRight + 8} y={paddingTop - 10} fill="#64748b" fontSize="10" fontWeight="600">
+          <text x={chartWidth - paddingRight + 8} y={paddingTop - 10} fill="var(--admin-text-muted)" fontSize="10" fontWeight="600">
             Revenue (₹)
           </text>
 
@@ -286,7 +286,7 @@ const DashboardChart = React.memo(function DashboardChart({
               y1={paddingTop}
               x2={pointsBookings[hoveredPointIndex].x}
               y2={paddingTop + graphH}
-              stroke="rgba(255, 255, 255, 0.2)"
+              stroke="var(--admin-border)"
               strokeDasharray="3 3"
             />
           )}
@@ -304,7 +304,7 @@ const DashboardChart = React.memo(function DashboardChart({
                 <text
                   x={ptB.x}
                   y={chartHeight - 10}
-                  fill={isHovered ? '#f8fafc' : '#64748b'}
+                  fill={isHovered ? 'var(--admin-text-primary)' : 'var(--admin-text-muted)'}
                   fontSize="11"
                   fontWeight={isHovered ? '700' : '500'}
                   textAnchor="middle"
@@ -317,7 +317,7 @@ const DashboardChart = React.memo(function DashboardChart({
                   cy={ptB.y}
                   r={isHovered ? 5 : 3.5}
                   fill="#10b981"
-                  stroke="#090d16"
+                  stroke="var(--admin-card-bg)"
                   strokeWidth="2"
                   style={{ cursor: 'pointer', transition: 'all 0.15s ease' }}
                 />
@@ -327,7 +327,7 @@ const DashboardChart = React.memo(function DashboardChart({
                   cy={ptR.y}
                   r={isHovered ? 5 : 3.5}
                   fill="#3b82f6"
-                  stroke="#090d16"
+                  stroke="var(--admin-card-bg)"
                   strokeWidth="2"
                   style={{ cursor: 'pointer', transition: 'all 0.15s ease' }}
                 />
@@ -347,7 +347,7 @@ const DashboardChart = React.memo(function DashboardChart({
           })}
         </svg>
 
-        {/* Dark Floating Glassmorphism Tooltip */}
+        {/* Floating Tooltip */}
         {hoveredPointIndex !== null && pointsBookings[hoveredPointIndex] && trendData[hoveredPointIndex] && (
           <div
             style={{
@@ -355,20 +355,20 @@ const DashboardChart = React.memo(function DashboardChart({
               left: `${(pointsBookings[hoveredPointIndex].x / chartWidth) * 100}%`,
               top: '15%',
               transform: 'translateX(-50%)',
-              backgroundColor: '#090d16',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
+              backgroundColor: 'var(--admin-modal-bg)',
+              border: '1px solid var(--admin-border)',
               borderRadius: '8px',
               padding: '8px 12px',
-              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.6)',
+              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
               pointerEvents: 'none',
               zIndex: 20,
               minWidth: '140px',
             }}
           >
-            <div style={{ fontSize: '11px', fontWeight: 700, color: '#f8fafc', marginBottom: '4px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--admin-text-primary)', marginBottom: '4px' }}>
               {trendData[hoveredPointIndex].month}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', fontSize: '10px', color: '#cbd5e1', marginBottom: '2px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', fontSize: '10px', color: 'var(--admin-text-secondary)', marginBottom: '2px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }} />
                 <span>Bookings</span>
@@ -377,7 +377,7 @@ const DashboardChart = React.memo(function DashboardChart({
                 {trendData[hoveredPointIndex].count.toLocaleString()}
               </span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', fontSize: '10px', color: '#cbd5e1' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', fontSize: '10px', color: 'var(--admin-text-secondary)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#3b82f6' }} />
                 <span>Revenue</span>
@@ -407,8 +407,8 @@ function DashboardSkeleton() {
           <div
             key={i}
             style={{
-              backgroundColor: '#090d16',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              backgroundColor: 'var(--admin-card-bg)',
+              border: '1px solid var(--admin-border)',
               borderRadius: '12px',
               padding: '16px',
               height: '130px',
@@ -433,8 +433,8 @@ function DashboardSkeleton() {
       {/* Chart Skeleton */}
       <div
         style={{
-          backgroundColor: '#090d16',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: 'var(--admin-card-bg)',
+          border: '1px solid var(--admin-border)',
           borderRadius: '12px',
           padding: '16px',
           height: '240px',
@@ -706,7 +706,7 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div style={{ maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', color: '#ffffff' }}>
+    <div style={{ maxWidth: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', color: 'var(--admin-text-primary)' }}>
       {/* Toast Notification Banner */}
       {bannerMessage && (
         <div
@@ -737,7 +737,7 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* 1. Page Header Bar - Pinned Right Action Buttons & Full Description Below */}
+      {/* 1. Page Header Bar */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '100%' }}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -757,7 +757,7 @@ export default function AdminDashboardPage() {
             >
               <TrendingUp size={20} />
             </div>
-            <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em', margin: 0 }}>
+            <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.02em', margin: 0 }}>
               Operational Analytics
             </h1>
           </div>
@@ -796,13 +796,13 @@ export default function AdminDashboardPage() {
                 value={filterPeriod}
                 onChange={(e) => handleFilterChange(e.target.value)}
                 style={{
-                  backgroundColor: '#090d16',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  backgroundColor: 'var(--admin-input-bg)',
+                  border: '1px solid var(--admin-input-border)',
                   borderRadius: '8px',
                   fontSize: '12px',
                   fontWeight: 500,
                   padding: '8px 28px 8px 12px',
-                  color: '#f8fafc',
+                  color: 'var(--admin-text-primary)',
                   cursor: 'pointer',
                   outline: 'none',
                   appearance: 'none',
@@ -811,14 +811,14 @@ export default function AdminDashboardPage() {
                   width: '100%',
                 }}
               >
-                <option value="30">Last 30 Days</option>
-                <option value="7">Last 7 Days</option>
-                <option value="365">This Year</option>
-                <option value="custom">Custom Range</option>
+                <option value="30" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>Last 30 Days</option>
+                <option value="7" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>Last 7 Days</option>
+                <option value="365" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>This Year</option>
+                <option value="custom" style={{ backgroundColor: 'var(--admin-modal-bg)', color: 'var(--admin-text-primary)' }}>Custom Range</option>
               </select>
               <ChevronDown
                 size={14}
-                color="#94a3b8"
+                color="var(--admin-text-secondary)"
                 style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
               />
             </div>
@@ -831,30 +831,28 @@ export default function AdminDashboardPage() {
                   value={startDate}
                   onChange={handleStartDateChange}
                   style={{
-                    backgroundColor: '#090d16',
-                    border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
+                    backgroundColor: 'var(--admin-input-bg)',
+                    border: dateValidationError ? '1px solid #ef4444' : '1px solid var(--admin-input-border)',
                     borderRadius: '6px',
                     padding: '6px 8px',
-                    color: '#f8fafc',
-                    colorScheme: 'dark',
+                    color: 'var(--admin-text-primary)',
                     fontSize: '11px',
                     outline: 'none',
                     width: '100%',
                   }}
                 />
-                <span style={{ color: '#64748b', textAlign: 'center' }}>to</span>
+                <span style={{ color: 'var(--admin-text-muted)', textAlign: 'center' }}>to</span>
                 <input
                   type="date"
                   id="end-date"
                   value={endDate}
                   onChange={handleEndDateChange}
                   style={{
-                    backgroundColor: '#090d16',
-                    border: dateValidationError ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
+                    backgroundColor: 'var(--admin-input-bg)',
+                    border: dateValidationError ? '1px solid #ef4444' : '1px solid var(--admin-input-border)',
                     borderRadius: '6px',
                     padding: '6px 8px',
-                    color: '#f8fafc',
-                    colorScheme: 'dark',
+                    color: 'var(--admin-text-primary)',
                     fontSize: '11px',
                     outline: 'none',
                     width: '100%',
@@ -864,7 +862,7 @@ export default function AdminDashboardPage() {
             )}
           </div>
         </div>
-        <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0, fontWeight: 400, lineHeight: 1.4 }}>
+        <p style={{ fontSize: '13px', color: 'var(--admin-text-secondary)', margin: 0, fontWeight: 400, lineHeight: 1.4 }}>
           Inspect time-series booking trends, active provider occupancies, and download streamed transactions ledgers.
         </p>
       </div>
@@ -918,7 +916,7 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* 2. Executive 4 KPI Cards Grid (Structured Top Label / Bottom Value Layout) */}
+      {/* 2. Executive 4 KPI Cards Grid */}
       {(loading && !metrics) || isRecalculating ? (
         <DashboardSkeleton />
       ) : (
@@ -927,8 +925,8 @@ export default function AdminDashboardPage() {
             {/* KPI 1: Total Revenue */}
             <div
               style={{
-                backgroundColor: '#090d16',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                backgroundColor: 'var(--admin-card-bg)',
+                border: '1px solid var(--admin-border)',
                 borderRadius: '12px',
                 padding: '16px 18px',
                 minHeight: '130px',
@@ -958,13 +956,13 @@ export default function AdminDashboardPage() {
                 >
                   <IndianRupee size={18} />
                 </div>
-                <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: '11px', color: 'var(--admin-text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
                   TOTAL REVENUE
                 </span>
               </div>
 
               <div>
-                <div id="val-revenue" style={{ fontSize: '24px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
+                <div id="val-revenue" style={{ fontSize: '24px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
                   {metrics ? `₹${metrics.revenue_today_inr.toLocaleString('en-IN')}` : '₹0'}
                 </div>
                 {(() => {
@@ -986,7 +984,7 @@ export default function AdminDashboardPage() {
                     );
                   }
                   return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 500 }}>
                       <Minus size={13} />
                       <span>0.0% {label}</span>
                     </div>
@@ -998,8 +996,8 @@ export default function AdminDashboardPage() {
             {/* KPI 2: Total Bookings */}
             <div
               style={{
-                backgroundColor: '#090d16',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                backgroundColor: 'var(--admin-card-bg)',
+                border: '1px solid var(--admin-border)',
                 borderRadius: '12px',
                 padding: '16px 18px',
                 minHeight: '130px',
@@ -1029,13 +1027,13 @@ export default function AdminDashboardPage() {
                 >
                   <CalendarDays size={18} />
                 </div>
-                <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: '11px', color: 'var(--admin-text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
                   TOTAL BOOKINGS
                 </span>
               </div>
 
               <div>
-                <div id="val-bookings" style={{ fontSize: '24px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
+                <div id="val-bookings" style={{ fontSize: '24px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
                   {metrics ? metrics.total_bookings_today.toLocaleString('en-IN') : '0'}
                 </div>
                 {(() => {
@@ -1057,7 +1055,7 @@ export default function AdminDashboardPage() {
                     );
                   }
                   return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 500 }}>
                       <Minus size={13} />
                       <span>0.0% {label}</span>
                     </div>
@@ -1069,8 +1067,8 @@ export default function AdminDashboardPage() {
             {/* KPI 3: Unassigned Bookings */}
             <div
               style={{
-                backgroundColor: '#090d16',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                backgroundColor: 'var(--admin-card-bg)',
+                border: '1px solid var(--admin-border)',
                 borderRadius: '12px',
                 padding: '16px 18px',
                 minHeight: '130px',
@@ -1101,7 +1099,7 @@ export default function AdminDashboardPage() {
                   <UserRoundX size={18} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--admin-text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
                     UNASSIGNED
                   </span>
                   {metrics && metrics.unassigned_count > 0 && (
@@ -1113,7 +1111,7 @@ export default function AdminDashboardPage() {
               </div>
 
               <div>
-                <div id="val-occupancy" style={{ fontSize: '24px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
+                <div id="val-occupancy" style={{ fontSize: '24px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
                   {metrics ? metrics.unassigned_count.toLocaleString('en-IN') : '0'}
                 </div>
                 {(() => {
@@ -1135,7 +1133,7 @@ export default function AdminDashboardPage() {
                     );
                   }
                   return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 500 }}>
                       <Minus size={13} />
                       <span>0.0% {label}</span>
                     </div>
@@ -1147,8 +1145,8 @@ export default function AdminDashboardPage() {
             {/* KPI 4: Active Providers */}
             <div
               style={{
-                backgroundColor: '#090d16',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                backgroundColor: 'var(--admin-card-bg)',
+                border: '1px solid var(--admin-border)',
                 borderRadius: '12px',
                 padding: '16px 18px',
                 minHeight: '130px',
@@ -1178,16 +1176,16 @@ export default function AdminDashboardPage() {
                 >
                   <UsersRound size={18} />
                 </div>
-                <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: '11px', color: 'var(--admin-text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
                   ACTIVE PROVIDERS
                 </span>
               </div>
 
               <div>
-                <div id="val-providers" style={{ fontSize: '24px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
+                <div id="val-providers" style={{ fontSize: '24px', fontWeight: 800, color: 'var(--admin-text-primary)', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
                   {metrics ? metrics.active_providers_count.toLocaleString('en-IN') : '0'}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: 'var(--admin-text-muted)', fontWeight: 500 }}>
                   <Minus size={13} />
                   <span>Steady</span>
                 </div>
@@ -1205,8 +1203,8 @@ export default function AdminDashboardPage() {
           {/* 4. Recent Unassigned Bookings Table Card */}
           <div
             style={{
-              backgroundColor: '#090d16',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              backgroundColor: 'var(--admin-card-bg)',
+              border: '1px solid var(--admin-border)',
               borderRadius: '12px',
               overflow: 'hidden',
               display: 'flex',
@@ -1216,14 +1214,14 @@ export default function AdminDashboardPage() {
             <div
               style={{
                 padding: '14px 16px',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                borderBottom: '1px solid var(--admin-border)',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
+                <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--admin-text-primary)', margin: 0 }}>
                   Recent Unassigned Bookings
                 </h2>
                 <span
@@ -1262,11 +1260,11 @@ export default function AdminDashboardPage() {
             </div>
 
             {loading && unassignedBookings.length === 0 ? (
-              <div style={{ padding: '24px', color: '#64748b', textAlign: 'center', fontSize: '12px' }}>
+              <div style={{ padding: '24px', color: 'var(--admin-text-muted)', textAlign: 'center', fontSize: '12px' }}>
                 Loading pending bookings...
               </div>
             ) : unassignedBookings.length === 0 ? (
-              <div style={{ padding: '24px', color: '#64748b', textAlign: 'center', fontSize: '12px' }}>
+              <div style={{ padding: '24px', color: 'var(--admin-text-muted)', textAlign: 'center', fontSize: '12px' }}>
                 No unassigned bookings requiring immediate dispatch.
               </div>
             ) : (
@@ -1275,9 +1273,9 @@ export default function AdminDashboardPage() {
                   <thead>
                     <tr
                       style={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                        color: '#64748b',
+                        backgroundColor: 'var(--admin-table-header-bg)',
+                        borderBottom: '1px solid var(--admin-border)',
+                        color: 'var(--admin-text-muted)',
                         fontSize: '10px',
                         fontWeight: 700,
                         textTransform: 'uppercase',
@@ -1294,11 +1292,11 @@ export default function AdminDashboardPage() {
                     {unassignedBookings.map((booking) => (
                       <tr
                         key={booking.id}
-                        style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)', transition: 'background-color 0.12s ease' }}
-                        className="hover:bg-[rgba(255,255,255,0.02)]"
+                        style={{ borderBottom: '1px solid var(--admin-border-subtle)', transition: 'background-color 0.12s ease' }}
+                        className="hover:bg-[var(--admin-table-row-hover)]"
                       >
-                        <td style={{ padding: '10px 12px', color: '#64748b', whiteSpace: 'nowrap' }}>{booking.createdAt}</td>
-                        <td style={{ padding: '10px 12px', color: '#f8fafc', fontWeight: 600 }}>
+                        <td style={{ padding: '10px 12px', color: 'var(--admin-text-muted)', whiteSpace: 'nowrap' }}>{booking.createdAt}</td>
+                        <td style={{ padding: '10px 12px', color: 'var(--admin-text-primary)', fontWeight: 600 }}>
                           <span
                             style={{
                               display: 'block',
@@ -1312,7 +1310,7 @@ export default function AdminDashboardPage() {
                             {booking.customerName}
                           </span>
                         </td>
-                        <td style={{ padding: '10px 12px', color: '#cbd5e1' }}>
+                        <td style={{ padding: '10px 12px', color: 'var(--admin-text-secondary)' }}>
                           <span
                             style={{
                               display: 'block',

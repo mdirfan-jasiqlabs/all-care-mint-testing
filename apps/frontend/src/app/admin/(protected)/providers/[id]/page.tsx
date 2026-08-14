@@ -299,12 +299,12 @@ export default function ProviderDetailPage() {
     : '—';
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto" style={{ color: 'var(--admin-text-primary)' }}>
       {/* 1. BACK NAVIGATION */}
       <div>
         <button
           onClick={() => router.push('/admin/providers')}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-400/90 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/40 border border-emerald-500/20 hover:border-emerald-500/40 px-3.5 py-1.5 rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-400/90 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/40 border border-emerald-500/20 hover:border-emerald-500/40 px-3.5 py-1.5 rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Providers Directory</span>
@@ -312,7 +312,7 @@ export default function ProviderDetailPage() {
       </div>
 
       {/* 2. PROVIDER IDENTITY HERO CARD */}
-      <div className="bg-[#0f172a] border border-slate-800/80 rounded-2xl p-6 shadow-lg relative overflow-hidden backdrop-blur-sm">
+      <div className="rounded-2xl p-6 shadow-lg relative overflow-hidden backdrop-blur-sm" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
@@ -330,12 +330,12 @@ export default function ProviderDetailPage() {
             </div>
 
             <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight" style={{ color: 'var(--admin-text-primary)' }}>
                 {provider.displayName}
               </h1>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs font-medium text-slate-400">ID:</span>
-                <code className="text-xs font-mono text-slate-300 bg-slate-800/60 border border-slate-700/50 px-2 py-0.5 rounded">
+                <span className="text-xs font-medium" style={{ color: 'var(--admin-text-muted)' }}>ID:</span>
+                <code className="text-xs font-mono px-2 py-0.5 rounded" style={{ color: 'var(--admin-text-secondary)', backgroundColor: 'var(--admin-surface-hover)', border: '1px solid var(--admin-border)' }}>
                   {provider.id}
                 </code>
               </div>
@@ -376,42 +376,42 @@ export default function ProviderDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* LEFT COLUMN: Profile Details & Status Operations */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-[#0f172a] border border-slate-800/80 rounded-2xl p-6 space-y-6 shadow-md">
+          <div className="rounded-2xl p-6 space-y-6 shadow-md" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
             {/* Section Header */}
-            <div className="flex items-center gap-2.5 pb-4 border-b border-slate-800/80">
+            <div className="flex items-center gap-2.5 pb-4 border-b" style={{ borderColor: 'var(--admin-border)' }}>
               <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
                 <User className="w-4 h-4" />
               </div>
-              <h2 className="text-lg font-bold text-white tracking-tight">Profile Details</h2>
+              <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--admin-text-primary)' }}>Profile Details</h2>
             </div>
 
             {/* Fields List */}
             <div className="space-y-4">
               {/* Mobile Number */}
-              <div className="flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-900/50 border border-slate-800/60 hover:border-slate-700/60 transition-colors">
-                <div className="p-2 rounded-lg bg-slate-800 text-slate-400 mt-0.5">
+              <div className="flex items-start gap-3.5 p-3.5 rounded-xl border transition-colors" style={{ backgroundColor: 'var(--admin-surface-hover)', borderColor: 'var(--admin-border)' }}>
+                <div className="p-2 rounded-lg text-slate-400 mt-0.5" style={{ backgroundColor: 'var(--admin-card-bg)' }}>
                   <Phone className="w-4 h-4 text-emerald-400" />
                 </div>
                 <div>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--admin-text-muted)' }}>
                     Mobile Number
                   </div>
-                  <div className="text-sm font-semibold text-white mt-0.5 tracking-wide">
+                  <div className="text-sm font-semibold mt-0.5 tracking-wide" style={{ color: 'var(--admin-text-primary)' }}>
                     {provider.mobileNumber}
                   </div>
                 </div>
               </div>
 
               {/* Service Area */}
-              <div className="flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-900/50 border border-slate-800/60 hover:border-slate-700/60 transition-colors">
-                <div className="p-2 rounded-lg bg-slate-800 text-slate-400 mt-0.5">
+              <div className="flex items-start gap-3.5 p-3.5 rounded-xl border transition-colors" style={{ backgroundColor: 'var(--admin-surface-hover)', borderColor: 'var(--admin-border)' }}>
+                <div className="p-2 rounded-lg text-slate-400 mt-0.5" style={{ backgroundColor: 'var(--admin-card-bg)' }}>
                   <MapPin className="w-4 h-4 text-emerald-400" />
                 </div>
                 <div>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--admin-text-muted)' }}>
                     Primary Service Area
                   </div>
-                  <div className="text-sm font-semibold text-white mt-0.5">
+                  <div className="text-sm font-semibold mt-0.5" style={{ color: 'var(--admin-text-primary)' }}>
                     {provider.serviceArea}
                   </div>
                 </div>
@@ -419,8 +419,8 @@ export default function ProviderDetailPage() {
             </div>
 
             {/* STATUS OPERATIONS SUB-SECTION */}
-            <div className="pt-5 border-t border-slate-800/80 space-y-4">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <div className="pt-5 border-t space-y-4" style={{ borderColor: 'var(--admin-border)' }}>
+              <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--admin-text-muted)' }}>
                 Status Operations
               </h3>
 
@@ -430,7 +430,7 @@ export default function ProviderDetailPage() {
                   <button
                     disabled={submitting}
                     onClick={() => triggerStatusConfirm('APPROVED')}
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all shadow-md shadow-emerald-500/10 disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all shadow-md shadow-emerald-500/10 disabled:opacity-50 cursor-pointer"
                   >
                     <UserCheck className="w-4 h-4" />
                     <span>Approve</span>
@@ -439,7 +439,7 @@ export default function ProviderDetailPage() {
                   <button
                     disabled={submitting}
                     onClick={() => triggerStatusConfirm('REJECTED')}
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold text-xs transition-all disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold text-xs transition-all disabled:opacity-50 cursor-pointer"
                   >
                     <UserX className="w-4 h-4" />
                     <span>Reject</span>
@@ -456,7 +456,7 @@ export default function ProviderDetailPage() {
                     </div>
                     <div className="space-y-0.5">
                       <div className="text-xs font-bold text-red-400">Suspend Account</div>
-                      <div className="text-xs text-slate-400 leading-snug">
+                      <div className="text-xs leading-snug" style={{ color: 'var(--admin-text-secondary)' }}>
                         This will suspend the provider and restrict new bookings.
                       </div>
                     </div>
@@ -464,7 +464,7 @@ export default function ProviderDetailPage() {
                   <button
                     disabled={submitting}
                     onClick={() => triggerStatusConfirm('SUSPENDED')}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 font-bold text-xs transition-all disabled:opacity-50"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 font-bold text-xs transition-all disabled:opacity-50 cursor-pointer"
                   >
                     <Ban className="w-3.5 h-3.5" />
                     <span>Suspend Account</span>
@@ -481,7 +481,7 @@ export default function ProviderDetailPage() {
                     </div>
                     <div className="space-y-0.5">
                       <div className="text-xs font-bold text-emerald-400">Re-Approve Account</div>
-                      <div className="text-xs text-slate-400 leading-snug">
+                      <div className="text-xs leading-snug" style={{ color: 'var(--admin-text-secondary)' }}>
                         Restore provider access and re-enable automated & manual job allocations.
                       </div>
                     </div>
@@ -489,7 +489,7 @@ export default function ProviderDetailPage() {
                   <button
                     disabled={submitting}
                     onClick={() => triggerStatusConfirm('APPROVED')}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all disabled:opacity-50 shadow-md shadow-emerald-500/10"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all disabled:opacity-50 shadow-md shadow-emerald-500/10 cursor-pointer"
                   >
                     <UserCheck className="w-4 h-4" />
                     <span>Re-Approve Account</span>
@@ -499,14 +499,14 @@ export default function ProviderDetailPage() {
 
               {/* REJECTED Actions */}
               {provider.status === 'REJECTED' && (
-                <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 space-y-3">
+                <div className="border rounded-xl p-4 space-y-3" style={{ backgroundColor: 'var(--admin-surface-hover)', borderColor: 'var(--admin-border)' }}>
                   <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-slate-800 text-slate-400 shrink-0">
+                    <div className="p-2 rounded-lg shrink-0" style={{ backgroundColor: 'var(--admin-card-bg)' }}>
                       <UserCheck className="w-4 h-4 text-emerald-400" />
                     </div>
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-white">Approve Account</div>
-                      <div className="text-xs text-slate-400 leading-snug">
+                      <div className="text-xs font-bold" style={{ color: 'var(--admin-text-primary)' }}>Approve Account</div>
+                      <div className="text-xs leading-snug" style={{ color: 'var(--admin-text-secondary)' }}>
                         Reconsider and approve this previously rejected provider application.
                       </div>
                     </div>
@@ -514,7 +514,7 @@ export default function ProviderDetailPage() {
                   <button
                     disabled={submitting}
                     onClick={() => triggerStatusConfirm('APPROVED')}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all disabled:opacity-50 shadow-md shadow-emerald-500/10"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all disabled:opacity-50 shadow-md shadow-emerald-500/10 cursor-pointer"
                   >
                     <UserCheck className="w-4 h-4" />
                     <span>Approve Account</span>
@@ -527,18 +527,18 @@ export default function ProviderDetailPage() {
 
         {/* RIGHT COLUMN: Service Capabilities */}
         <div className="lg:col-span-7 space-y-6">
-          <div className="bg-[#0f172a] border border-slate-800/80 rounded-2xl p-6 space-y-6 shadow-md">
+          <div className="rounded-2xl p-6 space-y-6 shadow-md" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
             {/* Section Header */}
-            <div className="space-y-1.5 pb-4 border-b border-slate-800/80">
+            <div className="space-y-1.5 pb-4 border-b" style={{ borderColor: 'var(--admin-border)' }}>
               <div className="flex items-center gap-2.5">
                 <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
                   <Briefcase className="w-4 h-4" />
                 </div>
-                <h2 className="text-lg font-bold text-white tracking-tight">
+                <h2 className="text-lg font-bold tracking-tight" style={{ color: 'var(--admin-text-primary)' }}>
                   Service Capabilities
                 </h2>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed pl-10">
+              <p className="text-xs leading-relaxed pl-10" style={{ color: 'var(--admin-text-secondary)' }}>
                 Map the service category catalog mappings for this provider to receive manual and auto job allocations.
               </p>
             </div>
@@ -546,7 +546,7 @@ export default function ProviderDetailPage() {
             {/* Capability Rows List */}
             <div className="space-y-3">
               {categories.length === 0 ? (
-                <div className="text-center py-8 text-xs text-slate-500 italic border border-dashed border-slate-800 rounded-xl">
+                <div className="text-center py-8 text-xs italic border border-dashed rounded-xl" style={{ color: 'var(--admin-text-muted)', borderColor: 'var(--admin-border)' }}>
                   No service categories found in catalog.
                 </div>
               ) : (
@@ -557,20 +557,20 @@ export default function ProviderDetailPage() {
                   return (
                     <div
                       key={cat.id}
-                      className={`flex items-center justify-between gap-4 p-4 rounded-xl transition-all border ${
-                        isMapped
-                          ? 'bg-emerald-950/10 border-emerald-500/20 hover:border-emerald-500/30'
-                          : 'bg-slate-900/40 border-slate-800/70 hover:border-slate-700/70'
-                      }`}
+                      style={{
+                        backgroundColor: isMapped ? 'rgba(16, 185, 129, 0.08)' : 'var(--admin-surface-hover)',
+                        borderColor: isMapped ? 'rgba(16, 185, 129, 0.25)' : 'var(--admin-border)',
+                      }}
+                      className="flex items-center justify-between gap-4 p-4 rounded-xl transition-all border"
                     >
                       <div className="space-y-1 min-w-0 pr-2">
-                        <div className="text-sm font-bold text-white truncate flex items-center gap-2">
+                        <div className="text-sm font-bold truncate flex items-center gap-2" style={{ color: 'var(--admin-text-primary)' }}>
                           <span>{cat.name}</span>
                           {isMapped && (
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block shrink-0" />
                           )}
                         </div>
-                        <div className="text-xs text-slate-400 line-clamp-2">
+                        <div className="text-xs line-clamp-2" style={{ color: 'var(--admin-text-muted)' }}>
                           {cat.description || 'No category description available.'}
                         </div>
                       </div>
@@ -581,7 +581,7 @@ export default function ProviderDetailPage() {
                           <button
                             disabled={submitting}
                             onClick={() => handleRemoveCategory(cat.id)}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/25 transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-500/30"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/25 transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-500/30 cursor-pointer"
                           >
                             {isCurrentPending ? (
                               <>
@@ -599,7 +599,7 @@ export default function ProviderDetailPage() {
                           <button
                             disabled={submitting}
                             onClick={() => handleAddCategory(cat.id)}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
                           >
                             {isCurrentPending ? (
                               <>
@@ -623,7 +623,6 @@ export default function ProviderDetailPage() {
           </div>
         </div>
       </div>
-
 
       {/* CONFIRMATION MODAL */}
       <ConfirmModal

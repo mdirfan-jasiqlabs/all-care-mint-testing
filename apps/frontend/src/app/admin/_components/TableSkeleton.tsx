@@ -14,7 +14,7 @@ export default function TableSkeleton({ rows = 5, columns = 4 }: TableSkeletonPr
       <div
         style={{
           display: 'flex',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          borderBottom: '1px solid var(--admin-border)',
           paddingBottom: '12px',
           marginBottom: '16px',
         }}
@@ -25,7 +25,7 @@ export default function TableSkeleton({ rows = 5, columns = 4 }: TableSkeletonPr
             style={{
               flex: 1,
               height: '16px',
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              backgroundColor: 'var(--admin-skeleton-bg)',
               marginRight: i === columns - 1 ? 0 : '16px',
               borderRadius: '4px',
             }}
@@ -39,7 +39,7 @@ export default function TableSkeleton({ rows = 5, columns = 4 }: TableSkeletonPr
           key={`sr-${rowIndex}`}
           style={{
             display: 'flex',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+            borderBottom: '1px solid var(--admin-border-subtle)',
             padding: '16px 0',
             alignItems: 'center',
           }}
@@ -55,12 +55,10 @@ export default function TableSkeleton({ rows = 5, columns = 4 }: TableSkeletonPr
               <div
                 style={{
                   height: '14px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  backgroundColor: 'var(--admin-skeleton-bg)',
                   borderRadius: '4px',
                   width: colIndex === 0 ? '70%' : colIndex === 1 ? '50%' : '80%',
-                  animation: 'shimmer 1.5s infinite linear',
-                  background: 'linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%)',
-                  backgroundSize: '200% 100%',
+                  opacity: 0.8,
                 }}
               />
             </div>

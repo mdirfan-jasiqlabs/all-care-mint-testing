@@ -23,6 +23,60 @@
   --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
+/* ========================================
+   Admin Theme CSS Variables & Design Tokens
+   ======================================== */
+[data-admin-theme="dark"],
+:root:not([data-admin-theme="light"]) {
+  --admin-bg: #060b13;
+  --admin-bg-secondary: #090d16;
+  --admin-surface: #090d16;
+  --admin-surface-hover: rgba(255, 255, 255, 0.05);
+  --admin-surface-elevated: #0c1425;
+  --admin-card-bg: #090d16;
+  --admin-border: rgba(255, 255, 255, 0.08);
+  --admin-border-subtle: rgba(255, 255, 255, 0.06);
+  --admin-text-primary: #f8fafc;
+  --admin-text-secondary: #cbd5e1;
+  --admin-text-muted: #64748b;
+  --admin-input-bg: #0c1425;
+  --admin-input-border: rgba(255, 255, 255, 0.12);
+  --admin-header-bg: rgba(6, 11, 19, 0.95);
+  --admin-sidebar-bg: #060b13;
+  --admin-drawer-bg: #020617;
+  --admin-table-header-bg: #090d16;
+  --admin-table-row-hover: rgba(255, 255, 255, 0.03);
+  --admin-skeleton-bg: rgba(255, 255, 255, 0.07);
+  --admin-modal-bg: #0f172a;
+  --admin-modal-backdrop: rgba(2, 6, 23, 0.8);
+  --admin-accent: #10b981;
+}
+
+[data-admin-theme="light"] {
+  --admin-bg: #f8fafc;
+  --admin-bg-secondary: #f1f5f9;
+  --admin-surface: #ffffff;
+  --admin-surface-hover: #f1f5f9;
+  --admin-surface-elevated: #ffffff;
+  --admin-card-bg: #ffffff;
+  --admin-border: #e2e8f0;
+  --admin-border-subtle: #e2e8f0;
+  --admin-text-primary: #0f172a;
+  --admin-text-secondary: #475569;
+  --admin-text-muted: #64748b;
+  --admin-input-bg: #ffffff;
+  --admin-input-border: #cbd5e1;
+  --admin-header-bg: rgba(255, 255, 255, 0.95);
+  --admin-sidebar-bg: #ffffff;
+  --admin-drawer-bg: #ffffff;
+  --admin-table-header-bg: #f8fafc;
+  --admin-table-row-hover: #f8fafc;
+  --admin-skeleton-bg: #e2e8f0;
+  --admin-modal-bg: #ffffff;
+  --admin-modal-backdrop: rgba(15, 23, 42, 0.5);
+  --admin-accent: #059669;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -65,21 +119,34 @@ html, body {
   scrollbar-color: #10b981 #060a12;
 }
 
-/* Fix native calendar picker icon visibility on dark backgrounds */
+/* Fix native calendar picker icon visibility */
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: brightness(0) invert(0.85) !important;
+  filter: brightness(0) invert(0.85);
   cursor: pointer !important;
   opacity: 0.85 !important;
   transition: opacity 0.15s ease, filter 0.15s ease;
 }
 
+[data-admin-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: none;
+  opacity: 0.65 !important;
+}
+
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1 !important;
-  filter: brightness(0) invert(1) !important;
+  filter: brightness(0) invert(1);
+}
+
+[data-admin-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  filter: none;
 }
 
 input[type="date"] {
-  color-scheme: dark !important;
+  color-scheme: dark;
+}
+
+[data-admin-theme="light"] input[type="date"] {
+  color-scheme: light;
 }
 
 /* Skeleton Loading Animations */
