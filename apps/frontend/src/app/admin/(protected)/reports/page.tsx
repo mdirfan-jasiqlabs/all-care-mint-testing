@@ -218,8 +218,26 @@ export default function AdminReportsPage() {
         const csvRows = [headers.join(',')];
 
         for (const item of reportData) {
-          const dateStr = item.date ? item.date.split('T')[0] : '';
-          const refStr = item.booking_reference || item.booking_id || '';
+          let dateStr = '';
+          if (item.date) {
+            const rawDate = String(item.date).trim();
+            if (rawDate.includes('T')) {
+              dateStr = rawDate.split('T')[0];
+            } else if (rawDate.includes(' ')) {
+              dateStr = rawDate.split(' ')[0];
+            } else {
+              const d = new Date(item.date);
+              if (!isNaN(d.getTime())) {
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                dateStr = `${yyyy}-${mm}-${dd}`;
+              } else {
+                dateStr = rawDate;
+              }
+            }
+          }
+          const refStr = `"${(item.booking_reference || item.booking_id || '').replace(/"/g, '""')}"`;
           const custStr = `"${(item.customer_name || 'Customer').replace(/"/g, '""')}"`;
           const svcStr = `"${(item.service_name || 'Service').replace(/"/g, '""')}"`;
           const amount = item.amount_inr || 0;

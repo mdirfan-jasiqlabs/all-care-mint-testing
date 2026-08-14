@@ -804,7 +804,7 @@ export class AnalyticsService {
           const custStr = b.customer?.displayName || b.customer?.mobileNumber || 'Customer';
           const svcStr = b.serviceNameSnapshot || b.service?.name || 'Service';
 
-          chunk += `${sanitizeCsvCell(dateStr)},${sanitizeCsvCell(refStr)},${sanitizeCsvCell(custStr)},${sanitizeCsvCell(svcStr)},${amountInr},${sanitizeCsvCell(b.paymentMethod)},${sanitizeCsvCell(b.status)}\n`;
+          chunk += `${dateStr},${sanitizeCsvCell(refStr)},${sanitizeCsvCell(custStr)},${sanitizeCsvCell(svcStr)},${amountInr},${sanitizeCsvCell(b.paymentMethod)},${sanitizeCsvCell(b.status)}\n`;
         }
 
         yield chunk;

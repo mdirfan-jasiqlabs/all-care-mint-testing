@@ -149,8 +149,26 @@ export default function AdminPaymentsPage() {
         const csvRows = [headers.join(',')];
 
         for (const p of payments) {
-          const dateStr = p.date ? p.date.split('T')[0] : '';
-          const bId = p.booking_id || '';
+          let dateStr = '';
+          if (p.date) {
+            const rawDate = String(p.date).trim();
+            if (rawDate.includes('T')) {
+              dateStr = rawDate.split('T')[0];
+            } else if (rawDate.includes(' ')) {
+              dateStr = rawDate.split(' ')[0];
+            } else {
+              const d = new Date(p.date);
+              if (!isNaN(d.getTime())) {
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                dateStr = `${yyyy}-${mm}-${dd}`;
+              } else {
+                dateStr = rawDate;
+              }
+            }
+          }
+          const bId = `"${(p.booking_id || '').replace(/"/g, '""')}"`;
           const custStr = `"${(p.customer_name || 'Customer').replace(/"/g, '""')}"`;
           const svcStr = `"${(p.service_name || 'Service').replace(/"/g, '""')}"`;
           const provStr = `"${(p.provider_name || 'Provider').replace(/"/g, '""')}"`;
