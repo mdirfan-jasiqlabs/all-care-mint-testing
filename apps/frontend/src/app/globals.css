@@ -160,7 +160,7 @@ input[type="date"] {
 }
 
 .skeleton-box {
-  background-color: rgba(255, 255, 255, 0.07);
+  background-color: var(--admin-skeleton-bg);
   border-radius: 8px;
   animation: skeletonPulse 1.8s ease-in-out infinite;
 }

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAdminTheme } from '../../_components/AdminThemeContext';
 import {
   IndianRupee,
   Calendar,
@@ -77,6 +78,8 @@ const DashboardChart = React.memo(function DashboardChart({
   onChartYearChange,
 }: DashboardChartProps) {
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
+  const { resolvedTheme } = useAdminTheme();
+  const isLight = resolvedTheme === 'light';
 
   // Map real API monthlyTrend data directly (zero hardcoded dummy values)
   const trendData = useMemo(() => {
@@ -382,7 +385,7 @@ const DashboardChart = React.memo(function DashboardChart({
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#3b82f6' }} />
                 <span>Revenue</span>
               </div>
-              <span style={{ fontWeight: 700, color: '#60a5fa' }}>
+              <span style={{ fontWeight: 700, color: isLight ? '#1d4ed8' : '#60a5fa' }}>
                 ₹{trendData[hoveredPointIndex].revenue.toLocaleString()}
               </span>
             </div>
@@ -446,6 +449,8 @@ function DashboardSkeleton() {
 
 export default function AdminDashboardPage() {
   const router = useRouter();
+  const { resolvedTheme } = useAdminTheme();
+  const isLight = resolvedTheme === 'light';
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [unassignedBookings, setUnassignedBookings] = useState<UnassignedBooking[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -713,9 +718,9 @@ export default function AdminDashboardPage() {
           id="alert-banner"
           style={{
             padding: '12px 16px',
-            backgroundColor: 'rgba(16, 185, 129, 0.12)',
-            color: '#10b981',
-            border: '1px solid rgba(16, 185, 129, 0.25)',
+            backgroundColor: isLight ? 'rgba(5, 150, 105, 0.1)' : 'rgba(16, 185, 129, 0.12)',
+            color: isLight ? '#047857' : '#10b981',
+            border: isLight ? '1px solid rgba(5, 150, 105, 0.25)' : '1px solid rgba(16, 185, 129, 0.25)',
             borderRadius: '10px',
             fontSize: '13px',
             fontWeight: 500,
@@ -725,12 +730,12 @@ export default function AdminDashboardPage() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CheckCircle2 size={16} color="#10b981" />
+            <CheckCircle2 size={16} color={isLight ? '#047857' : '#10b981'} />
             <span>{bannerMessage}</span>
           </div>
           <button
             onClick={() => setBannerMessage(null)}
-            style={{ background: 'transparent', border: 'none', color: '#10b981', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
+            style={{ background: 'transparent', border: 'none', color: isLight ? '#047857' : '#10b981', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}
           >
             ✕
           </button>
@@ -768,8 +773,8 @@ export default function AdminDashboardPage() {
               onClick={handleExportCsv}
               disabled={isExportingCsv}
               style={{
-                backgroundColor: '#10b981',
-                color: '#020617',
+                backgroundColor: isLight ? '#059669' : '#10b981',
+                color: '#ffffff',
                 border: 'none',
                 borderRadius: '8px',
                 padding: '9px 14px',
@@ -784,9 +789,9 @@ export default function AdminDashboardPage() {
                 opacity: isExportingCsv ? 0.7 : 1,
                 whiteSpace: 'nowrap',
               }}
-              className="hover:bg-[#34d399] w-full sm:w-auto active:scale-[0.98]"
+              className={`${isLight ? 'hover:bg-[#047857]' : 'hover:bg-[#059669]'} w-full sm:w-auto active:scale-[0.98]`}
             >
-              <Download size={14} />
+              <Download size={14} color="#ffffff" />
               <span>{isExportingCsv ? 'Exporting...' : 'Export Ledger CSV'}</span>
             </button>
 
@@ -879,20 +884,20 @@ export default function AdminDashboardPage() {
           id="dashboard-error-banner"
           role="alert"
           style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
+            background: isLight ? 'rgba(220, 38, 38, 0.08)' : 'rgba(239, 68, 68, 0.1)',
+            border: isLight ? '1px solid rgba(220, 38, 38, 0.25)' : '1px solid rgba(239, 68, 68, 0.3)',
             borderRadius: '10px',
             padding: '12px 16px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: '12px',
-            color: '#fca5a5',
+            color: isLight ? '#b91c1c' : '#fca5a5',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <AlertCircle size={18} color="#f87171" />
-            <span style={{ fontSize: '13px' }}>
+            <AlertCircle size={18} color={isLight ? '#dc2626' : '#f87171'} />
+            <span style={{ fontSize: '13px', fontWeight: 500 }}>
               {error} {metrics ? '(Preserving last known successful metrics)' : ''}
             </span>
           </div>
@@ -945,12 +950,12 @@ export default function AdminDashboardPage() {
                     width: '36px',
                     height: '36px',
                     borderRadius: '10px',
-                    backgroundColor: 'rgba(168, 85, 247, 0.12)',
-                    border: '1px solid rgba(168, 85, 247, 0.25)',
+                    backgroundColor: isLight ? 'rgba(126, 34, 206, 0.1)' : 'rgba(168, 85, 247, 0.12)',
+                    border: isLight ? '1px solid rgba(126, 34, 206, 0.25)' : '1px solid rgba(168, 85, 247, 0.25)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#c084fc',
+                    color: isLight ? '#7e22ce' : '#c084fc',
                     flexShrink: 0,
                   }}
                 >
@@ -970,14 +975,14 @@ export default function AdminDashboardPage() {
                   const percent = metrics?.revenue_trend_percent;
                   if (percent !== undefined && percent !== null && percent > 0) {
                     return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#34d399', fontWeight: 700 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: isLight ? '#047857' : '#34d399', fontWeight: 700 }}>
                         <TrendingUp size={13} />
                         <span>+{percent}% {label}</span>
                       </div>
                     );
                   } else if (percent !== undefined && percent !== null && percent < 0) {
                     return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#f87171', fontWeight: 700 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: isLight ? '#dc2626' : '#f87171', fontWeight: 700 }}>
                         <TrendingDown size={13} />
                         <span>{percent}% {label}</span>
                       </div>
@@ -1016,12 +1021,12 @@ export default function AdminDashboardPage() {
                     width: '36px',
                     height: '36px',
                     borderRadius: '10px',
-                    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                    border: '1px solid rgba(16, 185, 129, 0.25)',
+                    backgroundColor: isLight ? 'rgba(5, 150, 105, 0.1)' : 'rgba(16, 185, 129, 0.12)',
+                    border: isLight ? '1px solid rgba(5, 150, 105, 0.25)' : '1px solid rgba(16, 185, 129, 0.25)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#10b981',
+                    color: isLight ? '#059669' : '#10b981',
                     flexShrink: 0,
                   }}
                 >
@@ -1041,14 +1046,14 @@ export default function AdminDashboardPage() {
                   const percent = metrics?.bookings_trend_percent;
                   if (percent !== undefined && percent !== null && percent > 0) {
                     return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#34d399', fontWeight: 700 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: isLight ? '#047857' : '#34d399', fontWeight: 700 }}>
                         <TrendingUp size={13} />
                         <span>+{percent}% {label}</span>
                       </div>
                     );
                   } else if (percent !== undefined && percent !== null && percent < 0) {
                     return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#f87171', fontWeight: 700 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: isLight ? '#dc2626' : '#f87171', fontWeight: 700 }}>
                         <TrendingDown size={13} />
                         <span>{percent}% {label}</span>
                       </div>
@@ -1087,12 +1092,12 @@ export default function AdminDashboardPage() {
                     width: '36px',
                     height: '36px',
                     borderRadius: '10px',
-                    backgroundColor: 'rgba(239, 68, 68, 0.12)',
-                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    backgroundColor: isLight ? 'rgba(220, 38, 38, 0.1)' : 'rgba(239, 68, 68, 0.12)',
+                    border: isLight ? '1px solid rgba(220, 38, 38, 0.25)' : '1px solid rgba(239, 68, 68, 0.25)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#ef4444',
+                    color: isLight ? '#dc2626' : '#ef4444',
                     flexShrink: 0,
                   }}
                 >
@@ -1103,7 +1108,7 @@ export default function AdminDashboardPage() {
                     UNASSIGNED
                   </span>
                   {metrics && metrics.unassigned_count > 0 && (
-                    <span style={{ backgroundColor: 'rgba(239, 68, 68, 0.14)', color: '#f87171', border: '1px solid rgba(248, 113, 113, 0.28)', fontSize: '9px', fontWeight: 800, padding: '1px 6px', borderRadius: '999px', whiteSpace: 'nowrap' }}>
+                    <span style={{ backgroundColor: isLight ? 'rgba(220, 38, 38, 0.1)' : 'rgba(239, 68, 68, 0.14)', color: isLight ? '#b91c1c' : '#f87171', border: isLight ? '1px solid rgba(220, 38, 38, 0.3)' : '1px solid rgba(248, 113, 113, 0.28)', fontSize: '9px', fontWeight: 800, padding: '1px 6px', borderRadius: '999px', whiteSpace: 'nowrap' }}>
                       Action Required
                     </span>
                   )}
@@ -1119,14 +1124,14 @@ export default function AdminDashboardPage() {
                   const percent = metrics?.unassigned_trend_percent;
                   if (percent !== undefined && percent !== null && percent > 0) {
                     return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#f87171', fontWeight: 700 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: isLight ? '#dc2626' : '#f87171', fontWeight: 700 }}>
                         <TrendingUp size={13} />
                         <span>+{percent}% {label}</span>
                       </div>
                     );
                   } else if (percent !== undefined && percent !== null && percent < 0) {
                     return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#34d399', fontWeight: 700 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: isLight ? '#047857' : '#34d399', fontWeight: 700 }}>
                         <TrendingDown size={13} />
                         <span>{percent}% {label}</span>
                       </div>
@@ -1165,12 +1170,12 @@ export default function AdminDashboardPage() {
                     width: '36px',
                     height: '36px',
                     borderRadius: '10px',
-                    backgroundColor: 'rgba(59, 130, 246, 0.12)',
-                    border: '1px solid rgba(59, 130, 246, 0.25)',
+                    backgroundColor: isLight ? 'rgba(29, 78, 216, 0.1)' : 'rgba(59, 130, 246, 0.12)',
+                    border: isLight ? '1px solid rgba(29, 78, 216, 0.25)' : '1px solid rgba(59, 130, 246, 0.25)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#60a5fa',
+                    color: isLight ? '#1d4ed8' : '#60a5fa',
                     flexShrink: 0,
                   }}
                 >
@@ -1226,13 +1231,13 @@ export default function AdminDashboardPage() {
                 </h2>
                 <span
                   style={{
-                    backgroundColor: 'rgba(239, 68, 68, 0.12)',
-                    color: '#f87171',
+                    backgroundColor: isLight ? 'rgba(220, 38, 38, 0.1)' : 'rgba(239, 68, 68, 0.12)',
+                    color: isLight ? '#b91c1c' : '#f87171',
                     fontSize: '11px',
                     fontWeight: 700,
                     padding: '2px 8px',
                     borderRadius: '10px',
-                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    border: isLight ? '1px solid rgba(220, 38, 38, 0.25)' : '1px solid rgba(239, 68, 68, 0.25)',
                   }}
                 >
                   {unassignedBookings.length} pending
@@ -1244,7 +1249,7 @@ export default function AdminDashboardPage() {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#10b981',
+                  color: isLight ? '#059669' : '#10b981',
                   fontSize: '12px',
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -1328,8 +1333,8 @@ export default function AdminDashboardPage() {
                           <button
                             onClick={() => router.push(`/admin/bookings/${booking.id}`)}
                             style={{
-                              backgroundColor: '#10b981',
-                              color: '#020617',
+                              backgroundColor: isLight ? '#059669' : '#10b981',
+                              color: '#ffffff',
                               border: 'none',
                               padding: '4px 10px',
                               borderRadius: '6px',
@@ -1338,7 +1343,7 @@ export default function AdminDashboardPage() {
                               cursor: 'pointer',
                               transition: 'all 0.15s ease',
                             }}
-                            className="hover:bg-[#34d399]"
+                            className={isLight ? 'hover:bg-[#047857]' : 'hover:bg-[#059669]'}
                           >
                             Assign
                           </button>

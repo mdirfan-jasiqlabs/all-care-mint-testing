@@ -91,12 +91,12 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           disabled={loggingOut}
           aria-label="Log out"
           title="Log out"
-          className="hidden lg:inline-flex h-10 px-4 rounded-xl text-xs font-bold transition-all items-center justify-center gap-2 bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500/20 hover:border-red-500/40 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed outline-none flex-shrink-0 shadow-sm active:scale-95 cursor-pointer"
+          className="hidden lg:inline-flex h-10 px-4 rounded-xl text-xs font-bold transition-all items-center justify-center gap-2 bg-red-500/10 border border-red-500/25 text-red-600 dark:text-red-400 hover:bg-red-500/20 hover:border-red-500/40 hover:text-red-700 dark:hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed outline-none flex-shrink-0 shadow-sm active:scale-95 cursor-pointer"
         >
           {loggingOut ? (
-            <span className="w-3.5 h-3.5 border-2 border-red-400 border-t-transparent rounded-full animate-spin inline-block" />
+            <span className="w-3.5 h-3.5 border-2 border-red-600 dark:border-red-400 border-t-transparent rounded-full animate-spin inline-block" />
           ) : (
-            <LogOut className="w-4 h-4 text-red-400" />
+            <LogOut className="w-4 h-4 text-red-600 dark:text-red-400" />
           )}
           <span>Log Out</span>
         </button>

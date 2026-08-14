@@ -82,7 +82,13 @@ export default function AdminThemeSwitcher() {
             boxShadow: '0 12px 30px rgba(0, 0, 0, 0.4)',
           }}
         >
-          <div className="px-2.5 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b mb-1 border-slate-700/30">
+          <div
+            className="px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider border-b mb-1"
+            style={{
+              color: 'var(--admin-text-muted)',
+              borderColor: 'var(--admin-border)',
+            }}
+          >
             Appearance
           </div>
 
@@ -94,11 +100,11 @@ export default function AdminThemeSwitcher() {
             className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-colors cursor-pointer text-left ${
               theme === 'light'
                 ? 'bg-emerald-500/15 text-emerald-400 font-bold'
-                : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                : 'hover:bg-[var(--admin-surface-hover)]'
             }`}
             style={{
               color: theme === 'light' ? '#10b981' : 'var(--admin-text-primary)',
-              backgroundColor: theme === 'light' ? 'rgba(16, 185, 129, 0.12)' : 'transparent',
+              backgroundColor: theme === 'light' ? 'rgba(16, 185, 129, 0.12)' : undefined,
             }}
           >
             <div className="flex items-center gap-2.5">
@@ -116,11 +122,11 @@ export default function AdminThemeSwitcher() {
             className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-colors cursor-pointer text-left ${
               theme === 'dark'
                 ? 'bg-emerald-500/15 text-emerald-400 font-bold'
-                : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                : 'hover:bg-[var(--admin-surface-hover)]'
             }`}
             style={{
               color: theme === 'dark' ? '#10b981' : 'var(--admin-text-primary)',
-              backgroundColor: theme === 'dark' ? 'rgba(16, 185, 129, 0.12)' : 'transparent',
+              backgroundColor: theme === 'dark' ? 'rgba(16, 185, 129, 0.12)' : undefined,
             }}
           >
             <div className="flex items-center gap-2.5">
@@ -138,11 +144,11 @@ export default function AdminThemeSwitcher() {
             className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-colors cursor-pointer text-left ${
               theme === 'system'
                 ? 'bg-emerald-500/15 text-emerald-400 font-bold'
-                : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                : 'hover:bg-[var(--admin-surface-hover)]'
             }`}
             style={{
               color: theme === 'system' ? '#10b981' : 'var(--admin-text-primary)',
-              backgroundColor: theme === 'system' ? 'rgba(16, 185, 129, 0.12)' : 'transparent',
+              backgroundColor: theme === 'system' ? 'rgba(16, 185, 129, 0.12)' : undefined,
             }}
           >
             <div className="flex items-center gap-2.5">
