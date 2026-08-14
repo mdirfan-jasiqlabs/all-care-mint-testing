@@ -610,20 +610,20 @@ export default function UnifiedCatalogManager() {
   // Category Icon styling generator
   const getCategoryIconDetails = (name: string, index: number) => {
     const palette = [
-      { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)', color: '#a78bfa', Icon: Sparkles },
-      { bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.3)', color: '#34d399', Icon: Folder },
-      { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)', color: '#60a5fa', Icon: Droplet },
-      { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)', color: '#fbbf24', Icon: Zap },
-      { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)', color: '#f472b6', Icon: Paintbrush },
-      { bg: 'rgba(20, 184, 166, 0.15)', border: 'rgba(20, 184, 166, 0.3)', color: '#2dd4bf', Icon: Wrench },
+      { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)', color: 'var(--admin-kpi-purple-text)', Icon: Sparkles },
+      { bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.3)', color: 'var(--admin-accent)', Icon: Folder },
+      { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)', color: 'var(--admin-kpi-blue-text)', Icon: Droplet },
+      { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)', color: 'var(--admin-kpi-amber-text)', Icon: Zap },
+      { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)', color: 'var(--admin-badge-inactive-text)', Icon: Paintbrush },
+      { bg: 'rgba(20, 184, 166, 0.15)', border: 'rgba(20, 184, 166, 0.3)', color: 'var(--admin-accent)', Icon: Wrench },
     ];
 
     const lower = name.toLowerCase();
-    if (lower.includes('clean')) return { bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.3)', color: '#34d399', Icon: Sparkles };
-    if (lower.includes('ac') || lower.includes('repair')) return { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)', color: '#fbbf24', Icon: Zap };
-    if (lower.includes('plumb')) return { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)', color: '#60a5fa', Icon: Droplet };
-    if (lower.includes('paint')) return { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)', color: '#f472b6', Icon: Paintbrush };
-    if (lower.includes('electric')) return { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)', color: '#a78bfa', Icon: Zap };
+    if (lower.includes('clean')) return { bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.3)', color: 'var(--admin-accent)', Icon: Sparkles };
+    if (lower.includes('ac') || lower.includes('repair')) return { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)', color: 'var(--admin-kpi-amber-text)', Icon: Zap };
+    if (lower.includes('plumb')) return { bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)', color: 'var(--admin-kpi-blue-text)', Icon: Droplet };
+    if (lower.includes('paint')) return { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.3)', color: 'var(--admin-badge-inactive-text)', Icon: Paintbrush };
+    if (lower.includes('electric')) return { bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.3)', color: 'var(--admin-kpi-purple-text)', Icon: Zap };
 
     return palette[index % palette.length];
   };
@@ -885,7 +885,7 @@ export default function UnifiedCatalogManager() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#60a5fa',
+                color: 'var(--admin-kpi-blue-text)',
                 flexShrink: 0,
               }}
             >
@@ -928,7 +928,7 @@ export default function UnifiedCatalogManager() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#fbbf24',
+                color: 'var(--admin-kpi-amber-text)',
                 flexShrink: 0,
               }}
             >
@@ -971,7 +971,7 @@ export default function UnifiedCatalogManager() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#c084fc',
+                color: 'var(--admin-kpi-purple-text)',
                 flexShrink: 0,
               }}
             >
@@ -1314,9 +1314,9 @@ export default function UnifiedCatalogManager() {
                                   fontWeight: 800,
                                   letterSpacing: '0.04em',
                                   textTransform: 'uppercase',
-                                  backgroundColor: cat.isActive ? 'rgba(16, 185, 129, 0.14)' : 'rgba(239, 68, 68, 0.14)',
-                                  border: `1px solid ${cat.isActive ? 'rgba(52, 211, 153, 0.28)' : 'rgba(248, 113, 113, 0.28)'}`,
-                                  color: cat.isActive ? '#34d399' : '#f87171',
+                                  backgroundColor: cat.isActive ? 'var(--admin-badge-active-bg)' : 'var(--admin-badge-inactive-bg)',
+                                  border: `1px solid ${cat.isActive ? 'var(--admin-badge-active-border)' : 'var(--admin-badge-inactive-border)'}`,
+                                  color: cat.isActive ? 'var(--admin-badge-active-text)' : 'var(--admin-badge-inactive-text)',
                                 }}
                               >
                                 {cat.isActive ? 'Active' : 'Inactive'}
@@ -1334,15 +1334,15 @@ export default function UnifiedCatalogManager() {
                                     gap: '4px',
                                     padding: '4px 8px',
                                     borderRadius: '6px',
-                                    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                                    color: '#e2e8f0',
+                                    backgroundColor: 'var(--admin-btn-secondary-bg)',
+                                    border: '1px solid var(--admin-btn-secondary-border)',
+                                    color: 'var(--admin-btn-secondary-text)',
                                     fontSize: '11px',
                                     fontWeight: 600,
                                     cursor: 'pointer',
                                     transition: 'all 0.15s ease',
                                   }}
-                                  className="hover:bg-[rgba(255,255,255,0.08)]"
+                                  className="hover:bg-[var(--admin-btn-secondary-hover-bg)]"
                                 >
                                   <Edit2 size={12} />
                                   <span>Edit</span>
@@ -1357,9 +1357,9 @@ export default function UnifiedCatalogManager() {
                                     gap: '4px',
                                     padding: '4px 8px',
                                     borderRadius: '6px',
-                                    backgroundColor: cat.isActive ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                                    border: `1px solid ${cat.isActive ? 'rgba(239, 68, 68, 0.25)' : 'rgba(16, 185, 129, 0.25)'}`,
-                                    color: cat.isActive ? '#f87171' : '#10b981',
+                                    backgroundColor: cat.isActive ? 'var(--admin-badge-inactive-bg)' : 'var(--admin-badge-active-bg)',
+                                    border: `1px solid ${cat.isActive ? 'var(--admin-badge-inactive-border)' : 'var(--admin-badge-active-border)'}`,
+                                    color: cat.isActive ? 'var(--admin-badge-inactive-text)' : 'var(--admin-badge-active-text)',
                                     fontSize: '11px',
                                     fontWeight: 600,
                                     cursor: togglingCatId === cat.id ? 'not-allowed' : 'pointer',
@@ -1401,9 +1401,9 @@ export default function UnifiedCatalogManager() {
                   <thead>
                     <tr
                       style={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                        color: '#64748b',
+                        backgroundColor: 'var(--admin-table-header-bg)',
+                        borderBottom: '1px solid var(--admin-border)',
+                        color: 'var(--admin-text-muted)',
                         fontSize: '10px',
                         fontWeight: 700,
                         textTransform: 'uppercase',
@@ -1426,8 +1426,8 @@ export default function UnifiedCatalogManager() {
                   <tbody>
                     {filteredServices.length === 0 ? (
                       <tr>
-                        <td colSpan={6} style={{ padding: '36px 12px', textAlign: 'center', color: '#64748b' }}>
-                          <div style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8', marginBottom: '2px' }}>
+                        <td colSpan={6} style={{ padding: '36px 12px', textAlign: 'center', color: 'var(--admin-text-muted)' }}>
+                          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--admin-text-secondary)', marginBottom: '2px' }}>
                             No services found in this category
                           </div>
                           <div style={{ fontSize: '12px' }}>
@@ -1440,10 +1440,10 @@ export default function UnifiedCatalogManager() {
                         <tr
                           key={srv.id}
                           style={{
-                            borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                            borderBottom: '1px solid var(--admin-border-subtle)',
                             transition: 'background-color 0.12s ease',
                           }}
-                          className="hover:bg-[rgba(255,255,255,0.02)]"
+                          className="hover:bg-[var(--admin-table-row-hover)]"
                         >
                           {/* Service Name */}
                           <td style={{ padding: '10px 12px' }}>
@@ -1458,7 +1458,7 @@ export default function UnifiedCatalogManager() {
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  color: '#10b981',
+                                  color: 'var(--admin-accent)',
                                   flexShrink: 0,
                                 }}
                               >
@@ -1467,7 +1467,7 @@ export default function UnifiedCatalogManager() {
                               <span
                                 style={{
                                   fontWeight: 700,
-                                  color: '#f8fafc',
+                                  color: 'var(--admin-text-primary)',
                                   fontSize: '12px',
                                   overflow: 'hidden',
                                   textOverflow: 'ellipsis',
@@ -1482,7 +1482,7 @@ export default function UnifiedCatalogManager() {
                           </td>
 
                           {/* Description */}
-                          <td style={{ padding: '10px 12px', color: '#94a3b8', fontSize: '12px' }}>
+                          <td style={{ padding: '10px 12px', color: 'var(--admin-text-secondary)', fontSize: '12px' }}>
                             <span
                               style={{
                                 display: 'block',
@@ -1499,13 +1499,13 @@ export default function UnifiedCatalogManager() {
 
                           {/* Fixed Price */}
                           <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
-                            <span style={{ fontSize: '13px', fontWeight: 800, color: '#34d399', fontFamily: 'monospace' }}>
+                            <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--admin-accent)', fontFamily: 'monospace' }}>
                               ₹{parseFloat(srv.fixedPrice).toFixed(2)}
                             </span>
                           </td>
 
                           {/* Est Duration */}
-                          <td style={{ padding: '10px 12px', color: '#94a3b8', fontSize: '12px', whiteSpace: 'nowrap' }}>
+                          <td style={{ padding: '10px 12px', color: 'var(--admin-text-secondary)', fontSize: '12px', whiteSpace: 'nowrap' }}>
                             {srv.estimatedDuration || '—'}
                           </td>
 
@@ -1522,9 +1522,9 @@ export default function UnifiedCatalogManager() {
                                 fontWeight: 800,
                                 letterSpacing: '0.04em',
                                 textTransform: 'uppercase',
-                                backgroundColor: srv.isActive ? 'rgba(16, 185, 129, 0.14)' : 'rgba(239, 68, 68, 0.14)',
-                                border: `1px solid ${srv.isActive ? 'rgba(52, 211, 153, 0.28)' : 'rgba(248, 113, 113, 0.28)'}`,
-                                color: srv.isActive ? '#34d399' : '#f87171',
+                                backgroundColor: srv.isActive ? 'var(--admin-badge-active-bg)' : 'var(--admin-badge-inactive-bg)',
+                                border: `1px solid ${srv.isActive ? 'var(--admin-badge-active-border)' : 'var(--admin-badge-inactive-border)'}`,
+                                color: srv.isActive ? 'var(--admin-badge-active-text)' : 'var(--admin-badge-inactive-text)',
                               }}
                             >
                               {srv.isActive ? 'Active' : 'Inactive'}
@@ -1542,15 +1542,15 @@ export default function UnifiedCatalogManager() {
                                   gap: '4px',
                                   padding: '4px 8px',
                                   borderRadius: '6px',
-                                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                                  color: '#e2e8f0',
+                                  backgroundColor: 'var(--admin-btn-secondary-bg)',
+                                  border: '1px solid var(--admin-btn-secondary-border)',
+                                  color: 'var(--admin-btn-secondary-text)',
                                   fontSize: '11px',
                                   fontWeight: 600,
                                   cursor: 'pointer',
                                   transition: 'all 0.15s ease',
                                 }}
-                                className="hover:bg-[rgba(255,255,255,0.08)]"
+                                className="hover:bg-[var(--admin-btn-secondary-hover-bg)]"
                               >
                                 <Edit2 size={12} />
                                 <span>Edit</span>
@@ -1565,9 +1565,9 @@ export default function UnifiedCatalogManager() {
                                   gap: '4px',
                                   padding: '4px 8px',
                                   borderRadius: '6px',
-                                  backgroundColor: srv.isActive ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                                  border: `1px solid ${srv.isActive ? 'rgba(239, 68, 68, 0.25)' : 'rgba(16, 185, 129, 0.25)'}`,
-                                  color: srv.isActive ? '#f87171' : '#10b981',
+                                  backgroundColor: srv.isActive ? 'var(--admin-badge-inactive-bg)' : 'var(--admin-badge-active-bg)',
+                                  border: `1px solid ${srv.isActive ? 'var(--admin-badge-inactive-border)' : 'var(--admin-badge-active-border)'}`,
+                                  color: srv.isActive ? 'var(--admin-badge-inactive-text)' : 'var(--admin-badge-active-text)',
                                   fontSize: '11px',
                                   fontWeight: 600,
                                   cursor: togglingSvcId === srv.id ? 'not-allowed' : 'pointer',

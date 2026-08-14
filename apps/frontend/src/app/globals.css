@@ -50,6 +50,21 @@
   --admin-modal-bg: #0f172a;
   --admin-modal-backdrop: rgba(2, 6, 23, 0.8);
   --admin-accent: #10b981;
+
+  /* Badges & Action Buttons */
+  --admin-badge-active-bg: rgba(16, 185, 129, 0.14);
+  --admin-badge-active-border: rgba(52, 211, 153, 0.28);
+  --admin-badge-active-text: #34d399;
+  --admin-badge-inactive-bg: rgba(239, 68, 68, 0.14);
+  --admin-badge-inactive-border: rgba(248, 113, 113, 0.28);
+  --admin-badge-inactive-text: #f87171;
+  --admin-btn-secondary-bg: rgba(255, 255, 255, 0.04);
+  --admin-btn-secondary-border: rgba(255, 255, 255, 0.08);
+  --admin-btn-secondary-text: #e2e8f0;
+  --admin-btn-secondary-hover-bg: rgba(255, 255, 255, 0.08);
+  --admin-kpi-blue-text: #60a5fa;
+  --admin-kpi-amber-text: #fbbf24;
+  --admin-kpi-purple-text: #c084fc;
 }
 
 [data-admin-theme="light"] {
@@ -75,6 +90,21 @@
   --admin-modal-bg: #ffffff;
   --admin-modal-backdrop: rgba(15, 23, 42, 0.5);
   --admin-accent: #059669;
+
+  /* Badges & Action Buttons */
+  --admin-badge-active-bg: rgba(16, 185, 129, 0.1);
+  --admin-badge-active-border: rgba(5, 150, 105, 0.25);
+  --admin-badge-active-text: #047857;
+  --admin-badge-inactive-bg: rgba(239, 68, 68, 0.1);
+  --admin-badge-inactive-border: rgba(220, 38, 38, 0.25);
+  --admin-badge-inactive-text: #dc2626;
+  --admin-btn-secondary-bg: #f1f5f9;
+  --admin-btn-secondary-border: #cbd5e1;
+  --admin-btn-secondary-text: #334155;
+  --admin-btn-secondary-hover-bg: #e2e8f0;
+  --admin-kpi-blue-text: #2563eb;
+  --admin-kpi-amber-text: #d97706;
+  --admin-kpi-purple-text: #9333ea;
 }
 
 * {
