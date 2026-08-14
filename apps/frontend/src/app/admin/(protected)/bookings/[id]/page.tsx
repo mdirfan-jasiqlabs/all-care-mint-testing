@@ -233,20 +233,20 @@ export default function AdminBookingDetailPage() {
   if (loading) {
     return (
       <div className="flex flex-col gap-6 max-w-[1600px] mx-auto pb-12 animate-pulse">
-        <div className="w-32 h-4 bg-slate-800 rounded" />
+        <div className="w-32 h-4 rounded" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
         <div className="space-y-2">
-          <div className="w-64 h-8 bg-slate-800 rounded-lg" />
-          <div className="w-96 h-4 bg-slate-800/60 rounded" />
+          <div className="w-64 h-8 rounded-lg" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
+          <div className="w-96 h-4 rounded" style={{ backgroundColor: 'var(--admin-skeleton-bg)' }} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-7 flex flex-col gap-6">
-            <div className="bg-[#090D16]/90 border border-slate-800/80 rounded-2xl p-6 h-64" />
-            <div className="bg-[#090D16]/90 border border-slate-800/80 rounded-2xl p-6 h-48" />
-            <div className="bg-[#090D16]/90 border border-slate-800/80 rounded-2xl p-6 h-40" />
+            <div className="rounded-2xl p-6 h-64" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }} />
+            <div className="rounded-2xl p-6 h-48" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }} />
+            <div className="rounded-2xl p-6 h-40" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }} />
           </div>
           <div className="lg:col-span-5 flex flex-col gap-6">
-            <div className="bg-[#090D16]/90 border border-slate-800/80 rounded-2xl p-6 h-80" />
+            <div className="rounded-2xl p-6 h-80" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }} />
           </div>
         </div>
       </div>
@@ -256,13 +256,20 @@ export default function AdminBookingDetailPage() {
   // Error State
   if (error || !booking) {
     return (
-      <div className="max-w-xl mx-auto my-12 p-6 bg-[#450A0A]/40 border border-[#EF4444]/40 rounded-2xl text-center">
-        <AlertCircle className="w-10 h-10 text-[#EF4444] mx-auto mb-3" />
-        <h2 className="text-lg font-bold text-white mb-2">Failed to Load Booking</h2>
-        <p className="text-xs sm:text-sm text-[#F87171] mb-6">{error || 'Booking not found.'}</p>
+      <div
+        style={{
+          backgroundColor: 'var(--admin-badge-inactive-bg)',
+          border: '1px solid var(--admin-badge-inactive-border)',
+        }}
+        className="max-w-xl mx-auto my-12 p-6 rounded-2xl text-center"
+      >
+        <AlertCircle className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--admin-badge-inactive-text)' }} />
+        <h2 className="text-lg font-bold mb-2" style={{ color: 'var(--admin-text-primary)' }}>Failed to Load Booking</h2>
+        <p className="text-xs sm:text-sm mb-6" style={{ color: 'var(--admin-badge-inactive-text)' }}>{error || 'Booking not found.'}</p>
         <button
           onClick={() => router.push('/admin/bookings')}
-          className="bg-[#10B981] hover:bg-[#059669] text-slate-950 font-bold px-6 py-2.5 rounded-xl text-xs sm:text-sm transition-colors"
+          style={{ backgroundColor: 'var(--admin-accent)', color: '#ffffff' }}
+          className="font-bold px-6 py-2.5 rounded-xl text-xs sm:text-sm transition-colors cursor-pointer"
         >
           ← Back to Bookings
         </button>
@@ -291,7 +298,7 @@ export default function AdminBookingDetailPage() {
           type="button"
           onClick={() => router.push('/admin/bookings')}
           style={{ color: 'var(--admin-text-secondary)' }}
-          className="inline-flex items-center gap-2 text-xs font-semibold hover:text-white transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 text-xs font-semibold hover:text-[var(--admin-text-primary)] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Bookings</span>
@@ -318,8 +325,15 @@ export default function AdminBookingDetailPage() {
           <div className="rounded-2xl p-6 shadow-xl backdrop-blur-md" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
             {/* Header */}
             <div className="flex items-center gap-3 border-b pb-4 mb-6" style={{ borderColor: 'var(--admin-border)' }}>
-              <div className="w-8 h-8 rounded-lg bg-[#002B1D] border border-[#004D36] flex items-center justify-center text-[#10B981] flex-shrink-0">
-                <FileText className="w-4 h-4 text-[#10B981]" />
+              <div
+                style={{
+                  backgroundColor: 'var(--admin-badge-active-bg)',
+                  border: '1px solid var(--admin-badge-active-border)',
+                  color: 'var(--admin-accent)',
+                }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+              >
+                <FileText className="w-4 h-4" />
               </div>
               <h2 className="text-base sm:text-lg font-bold" style={{ color: 'var(--admin-text-primary)' }}>
                 Service Information
@@ -330,8 +344,15 @@ export default function AdminBookingDetailPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Booked Service */}
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#002B1D] border border-[#004D36] flex items-center justify-center text-[#10B981] flex-shrink-0 mt-0.5">
-                  <Wrench className="w-5 h-5 text-[#10B981]" />
+                <div
+                  style={{
+                    backgroundColor: 'var(--admin-badge-active-bg)',
+                    border: '1px solid var(--admin-badge-active-border)',
+                    color: 'var(--admin-accent)',
+                  }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                >
+                  <Wrench className="w-5 h-5" />
                 </div>
                 <div>
                   <span className="text-xs font-medium block" style={{ color: 'var(--admin-text-secondary)' }}>Booked Service</span>
@@ -344,7 +365,7 @@ export default function AdminBookingDetailPage() {
               {/* Amount Charged */}
               <div>
                 <span className="text-xs font-medium block" style={{ color: 'var(--admin-text-secondary)' }}>Amount Charged</span>
-                <span className="text-base sm:text-xl font-extrabold text-[#10B981] font-mono mt-0.5 block">
+                <span className="text-base sm:text-xl font-extrabold font-mono mt-0.5 block" style={{ color: 'var(--admin-accent)' }}>
                   ₹{parseFloat(booking.servicePriceSnapshot).toFixed(2)}
                 </span>
               </div>
@@ -389,8 +410,15 @@ export default function AdminBookingDetailPage() {
           <div className="rounded-2xl p-6 shadow-xl backdrop-blur-md" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
             {/* Header */}
             <div className="flex items-center gap-3 border-b pb-4 mb-6" style={{ borderColor: 'var(--admin-border)' }}>
-              <div className="w-8 h-8 rounded-lg bg-[#2E1065] border border-[#4C1D95] flex items-center justify-center text-[#A855F7] flex-shrink-0">
-                <User className="w-4 h-4 text-[#A855F7]" />
+              <div
+                style={{
+                  backgroundColor: 'var(--admin-badge-assigned-bg)',
+                  border: '1px solid var(--admin-badge-assigned-border)',
+                  color: 'var(--admin-badge-assigned-text)',
+                }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+              >
+                <User className="w-4 h-4" />
               </div>
               <h2 className="text-base sm:text-lg font-bold" style={{ color: 'var(--admin-text-primary)' }}>
                 Customer & Address
@@ -401,8 +429,15 @@ export default function AdminBookingDetailPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Address Label */}
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-950/40 border border-purple-800/30 flex items-center justify-center text-purple-400 flex-shrink-0 mt-0.5">
-                  <Home className="w-5 h-5 text-purple-400" />
+                <div
+                  style={{
+                    backgroundColor: 'var(--admin-badge-assigned-bg)',
+                    border: '1px solid var(--admin-badge-assigned-border)',
+                    color: 'var(--admin-badge-assigned-text)',
+                  }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                >
+                  <Home className="w-5 h-5" />
                 </div>
                 <div>
                   <span className="text-xs font-medium block" style={{ color: 'var(--admin-text-secondary)' }}>Address Label</span>
@@ -414,8 +449,15 @@ export default function AdminBookingDetailPage() {
 
               {/* Full Address */}
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-950/40 border border-purple-800/30 flex items-center justify-center text-purple-400 flex-shrink-0 mt-0.5">
-                  <MapPin className="w-5 h-5 text-purple-400" />
+                <div
+                  style={{
+                    backgroundColor: 'var(--admin-badge-assigned-bg)',
+                    border: '1px solid var(--admin-badge-assigned-border)',
+                    color: 'var(--admin-badge-assigned-text)',
+                  }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                >
+                  <MapPin className="w-5 h-5" />
                 </div>
                 <div>
                   <span className="text-xs font-medium block" style={{ color: 'var(--admin-text-secondary)' }}>Full Address</span>
@@ -434,8 +476,15 @@ export default function AdminBookingDetailPage() {
           <div className="rounded-2xl p-6 shadow-xl backdrop-blur-md" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
             {/* Header */}
             <div className="flex items-center gap-3 border-b pb-4 mb-6" style={{ borderColor: 'var(--admin-border)' }}>
-              <div className="w-8 h-8 rounded-lg bg-[#451A03] border border-[#78350F] text-[#F59E0B] flex items-center justify-center flex-shrink-0">
-                <Clock className="w-4 h-4 text-[#F59E0B]" />
+              <div
+                style={{
+                  backgroundColor: 'var(--admin-badge-pending-bg)',
+                  border: '1px solid var(--admin-badge-pending-border)',
+                  color: 'var(--admin-badge-pending-text)',
+                }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+              >
+                <Clock className="w-4 h-4" />
               </div>
               <h2 className="text-base sm:text-lg font-bold" style={{ color: 'var(--admin-text-primary)' }}>
                 Status Transition Logs
@@ -458,9 +507,10 @@ export default function AdminBookingDetailPage() {
                 {history.map((h, i) => (
                   <div key={h.id} className="relative pl-4">
                     <div
-                      className={`absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full ${
-                        i === 0 ? 'bg-[#10B981] shadow-[0_0_8px_#10B981]' : 'bg-slate-500'
-                      }`}
+                      style={{
+                        backgroundColor: i === 0 ? 'var(--admin-accent)' : 'var(--admin-text-muted)',
+                      }}
+                      className="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full"
                     />
                     <div className="flex items-center justify-between">
                       <span className="text-xs sm:text-sm font-bold" style={{ color: 'var(--admin-text-primary)' }}>{h.status}</span>
@@ -489,8 +539,15 @@ export default function AdminBookingDetailPage() {
           <div className="rounded-2xl p-6 shadow-xl backdrop-blur-md flex flex-col gap-6" style={{ backgroundColor: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
             {/* Header */}
             <div className="flex items-center gap-3 border-b pb-4" style={{ borderColor: 'var(--admin-border)' }}>
-              <div className="w-8 h-8 rounded-lg bg-[#064E3B] border border-[#059669] text-[#10B981] flex items-center justify-center flex-shrink-0">
-                <User className="w-4 h-4 text-[#10B981]" />
+              <div
+                style={{
+                  backgroundColor: 'var(--admin-badge-active-bg)',
+                  border: '1px solid var(--admin-badge-active-border)',
+                  color: 'var(--admin-accent)',
+                }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+              >
+                <User className="w-4 h-4" />
               </div>
               <h2 className="text-base sm:text-lg font-bold" style={{ color: 'var(--admin-text-primary)' }}>
                 Provider Assignment
@@ -504,7 +561,14 @@ export default function AdminBookingDetailPage() {
                   Assigned Provider
                 </span>
                 <div className="border rounded-2xl p-4 flex items-start gap-4" style={{ backgroundColor: 'var(--admin-surface-hover)', borderColor: 'var(--admin-border)' }}>
-                  <div className="w-12 h-12 rounded-full bg-[#065F46] border border-[#059669]/40 text-[#10B981] font-extrabold text-sm flex items-center justify-center flex-shrink-0 shadow-inner">
+                  <div
+                    style={{
+                      backgroundColor: 'var(--admin-badge-active-bg)',
+                      border: '1px solid var(--admin-badge-active-border)',
+                      color: 'var(--admin-accent)',
+                    }}
+                    className="w-12 h-12 rounded-full font-extrabold text-sm flex items-center justify-center flex-shrink-0"
+                  >
                     {getProviderInitials(assignedProvider.displayName)}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -532,7 +596,14 @@ export default function AdminBookingDetailPage() {
                 </div>
               </div>
             ) : (
-              <div className="bg-[#451A03]/40 border border-[#B45309]/30 rounded-2xl p-4 text-xs text-[#F59E0B] flex items-center gap-2">
+              <div
+                style={{
+                  backgroundColor: 'var(--admin-badge-pending-bg)',
+                  border: '1px solid var(--admin-badge-pending-border)',
+                  color: 'var(--admin-badge-pending-text)',
+                }}
+                className="rounded-2xl p-4 text-xs flex items-center gap-2"
+              >
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>No provider assigned yet. Booking is currently pending.</span>
               </div>
@@ -565,11 +636,12 @@ export default function AdminBookingDetailPage() {
                 <button
                   type="submit"
                   disabled={submitting || !selectedProvider}
-                  className="w-full bg-[#10B981] hover:bg-[#059669] text-slate-950 font-bold py-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer shadow-lg shadow-[#10B981]/10"
+                  style={{ backgroundColor: 'var(--admin-accent)', color: '#ffffff' }}
+                  className="w-full font-bold py-3 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer shadow-lg"
                 >
                   {submitting ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
                       <span>Assigning...</span>
                     </>
                   ) : booking.status === 'PENDING' ? (
@@ -582,8 +654,15 @@ export default function AdminBookingDetailPage() {
             ) : (
               /* ASSIGNMENT LOCKED STATE BOX */
               <div className="border rounded-2xl p-5 flex items-start gap-4" style={{ backgroundColor: 'var(--admin-surface-hover)', borderColor: 'var(--admin-border)' }}>
-                <div className="w-10 h-10 rounded-xl bg-blue-950/60 border border-blue-800/40 text-blue-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Lock className="w-5 h-5 text-blue-400" />
+                <div
+                  style={{
+                    backgroundColor: 'var(--admin-badge-assigned-bg)',
+                    border: '1px solid var(--admin-badge-assigned-border)',
+                    color: 'var(--admin-badge-assigned-text)',
+                  }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                >
+                  <Lock className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-xs sm:text-sm font-bold" style={{ color: 'var(--admin-text-primary)' }}>
@@ -602,7 +681,12 @@ export default function AdminBookingDetailPage() {
                 type="button"
                 onClick={handleCancelBooking}
                 disabled={submitting}
-                className="w-full bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 font-bold text-xs sm:text-sm rounded-xl py-3 transition-colors cursor-pointer"
+                style={{
+                  backgroundColor: 'var(--admin-badge-inactive-bg)',
+                  border: '1px solid var(--admin-badge-inactive-border)',
+                  color: 'var(--admin-badge-inactive-text)',
+                }}
+                className="w-full font-bold text-xs sm:text-sm rounded-xl py-3 transition-opacity hover:opacity-85 cursor-pointer"
               >
                 Cancel Booking
               </button>

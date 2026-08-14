@@ -113,9 +113,9 @@ const renderStatusBadge = (status: string) => {
             fontSize: '11px',
             fontWeight: 700,
             letterSpacing: '0.2px',
-            backgroundColor: 'rgba(16, 185, 129, 0.14)',
-            color: '#34d399',
-            border: '1px solid rgba(52, 211, 153, 0.28)',
+            backgroundColor: 'var(--admin-badge-active-bg)',
+            color: 'var(--admin-badge-active-text)',
+            border: '1px solid var(--admin-badge-active-border)',
             whiteSpace: 'nowrap',
           }}
         >
@@ -135,9 +135,9 @@ const renderStatusBadge = (status: string) => {
             fontSize: '11px',
             fontWeight: 700,
             letterSpacing: '0.2px',
-            backgroundColor: 'rgba(245, 158, 11, 0.14)',
-            color: '#fbbf24',
-            border: '1px solid rgba(251, 191, 36, 0.28)',
+            backgroundColor: 'var(--admin-badge-pending-bg)',
+            color: 'var(--admin-badge-pending-text)',
+            border: '1px solid var(--admin-badge-pending-border)',
             whiteSpace: 'nowrap',
           }}
         >
@@ -157,9 +157,9 @@ const renderStatusBadge = (status: string) => {
             fontSize: '11px',
             fontWeight: 700,
             letterSpacing: '0.2px',
-            backgroundColor: 'rgba(59, 130, 246, 0.14)',
-            color: '#60a5fa',
-            border: '1px solid rgba(96, 165, 250, 0.28)',
+            backgroundColor: 'var(--admin-badge-assigned-bg)',
+            color: 'var(--admin-badge-assigned-text)',
+            border: '1px solid var(--admin-badge-assigned-border)',
             whiteSpace: 'nowrap',
           }}
         >
@@ -179,9 +179,9 @@ const renderStatusBadge = (status: string) => {
             fontSize: '11px',
             fontWeight: 700,
             letterSpacing: '0.2px',
-            backgroundColor: 'rgba(239, 68, 68, 0.14)',
-            color: '#f87171',
-            border: '1px solid rgba(248, 113, 113, 0.28)',
+            backgroundColor: 'var(--admin-badge-inactive-bg)',
+            color: 'var(--admin-badge-inactive-text)',
+            border: '1px solid var(--admin-badge-inactive-border)',
             whiteSpace: 'nowrap',
           }}
         >
@@ -201,9 +201,9 @@ const renderStatusBadge = (status: string) => {
             fontSize: '11px',
             fontWeight: 700,
             letterSpacing: '0.2px',
-            backgroundColor: 'rgba(148, 163, 184, 0.14)',
-            color: '#94a3b8',
-            border: '1px solid rgba(148, 163, 184, 0.28)',
+            backgroundColor: 'var(--admin-surface-hover)',
+            color: 'var(--admin-text-secondary)',
+            border: '1px solid var(--admin-border)',
             whiteSpace: 'nowrap',
           }}
         >
@@ -255,24 +255,24 @@ const BookingTableRow = memo(function BookingTableRow({
     <tr
       onClick={() => onSelectRow(booking)}
       style={{
-        borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+        borderBottom: '1px solid var(--admin-border)',
         backgroundColor: isSelected ? 'rgba(16, 185, 129, 0.08)' : 'transparent',
         transition: 'background-color 0.12s ease',
       }}
-      className="hover:bg-[rgba(255,255,255,0.02)] cursor-pointer group"
+      className="hover:bg-[var(--admin-table-row-hover)] cursor-pointer group"
     >
       {/* BOOKING ID COLUMN */}
       <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontWeight: 700, color: '#38bdf8', fontFamily: 'monospace', fontSize: '12px' }}>
+          <span style={{ fontWeight: 700, color: 'var(--admin-kpi-blue-text)', fontFamily: 'monospace', fontSize: '12px' }}>
             #{booking.bookingReference}
           </span>
           <button
             type="button"
             title="Copy Booking ID"
             onClick={(e) => onCopyId(booking.bookingReference, e)}
-            style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px' }}
-            className="opacity-0 group-hover:opacity-100 hover:text-white transition-opacity"
+            style={{ background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', padding: '2px' }}
+            className="opacity-0 group-hover:opacity-100 hover:text-[var(--admin-text-primary)] transition-opacity"
           >
             <Copy size={12} />
           </button>
@@ -303,7 +303,7 @@ const BookingTableRow = memo(function BookingTableRow({
           <span
             style={{
               fontWeight: 600,
-              color: '#f8fafc',
+              color: 'var(--admin-text-primary)',
               fontSize: '12px',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -325,12 +325,12 @@ const BookingTableRow = memo(function BookingTableRow({
               width: '28px',
               height: '28px',
               borderRadius: '7px',
-              backgroundColor: 'rgba(16, 185, 129, 0.12)',
-              border: '1px solid rgba(16, 185, 129, 0.25)',
+              backgroundColor: 'var(--admin-badge-active-bg)',
+              border: '1px solid var(--admin-badge-active-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#10b981',
+              color: 'var(--admin-accent)',
               flexShrink: 0,
             }}
           >
@@ -340,7 +340,7 @@ const BookingTableRow = memo(function BookingTableRow({
             <span
               style={{
                 fontWeight: 600,
-                color: '#f8fafc',
+                color: 'var(--admin-text-primary)',
                 fontSize: '12px',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -352,14 +352,14 @@ const BookingTableRow = memo(function BookingTableRow({
             >
               {booking.serviceNameSnapshot}
             </span>
-            <span style={{ fontSize: '10px', color: '#64748b' }}>Cleaning</span>
+            <span style={{ fontSize: '10px', color: 'var(--admin-text-muted)' }}>Cleaning</span>
           </div>
         </div>
       </td>
 
       {/* PRICE COLUMN */}
       <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
-        <span style={{ fontSize: '13px', fontWeight: 800, color: '#34d399', fontFamily: 'monospace' }}>
+        <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--admin-accent)', fontFamily: 'monospace' }}>
           {formattedPrice}
         </span>
       </td>
@@ -367,8 +367,8 @@ const BookingTableRow = memo(function BookingTableRow({
       {/* DATE/TIME SLOT COLUMN */}
       <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontWeight: 600, color: '#f8fafc', fontSize: '12px' }}>{formattedDate}</span>
-          <span style={{ fontSize: '10px', color: '#64748b' }}>{booking.slotLabelSnapshot}</span>
+          <span style={{ fontWeight: 600, color: 'var(--admin-text-primary)', fontSize: '12px' }}>{formattedDate}</span>
+          <span style={{ fontSize: '10px', color: 'var(--admin-text-muted)' }}>{booking.slotLabelSnapshot}</span>
         </div>
       </td>
 
@@ -386,14 +386,14 @@ const BookingTableRow = memo(function BookingTableRow({
             style={{
               background: 'none',
               border: 'none',
-              color: '#64748b',
+              color: 'var(--admin-text-muted)',
               cursor: 'pointer',
               padding: '4px',
               borderRadius: '6px',
               display: 'inline-flex',
               alignItems: 'center',
             }}
-            className="hover:text-white hover:bg-[rgba(255,255,255,0.06)]"
+            className="hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-surface-hover)]"
           >
             <MoreVertical size={15} />
           </button>
@@ -409,7 +409,7 @@ const BookingTableRow = memo(function BookingTableRow({
                 backgroundColor: 'var(--admin-modal-bg)',
                 border: '1px solid var(--admin-border)',
                 borderRadius: '10px',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
                 zIndex: 30,
                 padding: '4px 0',
                 textAlign: 'left',
@@ -459,7 +459,7 @@ const BookingTableRow = memo(function BookingTableRow({
                     width: '100%',
                     padding: '7px 12px',
                     fontSize: '12px',
-                    color: booking.status === 'ACCEPTED' ? 'var(--admin-text-muted)' : '#f87171',
+                    color: booking.status === 'ACCEPTED' ? 'var(--admin-text-muted)' : 'var(--admin-badge-inactive-text)',
                     background: 'none',
                     border: 'none',
                     textAlign: 'left',
@@ -850,11 +850,11 @@ export default function AdminBookingsPage() {
         }}
       >
         {[
-          { id: 'ALL', label: 'All Bookings', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
-          { id: 'PENDING', label: 'Pending', color: '#fbbf24', bg: 'rgba(245, 158, 11, 0.12)' },
-          { id: 'ASSIGNED', label: 'Assigned', color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.12)' },
-          { id: 'ACCEPTED', label: 'Accepted', color: '#34d399', bg: 'rgba(16, 185, 129, 0.12)' },
-          { id: 'CANCELLED', label: 'Cancelled', color: '#f87171', bg: 'rgba(239, 68, 68, 0.12)' },
+          { id: 'ALL', label: 'All Bookings', color: 'var(--admin-badge-active-text)', bg: 'var(--admin-badge-active-bg)', border: 'var(--admin-badge-active-border)' },
+          { id: 'PENDING', label: 'Pending', color: 'var(--admin-badge-pending-text)', bg: 'var(--admin-badge-pending-bg)', border: 'var(--admin-badge-pending-border)' },
+          { id: 'ASSIGNED', label: 'Assigned', color: 'var(--admin-badge-assigned-text)', bg: 'var(--admin-badge-assigned-bg)', border: 'var(--admin-badge-assigned-border)' },
+          { id: 'ACCEPTED', label: 'Accepted', color: 'var(--admin-badge-active-text)', bg: 'var(--admin-badge-active-bg)', border: 'var(--admin-badge-active-border)' },
+          { id: 'CANCELLED', label: 'Cancelled', color: 'var(--admin-badge-inactive-text)', bg: 'var(--admin-badge-inactive-bg)', border: 'var(--admin-badge-inactive-border)' },
         ].map((tab) => {
           const isActive = activeTab === tab.id;
           const count = statusCounts[tab.id] ?? (tab.id === 'ALL' ? total : 0);
@@ -870,8 +870,8 @@ export default function AdminBookingsPage() {
                 padding: '8px 4px 10px 4px',
                 fontSize: '13px',
                 fontWeight: isActive ? 700 : 500,
-                color: isActive ? '#10b981' : 'var(--admin-text-secondary)',
-                borderBottom: isActive ? '2px solid #10b981' : '2px solid transparent',
+                color: isActive ? 'var(--admin-accent)' : 'var(--admin-text-secondary)',
+                borderBottom: isActive ? '2px solid var(--admin-accent)' : '2px solid transparent',
                 background: 'none',
                 cursor: 'pointer',
                 display: 'flex',
@@ -891,7 +891,7 @@ export default function AdminBookingsPage() {
                   borderRadius: '10px',
                   padding: '2px 8px',
                   lineHeight: 1,
-                  border: `1px solid ${tab.color}33`,
+                  border: `1px solid ${tab.border}`,
                 }}
               >
                 {count}
@@ -1037,7 +1037,7 @@ export default function AdminBookingsPage() {
                   gap: '4px',
                   backgroundColor: 'none',
                   border: 'none',
-                  color: '#10b981',
+                  color: 'var(--admin-accent)',
                   fontSize: '12px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -1215,7 +1215,8 @@ export default function AdminBookingsPage() {
                     <button
                       type="button"
                       onClick={() => router.push(`/admin/bookings/${drawerBooking.id}`)}
-                      className="text-[11px] font-semibold text-[#10b981] hover:underline cursor-pointer ml-1"
+                      style={{ color: 'var(--admin-accent)' }}
+                      className="text-[11px] font-semibold hover:underline cursor-pointer ml-1"
                     >
                       Open Full Page →
                     </button>
@@ -1225,7 +1226,7 @@ export default function AdminBookingsPage() {
                   type="button"
                   onClick={closeDrawer}
                   style={{ color: 'var(--admin-text-muted)' }}
-                  className="p-1.5 hover:text-white rounded-lg transition-colors"
+                  className="p-1.5 hover:text-[var(--admin-text-primary)] hover:bg-[var(--admin-surface-hover)] rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -1233,7 +1234,7 @@ export default function AdminBookingsPage() {
 
               {drawerLoading ? (
                 <div className="py-12 text-center flex flex-col items-center justify-center gap-2" style={{ color: 'var(--admin-text-muted)' }}>
-                  <Loader2 className="w-6 h-6 animate-spin text-[#10b981]" />
+                  <Loader2 className="w-6 h-6 animate-spin text-[var(--admin-accent)]" />
                   <span className="text-xs">Loading booking details...</span>
                 </div>
               ) : (
@@ -1253,7 +1254,7 @@ export default function AdminBookingsPage() {
                     </div>
                     <div className="flex justify-between items-center py-1">
                       <span style={{ color: 'var(--admin-text-muted)' }}>Price:</span>
-                      <span className="text-[#34d399] font-bold font-mono text-sm">
+                      <span className="font-bold font-mono text-sm" style={{ color: 'var(--admin-accent)' }}>
                         ₹{parseFloat(drawerBooking.servicePriceSnapshot).toFixed(2)}
                       </span>
                     </div>
@@ -1299,8 +1300,8 @@ export default function AdminBookingsPage() {
                         type="button"
                         disabled={actionSubmitting || drawerLoading}
                         onClick={handleAssignProvider}
-                        style={{ backgroundColor: '#10b981', color: '#020617' }}
-                        className="hover:bg-[#34d399] font-bold rounded-xl px-4 py-2 text-xs flex items-center gap-1.5 disabled:opacity-50 transition-colors cursor-pointer"
+                        style={{ backgroundColor: 'var(--admin-accent)', color: '#ffffff' }}
+                        className="hover:opacity-90 font-bold rounded-xl px-4 py-2 text-xs flex items-center gap-1.5 disabled:opacity-50 transition-all cursor-pointer"
                       >
                         {actionSubmitting ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1324,7 +1325,7 @@ export default function AdminBookingsPage() {
                       ) : (
                         drawerHistory.map((h) => (
                           <div key={h.id} className="relative pl-3">
-                            <div className="absolute -left-[17px] top-1.5 w-2 h-2 rounded-full bg-[#10b981]" />
+                            <div className="absolute -left-[17px] top-1.5 w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--admin-accent)' }} />
                             <p className="text-xs font-bold" style={{ color: 'var(--admin-text-primary)' }}>Status: {h.status}</p>
                             <p className="text-[10px]" style={{ color: 'var(--admin-text-muted)' }}>
                               {new Date(h.createdAt).toLocaleTimeString()} by {h.actorRole}{' '}
@@ -1342,7 +1343,14 @@ export default function AdminBookingsPage() {
             {/* Action Footer */}
             <div className="border-t pt-4 flex flex-col gap-2 mt-6" style={{ borderColor: 'var(--admin-border)' }}>
               {drawerBooking.status === 'ACCEPTED' && (
-                <div className="bg-red-500/10 border border-red-500/20 p-2.5 rounded-xl text-red-400 text-xs text-center font-bold flex items-center justify-center gap-1.5">
+                <div
+                  style={{
+                    backgroundColor: 'var(--admin-badge-inactive-bg)',
+                    border: '1px solid var(--admin-badge-inactive-border)',
+                    color: 'var(--admin-badge-inactive-text)',
+                  }}
+                  className="p-2.5 rounded-xl text-xs text-center font-bold flex items-center justify-center gap-1.5"
+                >
                   <ShieldAlert className="w-4 h-4 flex-shrink-0" />
                   <span>Cannot cancel accepted booking (BR-002-001 restriction).</span>
                 </div>
@@ -1351,10 +1359,23 @@ export default function AdminBookingsPage() {
                 type="button"
                 disabled={actionSubmitting || drawerBooking.status === 'ACCEPTED'}
                 onClick={handleCancelBookingInDrawer}
+                style={
+                  drawerBooking.status === 'ACCEPTED'
+                    ? {
+                        backgroundColor: 'var(--admin-btn-secondary-bg)',
+                        color: 'var(--admin-text-muted)',
+                        border: '1px solid var(--admin-border)',
+                      }
+                    : {
+                        backgroundColor: 'var(--admin-badge-inactive-bg)',
+                        border: '1px solid var(--admin-badge-inactive-border)',
+                        color: 'var(--admin-badge-inactive-text)',
+                      }
+                }
                 className={`w-full py-2.5 rounded-xl font-bold text-xs transition-colors ${
                   drawerBooking.status === 'ACCEPTED'
-                    ? 'bg-slate-800 text-slate-600 cursor-not-allowed'
-                    : 'bg-red-500/15 border border-red-500/30 text-red-400 hover:bg-red-500/25 cursor-pointer'
+                    ? 'cursor-not-allowed'
+                    : 'hover:opacity-85 cursor-pointer'
                 }`}
               >
                 Cancel Booking (Customer/Admin override)

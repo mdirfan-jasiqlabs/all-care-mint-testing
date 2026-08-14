@@ -55,6 +55,12 @@
   --admin-badge-active-bg: rgba(16, 185, 129, 0.14);
   --admin-badge-active-border: rgba(52, 211, 153, 0.28);
   --admin-badge-active-text: #34d399;
+  --admin-badge-pending-bg: rgba(245, 158, 11, 0.14);
+  --admin-badge-pending-border: rgba(251, 191, 36, 0.28);
+  --admin-badge-pending-text: #fbbf24;
+  --admin-badge-assigned-bg: rgba(59, 130, 246, 0.14);
+  --admin-badge-assigned-border: rgba(96, 165, 250, 0.28);
+  --admin-badge-assigned-text: #60a5fa;
   --admin-badge-inactive-bg: rgba(239, 68, 68, 0.14);
   --admin-badge-inactive-border: rgba(248, 113, 113, 0.28);
   --admin-badge-inactive-text: #f87171;
@@ -95,6 +101,12 @@
   --admin-badge-active-bg: rgba(16, 185, 129, 0.1);
   --admin-badge-active-border: rgba(5, 150, 105, 0.25);
   --admin-badge-active-text: #047857;
+  --admin-badge-pending-bg: rgba(245, 158, 11, 0.12);
+  --admin-badge-pending-border: rgba(217, 119, 6, 0.25);
+  --admin-badge-pending-text: #b45309;
+  --admin-badge-assigned-bg: rgba(59, 130, 246, 0.12);
+  --admin-badge-assigned-border: rgba(37, 99, 235, 0.25);
+  --admin-badge-assigned-text: #1d4ed8;
   --admin-badge-inactive-bg: rgba(239, 68, 68, 0.1);
   --admin-badge-inactive-border: rgba(220, 38, 38, 0.25);
   --admin-badge-inactive-text: #dc2626;
