@@ -532,7 +532,7 @@ body::before {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--admin-text-secondary);
   cursor: pointer;
   padding: 4px;
   display: flex;
@@ -541,7 +541,7 @@ body::before {
 }
 
 .password-toggle-btn:hover {
-  color: #cbd5e1;
+  color: var(--admin-text-primary);
 }
 
 /* Admin Footer Bar */

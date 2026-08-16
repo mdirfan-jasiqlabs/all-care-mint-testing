@@ -133,7 +133,7 @@ function AdminLoginForm() {
       {showLockout && (
         <div id="lockout-overlay" className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4" style={{ backgroundColor: 'var(--admin-modal-backdrop)' }}>
           <div className="border border-red-500/30 rounded-2xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl" style={{ backgroundColor: 'var(--admin-modal-bg)' }}>
-            <div className="w-14 h-14 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-3 border border-red-500/20">
+            <div className="w-14 h-14 bg-red-500/10 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center mx-auto mb-3 border border-red-500/20">
               <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
@@ -153,7 +153,7 @@ function AdminLoginForm() {
       {showMaintenance && (
         <div id="maintenance-overlay" className="fixed inset-0 z-50 backdrop-blur-md flex items-center justify-center p-4" style={{ backgroundColor: 'var(--admin-modal-backdrop)' }}>
           <div className="border border-amber-500/30 rounded-2xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl" style={{ backgroundColor: 'var(--admin-modal-bg)' }}>
-            <div className="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-3 border border-amber-500/20">
+            <div className="w-14 h-14 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center mx-auto mb-3 border border-amber-500/20">
               <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -197,14 +197,14 @@ function AdminLoginForm() {
 
             {/* Admin Portal Label */}
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-3.5 h-[2px] bg-[#10b981] rounded-full inline-block"></span>
-              <span className="text-[#10b981] font-semibold text-xs tracking-wide">Admin Portal</span>
+              <span className="w-3.5 h-[2px] bg-emerald-600 dark:bg-[#10b981] rounded-full inline-block"></span>
+              <span className="text-emerald-700 dark:text-[#10b981] font-semibold text-xs tracking-wide">Admin Portal</span>
             </div>
 
             {/* Headline */}
             <h1 className="text-2xl sm:text-3xl lg:text-[33px] xl:text-[35px] font-extrabold leading-[1.16] tracking-tight mb-2" style={{ color: 'var(--admin-text-primary)' }}>
               Secure access to<br />
-              your <span className="text-[#10b981]">dashboard</span>
+              your <span className="text-emerald-700 dark:text-[#10b981]">dashboard</span>
             </h1>
 
             {/* Description */}
@@ -223,21 +223,21 @@ function AdminLoginForm() {
 
               {/* Orbiting Badges */}
               {/* 1. Users Badge */}
-              <div className="absolute top-2 left-2 sm:left-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center shadow-md text-[#10b981]" style={{ backgroundColor: 'var(--admin-input-bg)', borderColor: 'var(--admin-border)' }}>
+              <div className="absolute top-2 left-2 sm:left-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center shadow-md text-emerald-600 dark:text-[#10b981]" style={{ backgroundColor: 'var(--admin-input-bg)', borderColor: 'var(--admin-border)' }}>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
 
               {/* 2. Analytics Badge */}
-              <div className="absolute top-2 right-2 sm:right-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center shadow-md text-[#10b981]" style={{ backgroundColor: 'var(--admin-input-bg)', borderColor: 'var(--admin-border)' }}>
+              <div className="absolute top-2 right-2 sm:right-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center shadow-md text-emerald-600 dark:text-[#10b981]" style={{ backgroundColor: 'var(--admin-input-bg)', borderColor: 'var(--admin-border)' }}>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
 
               {/* 3. Settings Badge */}
-              <div className="absolute bottom-4 right-2 sm:right-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center shadow-md text-[#10b981]" style={{ backgroundColor: 'var(--admin-input-bg)', borderColor: 'var(--admin-border)' }}>
+              <div className="absolute bottom-4 right-2 sm:right-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center shadow-md text-emerald-600 dark:text-[#10b981]" style={{ backgroundColor: 'var(--admin-input-bg)', borderColor: 'var(--admin-border)' }}>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 </svg>
@@ -292,7 +292,7 @@ function AdminLoginForm() {
             {/* Benefit 1 */}
             <div className="pr-1.5">
               <div className="flex items-center gap-1.5 font-semibold text-xs mb-0.5" style={{ color: 'var(--admin-text-primary)' }}>
-                <svg className="w-3.5 h-3.5 text-[#10b981] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-[#10b981] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
                 <span>Secure</span>
@@ -303,7 +303,7 @@ function AdminLoginForm() {
             {/* Benefit 2 */}
             <div className="px-1.5 border-l" style={{ borderColor: 'var(--admin-border)' }}>
               <div className="flex items-center gap-1.5 font-semibold text-xs mb-0.5" style={{ color: 'var(--admin-text-primary)' }}>
-                <svg className="w-3.5 h-3.5 text-[#10b981] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-[#10b981] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Reliable</span>
@@ -314,7 +314,7 @@ function AdminLoginForm() {
             {/* Benefit 3 */}
             <div className="pl-1.5 border-l" style={{ borderColor: 'var(--admin-border)' }}>
               <div className="flex items-center gap-1.5 font-semibold text-xs mb-0.5" style={{ color: 'var(--admin-text-primary)' }}>
-                <svg className="w-3.5 h-3.5 text-[#10b981] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <svg className="w-3.5 h-3.5 text-emerald-600 dark:text-[#10b981] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>Trusted</span>
@@ -332,8 +332,8 @@ function AdminLoginForm() {
           <div className="lg:hidden flex items-center justify-between pb-4 mb-4 border-b" style={{ borderColor: 'var(--admin-border)' }}>
             <BrandLogo size="sm" href={null} priority alt="All care mint" />
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-[2px] bg-[#10b981] rounded-full inline-block"></span>
-              <span className="text-[#10b981] font-semibold text-xs tracking-wide">Admin Portal</span>
+              <span className="w-3 h-[2px] bg-emerald-600 dark:bg-[#10b981] rounded-full inline-block"></span>
+              <span className="text-emerald-700 dark:text-[#10b981] font-semibold text-xs tracking-wide">Admin Portal</span>
             </div>
           </div>
 
@@ -342,8 +342,8 @@ function AdminLoginForm() {
             {/* Top Right SECURE CONSOLE Badge */}
             <div className="flex justify-between lg:justify-end items-center mb-5 lg:mb-8">
               <span className="lg:hidden text-xs font-medium" style={{ color: 'var(--admin-text-muted)' }}>Secured Console</span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider text-[#10b981] bg-[#042d27] border border-[#0fa976]/35 uppercase">
-                <svg className="w-3 h-3 text-[#10b981]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider text-emerald-800 dark:text-[#10b981] bg-emerald-100/90 dark:bg-[#042d27] border border-emerald-300/80 dark:border-[#0fa976]/35 uppercase shadow-xs">
+                <svg className="w-3 h-3 text-emerald-700 dark:text-[#10b981]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <rect x="5" y="11" width="14" height="10" rx="2" />
                   <path d="M8 11V7a4 4 0 118 0v4" />
                 </svg>
@@ -359,8 +359,8 @@ function AdminLoginForm() {
 
             {/* ERROR ALERT BANNER */}
             {error && (
-              <div className="mb-5 p-3.5 rounded-xl bg-red-500/10 border border-red-500/25 text-red-300 text-xs sm:text-sm flex items-start gap-2.5">
-                <svg className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <div className="mb-5 p-3.5 rounded-xl bg-red-500/10 border border-red-500/25 text-red-700 dark:text-red-300 text-xs sm:text-sm flex items-start gap-2.5 font-medium">
+                <svg className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="10" />
                   <line x1="12" y1="8" x2="12" y2="12" />
                   <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -373,9 +373,9 @@ function AdminLoginForm() {
             {success && (
               <div
                 id="success-banner"
-                className="mb-5 p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/35 text-emerald-200 text-xs sm:text-sm flex items-center gap-2.5"
+                className="mb-5 p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/35 text-emerald-800 dark:text-emerald-200 text-xs sm:text-sm flex items-center gap-2.5 font-medium"
               >
-                <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>{success}</span>
@@ -391,7 +391,7 @@ function AdminLoginForm() {
                   Email Address
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
@@ -423,12 +423,12 @@ function AdminLoginForm() {
                   <label htmlFor="password-input" className="block text-xs sm:text-sm font-semibold" style={{ color: 'var(--admin-text-primary)' }}>
                     Password
                   </label>
-                  <a href="#" className="text-xs font-semibold text-[#10b981] hover:text-[#34d399] transition duration-150">
+                  <a href="#" className="text-xs font-semibold text-emerald-600 dark:text-[#10b981] hover:text-emerald-700 dark:hover:text-[#34d399] transition duration-150">
                     Forgot password?
                   </a>
                 </div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                       <rect x="5" y="11" width="14" height="10" rx="2" />
                       <path d="M8 11V7a4 4 0 118 0v4" />
@@ -454,7 +454,7 @@ function AdminLoginForm() {
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 transition duration-150 cursor-pointer"
+                    className="password-toggle-btn absolute inset-y-0 right-0 pr-3.5 flex items-center transition duration-150 cursor-pointer"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
@@ -478,9 +478,9 @@ function AdminLoginForm() {
                 <label htmlFor="remember-me" className="flex items-center gap-2.5 cursor-pointer select-none group">
                   <div className={`w-[18px] h-[18px] rounded-[5px] border-2 transition-all duration-200 flex items-center justify-center flex-shrink-0 ${
                     rememberMe 
-                      ? 'bg-[#10b981] border-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.4)]' 
-                      : 'border-[#10b981] group-hover:border-[#34d399] group-hover:shadow-[0_0_6px_rgba(16,185,129,0.25)]'
-                  }`} style={{ backgroundColor: rememberMe ? '#10b981' : 'var(--admin-input-bg)' }}>
+                      ? 'bg-emerald-600 border-emerald-600 dark:bg-[#10b981] dark:border-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.4)]' 
+                      : 'border-emerald-600 dark:border-[#10b981] group-hover:border-emerald-700 dark:group-hover:border-[#34d399] group-hover:shadow-[0_0_6px_rgba(16,185,129,0.25)]'
+                  }`} style={{ backgroundColor: rememberMe ? undefined : 'var(--admin-input-bg)' }}>
                     <input
                       id="remember-me"
                       type="checkbox"
@@ -489,7 +489,7 @@ function AdminLoginForm() {
                       className="sr-only"
                     />
                     {rememberMe && (
-                      <svg className="w-3.5 h-3.5 text-[#040810]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3.5">
+                      <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3.5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     )}
@@ -505,7 +505,7 @@ function AdminLoginForm() {
                 id="btn-submit"
                 type="submit"
                 disabled={loading || !!success || isOffline}
-                className="w-full py-3.5 px-6 bg-[#10b981] hover:bg-[#059669] active:bg-[#047857] text-white font-extrabold text-sm rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-lg shadow-[#10b981]/25 hover:shadow-[#10b981]/35 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none cursor-pointer mt-3"
+                className="w-full py-3.5 px-6 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 dark:bg-[#10b981] dark:hover:bg-[#059669] dark:active:bg-[#047857] text-white font-extrabold text-sm rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-lg shadow-[#10b981]/25 hover:shadow-[#10b981]/35 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none cursor-pointer mt-3"
               >
                 {loading ? (
                   <>
@@ -527,7 +527,7 @@ function AdminLoginForm() {
 
           {/* FOOTER RATE LIMIT INDICATOR (No Encryption Label as per requirement #14) */}
           <div className="flex justify-end items-center gap-1.5 pt-4 mt-4 border-t text-xs flex-shrink-0" style={{ borderColor: 'var(--admin-border)', color: 'var(--admin-text-muted)' }}>
-            <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <svg className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>Rate Limit active (5 attempts/15m)</span>
