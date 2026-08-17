@@ -3,6 +3,7 @@ export interface ApiClientConfig {
   getToken?: () => string | undefined | null | Promise<string | undefined | null>;
   onUnauthorized?: () => void | Promise<void>;
   headers?: Record<string, string>;
+  refreshToken?: () => Promise<boolean | 'unauthenticated' | 'offline'>;
 }
 
 export class ApiError extends Error {
@@ -29,12 +30,15 @@ export class ApiClient {
   private baseUrl: string;
   private getToken?: () => string | undefined | null | Promise<string | undefined | null>;
   private onUnauthorized?: () => void | Promise<void>;
+  private refreshTokenHandler?: () => Promise<boolean | 'unauthenticated' | 'offline'>;
   private defaultHeaders: Record<string, string>;
+  private refreshPromise: Promise<boolean | 'unauthenticated' | 'offline'> | null = null;
 
   constructor(config: ApiClientConfig = {}) {
     this.baseUrl = config.baseUrl || '';
     this.getToken = config.getToken;
     this.onUnauthorized = config.onUnauthorized;
+    this.refreshTokenHandler = config.refreshToken;
     this.defaultHeaders = config.headers || {};
   }
 
@@ -55,7 +59,10 @@ export class ApiClient {
     return `${cleanBase}${cleanPath}`;
   }
 
-  public async raw(path: string, options: RequestInit = {}): Promise<Response> {
+  public async raw(
+    path: string,
+    options: RequestInit & { _retry?: boolean; skipRefresh?: boolean } = {}
+  ): Promise<Response> {
     const url = this.resolveUrl(path);
 
     let customHeaders: Record<string, string> = {};
@@ -102,6 +109,58 @@ export class ApiClient {
     };
 
     const res = await fetch(url, init);
+
+    const isRefreshPath =
+      path.includes('/auth/token/refresh') || path.includes('/auth/refresh');
+    const shouldAttemptRefresh =
+      res.status === 401 &&
+      !options._retry &&
+      !options.skipRefresh &&
+      !isRefreshPath &&
+      !!this.refreshTokenHandler;
+
+    if (shouldAttemptRefresh) {
+      if (!this.refreshPromise) {
+        this.refreshPromise = (async () => {
+          try {
+            return await this.refreshTokenHandler!();
+          } catch (err) {
+            return 'offline';
+          } finally {
+            this.refreshPromise = null;
+          }
+        })();
+      }
+
+      const refreshResult = await this.refreshPromise;
+
+      if (refreshResult === true) {
+        let newToken: string | null | undefined = null;
+        if (this.getToken) {
+          try {
+            newToken = await this.getToken();
+          } catch (e) {}
+        }
+
+        const retryHeaders: Record<string, string> = { ...headers };
+        if (newToken) {
+          retryHeaders['Authorization'] = `Bearer ${newToken}`;
+        } else {
+          delete retryHeaders['Authorization'];
+        }
+
+        return this.raw(path, {
+          ...options,
+          headers: retryHeaders,
+          _retry: true,
+        });
+      }
+
+      if (refreshResult === 'offline') {
+        // Network error during refresh: preserve credentials, do NOT call onUnauthorized
+        return res;
+      }
+    }
 
     if (res.status === 401 && this.onUnauthorized) {
       try {

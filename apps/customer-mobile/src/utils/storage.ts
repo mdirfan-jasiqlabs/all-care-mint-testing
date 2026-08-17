@@ -41,6 +41,10 @@ export const initStorageFallback = async () => {
     if (token) {
       storageInstance.set('auth.accessToken', token);
     }
+    const refreshToken = await SecureStore.getItemAsync('auth.refreshToken');
+    if (refreshToken) {
+      storageInstance.set('auth.refreshToken', refreshToken);
+    }
     const username = await SecureStore.getItemAsync('auth.user_name');
     if (username) {
       storageInstance.set('auth.user_name', username);
@@ -66,25 +70,32 @@ export const clearAccessToken = () => {
 
 export const getRefreshToken = async (): Promise<string | null> => {
   try {
-    return await SecureStore.getItemAsync('auth.refreshToken');
+    const token = await SecureStore.getItemAsync('auth.refreshToken');
+    if (token) {
+      storageInstance.set('auth.refreshToken', token);
+      return token;
+    }
+    return storageInstance.getString('auth.refreshToken') || null;
   } catch (e) {
     return storageInstance.getString('auth.refreshToken') || null;
   }
 };
 
 export const setRefreshToken = async (token: string) => {
+  storageInstance.set('auth.refreshToken', token);
   try {
     await SecureStore.setItemAsync('auth.refreshToken', token);
   } catch (e) {
-    storageInstance.set('auth.refreshToken', token);
+    // Memory/MMKV fallback already updated
   }
 };
 
 export const clearRefreshToken = async () => {
+  storageInstance.delete('auth.refreshToken');
   try {
     await SecureStore.deleteItemAsync('auth.refreshToken');
   } catch (e) {
-    storageInstance.delete('auth.refreshToken');
+    // Memory/MMKV fallback already updated
   }
 };
 
