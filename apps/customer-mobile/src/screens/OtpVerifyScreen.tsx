@@ -190,8 +190,6 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
                 editable={!loading}
                 aria-label={`OTP digit ${index + 1} of 6`}
                 selectTextOnFocus
-                placeholder={index === 0 ? "123456" : undefined}
-                placeholderTextColor="transparent"
               />
             ))}
           </View>
@@ -288,6 +286,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
+    paddingHorizontal: 0,
+    paddingVertical: 0,
   },
   errorText: {
     fontSize: 13,
