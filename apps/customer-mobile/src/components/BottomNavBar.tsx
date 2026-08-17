@@ -108,8 +108,8 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    paddingTop: 8,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 10,
+    paddingTop: 6,
+    paddingBottom: Platform.OS === 'ios' ? 16 : 6,
     paddingHorizontal: 8,
     justifyContent: 'space-around',
     alignItems: 'center',
@@ -123,8 +123,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 4,
-    minHeight: 48,
+    paddingVertical: 2,
+    minHeight: 44,
   },
   iconContainer: {
     width: 36,
