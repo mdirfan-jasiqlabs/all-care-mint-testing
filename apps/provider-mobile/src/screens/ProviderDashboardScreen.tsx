@@ -218,18 +218,40 @@ export default function ProviderDashboardScreen({ navigation }: any) {
         {/* Tab Selector */}
         <View style={[styles.tabContainer, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'active' && { backgroundColor: colors.card }]}
+            style={[
+              styles.tab,
+              activeTab === 'active' && { backgroundColor: colors.primary },
+            ]}
             onPress={() => setActiveTab('active')}
           >
-            <Text style={[styles.tabText, { color: activeTab === 'active' ? colors.textPrimary : colors.textMuted }]}>
+            <Text
+              style={[
+                styles.tabText,
+                {
+                  color: activeTab === 'active' ? '#ffffff' : colors.textMuted,
+                  fontWeight: activeTab === 'active' ? 'bold' : '600',
+                },
+              ]}
+            >
               Active Jobs
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'history' && { backgroundColor: colors.card }]}
+            style={[
+              styles.tab,
+              activeTab === 'history' && { backgroundColor: colors.primary },
+            ]}
             onPress={() => setActiveTab('history')}
           >
-            <Text style={[styles.tabText, { color: activeTab === 'history' ? colors.textPrimary : colors.textMuted }]}>
+            <Text
+              style={[
+                styles.tabText,
+                {
+                  color: activeTab === 'history' ? '#ffffff' : colors.textMuted,
+                  fontWeight: activeTab === 'history' ? 'bold' : '600',
+                },
+              ]}
+            >
               Job History
             </Text>
           </TouchableOpacity>
