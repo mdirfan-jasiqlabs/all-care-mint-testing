@@ -68,7 +68,10 @@ export default function ProviderDashboardScreen({ navigation }: any) {
       if (err.status === 401 || err.status === 403) {
         storage.clearAccessToken();
         await storage.clearRefreshToken();
-        navigation.replace('ProviderLogin');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'ProviderLogin' }],
+        });
         return;
       }
       if (!isPolling) showToast('Failed to retrieve jobs.', 'error');
@@ -121,7 +124,10 @@ export default function ProviderDashboardScreen({ navigation }: any) {
 
     storage.clearAccessToken();
     await storage.clearRefreshToken();
-    navigation.replace('ProviderLogin');
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'ProviderLogin' }],
+    });
   };
 
   const renderJobItem = ({ item }: { item: any }) => {

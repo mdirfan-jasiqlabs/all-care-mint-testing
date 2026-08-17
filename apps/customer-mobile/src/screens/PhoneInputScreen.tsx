@@ -78,13 +78,6 @@ export default function PhoneInputScreen({ navigation }: Props) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.container}
       >
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.navigate('Gateway')}
-        >
-          <Text style={[styles.backButtonText, { color: colors.textSecondary }]}>← Back to Gateway Selection</Text>
-        </TouchableOpacity>
-
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
           <Text style={[styles.title, { color: colors.textPrimary }]}>Customer Sign In</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
@@ -159,14 +152,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 20,
-  },
-  backButton: {
-    marginBottom: 16,
-    alignSelf: 'flex-start',
-  },
-  backButtonText: {
-    fontSize: 13,
-    fontWeight: '500',
   },
   card: {
     borderRadius: 16,

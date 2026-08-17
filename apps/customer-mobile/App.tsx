@@ -6,7 +6,6 @@ import { NavigationContainer, useNavigationContainerRef } from '@react-navigatio
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { RootStackParamList } from './src/navigation/root.types';
-import GatewayScreen from './src/screens/GatewayScreen';
 import PhoneInputScreen from './src/screens/PhoneInputScreen';
 import OtpVerifyScreen from './src/screens/OtpVerifyScreen';
 import HomeScreen from './src/screens/HomeScreen';
@@ -86,7 +85,7 @@ function MainAppContent() {
       if (navigationRef.isReady()) {
         navigationRef.reset({
           index: 0,
-          routes: [{ name: 'Gateway' }],
+          routes: [{ name: 'PhoneInput' }],
         });
       }
     });
@@ -114,13 +113,13 @@ function MainAppContent() {
           storage.clearAccessToken();
           await storage.clearRefreshToken();
           storage.clearUserName();
-          setInitialRoute('Gateway');
+          setInitialRoute('PhoneInput');
         }
       } else {
         storage.clearAccessToken();
         await storage.clearRefreshToken();
         storage.clearUserName();
-        setInitialRoute('Gateway');
+        setInitialRoute('PhoneInput');
       }
     };
     checkAuth();
@@ -160,11 +159,6 @@ function MainAppContent() {
             },
           }}
         >
-          <Stack.Screen
-            name="Gateway"
-            component={GatewayScreen}
-            options={{ headerShown: false }}
-          />
           <Stack.Screen
             name="PhoneInput"
             component={PhoneInputScreen}

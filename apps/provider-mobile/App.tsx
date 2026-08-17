@@ -4,7 +4,6 @@ import { NavigationContainer, createNavigationContainerRef, DefaultTheme, DarkTh
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { RootStackParamList } from './src/navigation/root.types';
-import GatewayScreen from './src/screens/GatewayScreen';
 import ProviderLoginScreen from './src/screens/ProviderLoginScreen';
 import ProviderOtpScreen from './src/screens/ProviderOtpScreen';
 import ProviderDashboardScreen from './src/screens/ProviderDashboardScreen';
@@ -204,11 +203,6 @@ function MainNavigator() {
           name="ProviderDashboard"
           component={ProviderDashboardScreen}
           options={{ title: 'Dashboard', headerLeft: () => null }}
-        />
-        <Stack.Screen
-          name="Gateway"
-          component={GatewayScreen}
-          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="ProviderLogin"

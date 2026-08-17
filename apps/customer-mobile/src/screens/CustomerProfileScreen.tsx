@@ -128,7 +128,10 @@ export default function CustomerProfileScreen({ navigation }: Props) {
     storage.clearAccessToken();
     await storage.clearRefreshToken();
     storage.clearUserName();
-    navigation.replace('PhoneInput');
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'PhoneInput' }],
+    });
   };
 
   const isDirty = name !== initialName;
