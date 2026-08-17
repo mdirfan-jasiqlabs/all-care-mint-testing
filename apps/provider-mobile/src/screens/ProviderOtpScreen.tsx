@@ -6,10 +6,13 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Sparkles, Briefcase, ShieldCheck, KeyRound, Lock, Zap, Users, ArrowLeft, ArrowRight } from 'lucide-react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/root.types';
@@ -158,74 +161,156 @@ export default function ProviderOtpScreen({ navigation, route }: Props) {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.container}
+        style={styles.keyboardView}
       >
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.navigate('ProviderLogin')}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={[styles.backButtonText, { color: colors.textSecondary }]}>← Back to Number Entry</Text>
-        </TouchableOpacity>
+          {/* Top Brand Header */}
+          <View style={styles.topBar}>
+            <Image
+              source={require('../../assets/logo.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
 
-        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Text style={[styles.title, { color: colors.textPrimary }]}>Verify SMS Code</Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Verification code sent to{' '}
-            <Text style={[styles.phoneHighlight, { color: colors.primary }]}>{mobileNumber}</Text>
-          </Text>
-
-          <View style={styles.otpContainer}>
-            {digits.map((digit, index) => (
-              <TextInput
-                key={index}
-                ref={inputRefs[index]}
-                style={[
-                  styles.otpBox,
-                  { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.inputText },
-                  digit ? { borderColor: colors.primary } : null,
-                  error ? { borderColor: colors.danger } : null,
-                ]}
-                keyboardType="number-pad"
-                maxLength={index === 0 ? 6 : 1}
-                value={digit}
-                onChangeText={(text) => handleDigitChange(text, index)}
-                onKeyPress={(e) => handleKeyPress(e, index)}
-                editable={!loading}
-                aria-label={`OTP digit ${index + 1} of 6`}
-                selectTextOnFocus
-              />
-            ))}
+            <View style={[styles.portalBadge, { backgroundColor: 'rgba(16, 185, 129, 0.12)', borderColor: 'rgba(16, 185, 129, 0.25)' }]}>
+              <Briefcase size={13} color={colors.primary} style={{ marginRight: 4 }} />
+              <Text style={[styles.portalBadgeText, { color: colors.primary }]}>Provider Portal</Text>
+            </View>
           </View>
 
-          {error ? <Text style={[styles.errorText, { color: colors.danger }]}>{error}</Text> : null}
-
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }, loading ? styles.buttonDisabled : null]}
-            onPress={handleVerify}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color={colors.primaryForeground} />
-            ) : (
-              <>
-                <Text style={[styles.buttonText, { color: colors.primaryForeground }]}>Verify OTP ➔</Text>
-                <Text style={{ position: 'absolute', opacity: 0.01, fontSize: 16, fontWeight: 'bold', color: colors.primary }}>
-                  Submit Verification Code
+          {/* Centered Body Content */}
+          <View style={styles.centerBody}>
+            {/* Hero Welcome & Graphic Section */}
+            <View style={styles.heroSection}>
+              <View style={styles.heroTextCol}>
+                <Text style={[styles.welcomeHeading, { color: colors.textPrimary }]}>Verify OTP</Text>
+                <Text style={[styles.welcomeSubtitle, { color: colors.textSecondary }]}>
+                  Enter the security passcode sent to your device.
                 </Text>
-              </>
-            )}
-          </TouchableOpacity>
+              </View>
+              <View style={[styles.shieldVisualContainer, { backgroundColor: 'rgba(16, 185, 129, 0.12)', borderColor: 'rgba(16, 185, 129, 0.25)' }]}>
+                <View style={styles.shieldGlowInner}>
+                  <KeyRound size={34} color={colors.primary} />
+                </View>
+              </View>
+            </View>
 
-          <TouchableOpacity
-            style={styles.resendContainer}
-            onPress={handleResend}
-            disabled={cooldown > 0}
-          >
-            <Text style={[styles.resendText, { color: cooldown > 0 ? colors.textMuted : colors.primary }]}>
-              {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend verification code'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+            {/* Main Auth Card */}
+            <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <View style={styles.cardHeaderRow}>
+                <View style={[styles.cardIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.12)' }]}>
+                  <ShieldCheck size={22} color={colors.primary} />
+                </View>
+                <View style={styles.cardHeaderTexts}>
+                  <Text style={[styles.title, { color: colors.textPrimary }]}>Verify SMS Code</Text>
+                  <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                    Code sent to{' '}
+                    <Text style={[styles.phoneHighlight, { color: colors.primary }]}>{mobileNumber}</Text>
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.otpContainer}>
+                {digits.map((digit, index) => (
+                  <TextInput
+                    key={index}
+                    ref={inputRefs[index]}
+                    style={[
+                      styles.otpBox,
+                      {
+                        backgroundColor: colors.inputBackground,
+                        borderColor: error
+                          ? colors.danger
+                          : digit
+                          ? colors.primary
+                          : colors.inputBorder,
+                        color: colors.inputText,
+                      },
+                    ]}
+                    keyboardType="number-pad"
+                    maxLength={index === 0 ? 6 : 1}
+                    value={digit}
+                    onChangeText={(text) => handleDigitChange(text, index)}
+                    onKeyPress={(e) => handleKeyPress(e, index)}
+                    editable={!loading}
+                    aria-label={`OTP digit ${index + 1} of 6`}
+                    selectTextOnFocus
+                  />
+                ))}
+              </View>
+
+              {error ? <Text style={[styles.errorText, { color: colors.danger }]}>{error}</Text> : null}
+
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  { backgroundColor: colors.primary },
+                  loading ? styles.buttonDisabled : null,
+                ]}
+                onPress={handleVerify}
+                disabled={loading}
+                activeOpacity={0.8}
+              >
+                {loading ? (
+                  <ActivityIndicator color={colors.primaryForeground} />
+                ) : (
+                  <>
+                    <View style={styles.buttonContent}>
+                      <Text style={[styles.buttonText, { color: colors.primaryForeground }]}>Verify OTP</Text>
+                      <ArrowRight size={18} color={colors.primaryForeground} style={{ marginLeft: 8 }} />
+                    </View>
+                    <Text style={{ position: 'absolute', opacity: 0.01, fontSize: 16, fontWeight: 'bold', color: colors.primary }}>
+                      Submit Verification Code
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.resendContainer}
+                onPress={handleResend}
+                disabled={cooldown > 0}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.resendText, { color: cooldown > 0 ? colors.textMuted : colors.primary }]}>
+                  {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend verification code'}
+                </Text>
+              </TouchableOpacity>
+
+              <View style={styles.securityIndicatorRow}>
+                <Lock size={13} color={colors.textMuted} style={{ marginRight: 5 }} />
+                <Text style={[styles.securityIndicatorText, { color: colors.textMuted }]}>
+                  Your data is encrypted and secure.
+                </Text>
+              </View>
+            </View>
+
+            {/* Bottom Trust Features */}
+            <View style={styles.trustRow}>
+              <View style={[styles.trustCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <ShieldCheck size={20} color={colors.primary} style={{ marginBottom: 6 }} />
+                <Text style={[styles.trustTitle, { color: colors.textPrimary }]}>Secure</Text>
+                <Text style={[styles.trustSub, { color: colors.textMuted }]}>End-to-end encryption</Text>
+              </View>
+
+              <View style={[styles.trustCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <Zap size={20} color={colors.primary} style={{ marginBottom: 6 }} />
+                <Text style={[styles.trustTitle, { color: colors.textPrimary }]}>Reliable</Text>
+                <Text style={[styles.trustSub, { color: colors.textMuted }]}>99.9% uptime</Text>
+              </View>
+
+              <View style={[styles.trustCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <Users size={20} color={colors.primary} style={{ marginBottom: 6 }} />
+                <Text style={[styles.trustTitle, { color: colors.textPrimary }]}>Trusted</Text>
+                <Text style={[styles.trustSub, { color: colors.textMuted }]}>Active partners</Text>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -235,42 +320,143 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  container: {
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 24,
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  centerBody: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  logoImage: {
+    width: 160,
+    height: 44,
+  },
+  brandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logoIconBg: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  brandTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    letterSpacing: -0.3,
+  },
+  portalBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  portalBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
   },
   backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 16,
     alignSelf: 'flex-start',
   },
   backButtonText: {
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+  heroSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  heroTextCol: {
+    flex: 1,
+    marginRight: 12,
+  },
+  welcomeHeading: {
+    fontSize: 24,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+    marginBottom: 4,
+  },
+  welcomeSubtitle: {
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  shieldVisualContainer: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  shieldGlowInner: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   card: {
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: 20,
+    padding: 20,
     borderWidth: 1,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
     elevation: 5,
+    marginBottom: 20,
+  },
+  cardHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  cardIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  cardHeaderTexts: {
+    flex: 1,
   },
   title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 6,
+    fontSize: 18,
+    fontWeight: '700',
   },
   subtitle: {
-    fontSize: 13,
-    textAlign: 'center',
-    marginBottom: 24,
+    fontSize: 12,
+    marginTop: 2,
+    lineHeight: 16,
   },
   phoneHighlight: {
-    fontWeight: '600',
+    fontWeight: '700',
   },
   otpContainer: {
     flexDirection: 'row',
@@ -279,41 +465,79 @@ const styles = StyleSheet.create({
   },
   otpBox: {
     width: 44,
-    height: 48,
-    borderRadius: 8,
-    borderWidth: 1,
-    fontSize: 18,
-    fontWeight: '600',
+    height: 52,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    fontSize: 20,
+    fontWeight: '700',
     textAlign: 'center',
     paddingHorizontal: 0,
     paddingVertical: 0,
   },
   errorText: {
-    fontSize: 13,
-    marginBottom: 16,
+    fontSize: 12,
+    marginBottom: 14,
     textAlign: 'center',
+    fontWeight: '500',
   },
   button: {
     height: 50,
-    borderRadius: 8,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 4,
   },
   buttonDisabled: {
     opacity: 0.6,
   },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 15,
+    fontWeight: '700',
   },
   resendContainer: {
-    marginTop: 20,
+    marginTop: 18,
     alignItems: 'center',
   },
   resendText: {
     fontSize: 13,
     fontWeight: '600',
   },
+  securityIndicatorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+  },
+  securityIndicatorText: {
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  trustRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  trustCard: {
+    flex: 1,
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    marginHorizontal: 4,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  trustTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  trustSub: {
+    fontSize: 10,
+    textAlign: 'center',
+  },
 });
+
 

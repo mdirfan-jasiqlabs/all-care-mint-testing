@@ -162,12 +162,12 @@ function MainAppContent() {
           <Stack.Screen
             name="PhoneInput"
             component={PhoneInputScreen}
-            options={{ title: 'Sign In' }}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="OtpVerify"
             component={OtpVerifyScreen}
-            options={{ title: 'Verify OTP' }}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="Home"

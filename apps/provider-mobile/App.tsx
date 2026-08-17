@@ -207,12 +207,12 @@ function MainNavigator() {
         <Stack.Screen
           name="ProviderLogin"
           component={ProviderLoginScreen}
-          options={{ title: 'Partner Sign In' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="ProviderOtp"
           component={ProviderOtpScreen}
-          options={{ title: 'Verify OTP' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="ProviderJobDetail"
