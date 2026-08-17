@@ -10,8 +10,10 @@ import {
 import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
 import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function SlotSelectionScreen({ navigation, route }: any) {
+  const { colors } = useTheme();
   const { serviceId, addressId } = route.params;
 
   const [dates, setDates] = useState<string[]>([]);
@@ -105,13 +107,18 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
 
     return (
       <TouchableOpacity
-        style={[styles.datePill, isSelected ? styles.datePillActive : styles.datePillInactive]}
+        style={[
+          styles.datePill,
+          isSelected
+            ? { backgroundColor: colors.primary }
+            : { backgroundColor: colors.surfaceSecondary, borderWidth: 1, borderColor: colors.border },
+        ]}
         onPress={() => setSelectedDate(item)}
       >
-        <Text style={[styles.dayNameText, isSelected ? styles.textActive : styles.textInactive]}>
+        <Text style={[styles.dayNameText, { color: isSelected ? colors.primaryForeground : colors.textSecondary }]}>
           {dayName}
         </Text>
-        <Text style={[styles.dayNumText, isSelected ? styles.textActive : styles.textInactive]}>
+        <Text style={[styles.dayNumText, { color: isSelected ? colors.primaryForeground : colors.textPrimary }]}>
           {dayNum}
         </Text>
       </TouchableOpacity>
@@ -122,18 +129,22 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
     <TouchableOpacity
       style={[
         styles.slotCard,
-        !item.isAvailable && styles.slotCardDisabled,
+        {
+          backgroundColor: item.isAvailable ? colors.card : colors.surfaceSecondary,
+          borderColor: item.isAvailable ? colors.cardBorder : colors.borderSubtle,
+          opacity: item.isAvailable ? 1 : 0.6,
+        },
       ]}
       disabled={!item.isAvailable || submitting}
       onPress={() => handleSelectSlot(item.id)}
     >
-      <Text style={[styles.slotLabel, !item.isAvailable && styles.textDisabled]}>
+      <Text style={[styles.slotLabel, { color: item.isAvailable ? colors.textPrimary : colors.textMuted }]}>
         {item.label}
       </Text>
       <Text
         style={[
           styles.slotStatus,
-          item.isAvailable ? styles.slotStatusAvailable : styles.slotStatusUnavailable,
+          { color: item.isAvailable ? colors.primary : colors.textMuted },
         ]}
       >
         {item.isAvailable ? 'Available →' : 'Booked/Locked'}
@@ -142,10 +153,10 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Select Booking Slot</Text>
-        <Text style={styles.subtitle}>Choose your preferred date and time slot</Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>Select Booking Slot</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Choose your preferred date and time slot</Text>
       </View>
 
       {/* Date Slider */}
@@ -161,7 +172,7 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#10b981" style={{ marginTop: 40 }} />
+        <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
       ) : (
         <FlatList
           style={styles.scrollContainer}
@@ -170,7 +181,7 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
           renderItem={renderSlotItem}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No slots available for this date.</Text>
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No slots available for this date.</Text>
           }
         />
       )}
@@ -182,7 +193,6 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
     padding: 16,
   },
   scrollContainer: {
@@ -195,11 +205,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#ffffff',
   },
   subtitle: {
     fontSize: 14,
-    color: '#94a3b8',
     marginTop: 4,
   },
   sliderContainer: {
@@ -217,14 +225,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  datePillActive: {
-    backgroundColor: '#10b981',
-  },
-  datePillInactive: {
-    backgroundColor: '#0f172a',
-    borderWidth: 1,
-    borderColor: '#1e293b',
-  },
   dayNameText: {
     fontSize: 11,
     fontWeight: 'bold',
@@ -235,19 +235,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 2,
   },
-  textActive: {
-    color: '#090b11',
-  },
-  textInactive: {
-    color: '#94a3b8',
-  },
   listContent: {
     paddingBottom: 24,
   },
   slotCard: {
-    backgroundColor: 'rgba(17, 24, 39, 0.45)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 16,
     padding: 18,
     marginBottom: 12,
@@ -255,32 +247,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  slotCardDisabled: {
-    backgroundColor: 'rgba(15, 23, 42, 0.2)',
-    borderColor: 'rgba(255,255,255,0.03)',
-  },
   slotLabel: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  textDisabled: {
-    color: '#64748b',
   },
   slotStatus: {
     fontSize: 13,
     fontWeight: 'bold',
   },
-  slotStatusAvailable: {
-    color: '#10b981',
-  },
-  slotStatusUnavailable: {
-    color: '#475569',
-  },
   emptyText: {
-    color: '#94a3b8',
     textAlign: 'center',
     marginTop: 40,
     fontSize: 14,
   },
 });
+

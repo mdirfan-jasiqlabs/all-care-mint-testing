@@ -19,6 +19,8 @@ import { useCatalogStore, Category, Service } from '../stores/catalogStore';
 import * as storage from '../utils/storage';
 import HeroCarousel from '../components/HeroCarousel';
 import BottomNavBar from '../components/BottomNavBar';
+import ThemeSwitcherModal from '../components/ThemeSwitcherModal';
+import { useTheme } from '../theme/ThemeContext';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -60,6 +62,7 @@ const getCategoryFallbackDesc = (categoryName: string): string => {
 export default function HomeScreen({ navigation }: Props) {
   const { width } = useWindowDimensions();
   const token = storage.getAccessToken() || '';
+  const { colors, resolvedTheme } = useTheme();
 
   const {
     categories,
@@ -108,25 +111,28 @@ export default function HomeScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#060b13" />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={resolvedTheme === 'light' ? 'dark-content' : 'light-content'} backgroundColor={colors.headerBackground} />
 
       {/* Main Container */}
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         {/* TOP HEADER */}
-        <View style={styles.headerRow} testID="dashboard-header">
-          <Text style={styles.headerTitle}>Dashboard</Text>
+        <View style={[styles.headerRow, { borderBottomColor: colors.headerBorder }]} testID="dashboard-header">
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Dashboard</Text>
 
-          <TouchableOpacity
-            style={styles.notificationButton}
-            onPress={handleNotificationPress}
-            activeOpacity={0.7}
-            accessibilityLabel="Notifications"
-            testID="btn-notifications-header"
-          >
-            <Ionicons name="notifications-outline" size={22} color="#f8fafc" />
-            <View style={styles.notificationDot} />
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <ThemeSwitcherModal />
+            <TouchableOpacity
+              style={[styles.notificationButton, { backgroundColor: colors.card, borderColor: colors.border }]}
+              onPress={handleNotificationPress}
+              activeOpacity={0.7}
+              accessibilityLabel="Notifications"
+              testID="btn-notifications-header"
+            >
+              <Ionicons name="notifications-outline" size={22} color={colors.textPrimary} />
+              <View style={[styles.notificationDot, { borderColor: colors.card }]} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* OFFLINE / STALE BADGE */}
@@ -150,22 +156,22 @@ export default function HomeScreen({ navigation }: Props) {
           {/* SERVICE CATEGORIES SECTION */}
           <View style={styles.sectionContainer} testID="service-categories-section">
             <View style={styles.sectionHeaderRow}>
-              <Text style={styles.sectionTitle}>Service Categories</Text>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Service Categories</Text>
               <TouchableOpacity
                 onPress={handleViewAll}
                 activeOpacity={0.7}
                 accessibilityLabel="View All Services"
                 testID="btn-view-all-categories"
               >
-                <Text style={styles.viewAllText}>View All</Text>
+                <Text style={[styles.viewAllText, { color: colors.primary }]}>View All</Text>
               </TouchableOpacity>
             </View>
 
             {/* CATEGORIES LOADING STATE */}
             {isLoading && categories.length === 0 && (
               <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color="#10b981" />
-                <Text style={styles.loadingText}>Loading categories...</Text>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading categories...</Text>
               </View>
             )}
 
@@ -206,7 +212,14 @@ export default function HomeScreen({ navigation }: Props) {
                 return (
                   <TouchableOpacity
                     key={cat.id}
-                    style={[styles.categoryCard, { width: cardWidth }]}
+                    style={[
+                      styles.categoryCard,
+                      {
+                        width: cardWidth,
+                        backgroundColor: colors.card,
+                        borderColor: colors.cardBorder,
+                      },
+                    ]}
                     onPress={() => handleCategoryPress(cat)}
                     activeOpacity={0.75}
                     accessibilityLabel={`Category ${cat.name}`}
@@ -214,16 +227,16 @@ export default function HomeScreen({ navigation }: Props) {
                   >
                     {/* Icon container */}
                     <View style={styles.categoryIconBox}>
-                      <Ionicons name={iconName} size={22} color="#10b981" />
+                      <Ionicons name={iconName} size={22} color={colors.primary} />
                     </View>
 
                     {/* Category Title */}
-                    <Text style={styles.categoryTitle} numberOfLines={1}>
+                    <Text style={[styles.categoryTitle, { color: colors.textPrimary }]} numberOfLines={1}>
                       {cat.name}
                     </Text>
 
                     {/* Short Description */}
-                    <Text style={styles.categoryDesc} numberOfLines={2}>
+                    <Text style={[styles.categoryDesc, { color: colors.textSecondary }]} numberOfLines={2}>
                       {desc}
                     </Text>
 
@@ -232,16 +245,16 @@ export default function HomeScreen({ navigation }: Props) {
                       <View style={styles.priceRow}>
                         {minPriceText ? (
                           <>
-                            <Text style={styles.priceValue}>{minPriceText}</Text>
-                            <Text style={styles.priceSuffix}> onwards</Text>
+                            <Text style={[styles.priceValue, { color: colors.primary }]}>{minPriceText}</Text>
+                            <Text style={[styles.priceSuffix, { color: colors.textMuted }]}> onwards</Text>
                           </>
                         ) : (
-                          <Text style={styles.priceSuffix}>Explore</Text>
+                          <Text style={[styles.priceSuffix, { color: colors.textMuted }]}>Explore</Text>
                         )}
                       </View>
 
-                      <View style={styles.arrowCircle}>
-                        <Ionicons name="arrow-forward" size={13} color="#94a3b8" />
+                      <View style={[styles.arrowCircle, { backgroundColor: colors.surfaceSecondary }]}>
+                        <Ionicons name="arrow-forward" size={13} color={colors.textSecondary} />
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -252,24 +265,30 @@ export default function HomeScreen({ navigation }: Props) {
 
           {/* VERIFIED & TRUSTED PROFESSIONALS CARD */}
           <TouchableOpacity
-            style={styles.trustCard}
+            style={[
+              styles.trustCard,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.cardBorder,
+              },
+            ]}
             onPress={handleViewAll}
             activeOpacity={0.8}
             accessibilityLabel="Verified & Trusted Professionals"
             testID="card-verified-professionals"
           >
             <View style={styles.trustIconCircle}>
-              <Ionicons name="shield-checkmark" size={24} color="#10b981" />
+              <Ionicons name="shield-checkmark" size={24} color={colors.primary} />
             </View>
 
             <View style={styles.trustTextContainer}>
-              <Text style={styles.trustTitle}>Verified & Trusted Professionals</Text>
-              <Text style={styles.trustSubtitle}>
+              <Text style={[styles.trustTitle, { color: colors.textPrimary }]}>Verified & Trusted Professionals</Text>
+              <Text style={[styles.trustSubtitle, { color: colors.textSecondary }]}>
                 All our partners are background verified for your safety and peace of mind.
               </Text>
             </View>
 
-            <Ionicons name="chevron-forward" size={18} color="#64748b" style={styles.trustArrow} />
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} style={styles.trustArrow} />
           </TouchableOpacity>
         </ScrollView>
 
@@ -283,12 +302,10 @@ export default function HomeScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#060b13',
     paddingTop: Platform.OS === 'android' ? 8 : 0,
   },
   container: {
     flex: 1,
-    backgroundColor: '#060b13',
   },
   headerRow: {
     flexDirection: 'row',
@@ -297,21 +314,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#131b2e',
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#ffffff',
     letterSpacing: -0.3,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   notificationButton: {
     width: 42,
     height: 42,
     borderRadius: 12,
-    backgroundColor: '#0d1527',
     borderWidth: 1,
-    borderColor: '#1e293b',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -325,7 +342,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#10b981',
     borderWidth: 1.5,
-    borderColor: '#0d1527',
   },
   offlineBanner: {
     flexDirection: 'row',
@@ -357,12 +373,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
   },
   viewAllText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#10b981',
   },
   loadingContainer: {
     paddingVertical: 32,
@@ -371,7 +385,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 8,
-    color: '#94a3b8',
     fontSize: 13,
   },
   errorContainer: {
@@ -408,10 +421,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   categoryCard: {
-    backgroundColor: '#0d1527',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#1e293b',
     padding: 14,
     justifyContent: 'space-between',
     minHeight: 155,
@@ -428,12 +439,10 @@ const styles = StyleSheet.create({
   categoryTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#ffffff',
     marginBottom: 4,
   },
   categoryDesc: {
     fontSize: 11.5,
-    color: '#94a3b8',
     lineHeight: 15,
     marginBottom: 12,
   },
@@ -450,27 +459,22 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   priceValue: {
-    color: '#10b981',
     fontWeight: '700',
     fontSize: 13,
   },
   priceSuffix: {
-    color: '#64748b',
     fontSize: 11,
   },
   arrowCircle: {
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: '#1e293b',
     justifyContent: 'center',
     alignItems: 'center',
   },
   trustCard: {
-    backgroundColor: '#0d1527',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#1e293b',
     marginHorizontal: 16,
     marginTop: 18,
     marginBottom: 12,
@@ -493,15 +497,14 @@ const styles = StyleSheet.create({
   trustTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#ffffff',
     marginBottom: 3,
   },
   trustSubtitle: {
     fontSize: 11,
-    color: '#94a3b8',
     lineHeight: 15,
   },
   trustArrow: {
     marginLeft: 8,
   },
 });
+

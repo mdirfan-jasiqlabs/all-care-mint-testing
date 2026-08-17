@@ -10,8 +10,10 @@ import {
 } from 'react-native';
 import { useCatalogStore, Service } from '../stores/catalogStore';
 import * as storage from '../utils/storage';
+import { useTheme } from '../theme/ThemeContext';
 
 export const ServiceDetailScreen = ({ navigation, route }: any) => {
+  const { colors } = useTheme();
   const { serviceId } = route.params || {};
   const token = storage.getAccessToken() || '';
   
@@ -40,72 +42,76 @@ export const ServiceDetailScreen = ({ navigation, route }: any) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#10b981" />
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   if (!service) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Service not found.</Text>
+          <Text style={[styles.errorText, { color: colors.danger }]}>Service not found.</Text>
         </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Premium placeholder image */}
-        <View style={styles.imageContainer}>
-          <View style={styles.imagePlaceholder}>
-            <Text style={styles.imagePlaceholderText}>⭐ ALL CARE MINT PREMIUM SERVICE ⭐</Text>
+        <View style={[styles.imageContainer, { backgroundColor: colors.surfaceSecondary }]}>
+          <View style={[styles.imagePlaceholder, { borderColor: colors.border }]}>
+            <Text style={[styles.imagePlaceholderText, { color: colors.primary }]}>⭐ ALL CARE MINT PREMIUM SERVICE ⭐</Text>
           </View>
         </View>
 
         <View style={styles.detailsContainer}>
-          <Text style={styles.serviceName} testID="txt-service-detail-name">
+          <Text style={[styles.serviceName, { color: colors.textPrimary }]} testID="txt-service-detail-name">
             {service.name}
           </Text>
           
-          <Text style={styles.servicePrice} testID="txt-service-detail-price">
+          <Text style={[styles.servicePrice, { color: colors.primary }]} testID="txt-service-detail-price">
             ₹{parseInt(service.fixedPrice, 10)}
           </Text>
 
           {service.estimatedDuration && (
             <View style={styles.badgeRow}>
-              <View style={styles.durationBadge}>
-                <Text style={styles.durationBadgeText}>🕒 {service.estimatedDuration}</Text>
+              <View style={[styles.durationBadge, { backgroundColor: colors.badgeBg, borderColor: colors.border }]}>
+                <Text style={[styles.durationBadgeText, { color: colors.primary }]}>🕒 {service.estimatedDuration}</Text>
               </View>
             </View>
           )}
 
-          <Text style={styles.sectionHeading}>Description</Text>
-          <Text style={styles.serviceDesc} testID="txt-service-detail-desc">
+          <Text style={[styles.sectionHeading, { color: colors.textPrimary }]}>Description</Text>
+          <Text style={[styles.serviceDesc, { color: colors.textSecondary }]} testID="txt-service-detail-desc">
             {service.description || 'No description available for this service.'}
           </Text>
         </View>
       </ScrollView>
 
       {/* Full-width sticky bottom button */}
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
         <TouchableOpacity
           onPress={handleBookNow}
           disabled={isOffline}
           style={[
             styles.bookButton,
-            isOffline ? styles.bookButtonDisabled : styles.bookButtonEnabled
+            isOffline
+              ? { backgroundColor: colors.surfaceSecondary, borderWidth: 1, borderColor: colors.border }
+              : { backgroundColor: colors.primary },
           ]}
           testID="btn-book-now"
           accessibilityLabel="Book Now"
         >
-          <Text style={[
-            styles.bookButtonText,
-            isOffline ? styles.bookButtonTextDisabled : styles.bookButtonTextEnabled
-          ]}>
+          <Text
+            style={[
+              styles.bookButtonText,
+              { color: isOffline ? colors.textMuted : colors.primaryForeground },
+            ]}
+          >
             {isOffline ? 'Offline — Booking Disabled' : 'Book Now'}
           </Text>
         </TouchableOpacity>
@@ -117,11 +123,9 @@ export const ServiceDetailScreen = ({ navigation, route }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -132,17 +136,14 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: '100%',
     height: 220,
-    backgroundColor: 'hsl(222, 47%, 11%)',
   },
   imagePlaceholder: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
   },
   imagePlaceholderText: {
-    color: '#10b981',
     fontSize: 14,
     fontWeight: 'bold',
     letterSpacing: 1.5,
@@ -151,13 +152,11 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   serviceName: {
-    color: '#ffffff',
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 8,
   },
   servicePrice: {
-    color: '#10b981',
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 12,
@@ -167,20 +166,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   durationBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.25)',
   },
   durationBadgeText: {
-    color: '#10b981',
     fontSize: 13,
     fontWeight: '600',
   },
   sectionHeading: {
-    color: '#ffffff',
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 10,
@@ -189,7 +184,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   serviceDesc: {
-    color: '#94a3b8',
     fontSize: 15,
     lineHeight: 22,
   },
@@ -199,7 +193,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorText: {
-    color: '#ef4444',
     fontSize: 16,
   },
   bottomBar: {
@@ -208,9 +201,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 16,
-    backgroundColor: 'hsl(224, 71%, 4%)',
     borderTopWidth: 1,
-    borderTopColor: 'hsl(217, 32%, 17%)',
   },
   bookButton: {
     width: '100%',
@@ -219,22 +210,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  bookButtonEnabled: {
-    backgroundColor: '#10b981',
-  },
-  bookButtonDisabled: {
-    backgroundColor: '#1e293b',
-    borderWidth: 1,
-    borderColor: '#334155',
-  },
   bookButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
   },
-  bookButtonTextEnabled: {
-    color: '#090b11',
-  },
-  bookButtonTextDisabled: {
-    color: '#64748b',
-  },
 });
+

@@ -14,6 +14,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { apiClient } from '../../services/api';
+import { useTheme } from '../../theme/ThemeContext';
 
 interface RatingSubmissionModalProps {
   visible: boolean;
@@ -32,6 +33,7 @@ export default function RatingSubmissionModal({
   serviceName,
   onSuccess,
 }: RatingSubmissionModalProps) {
+  const { colors } = useTheme();
   const [ratingScore, setRatingScore] = useState<number>(0);
   const [reviewText, setReviewText] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -116,25 +118,25 @@ export default function RatingSubmissionModal({
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.keyboardAvoidingContainer}
           >
-            <View style={styles.modalCard}>
+            <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
               {/* Header */}
-              <View style={styles.header}>
+              <View style={[styles.header, { borderBottomColor: colors.border }]}>
                 <View style={styles.headerTitleContainer}>
-                  <Text style={styles.title}>Rate & Review Service</Text>
+                  <Text style={[styles.title, { color: colors.textPrimary }]}>Rate & Review Service</Text>
                   {serviceName ? (
-                    <Text style={styles.subtitle}>{serviceName}</Text>
+                    <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{serviceName}</Text>
                   ) : null}
                   {providerName ? (
-                    <Text style={styles.providerText}>Provider: {providerName}</Text>
+                    <Text style={[styles.providerText, { color: colors.textSecondary }]}>Provider: {providerName}</Text>
                   ) : null}
                 </View>
                 <TouchableOpacity
                   onPress={onClose}
-                  style={styles.closeButton}
+                  style={[styles.closeButton, { backgroundColor: colors.surfaceSecondary }]}
                   accessibilityLabel="Close rating modal"
                   accessibilityRole="button"
                 >
-                  <Text style={styles.closeButtonText}>✕</Text>
+                  <Text style={[styles.closeButtonText, { color: colors.textSecondary }]}>✕</Text>
                 </TouchableOpacity>
               </View>
 
@@ -143,7 +145,7 @@ export default function RatingSubmissionModal({
                 contentContainerStyle={styles.scrollContent}
                 bounces={false}
               >
-                <Text style={styles.questionText}>
+                <Text style={[styles.questionText, { color: colors.textPrimary }]}>
                   How was your service experience?
                 </Text>
 
@@ -161,7 +163,7 @@ export default function RatingSubmissionModal({
                       <Text
                         style={[
                           styles.starText,
-                          { color: star <= ratingScore ? '#f59e0b' : '#4b5563' },
+                          { color: star <= ratingScore ? '#f59e0b' : colors.textMuted },
                         ]}
                       >
                         ★
@@ -175,20 +177,27 @@ export default function RatingSubmissionModal({
                     Selected: {ratingScore} of 5 Stars
                   </Text>
                 ) : (
-                  <Text style={styles.ratingScoreHint}>
+                  <Text style={[styles.ratingScoreHint, { color: colors.textSecondary }]}>
                     Tap a star above to rate
                   </Text>
                 )}
 
                 {/* Feedback Input with Live Character Counter */}
                 <View style={styles.inputContainer}>
-                  <Text style={styles.inputLabel}>
+                  <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>
                     Written Review (Optional)
                   </Text>
                   <TextInput
-                    style={styles.textInput}
+                    style={[
+                      styles.textInput,
+                      {
+                        backgroundColor: colors.inputBackground,
+                        borderColor: colors.inputBorder,
+                        color: colors.inputText,
+                      },
+                    ]}
                     placeholder="Write feedback for the service provider (max 500 chars)..."
-                    placeholderTextColor="#6b7280"
+                    placeholderTextColor={colors.placeholderText}
                     multiline
                     numberOfLines={3}
                     maxLength={500}
@@ -199,7 +208,8 @@ export default function RatingSubmissionModal({
                   <Text
                     style={[
                       styles.counterText,
-                      reviewText.length === 500 && styles.counterTextFull,
+                      { color: colors.textSecondary },
+                      reviewText.length === 500 && { color: colors.danger, fontWeight: '700' },
                     ]}
                   >
                     {reviewText.length} / 500
@@ -207,8 +217,8 @@ export default function RatingSubmissionModal({
                 </View>
 
                 {errorMessage ? (
-                  <View style={styles.errorBanner}>
-                    <Text style={styles.errorBannerText}>{errorMessage}</Text>
+                  <View style={[styles.errorBanner, { borderColor: colors.danger }]}>
+                    <Text style={[styles.errorBannerText, { color: colors.danger }]}>{errorMessage}</Text>
                   </View>
                 ) : null}
 
@@ -216,6 +226,7 @@ export default function RatingSubmissionModal({
                 <TouchableOpacity
                   style={[
                     styles.submitBtn,
+                    { backgroundColor: colors.primary },
                     (ratingScore === 0 || submitting) && styles.submitBtnDisabled,
                   ]}
                   onPress={handleSubmit}
@@ -224,12 +235,13 @@ export default function RatingSubmissionModal({
                   accessibilityRole="button"
                 >
                   {submitting ? (
-                    <ActivityIndicator size="small" color="#ffffff" />
+                    <ActivityIndicator size="small" color={colors.primaryForeground} />
                   ) : (
                     <Text
                       style={[
                         styles.submitBtnText,
-                        (ratingScore === 0 || submitting) && styles.submitBtnTextDisabled,
+                        { color: colors.primaryForeground },
+                        (ratingScore === 0 || submitting) && { opacity: 0.6 },
                       ]}
                     >
                       Submit Rating & Review
@@ -255,7 +267,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   modalCard: {
-    backgroundColor: '#1f2937', // Sleek Dark theme background
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
@@ -264,18 +275,16 @@ const styles = StyleSheet.create({
     maxHeight: '92%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 12,
     borderWidth: 1,
-    borderColor: '#374151',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     borderBottomWidth: 1,
-    borderBottomColor: '#374151',
     paddingBottom: 10,
   },
   headerTitleContainer: {
@@ -285,27 +294,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#f9fafb',
   },
   subtitle: {
     fontSize: 14,
-    color: '#9ca3af',
     marginTop: 2,
   },
   providerText: {
     fontSize: 13,
-    color: '#9ca3af',
     marginTop: 2,
   },
   closeButton: {
     padding: 6,
     borderRadius: 16,
-    backgroundColor: '#374151',
   },
   closeButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#9ca3af',
   },
   scrollContent: {
     paddingTop: 12,
@@ -314,7 +318,6 @@ const styles = StyleSheet.create({
   questionText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#e5e7eb',
     textAlign: 'center',
     marginBottom: 8,
   },
@@ -341,7 +344,6 @@ const styles = StyleSheet.create({
   ratingScoreHint: {
     textAlign: 'center',
     fontSize: 12,
-    color: '#9ca3af',
     marginBottom: 10,
   },
   inputContainer: {
@@ -350,46 +352,34 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#e5e7eb',
     marginBottom: 6,
   },
   textInput: {
     borderWidth: 1,
-    borderColor: '#4b5563',
     borderRadius: 10,
     padding: 12,
     fontSize: 14,
-    color: '#f9fafb',
     textAlignVertical: 'top',
     minHeight: 75,
-    backgroundColor: '#111827',
   },
   counterText: {
     textAlign: 'right',
     fontSize: 12,
-    color: '#9ca3af',
     marginTop: 4,
   },
-  counterTextFull: {
-    color: '#f87171',
-    fontWeight: '700',
-  },
   errorBanner: {
-    backgroundColor: '#451a1a',
-    borderColor: '#991b1b',
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
     borderWidth: 1,
     borderRadius: 8,
     padding: 10,
     marginBottom: 10,
   },
   errorBannerText: {
-    color: '#fca5a5',
     fontSize: 13,
     fontWeight: '500',
     textAlign: 'center',
   },
   submitBtn: {
-    backgroundColor: 'hsl(150, 84%, 40%)',
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
@@ -397,15 +387,11 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   submitBtnDisabled: {
-    backgroundColor: '#374151',
-    opacity: 0.7,
+    opacity: 0.6,
   },
   submitBtnText: {
-    color: '#ffffff',
     fontSize: 16,
     fontWeight: '700',
   },
-  submitBtnTextDisabled: {
-    color: '#9ca3af',
-  },
 });
+

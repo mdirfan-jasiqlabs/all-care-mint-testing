@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../theme/ThemeContext';
 
 export type TabName = 'Home' | 'Services' | 'MyBookings' | 'Profile';
 
@@ -10,6 +11,8 @@ interface BottomNavBarProps {
 }
 
 export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigation }) => {
+  const { colors } = useTheme();
+
   const handleTabPress = (tab: TabName) => {
     if (tab === activeTab) return;
 
@@ -57,11 +60,20 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigatio
   ];
 
   return (
-    <View style={styles.container} testID="bottom-navigation-bar">
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.navBackground,
+          borderTopColor: colors.navBorder,
+        },
+      ]}
+      testID="bottom-navigation-bar"
+    >
       {tabs.map((tab) => {
         const isActive = activeTab === tab.name;
         const iconName = isActive ? tab.activeIcon : tab.inactiveIcon;
-        const color = isActive ? '#10b981' : '#94a3b8';
+        const color = isActive ? colors.tabActive : colors.tabInactive;
 
         return (
           <TouchableOpacity
@@ -74,7 +86,12 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigatio
             accessibilityLabel={`${tab.label} tab`}
             testID={`tab-${tab.name.toLowerCase()}`}
           >
-            <View style={[styles.iconContainer, isActive && styles.activeIconContainer]}>
+            <View
+              style={[
+                styles.iconContainer,
+                isActive && { backgroundColor: colors.tabActiveBg },
+              ]}
+            >
               <Ionicons name={iconName} size={22} color={color} />
             </View>
             <Text style={[styles.tabLabel, { color }, isActive && styles.activeTabLabel]}>
@@ -90,9 +107,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, navigatio
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: '#090d16',
     borderTopWidth: 1,
-    borderTopColor: '#1c2638',
     paddingTop: 8,
     paddingBottom: Platform.OS === 'ios' ? 24 : 10,
     paddingHorizontal: 8,
@@ -101,7 +116,7 @@ const styles = StyleSheet.create({
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.15,
     shadowRadius: 5,
   },
   tabButton: {
@@ -118,9 +133,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 14,
   },
-  activeIconContainer: {
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-  },
   tabLabel: {
     fontSize: 12,
     fontWeight: '500',
@@ -132,3 +144,4 @@ const styles = StyleSheet.create({
 });
 
 export default BottomNavBar;
+

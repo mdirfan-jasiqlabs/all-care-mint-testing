@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ActivityIndicator, View, StyleSheet, Platform, TouchableOpacity, Text } from 'react-native';
+import { ActivityIndicator, View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
@@ -22,6 +22,7 @@ import BookingDetailScreen from './src/screens/BookingDetailScreen';
 import NotificationSettingsScreen from './src/screens/NotificationSettingsScreen';
 import { setupNotificationListeners } from './src/services/notificationService';
 import * as storage from './src/utils/storage';
+import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -34,9 +35,10 @@ const linking = {
   },
 };
 
-export default function App() {
+function MainAppContent() {
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
   const navigationRef = useNavigationContainerRef();
+  const { colors, resolvedTheme } = useTheme();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -60,120 +62,127 @@ export default function App() {
 
   if (initialRoute === null) {
     return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="hsl(150, 84%, 40%)" />
+      <View style={[styles.loading, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
-    <SafeAreaProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <NavigationContainer ref={navigationRef} linking={linking}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.background }}>
+      <NavigationContainer ref={navigationRef} linking={linking}>
+        <StatusBar style={resolvedTheme === 'light' ? 'dark' : 'light'} />
+        <Stack.Navigator
+          initialRouteName={initialRoute}
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: colors.headerBackground,
+              borderBottomWidth: 1,
+              borderBottomColor: colors.headerBorder,
+            },
+            headerTintColor: colors.headerText,
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+            cardStyle: {
+              backgroundColor: colors.background,
+            },
+          }}
+        >
+          <Stack.Screen
+            name="Gateway"
+            component={GatewayScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="PhoneInput"
+            component={PhoneInputScreen}
+            options={{ title: 'Sign In' }}
+          />
+          <Stack.Screen
+            name="OtpVerify"
+            component={OtpVerifyScreen}
+            options={{ title: 'Verify OTP' }}
+          />
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Profile"
+            component={CustomerProfileScreen}
+            options={{ title: 'My Profile' }}
+          />
+          <Stack.Screen
+            name="CatalogBrowse"
+            component={CatalogBrowseScreen}
+            options={{ title: 'Browse Services' }}
+          />
+          <Stack.Screen
+            name="ServiceDetail"
+            component={ServiceDetailScreen}
+            options={({ navigation }) => ({
+              title: 'Service Details',
+              headerLeft: () => (
+                <TouchableOpacity
+                  onPress={() => navigation.goBack()}
+                  style={{ paddingLeft: 16, paddingRight: 8, paddingVertical: 8 }}
+                  accessibilityLabel="Back to Catalog"
+                  testID="btn-back-to-catalog"
+                >
+                  <Text style={{ color: colors.primary, fontSize: 16, fontWeight: 'bold' }}>← Back</Text>
+                </TouchableOpacity>
+              ),
+            })}
+          />
+          <Stack.Screen
+            name="AddressSelection"
+            component={AddressSelectionScreen}
+            options={{ title: 'Select Address' }}
+          />
+          <Stack.Screen
+            name="SlotSelection"
+            component={SlotSelectionScreen}
+            options={{ title: 'Select Time Slot' }}
+          />
+          <Stack.Screen
+            name="BookingSummary"
+            component={BookingSummaryScreen}
+            options={{ title: 'Booking Summary' }}
+          />
+          <Stack.Screen
+            name="BookingConfirmation"
+            component={BookingConfirmationScreen}
+            options={{ title: 'Booking Confirmed', headerLeft: () => null }}
+          />
+          <Stack.Screen
+            name="MyBookings"
+            component={MyBookingsScreen}
+            options={{ title: 'My Bookings' }}
+          />
+          <Stack.Screen
+            name="BookingDetail"
+            component={BookingDetailScreen}
+            options={{ title: 'Booking Details' }}
+          />
+          <Stack.Screen
+            name="NotificationSettings"
+            component={NotificationSettingsScreen}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
+  );
+}
 
-          <StatusBar style="light" />
-          <Stack.Navigator
-            initialRouteName={initialRoute}
-            screenOptions={{
-              headerStyle: {
-                backgroundColor: 'hsl(222, 47%, 11%)',
-                borderBottomWidth: 1,
-                borderBottomColor: 'hsl(217, 32%, 17%)',
-              },
-              headerTintColor: 'hsl(210, 40%, 98%)',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-              cardStyle: {
-                backgroundColor: 'hsl(224, 71%, 4%)',
-              },
-            }}
-          >
-            <Stack.Screen
-              name="Gateway"
-              component={GatewayScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="PhoneInput"
-              component={PhoneInputScreen}
-              options={{ title: 'Sign In' }}
-            />
-            <Stack.Screen
-              name="OtpVerify"
-              component={OtpVerifyScreen}
-              options={{ title: 'Verify OTP' }}
-            />
-            <Stack.Screen
-              name="Home"
-              component={HomeScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Profile"
-              component={CustomerProfileScreen}
-              options={{ title: 'My Profile' }}
-            />
-            <Stack.Screen
-              name="CatalogBrowse"
-              component={CatalogBrowseScreen}
-              options={{ title: 'Browse Services' }}
-            />
-            <Stack.Screen
-              name="ServiceDetail"
-              component={ServiceDetailScreen}
-              options={({ navigation }) => ({
-                title: 'Service Details',
-                headerLeft: () => (
-                  <TouchableOpacity
-                    onPress={() => navigation.goBack()}
-                    style={{ paddingLeft: 16, paddingRight: 8, paddingVertical: 8 }}
-                    accessibilityLabel="Back to Catalog"
-                    testID="btn-back-to-catalog"
-                  >
-                    <Text style={{ color: '#10b981', fontSize: 16, fontWeight: 'bold' }}>← Back</Text>
-                  </TouchableOpacity>
-                ),
-              })}
-            />
-            <Stack.Screen
-              name="AddressSelection"
-              component={AddressSelectionScreen}
-              options={{ title: 'Select Address' }}
-            />
-            <Stack.Screen
-              name="SlotSelection"
-              component={SlotSelectionScreen}
-              options={{ title: 'Select Time Slot' }}
-            />
-            <Stack.Screen
-              name="BookingSummary"
-              component={BookingSummaryScreen}
-              options={{ title: 'Booking Summary' }}
-            />
-            <Stack.Screen
-              name="BookingConfirmation"
-              component={BookingConfirmationScreen}
-              options={{ title: 'Booking Confirmed', headerLeft: () => null }}
-            />
-            <Stack.Screen
-              name="MyBookings"
-              component={MyBookingsScreen}
-              options={{ title: 'My Bookings' }}
-            />
-            <Stack.Screen
-              name="BookingDetail"
-              component={BookingDetailScreen}
-              options={{ title: 'Booking Details' }}
-            />
-            <Stack.Screen
-              name="NotificationSettings"
-              component={NotificationSettingsScreen}
-              options={{ headerShown: false }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </GestureHandlerRootView>
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <MainAppContent />
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
@@ -181,8 +190,8 @@ export default function App() {
 const styles = StyleSheet.create({
   loading: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
     justifyContent: 'center',
     alignItems: 'center',
   },
 });
+

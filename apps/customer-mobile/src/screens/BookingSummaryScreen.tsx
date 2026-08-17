@@ -17,6 +17,7 @@ import {
 import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
 import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
+import { useTheme } from '../theme/ThemeContext';
 
 const generateUUID = (): string => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -26,64 +27,78 @@ const generateUUID = (): string => {
   });
 };
 
-function sha256Pure(ascii: string): number[] {
+function sha256Pure(message: string | number[]): number[] {
   function rightRotate(value: number, amount: number) {
     return (value >>> amount) | (value << (32 - amount));
   }
-  const mathPow = Math.pow;
-  const maxWord = mathPow(2, 32);
-  const result: number[] = [];
-  const words: number[] = [];
-  const asciiLength = ascii.length;
 
-  const K: number[] = [];
-  const H: number[] = [];
+  const K = [
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+  ];
 
-  let isPrime = (n: number) => {
-    for (let factor = 2; factor <= Math.sqrt(n); factor++) {
-      if (n % factor === 0) return false;
+  let H = [
+    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+  ];
+
+  let bytes: number[] = [];
+  if (typeof message === 'string') {
+    for (let i = 0; i < message.length; i++) {
+      let code = message.charCodeAt(i);
+      if (code < 0x80) {
+        bytes.push(code);
+      } else if (code < 0x800) {
+        bytes.push(0xc0 | (code >> 6), 0x80 | (code & 0x3f));
+      } else if (code < 0xd800 || code >= 0xe000) {
+        bytes.push(0xe0 | (code >> 12), 0x80 | ((code >> 6) & 0x3f), 0x80 | (code & 0x3f));
+      } else {
+        i++;
+        code = 0x10000 + (((code & 0x33f) << 10) | (message.charCodeAt(i) & 0x33f));
+        bytes.push(
+          0xf0 | (code >> 18),
+          0x80 | ((code >> 12) & 0x3f),
+          0x80 | ((code >> 6) & 0x3f),
+          0x80 | (code & 0x3f)
+        );
+      }
     }
-    return true;
-  };
-
-  let getFractionalBits = (n: number) => Math.floor((n - Math.floor(n)) * maxWord);
-
-  let n = 2, nPrime = 0;
-  while (nPrime < 64) {
-    if (isPrime(n)) {
-      if (nPrime < 8) H[nPrime] = getFractionalBits(Math.pow(n, 1 / 2));
-      K[nPrime] = getFractionalBits(Math.pow(n, 1 / 3));
-      nPrime++;
-    }
-    n++;
+  } else {
+    bytes = Array.from(message);
   }
 
-  const bytes: number[] = [];
-  for (let i = 0; i < asciiLength; i++) {
-    bytes.push(ascii.charCodeAt(i));
-  }
+  const bitLen = bytes.length * 8;
   bytes.push(0x80);
   while ((bytes.length % 64) !== 56) {
     bytes.push(0);
   }
 
-  const bitLen = asciiLength * 8;
-  for (let i = 7; i >= 0; i--) {
-    bytes.push(Math.floor(bitLen / Math.pow(2, i * 8)) & 0xff);
-  }
+  const highBits = Math.floor(bitLen / 0x100000000);
+  const lowBits = bitLen >>> 0;
+  bytes.push(
+    (highBits >>> 24) & 0xff,
+    (highBits >>> 16) & 0xff,
+    (highBits >>> 8) & 0xff,
+    highBits & 0xff,
+    (lowBits >>> 24) & 0xff,
+    (lowBits >>> 16) & 0xff,
+    (lowBits >>> 8) & 0xff,
+    lowBits & 0xff
+  );
 
+  const words: number[] = [];
   for (let i = 0; i < bytes.length; i += 4) {
-    words.push(
-      (bytes[i] << 24) |
-      (bytes[i + 1] << 16) |
-      (bytes[i + 2] << 8) |
-      bytes[i + 3]
-    );
+    words.push((bytes[i] << 24) | (bytes[i + 1] << 16) | (bytes[i + 2] << 8) | bytes[i + 3]);
   }
 
   for (let i = 0; i < words.length; i += 16) {
     const w = words.slice(i, i + 16);
-    const oldH = [...H];
+    let [a, b, c, d, e, f, g, h] = H;
 
     for (let j = 0; j < 64; j++) {
       if (j >= 16) {
@@ -92,41 +107,53 @@ function sha256Pure(ascii: string): number[] {
         w[j] = (w[j - 16] + s0 + w[j - 7] + s1) | 0;
       }
 
-      const s1 = rightRotate(H[4], 6) ^ rightRotate(H[4], 11) ^ rightRotate(H[4], 25);
-      const ch = (H[4] & H[5]) ^ (~H[4] & H[6]);
-      const temp1 = (H[7] + s1 + ch + K[j] + w[j]) | 0;
-      const s0 = rightRotate(H[0], 2) ^ rightRotate(H[0], 13) ^ rightRotate(H[0], 22);
-      const maj = (H[0] & H[1]) ^ (H[0] & H[2]) ^ (H[1] & H[2]);
-      const temp2 = (s0 + maj) | 0;
+      const S1 = rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25);
+      const ch = (e & f) ^ (~e & g);
+      const temp1 = (h + S1 + ch + K[j] + w[j]) | 0;
+      const S0 = rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22);
+      const maj = (a & b) ^ (a & c) ^ (b & c);
+      const temp2 = (S0 + maj) | 0;
 
-      H[7] = H[6];
-      H[6] = H[5];
-      H[5] = H[4];
-      H[4] = (H[3] + temp1) | 0;
-      H[3] = H[2];
-      H[2] = H[1];
-      H[1] = H[0];
-      H[0] = (temp1 + temp2) | 0;
+      h = g;
+      g = f;
+      f = e;
+      e = (d + temp1) | 0;
+      d = c;
+      c = b;
+      b = a;
+      a = (temp1 + temp2) | 0;
     }
 
-    for (let j = 0; j < 8; j++) {
-      H[j] = (H[j] + oldH[j]) | 0;
-    }
+    H[0] = (H[0] + a) | 0;
+    H[1] = (H[1] + b) | 0;
+    H[2] = (H[2] + c) | 0;
+    H[3] = (H[3] + d) | 0;
+    H[4] = (H[4] + e) | 0;
+    H[5] = (H[5] + f) | 0;
+    H[6] = (H[6] + g) | 0;
+    H[7] = (H[7] + h) | 0;
   }
 
+  const resultBytes: number[] = [];
   for (let i = 0; i < 8; i++) {
-    result.push((H[i] >>> 24) & 0xff);
-    result.push((H[i] >>> 16) & 0xff);
-    result.push((H[i] >>> 8) & 0xff);
-    result.push(H[i] & 0xff);
+    resultBytes.push(
+      (H[i] >>> 24) & 0xff,
+      (H[i] >>> 16) & 0xff,
+      (H[i] >>> 8) & 0xff,
+      H[i] & 0xff
+    );
   }
-  return result;
+  return resultBytes;
 }
 
 async function computeHmacSha256(secret: string, message: string): Promise<string> {
-  let keyBytes = Array.from(secret).map((c) => c.charCodeAt(0));
+  let keyBytes: number[] = [];
+  for (let i = 0; i < secret.length; i++) {
+    keyBytes.push(secret.charCodeAt(i));
+  }
+
   if (keyBytes.length > 64) {
-    keyBytes = sha256Pure(secret);
+    keyBytes = sha256Pure(keyBytes);
   }
   while (keyBytes.length < 64) {
     keyBytes.push(0);
@@ -135,16 +162,38 @@ async function computeHmacSha256(secret: string, message: string): Promise<strin
   const oPad = keyBytes.map((b) => b ^ 0x5c);
   const iPad = keyBytes.map((b) => b ^ 0x36);
 
-  const innerMsg = String.fromCharCode(...iPad) + message;
-  const innerHash = sha256Pure(innerMsg);
+  let msgBytes: number[] = [];
+  for (let i = 0; i < message.length; i++) {
+    let code = message.charCodeAt(i);
+    if (code < 0x80) {
+      msgBytes.push(code);
+    } else if (code < 0x800) {
+      msgBytes.push(0xc0 | (code >> 6), 0x80 | (code & 0x3f));
+    } else if (code < 0xd800 || code >= 0xe000) {
+      msgBytes.push(0xe0 | (code >> 12), 0x80 | ((code >> 6) & 0x3f), 0x80 | (code & 0x3f));
+    } else {
+      i++;
+      code = 0x10000 + (((code & 0x33f) << 10) | (message.charCodeAt(i) & 0x33f));
+      msgBytes.push(
+        0xf0 | (code >> 18),
+        0x80 | ((code >> 12) & 0x3f),
+        0x80 | ((code >> 6) & 0x3f),
+        0x80 | (code & 0x3f)
+      );
+    }
+  }
 
-  const outerMsg = String.fromCharCode(...oPad) + String.fromCharCode(...innerHash);
-  const outerHash = sha256Pure(outerMsg);
+  const innerBytes = [...iPad, ...msgBytes];
+  const innerHash = sha256Pure(innerBytes);
+
+  const outerBytes = [...oPad, ...innerHash];
+  const outerHash = sha256Pure(outerBytes);
 
   return outerHash.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 export default function BookingSummaryScreen({ navigation, route }: any) {
+  const { colors } = useTheme();
   const { serviceId, addressId: initialAddressId, slotId: initialSlotId, date: initialDate } = route.params || {};
 
   // Toast Queue state
@@ -495,6 +544,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
         }
 
         setRazorpayOrderData(data.data);
+        setIsPolling(false);
         setShowRazorpayModal(true);
       } catch (err: any) {
         const msg = err.message || 'Online payment initiation failed.';
@@ -544,40 +594,40 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
   // Skeleton Loader Component
   if (loading) {
     return (
-      <View style={styles.skeletonContainer}>
-        <View style={styles.skeletonHeader} />
-        <View style={styles.skeletonCard} />
-        <View style={styles.skeletonCard} />
-        <View style={styles.skeletonCard} />
+      <View style={[styles.skeletonContainer, { backgroundColor: colors.background }]}>
+        <View style={[styles.skeletonHeader, { backgroundColor: colors.surfaceSecondary }]} />
+        <View style={[styles.skeletonCard, { backgroundColor: colors.surfaceSecondary }]} />
+        <View style={[styles.skeletonCard, { backgroundColor: colors.surfaceSecondary }]} />
+        <View style={[styles.skeletonCard, { backgroundColor: colors.surfaceSecondary }]} />
       </View>
     );
   }
 
   return (
-    <View style={styles.outerContainer}>
+    <View style={[styles.outerContainer, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
         
         {/* HEADER & STATUS BAR */}
         <View style={styles.screenHeader}>
-          <Text style={styles.screenTitle}>Checkout Review</Text>
-          <View style={styles.onlineBadge}>
-            <Text style={styles.onlineBadgeText}>Online</Text>
+          <Text style={[styles.screenTitle, { color: colors.textPrimary }]}>Checkout Review</Text>
+          <View style={[styles.onlineBadge, { backgroundColor: colors.badgeBg, borderColor: colors.border }]}>
+            <Text style={[styles.onlineBadgeText, { color: colors.primary }]}>Online</Text>
           </View>
         </View>
 
         {/* US-004-006 PAYMENT FAILURE RECOVERY CARD */}
         {paymentFailedState && (
-          <View style={styles.failureBannerCard}>
+          <View style={[styles.failureBannerCard, { borderColor: colors.danger }]}>
             <View style={styles.failureBannerHeaderRow}>
               <Text style={styles.failureWarningIcon}>⚠️</Text>
-              <Text style={styles.failureBannerTitle}>Payment Failed</Text>
+              <Text style={[styles.failureBannerTitle, { color: colors.danger }]}>Payment Failed</Text>
             </View>
-            <Text style={styles.failureBannerMessage}>
+            <Text style={[styles.failureBannerMessage, { color: colors.textSecondary }]}>
               Payment was not successful. No booking has been placed.
             </Text>
             <View style={styles.failureCtaRow}>
               <TouchableOpacity
-                style={[styles.retryBtn, submitting && styles.btnDisabled]}
+                style={[styles.retryBtn, { backgroundColor: colors.danger }, submitting && styles.btnDisabled]}
                 disabled={submitting}
                 onPress={handleTryAgain}
               >
@@ -585,14 +635,14 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.cashFallbackBtn, submitting && styles.btnDisabled]}
+                style={[styles.cashFallbackBtn, { backgroundColor: colors.primary }, submitting && styles.btnDisabled]}
                 disabled={submitting}
                 onPress={handlePayWithCashFallback}
               >
                 {submitting ? (
-                  <ActivityIndicator size="small" color="#020617" />
+                  <ActivityIndicator size="small" color={colors.primaryForeground} />
                 ) : (
-                  <Text style={styles.cashFallbackBtnText}>Pay with Cash</Text>
+                  <Text style={[styles.cashFallbackBtnText, { color: colors.primaryForeground }]}>Pay with Cash</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -601,36 +651,36 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
 
         {/* Validation Error Alert Banner */}
         {validationError && (
-          <View style={styles.validationErrorBanner}>
-            <Text style={styles.validationErrorText}>{validationError}</Text>
+          <View style={[styles.validationErrorBanner, { borderColor: colors.danger }]}>
+            <Text style={[styles.validationErrorText, { color: colors.danger }]}>{validationError}</Text>
           </View>
         )}
 
         {/* 1. REVIEW SELECTED ITEMS */}
-        <View style={styles.sectionCard}>
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
           <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionTitle}>1. REVIEW SELECTED ITEMS</Text>
-            <Text style={styles.sectionHeaderPrice}>₹{totalPrice.toFixed(2)}</Text>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>1. REVIEW SELECTED ITEMS</Text>
+            <Text style={[styles.sectionHeaderPrice, { color: colors.primary }]}>₹{totalPrice.toFixed(2)}</Text>
           </View>
           <View style={styles.itemDetailRow}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.serviceNameText}>{service?.name || 'Selected Service'}</Text>
-              {service?.description && <Text style={styles.serviceDescText}>{service.description}</Text>}
+              <Text style={[styles.serviceNameText, { color: colors.textPrimary }]}>{service?.name || 'Selected Service'}</Text>
+              {service?.description && <Text style={[styles.serviceDescText, { color: colors.textSecondary }]}>{service.description}</Text>}
               {service?.estimatedDuration && (
-                <Text style={styles.serviceDurationText}>Duration: {service.estimatedDuration}</Text>
+                <Text style={[styles.serviceDurationText, { color: colors.textMuted }]}>Duration: {service.estimatedDuration}</Text>
               )}
             </View>
-            <Text style={styles.itemPriceText}>₹{totalPrice.toFixed(2)}</Text>
+            <Text style={[styles.itemPriceText, { color: colors.primary }]}>₹{totalPrice.toFixed(2)}</Text>
           </View>
         </View>
 
         {/* 2. LOCATION ADDRESS (DROPDOWN + ADD NEW) */}
-        <View style={[styles.sectionCard, !selectedAddressId && validationError ? styles.cardErrorBorder : null]}>
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }, !selectedAddressId && validationError ? styles.cardErrorBorder : null]}>
           <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionTitle}>2. LOCATION ADDRESS</Text>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>2. LOCATION ADDRESS</Text>
             <TouchableOpacity onPress={() => setShowAddressModal(true)}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={styles.addNewText}>+ Add New</Text>
+                <Text style={[styles.addNewText, { color: colors.primary }]}>+ Add New</Text>
                 {addresses.length === 0 && (
                   <>
                     <Text style={{ color: 'transparent', fontSize: 10, position: 'absolute', left: -180, top: 20 }}>
@@ -649,10 +699,10 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
 
           {/* In-page Address Dropdown Selector */}
           <TouchableOpacity
-            style={styles.dropdownSelector}
+            style={[styles.dropdownSelector, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder }]}
             onPress={() => setShowAddressDropdown(!showAddressDropdown)}
           >
-            <Text style={styles.dropdownSelectorText}>
+            <Text style={[styles.dropdownSelectorText, { color: colors.inputText }]}>
               {selectedAddressObj
                 ? `${selectedAddressObj.label} — ${selectedAddressObj.addressLine1}, ${selectedAddressObj.city}`
                 : addresses.length === 0
@@ -660,25 +710,25 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                 : 'Select an address...'}
             </Text>
 
-            <Text style={styles.dropdownArrow}>{showAddressDropdown ? '▲' : '▼'}</Text>
+            <Text style={[styles.dropdownArrow, { color: colors.textSecondary }]}>{showAddressDropdown ? '▲' : '▼'}</Text>
           </TouchableOpacity>
 
           {/* Dropdown Options List */}
           {showAddressDropdown && (
-            <View style={styles.dropdownListContainer}>
+            <View style={[styles.dropdownListContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
               {addresses.length === 0 ? (
                 <View style={styles.emptyAddressContainer}>
-                  <Text style={styles.emptyAddressText}>
+                  <Text style={[styles.emptyAddressText, { color: colors.textSecondary }]}>
                     No saved addresses. Please add one to checkout.
                   </Text>
                   <TouchableOpacity
-                    style={styles.emptyAddBtn}
+                    style={[styles.emptyAddBtn, { backgroundColor: colors.badgeBg }]}
                     onPress={() => {
                       setShowAddressDropdown(false);
                       setShowAddressModal(true);
                     }}
                   >
-                    <Text style={styles.emptyAddBtnText}>+ Add Address</Text>
+                    <Text style={[styles.emptyAddBtnText, { color: colors.primary }]}>+ Add Address</Text>
                   </TouchableOpacity>
                 </View>
               ) : (
@@ -687,7 +737,8 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                     key={addr.id}
                     style={[
                       styles.dropdownOptionItem,
-                      addr.id === selectedAddressId && styles.dropdownOptionItemActive,
+                      { borderBottomColor: colors.border },
+                      addr.id === selectedAddressId && { backgroundColor: colors.badgeBg },
                     ]}
                     onPress={() => {
                       setSelectedAddressId(addr.id);
@@ -697,7 +748,8 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                     <Text
                       style={[
                         styles.dropdownOptionText,
-                        addr.id === selectedAddressId && styles.dropdownOptionTextActive,
+                        { color: colors.textPrimary },
+                        addr.id === selectedAddressId && { color: colors.primary, fontWeight: 'bold' },
                       ]}
                     >
                       {addr.label} — {addr.addressLine1}, {addr.city} ({addr.pincode})
@@ -710,8 +762,8 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
         </View>
 
         {/* 3. TIME SLOT SCHEDULE (HORIZONTAL DAYS CAROUSEL + 2-COLUMN GRID) */}
-        <View style={[styles.sectionCard, !selectedSlotId && validationError ? styles.cardErrorBorder : null]}>
-          <Text style={styles.sectionTitle}>3. TIME SLOT SCHEDULE</Text>
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }, !selectedSlotId && validationError ? styles.cardErrorBorder : null]}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>3. TIME SLOT SCHEDULE</Text>
 
           {/* Days Carousel */}
           <ScrollView
@@ -729,17 +781,22 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
               return (
                 <TouchableOpacity
                   key={dStr}
-                  style={[styles.dateCard, isSelected ? styles.dateCardActive : styles.dateCardInactive]}
+                  style={[
+                    styles.dateCard,
+                    isSelected
+                      ? { backgroundColor: colors.primary }
+                      : { backgroundColor: colors.surfaceSecondary, borderWidth: 1, borderColor: colors.border },
+                  ]}
                   onPress={() => {
                     setSelectedDate(dStr);
                     setSelectedSlotId('');
                     setSelectedSlotLabel('');
                   }}
                 >
-                  <Text style={[styles.dayNameText, isSelected ? styles.dayTextActive : styles.dayTextInactive]}>
+                  <Text style={[styles.dayNameText, { color: isSelected ? colors.primaryForeground : colors.textSecondary }]}>
                     {dayName}
                   </Text>
-                  <Text style={[styles.dayNumText, isSelected ? styles.dayTextActive : styles.dayTextInactive]}>
+                  <Text style={[styles.dayNumText, { color: isSelected ? colors.primaryForeground : colors.textPrimary }]}>
                     {dayNum}
                   </Text>
                 </TouchableOpacity>
@@ -748,11 +805,11 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
           </ScrollView>
 
           {/* Time Slot Grid Selector (2 Columns) */}
-          <Text style={styles.gridHeaderSub}>Select Time Slot:</Text>
+          <Text style={[styles.gridHeaderSub, { color: colors.textSecondary }]}>Select Time Slot:</Text>
           {loadingSlots ? (
-            <ActivityIndicator size="small" color="#10b981" style={{ marginVertical: 16 }} />
+            <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 16 }} />
           ) : slots.length === 0 ? (
-            <Text style={styles.noSlotsText}>No available time slots for this day.</Text>
+            <Text style={[styles.noSlotsText, { color: colors.textSecondary }]}>No available time slots for this day.</Text>
           ) : (
             <View style={styles.slotGridContainer}>
               {slots.map((slot) => {
@@ -765,16 +822,18 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                     disabled={!isAvail || lockingSlot}
                     style={[
                       styles.slotPill,
-                      !isAvail && styles.slotPillDisabled,
-                      isSelected && styles.slotPillSelected,
+                      { backgroundColor: colors.surfaceSecondary, borderWidth: 1, borderColor: colors.border },
+                      !isAvail && { opacity: 0.5 },
+                      isSelected && { backgroundColor: colors.badgeBg, borderWidth: 1.5, borderColor: colors.primary },
                     ]}
                     onPress={() => handleSelectSlot(slot)}
                   >
                     <Text
                       style={[
                         styles.slotPillText,
-                        !isAvail && styles.slotPillTextDisabled,
-                        isSelected && styles.slotPillTextSelected,
+                        { color: colors.textPrimary },
+                        !isAvail && { color: colors.textMuted },
+                        isSelected && { color: colors.primary, fontWeight: 'bold' },
                       ]}
                     >
                       {slot.label} {!isAvail ? '(Locked)' : ''}
@@ -787,21 +846,23 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
         </View>
 
         {/* 4. PAYMENT METHOD DROPDOWN */}
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>4. PAYMENT METHOD</Text>
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>4. PAYMENT METHOD</Text>
 
           <View style={styles.paymentOptionsRow}>
             <TouchableOpacity
               style={[
                 styles.paymentChoiceBtn,
-                paymentMethod === 'CASH_ON_SERVICE' && styles.paymentChoiceBtnActive,
+                { backgroundColor: colors.surfaceSecondary, borderWidth: 1, borderColor: colors.border },
+                paymentMethod === 'CASH_ON_SERVICE' && { backgroundColor: colors.badgeBg, borderWidth: 1.5, borderColor: colors.primary },
               ]}
               onPress={() => setPaymentMethod('CASH_ON_SERVICE')}
             >
               <Text
                 style={[
                   styles.paymentChoiceText,
-                  paymentMethod === 'CASH_ON_SERVICE' && styles.paymentChoiceTextActive,
+                  { color: colors.textPrimary },
+                  paymentMethod === 'CASH_ON_SERVICE' && { color: colors.primary, fontWeight: 'bold' },
                 ]}
               >
                 Cash on Delivery (COD) / Cash
@@ -811,14 +872,16 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
             <TouchableOpacity
               style={[
                 styles.paymentChoiceBtn,
-                paymentMethod === 'ONLINE' && styles.paymentChoiceBtnActive,
+                { backgroundColor: colors.surfaceSecondary, borderWidth: 1, borderColor: colors.border },
+                paymentMethod === 'ONLINE' && { backgroundColor: colors.badgeBg, borderWidth: 1.5, borderColor: colors.primary },
               ]}
               onPress={() => setPaymentMethod('ONLINE')}
             >
               <Text
                 style={[
                   styles.paymentChoiceText,
-                  paymentMethod === 'ONLINE' && styles.paymentChoiceTextActive,
+                  { color: colors.textPrimary },
+                  paymentMethod === 'ONLINE' && { color: colors.primary, fontWeight: 'bold' },
                 ]}
               >
                 Online Payment (Razorpay UPI / Cards)
@@ -829,21 +892,21 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
       </ScrollView>
 
       {/* STICKY BOTTOM CHECKOUT SUMMARY */}
-      <View style={styles.stickyFooter}>
+      <View style={[styles.stickyFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
         <View style={styles.footerPriceRow}>
-          <Text style={styles.footerTotalLabel}>Checkout Total:</Text>
-          <Text style={styles.footerTotalVal}>₹{totalPrice.toFixed(2)}</Text>
+          <Text style={[styles.footerTotalLabel, { color: colors.textSecondary }]}>Checkout Total:</Text>
+          <Text style={[styles.footerTotalVal, { color: colors.textPrimary }]}>₹{totalPrice.toFixed(2)}</Text>
         </View>
 
         <TouchableOpacity
-          style={[styles.bookNowBtn, (submitting || lockingSlot) && styles.bookNowBtnDisabled]}
+          style={[styles.bookNowBtn, { backgroundColor: colors.primary }, (submitting || lockingSlot) && styles.bookNowBtnDisabled]}
           disabled={submitting || lockingSlot}
           onPress={handlePlaceBooking}
         >
           {submitting ? (
-            <ActivityIndicator size="small" color="#020617" />
+            <ActivityIndicator size="small" color={colors.primaryForeground} />
           ) : (
-            <Text style={styles.bookNowBtnText}>Book Now (Schedule Slot)</Text>
+            <Text style={[styles.bookNowBtnText, { color: colors.primaryForeground }]}>Book Now (Schedule Slot)</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -852,28 +915,28 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
       {showRazorpayModal && (
         <Modal visible={showRazorpayModal} transparent animationType="fade">
           <View style={styles.modalOverlay}>
-            <View style={styles.modalCard}>
-              <Text style={styles.modalTitle}>Razorpay Payment Gateway</Text>
-              <Text style={{ color: '#94a3b8', fontSize: 13, marginBottom: 12 }}>
+            <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+              <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Razorpay Payment Gateway</Text>
+              <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 12 }}>
                 Order ID: {razorpayOrderData?.razorpay_order_id}
               </Text>
-              <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: 12, borderRadius: 8, marginBottom: 16 }}>
-                <Text style={{ color: '#10b981', fontWeight: 'bold', fontSize: 18, textAlign: 'center' }}>
+              <View style={{ backgroundColor: colors.badgeBg, padding: 12, borderRadius: 8, marginBottom: 16 }}>
+                <Text style={{ color: colors.primary, fontWeight: 'bold', fontSize: 18, textAlign: 'center' }}>
                   Payable Amount: ₹{((razorpayOrderData?.amount_paise || 0) / 100).toFixed(2)}
                 </Text>
               </View>
 
               {isPolling ? (
                 <View style={{ alignItems: 'center', marginVertical: 16 }}>
-                  <ActivityIndicator size="large" color="#10b981" />
-                  <Text style={{ color: '#94a3b8', fontSize: 13, marginTop: 10, textAlign: 'center' }}>
+                  <ActivityIndicator size="large" color={colors.primary} />
+                  <Text style={{ color: colors.textSecondary, fontSize: 13, marginTop: 10, textAlign: 'center' }}>
                     {pollingStatusMessage || 'Verifying payment with bank & updating status...'}
                   </Text>
                 </View>
               ) : (
                 <View style={styles.modalBtnRow}>
                   <TouchableOpacity
-                    style={[styles.modalCancelBtn, paymentActionLoading !== null && styles.btnDisabled]}
+                    style={[styles.modalCancelBtn, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }, paymentActionLoading !== null && styles.btnDisabled]}
                     disabled={paymentActionLoading !== null}
                     onPress={() => {
                       if (pollTimerRef.current) clearInterval(pollTimerRef.current);
@@ -884,11 +947,11 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                       showToast('Payment cancelled by customer.', 'warning');
                     }}
                   >
-                    <Text style={styles.modalCancelBtnText}>Cancel</Text>
+                    <Text style={[styles.modalCancelBtnText, { color: colors.textSecondary }]}>Cancel</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={[styles.modalFailBtn, paymentActionLoading !== null && styles.btnDisabled]}
+                    style={[styles.modalFailBtn, { backgroundColor: colors.danger }, paymentActionLoading !== null && styles.btnDisabled]}
                     disabled={paymentActionLoading !== null}
                     onPress={async () => {
                       if (!razorpayOrderData?.razorpay_order_id || paymentActionLoading !== null) return;
@@ -913,7 +976,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                         const rawBody = JSON.stringify(payloadObj);
                         const signature = await computeHmacSha256('mock_webhook_secret', rawBody);
 
-                        await apiClient.raw('/api/v1/payments/webhook', {
+                        const res = await apiClient.raw('/api/v1/payments/webhook', {
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
@@ -921,8 +984,12 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                           },
                           body: rawBody,
                         });
-                      } catch (err) {
-                        // ignore error and start polling
+                        if (!res.ok) {
+                          const errText = await res.text();
+                          console.error('[Razorpay Webhook Fail Error]:', res.status, errText);
+                        }
+                      } catch (err: any) {
+                        console.error('[Razorpay Webhook Error]:', err);
                       } finally {
                         setPaymentActionLoading(null);
                       }
@@ -937,7 +1004,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={[styles.modalSaveBtn, paymentActionLoading !== null && styles.btnDisabled]}
+                    style={[styles.modalSaveBtn, { backgroundColor: colors.primary }, paymentActionLoading !== null && styles.btnDisabled]}
                     disabled={paymentActionLoading !== null}
                     onPress={async () => {
                       if (!razorpayOrderData?.razorpay_order_id || paymentActionLoading !== null) return;
@@ -951,7 +1018,12 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                           razorpay_payment_id: mockPayId,
                           payload: {
                             payment: {
-                              entity: { id: mockPayId, order_id: orderId },
+                              entity: {
+                                id: mockPayId,
+                                order_id: orderId,
+                                amount: razorpayOrderData?.amount_paise,
+                                currency: 'INR',
+                              },
                             },
                           },
                         };
@@ -959,7 +1031,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                         
                         const signature = await computeHmacSha256('mock_webhook_secret', rawBody);
 
-                        await apiClient.raw('/api/v1/payments/webhook', {
+                        const res = await apiClient.raw('/api/v1/payments/webhook', {
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
@@ -967,8 +1039,14 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                           },
                           body: rawBody,
                         });
-                      } catch (err) {
-                        // ignore error and start polling
+                        if (!res.ok) {
+                          const errText = await res.text();
+                          console.error('[Razorpay Webhook Complete Error]:', res.status, errText);
+                          showToast(`Webhook Error (${res.status}): ${errText}`, 'error');
+                        }
+                      } catch (err: any) {
+                        console.error('[Razorpay Webhook Error]:', err);
+                        showToast(`Network Error: ${err.message}`, 'error');
                       } finally {
                         setPaymentActionLoading(null);
                       }
@@ -976,9 +1054,9 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                     }}
                   >
                     {paymentActionLoading === 'complete' ? (
-                      <ActivityIndicator size="small" color="#020617" />
+                      <ActivityIndicator size="small" color={colors.primaryForeground} />
                     ) : (
-                      <Text style={styles.modalSaveBtnText}>Complete</Text>
+                      <Text style={[styles.modalSaveBtnText, { color: colors.primaryForeground }]}>Complete</Text>
                     )}
                   </TouchableOpacity>
                 </View>
@@ -992,69 +1070,69 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
       {showAddressModal && (
         <Modal visible={showAddressModal} transparent animationType="fade">
           <View style={styles.modalOverlay}>
-            <View style={styles.modalCard}>
+            <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
               <View style={{ position: 'relative' }}>
-                <Text style={styles.modalTitle}>Add New Delivery Address</Text>
+                <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Add New Delivery Address</Text>
                 <Text style={{ color: 'transparent', fontSize: 1, position: 'absolute' }}>Add New Address</Text>
               </View>
 
-              {addressFormError ? <Text style={styles.modalErrorText}>{addressFormError}</Text> : null}
+              {addressFormError ? <Text style={[styles.modalErrorText, { color: colors.danger }]}>{addressFormError}</Text> : null}
 
               <TextInput
                 placeholder="Label (e.g. Home, Office) *"
-                placeholderTextColor="#64748b"
-                style={styles.modalInput}
+                placeholderTextColor={colors.placeholderText}
+                style={[styles.modalInput, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.inputText }]}
                 value={newLabel}
                 onChangeText={setNewLabel}
               />
 
               <TextInput
                 placeholder="Address Line 1 *"
-                placeholderTextColor="#64748b"
-                style={styles.modalInput}
+                placeholderTextColor={colors.placeholderText}
+                style={[styles.modalInput, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.inputText }]}
                 value={newAddressLine1}
                 onChangeText={setNewAddressLine1}
               />
 
               <TextInput
                 placeholder="City *"
-                placeholderTextColor="#64748b"
-                style={styles.modalInput}
+                placeholderTextColor={colors.placeholderText}
+                style={[styles.modalInput, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.inputText }]}
                 value={newCity}
                 onChangeText={setNewCity}
               />
 
               <TextInput
                 placeholder="Pincode (6 digits) *"
-                placeholderTextColor="#64748b"
+                placeholderTextColor={colors.placeholderText}
                 keyboardType="number-pad"
                 maxLength={6}
-                style={styles.modalInput}
+                style={[styles.modalInput, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.inputText }]}
                 value={newPincode}
                 onChangeText={setNewPincode}
               />
 
               <View style={styles.modalBtnRow}>
                 <TouchableOpacity
-                  style={styles.modalCancelBtn}
+                  style={[styles.modalCancelBtn, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
                   onPress={() => {
                     setShowAddressModal(false);
                     setAddressFormError('');
                   }}
                 >
-                  <Text style={styles.modalCancelBtnText}>Cancel</Text>
+                  <Text style={[styles.modalCancelBtnText, { color: colors.textSecondary }]}>Cancel</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={styles.modalSaveBtn}
+                  style={[styles.modalSaveBtn, { backgroundColor: colors.primary }]}
                   disabled={savingAddress}
                   onPress={handleSaveNewAddress}
                 >
                   {savingAddress ? (
-                    <ActivityIndicator size="small" color="#020617" />
+                    <ActivityIndicator size="small" color={colors.primaryForeground} />
                   ) : (
                     <>
-                      <Text style={styles.modalSaveBtnText}>Save</Text>
+                      <Text style={[styles.modalSaveBtnText, { color: colors.primaryForeground }]}>Save</Text>
                       <Text style={{ color: 'transparent', fontSize: 1, position: 'absolute' }}>Save Address</Text>
                     </>
                   )}
@@ -1072,7 +1150,6 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
   },
   scrollContainer: {
     flex: 1,
@@ -1482,7 +1559,6 @@ const styles = StyleSheet.create({
   },
   skeletonContainer: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
     padding: 16,
     gap: 16,
   },

@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/root.types';
 import { apiClient } from '../services/api';
+import { useTheme } from '../theme/ThemeContext';
 
 type PhoneInputScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export default function PhoneInputScreen({ navigation }: Props) {
+  const { colors } = useTheme();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [countryCode, setCountryCode] = useState('+91');
   const [loading, setLoading] = useState(false);
@@ -63,7 +65,7 @@ export default function PhoneInputScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       {isOffline && (
         <View style={styles.offlineBanner}>
           <Text style={styles.offlineText}>
@@ -80,25 +82,32 @@ export default function PhoneInputScreen({ navigation }: Props) {
           style={styles.backButton}
           onPress={() => navigation.navigate('Gateway')}
         >
-          <Text style={styles.backButtonText}>← Back to Gateway Selection</Text>
+          <Text style={[styles.backButtonText, { color: colors.textSecondary }]}>← Back to Gateway Selection</Text>
         </TouchableOpacity>
 
-        <View style={styles.card}>
-          <Text style={styles.title}>Customer Sign In</Text>
-          <Text style={styles.subtitle}>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+          <Text style={[styles.title, { color: colors.textPrimary }]}>Customer Sign In</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Receive 6-digit OTP verification code via secure SMS transaction.
           </Text>
 
-          <Text style={styles.label}>Mobile Number (India)</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Mobile Number (India)</Text>
 
           <View style={styles.inputContainer}>
-            <TouchableOpacity style={styles.countrySelector}>
-              <Text style={styles.countrySelectorText}>{countryCode}</Text>
+            <TouchableOpacity style={[styles.countrySelector, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+              <Text style={[styles.countrySelectorText, { color: colors.textPrimary }]}>{countryCode}</Text>
             </TouchableOpacity>
             <TextInput
-              style={[styles.input, error ? styles.inputError : null]}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: error ? colors.danger : colors.inputBorder,
+                  color: colors.inputText,
+                },
+              ]}
               placeholder="(999) 999-9999"
-              placeholderTextColor="hsl(215, 20%, 45%)"
+              placeholderTextColor={colors.placeholderText}
               keyboardType="phone-pad"
               value={phoneNumber}
               onChangeText={(text) => {
@@ -109,17 +118,21 @@ export default function PhoneInputScreen({ navigation }: Props) {
             />
           </View>
 
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          {error ? <Text style={[styles.errorText, { color: colors.danger }]}>{error}</Text> : null}
 
           <TouchableOpacity
-            style={[styles.button, loading ? styles.buttonDisabled : null]}
+            style={[
+              styles.button,
+              { backgroundColor: colors.primary },
+              loading ? styles.buttonDisabled : null,
+            ]}
             onPress={handleSendCode}
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="hsl(224, 71%, 4%)" />
+              <ActivityIndicator color={colors.primaryForeground} />
             ) : (
-              <Text style={styles.buttonText}>Send Verification Code ➔</Text>
+              <Text style={[styles.buttonText, { color: colors.primaryForeground }]}>Send Verification Code ➔</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -131,7 +144,6 @@ export default function PhoneInputScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
   },
   offlineBanner: {
     backgroundColor: 'hsl(40, 84%, 55%)',
@@ -139,7 +151,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   offlineText: {
-    color: 'hsl(224, 71%, 4%)',
+    color: '#000000',
     fontWeight: 'bold',
     fontSize: 12,
   },
@@ -153,32 +165,27 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   backButtonText: {
-    color: 'hsl(215, 20%, 65%)',
     fontSize: 13,
     fontWeight: '500',
   },
   card: {
-    backgroundColor: 'hsl(222, 47%, 11%)',
     borderRadius: 16,
     padding: 24,
     borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 17%)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 5,
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: 'hsl(210, 40%, 98%)',
     textAlign: 'center',
     marginBottom: 6,
   },
   subtitle: {
     fontSize: 12,
-    color: 'hsl(215, 20%, 65%)',
     textAlign: 'center',
     marginBottom: 24,
     lineHeight: 18,
@@ -186,7 +193,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '600',
-    color: 'hsl(215, 20%, 65%)',
     marginBottom: 8,
   },
   inputContainer: {
@@ -195,41 +201,30 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   countrySelector: {
-    backgroundColor: 'hsl(217, 32%, 17%)',
     height: 50,
     justifyContent: 'center',
     paddingHorizontal: 16,
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
     borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 17%)',
   },
   countrySelectorText: {
-    color: 'hsl(210, 40%, 98%)',
     fontWeight: '600',
   },
   input: {
     flex: 1,
-    backgroundColor: 'hsl(217, 32%, 12%)',
     height: 50,
     borderTopRightRadius: 8,
     borderBottomRightRadius: 8,
     paddingHorizontal: 16,
-    color: 'hsl(210, 40%, 98%)',
     fontSize: 16,
     borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 17%)',
-  },
-  inputError: {
-    borderColor: 'hsl(350, 84%, 55%)',
   },
   errorText: {
-    color: 'hsl(350, 84%, 55%)',
     fontSize: 13,
     marginBottom: 16,
   },
   button: {
-    backgroundColor: 'hsl(150, 84%, 40%)',
     height: 50,
     borderRadius: 8,
     justifyContent: 'center',
@@ -240,9 +235,9 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: 'hsl(224, 71%, 4%)',
     fontSize: 16,
     fontWeight: 'bold',
   },
 });
+
 

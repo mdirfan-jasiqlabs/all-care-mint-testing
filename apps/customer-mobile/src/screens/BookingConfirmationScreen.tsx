@@ -14,8 +14,10 @@ import {
 } from 'react-native';
 import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function BookingConfirmationScreen({ navigation, route }: any) {
+  const { colors } = useTheme();
   const { bookingId } = route.params;
 
   const [booking, setBooking] = useState<any>(null);
@@ -76,8 +78,8 @@ export default function BookingConfirmationScreen({ navigation, route }: any) {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#10b981" />
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -85,45 +87,45 @@ export default function BookingConfirmationScreen({ navigation, route }: any) {
   const isCancellable = booking && ['PENDING', 'ASSIGNED'].includes(booking.status);
 
   return (
-    <View style={styles.outerContainer}>
+    <View style={[styles.outerContainer, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.container} style={styles.scrollContainer}>
       <View style={styles.successIconContainer}>
         {booking?.status === 'CANCELLED' ? (
           <View style={[styles.circle, styles.circleCancelled]}>
-            <Text style={styles.checkmark}>✕</Text>
+            <Text style={[styles.checkmark, { color: colors.textPrimary }]}>✕</Text>
           </View>
         ) : (
-          <View style={[styles.circle, styles.circleSuccess]}>
-            <Text style={styles.checkmark}>✓</Text>
+          <View style={[styles.circle, styles.circleSuccess, { borderColor: colors.primary }]}>
+            <Text style={[styles.checkmark, { color: colors.primary }]}>✓</Text>
           </View>
         )}
       </View>
 
-      <Text style={styles.title}>
+      <Text style={[styles.title, { color: colors.textPrimary }]}>
         {booking?.status === 'CANCELLED' ? 'Booking Cancelled' : 'Booking Placed Successfully!'}
       </Text>
       
       {booking && (
-        <View style={styles.detailsBox}>
-          <Text style={styles.refLabel}>Booking Reference</Text>
-          <Text style={styles.refText}>{booking.bookingReference}</Text>
+        <View style={[styles.detailsBox, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+          <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Booking Reference</Text>
+          <Text style={[styles.refText, { color: colors.textPrimary }]}>{booking.bookingReference}</Text>
           
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-          <Text style={styles.refLabel}>Status</Text>
+          <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Status</Text>
           <Text style={[styles.statusText, booking.status === 'CANCELLED' ? styles.textRed : styles.textYellow]}>
             {booking.status}
           </Text>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-          <Text style={styles.refLabel}>Service</Text>
-          <Text style={styles.valText}>{booking.serviceNameSnapshot}</Text>
+          <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Service</Text>
+          <Text style={[styles.valText, { color: colors.textPrimary }]}>{booking.serviceNameSnapshot}</Text>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-          <Text style={styles.refLabel}>Scheduled For</Text>
-          <Text style={styles.valText}>
+          <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Scheduled For</Text>
+          <Text style={[styles.valText, { color: colors.textPrimary }]}>
             {new Date(booking.slotDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
             {' • '}
             {booking.slotLabelSnapshot}
@@ -132,19 +134,19 @@ export default function BookingConfirmationScreen({ navigation, route }: any) {
       )}
 
       <TouchableOpacity
-        style={styles.homeBtn}
+        style={[styles.homeBtn, { backgroundColor: colors.primary }]}
         onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
       >
-        <Text style={styles.homeBtnText}>Go to Dashboard</Text>
+        <Text style={[styles.homeBtnText, { color: colors.primaryForeground }]}>Go to Dashboard</Text>
       </TouchableOpacity>
 
       {isCancellable && (
         <TouchableOpacity
-          style={[styles.cancelBtn, submitting && styles.cancelBtnDisabled]}
+          style={[styles.cancelBtn, { borderColor: colors.danger }, submitting && styles.cancelBtnDisabled]}
           onPress={handleCancelBooking}
           disabled={submitting}
         >
-          {submitting ? <ActivityIndicator size="small" color="#f87171" /> : <Text style={styles.cancelBtnText}>Cancel Booking</Text>}
+          {submitting ? <ActivityIndicator size="small" color={colors.danger} /> : <Text style={[styles.cancelBtnText, { color: colors.danger }]}>Cancel Booking</Text>}
         </TouchableOpacity>
       )}
       </ScrollView>
@@ -155,7 +157,6 @@ export default function BookingConfirmationScreen({ navigation, route }: any) {
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
   },
   scrollContainer: {
     flex: 1,
@@ -167,7 +168,6 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -184,7 +184,6 @@ const styles = StyleSheet.create({
   circleSuccess: {
     backgroundColor: 'rgba(16, 185, 129, 0.15)',
     borderWidth: 2,
-    borderColor: '#10b981',
   },
   circleCancelled: {
     backgroundColor: 'rgba(239, 68, 68, 0.15)',
@@ -194,27 +193,22 @@ const styles = StyleSheet.create({
   checkmark: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#ffffff',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#ffffff',
     textAlign: 'center',
     marginBottom: 32,
   },
   detailsBox: {
     width: '100%',
-    backgroundColor: 'rgba(17, 24, 39, 0.45)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 20,
     padding: 20,
     marginBottom: 32,
   },
   refLabel: {
     fontSize: 11,
-    color: '#94a3b8',
     fontWeight: 'bold',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -222,7 +216,6 @@ const styles = StyleSheet.create({
   refText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#ffffff',
     marginTop: 4,
   },
   statusText: {
@@ -232,23 +225,20 @@ const styles = StyleSheet.create({
   },
   valText: {
     fontSize: 14,
-    color: '#ffffff',
     marginTop: 4,
     fontWeight: '500',
   },
   divider: {
     height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     marginVertical: 12,
   },
   textYellow: {
-    color: '#fbbf24',
+    color: '#d97706',
   },
   textRed: {
-    color: '#f87171',
+    color: '#ef4444',
   },
   homeBtn: {
-    backgroundColor: '#10b981',
     width: '100%',
     height: 52,
     borderRadius: 12,
@@ -257,13 +247,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   homeBtnText: {
-    color: '#020617',
     fontSize: 16,
     fontWeight: 'bold',
   },
   cancelBtn: {
     backgroundColor: 'transparent',
-    borderColor: 'rgba(239, 68, 68, 0.3)',
     borderWidth: 1.5,
     width: '100%',
     height: 52,
@@ -275,8 +263,8 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   cancelBtnText: {
-    color: '#f87171',
     fontSize: 16,
     fontWeight: 'bold',
   },
 });
+

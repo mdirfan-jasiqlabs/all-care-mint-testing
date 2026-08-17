@@ -14,6 +14,7 @@ import {
 import { useCatalogStore, Category, Service } from '../stores/catalogStore';
 import * as storage from '../utils/storage';
 import BottomNavBar from '../components/BottomNavBar';
+import { useTheme } from '../theme/ThemeContext';
 
 // Premium Magnifier Icon made from native Views (No emojis or dependencies)
 const SearchIcon = () => (
@@ -24,6 +25,7 @@ const SearchIcon = () => (
 );
 
 export const CatalogBrowseScreen = ({ navigation, route }: any) => {
+  const { colors } = useTheme();
   const token = route?.params?.token || storage.getAccessToken() || '';
   const { 
     categories, 
@@ -132,34 +134,44 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
     return (
       <TouchableOpacity
         onPress={() => navigation.push('ServiceDetail', { serviceId: item.id })}
-        style={styles.serviceCard}
+        style={[
+          styles.serviceCard,
+          {
+            backgroundColor: colors.card,
+            borderColor: colors.cardBorder,
+          },
+        ]}
         testID={`service-card-${item.id}`}
         accessibilityLabel={`View details for ${item.name}`}
       >
         <View style={styles.serviceInfo}>
-          <Text style={styles.serviceName}>{item.name}</Text>
+          <Text style={[styles.serviceName, { color: colors.textPrimary }]}>{item.name}</Text>
           {item.description && (
-            <Text style={styles.serviceDesc}>{item.description}</Text>
+            <Text style={[styles.serviceDesc, { color: colors.textSecondary }]}>{item.description}</Text>
           )}
           {item.estimatedDuration && (
-            <Text style={styles.serviceDuration}>Duration: {item.estimatedDuration}</Text>
+            <Text style={[styles.serviceDuration, { color: colors.textMuted }]}>Duration: {item.estimatedDuration}</Text>
           )}
-          <Text style={styles.servicePrice}>₹{parseInt(item.fixedPrice, 10)}</Text>
+          <Text style={[styles.servicePrice, { color: colors.primary }]}>₹{parseInt(item.fixedPrice, 10)}</Text>
         </View>
         
         <TouchableOpacity
           onPress={() => toggleCart(item)}
           style={[
             styles.addButton,
-            inCart ? styles.addButtonActive : styles.addButtonInactive
+            inCart
+              ? { backgroundColor: colors.primary, borderColor: colors.primary }
+              : { backgroundColor: colors.tabActiveBg, borderColor: colors.border },
           ]}
           testID={`btn-add-service-${item.id}`}
           accessibilityLabel={`Add ${item.name} to cart`}
         >
-          <Text style={[
-            styles.addButtonText,
-            inCart ? styles.addButtonTextActive : styles.addButtonTextInactive
-          ]}>
+          <Text
+            style={[
+              styles.addButtonText,
+              { color: inCart ? '#ffffff' : colors.primary },
+            ]}
+          >
             {inCart ? 'Added' : 'Add'}
           </Text>
         </TouchableOpacity>
@@ -175,8 +187,8 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
       keyExtractor={(item) => item.toString()}
       contentContainerStyle={styles.categoryScrollContainer}
       renderItem={() => (
-        <View style={[styles.categoryPill, styles.categoryPillInactive, { width: 80, opacity: 0.5 }]}>
-          <View style={{ width: 40, height: 10, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.08)' }} />
+        <View style={[styles.categoryPill, { backgroundColor: colors.surfaceSecondary, width: 80, opacity: 0.5 }]}>
+          <View style={{ width: 40, height: 10, borderRadius: 2, backgroundColor: colors.border }} />
         </View>
       )}
     />
@@ -198,13 +210,16 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
         {/* Premium Search Box */}
         <View style={[
           styles.searchContainer,
-          isSearchFocused ? styles.searchContainerFocused : styles.searchContainerBlurred
+          {
+            backgroundColor: colors.inputBackground,
+            borderColor: isSearchFocused ? colors.primary : colors.inputBorder,
+          },
         ]}>
           <SearchIcon />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.inputText }]}
             placeholder="Search for home services..."
-            placeholderTextColor="#64748b"
+            placeholderTextColor={colors.placeholderText}
             value={searchQuery}
             onChangeText={setSearchQuery}
             onFocus={() => setIsSearchFocused(true)}
@@ -214,14 +229,14 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
 
         {/* Service Categories Chips Section */}
         <View style={styles.sectionHeaderContainer}>
-          <Text style={styles.sectionHeader}>SERVICE CATEGORIES</Text>
+          <Text style={[styles.sectionHeader, { color: colors.textPrimary }]}>SERVICE CATEGORIES</Text>
         </View>
         
         {isLoading && categories.length === 0 ? (
           renderSkeletons()
         ) : categories.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText} testID="txt-empty-categories">
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]} testID="txt-empty-categories">
               Services coming soon! Check back later.
             </Text>
           </View>
@@ -239,14 +254,16 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
                   onPress={() => setSelectedCategory(item.name)}
                   style={[
                     styles.categoryPill,
-                    isActive ? styles.categoryPillActive : styles.categoryPillInactive
+                    isActive
+                      ? { backgroundColor: colors.primary }
+                      : { backgroundColor: colors.surfaceSecondary, borderWidth: 1, borderColor: colors.border },
                   ]}
                   accessibilityLabel={`Category ${item.name}`}
                   testID={item.id === 'all' ? 'category-card-all' : `category-card-${item.id}`}
                 >
                   <Text style={[
                     styles.categoryPillText,
-                    isActive ? styles.categoryPillTextActive : styles.categoryPillTextInactive
+                    isActive ? { color: '#ffffff', fontWeight: 'bold' } : { color: colors.textSecondary, fontWeight: '600' }
                   ]}>
                     {item.name}
                   </Text>
@@ -258,7 +275,7 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
 
         {/* Active Services List Section Header */}
         <View style={styles.sectionHeaderContainer}>
-          <Text style={styles.sectionHeader}>
+          <Text style={[styles.sectionHeader, { color: colors.textPrimary }]}>
             {selectedCategory === 'All' ? 'ALL SERVICES' : `${selectedCategory.toUpperCase()} SERVICES`}
           </Text>
         </View>
@@ -269,7 +286,7 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
   if (error && categories.length === 0) {
     const isNetworkError = error.toLowerCase().includes('network') || error.toLowerCase().includes('connection') || error.toLowerCase().includes('fetch');
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText} testID="error-message">
             {isNetworkError 
@@ -278,10 +295,10 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
           </Text>
           <TouchableOpacity 
             onPress={handleRetry} 
-            style={styles.retryButton}
+            style={[styles.retryButton, { backgroundColor: colors.primary }]}
             testID="btn-retry"
           >
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={[styles.retryButtonText, { color: colors.primaryForeground }]}>Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -289,7 +306,7 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
         style={styles.list}
         data={currentServices}
@@ -299,14 +316,14 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText} testID="txt-empty-services">
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]} testID="txt-empty-services">
               {selectedCategory === 'All'
                 ? `No services found matching "${searchQuery}"`
                 : 'No services available in this category yet'}
             </Text>
             {selectedCategory !== 'All' && (
-              <TouchableOpacity onPress={() => setSelectedCategory('All')} style={styles.emptyBackButton}>
-                <Text style={styles.emptyBackButtonText}>← Back to All</Text>
+              <TouchableOpacity onPress={() => setSelectedCategory('All')} style={[styles.emptyBackButton, { backgroundColor: colors.surfaceSecondary }]}>
+                <Text style={[styles.emptyBackButtonText, { color: colors.textPrimary }]}>← Back to All</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -315,7 +332,7 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
 
       {/* Sticky Bottom Cart Banner */}
       {cart.length > 0 && (
-        <View style={styles.cartBanner} testID="cart-banner">
+        <View style={[styles.cartBanner, { backgroundColor: colors.primary }]} testID="cart-banner">
           <View style={styles.cartInfo}>
             <Text style={styles.cartLabel}>TOTAL ADDED ITEMS</Text>
             <Text style={styles.cartCountText} testID="cart-count">
@@ -348,7 +365,6 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 2%)',
   },
   list: {
     flex: 1,
@@ -362,15 +378,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: 'rgba(9, 11, 17, 0.9)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
   },
   backButton: {
     paddingVertical: 4,
   },
   backButtonText: {
-    color: '#ffffff',
     fontSize: 14,
     fontWeight: 'bold',
   },
@@ -427,25 +440,16 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0f172a',
     borderWidth: 1.5,
     borderRadius: 12,
     marginHorizontal: 16,
     marginVertical: 16,
     paddingHorizontal: 12,
   },
-  searchContainerBlurred: {
-    borderColor: '#1e293b',
-  },
-  searchContainerFocused: {
-    borderColor: '#10b981',
-  },
   searchInput: {
     flex: 1,
-    color: '#ffffff',
     fontSize: 14,
     paddingVertical: 10,
-    outlineStyle: 'none' as any,
   },
   searchIconContainer: {
     width: 16,
@@ -478,7 +482,6 @@ const styles = StyleSheet.create({
     marginVertical: 6,
   },
   sectionHeader: {
-    color: '#ffffff',
     fontSize: 12,
     fontWeight: 'bold',
     letterSpacing: 1,
@@ -497,24 +500,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 36,
   },
-  categoryPillActive: {
-    backgroundColor: '#10b981',
-  },
-  categoryPillInactive: {
-    backgroundColor: '#0f172a',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-  },
   categoryPillText: {
     fontSize: 12,
-  },
-  categoryPillTextActive: {
-    color: '#020617',
-    fontWeight: 'bold',
-  },
-  categoryPillTextInactive: {
-    color: '#cbd5e1',
-    fontWeight: '600',
   },
   listContent: {
     paddingBottom: 120,
@@ -523,9 +510,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(17, 24, 39, 0.45)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 16,
     padding: 16,
     marginHorizontal: 16,
@@ -536,23 +521,19 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   serviceName: {
-    color: '#ffffff',
     fontSize: 15,
     fontWeight: 'bold',
   },
   serviceDesc: {
-    color: '#94a3b8',
     fontSize: 12,
     marginTop: 4,
     lineHeight: 16,
   },
   serviceDuration: {
-    color: '#64748b',
     fontSize: 11,
     marginTop: 4,
   },
   servicePrice: {
-    color: '#10b981',
     fontSize: 14,
     fontWeight: 'bold',
     marginTop: 6,
@@ -565,23 +546,9 @@ const styles = StyleSheet.create({
     minWidth: 70,
     alignItems: 'center',
   },
-  addButtonInactive: {
-    backgroundColor: 'rgba(16, 185, 129, 0.05)',
-    borderColor: 'rgba(16, 185, 129, 0.2)',
-  },
-  addButtonActive: {
-    backgroundColor: '#10b981',
-    borderColor: '#10b981',
-  },
   addButtonText: {
     fontSize: 12,
     fontWeight: 'bold',
-  },
-  addButtonTextInactive: {
-    color: '#10b981',
-  },
-  addButtonTextActive: {
-    color: '#020617',
   },
   emptyContainer: {
     padding: 24,
@@ -589,19 +556,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyText: {
-    color: '#94a3b8',
     textAlign: 'center',
     fontSize: 14,
     marginBottom: 16,
   },
   emptyBackButton: {
-    backgroundColor: '#1e293b',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
   },
   emptyBackButtonText: {
-    color: '#ffffff',
     fontSize: 13,
     fontWeight: 'bold',
   },
@@ -618,61 +582,24 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   retryButton: {
-    backgroundColor: '#10b981',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   retryButtonText: {
-    color: '#090b11',
     fontSize: 14,
     fontWeight: 'bold',
-  },
-  skeletonGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 12,
-    marginVertical: 8,
-    justifyContent: 'space-between',
-  },
-  skeletonCard: {
-    width: '47%',
-    aspectRatio: 1.1,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    borderColor: 'rgba(255, 255, 255, 0.05)',
-    borderWidth: 1.5,
-    padding: 16,
-    marginBottom: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  skeletonIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    marginBottom: 12,
-  },
-  skeletonText: {
-    width: '60%',
-    height: 12,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
   },
   cartBanner: {
     position: 'absolute',
     bottom: Platform.OS === 'ios' ? 80 : 64,
     left: 0,
     right: 0,
-    backgroundColor: '#10b981',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 14,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(16, 185, 129, 0.2)',
     zIndex: 100,
     elevation: 100,
   },
@@ -714,3 +641,4 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
   },
 });
+

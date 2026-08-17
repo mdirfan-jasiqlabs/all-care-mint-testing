@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/root.types';
+import { useTheme } from '../theme/ThemeContext';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'NotificationSettings'>;
 
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export default function NotificationSettingsScreen({ navigation }: Props) {
+  const { colors } = useTheme();
   const [masterPushEnabled, setMasterPushEnabled] = useState(true);
   const [departureAlerts, setDepartureAlerts] = useState(true);
   const [jobAssignments, setJobAssignments] = useState(true);
@@ -59,59 +61,60 @@ export default function NotificationSettingsScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-          <Text style={styles.backArrow}>‹</Text>
-          <Text style={styles.headerTitle}>Notifications Settings</Text>
+          <Text style={[styles.backArrow, { color: colors.textPrimary }]}>‹</Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Notifications Settings</Text>
         </TouchableOpacity>
-        <View style={styles.onlineBadge}>
-          <Text style={styles.onlineBadgeText}>Online</Text>
+        <View style={[styles.onlineBadge, { backgroundColor: colors.badgeBg, borderColor: colors.border }]}>
+          <Text style={[styles.onlineBadgeText, { color: colors.primary }]}>Online</Text>
         </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.container}>
         {toastMessage ? (
-          <View style={styles.toastContainer}>
-            <Text style={styles.toastText}>{toastMessage}</Text>
+          <View style={[styles.toastContainer, { backgroundColor: colors.badgeBg, borderColor: colors.border }]}>
+            <Text style={[styles.toastText, { color: colors.primary }]}>{toastMessage}</Text>
           </View>
         ) : null}
 
         <View
           style={[
             styles.card,
-            validationError ? styles.cardError : null,
+            { backgroundColor: colors.card, borderColor: colors.cardBorder },
+            validationError ? { borderColor: colors.danger } : null,
           ]}
         >
           {/* Master Switch */}
           <View style={styles.row}>
             <View style={styles.textContainer}>
-              <Text style={styles.rowTitle}>Enable Push Notifications</Text>
-              <Text style={styles.rowSubtitle}>Register device for real-time updates</Text>
+              <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>Enable Push Notifications</Text>
+              <Text style={[styles.rowSubtitle, { color: colors.textSecondary }]}>Register device for real-time updates</Text>
             </View>
             <Switch
               value={masterPushEnabled}
               onValueChange={handleMasterToggle}
-              trackColor={{ false: 'hsl(217, 32%, 17%)', true: 'hsl(150, 84%, 40%)' }}
+              trackColor={{ false: colors.inputBorder, true: colors.primary }}
               thumbColor="#ffffff"
             />
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
           {/* Departure Alerts */}
           <View style={styles.subRow}>
             <View style={styles.textContainer}>
-              <Text style={[styles.rowTitle, !masterPushEnabled && styles.disabledText]}>
+              <Text style={[styles.rowTitle, { color: masterPushEnabled ? colors.textPrimary : colors.textMuted }]}>
                 Provider Departure Alerts
               </Text>
-              <Text style={styles.rowSubtitle}>Alert when specialist departs to site</Text>
+              <Text style={[styles.rowSubtitle, { color: colors.textSecondary }]}>Alert when specialist departs to site</Text>
             </View>
             <Switch
               disabled={!masterPushEnabled}
               value={departureAlerts}
               onValueChange={setDepartureAlerts}
-              trackColor={{ false: 'hsl(217, 32%, 17%)', true: 'hsl(150, 84%, 40%)' }}
+              trackColor={{ false: colors.inputBorder, true: colors.primary }}
               thumbColor="#ffffff"
             />
           </View>
@@ -119,16 +122,16 @@ export default function NotificationSettingsScreen({ navigation }: Props) {
           {/* Job Assignments */}
           <View style={styles.subRow}>
             <View style={styles.textContainer}>
-              <Text style={[styles.rowTitle, !masterPushEnabled && styles.disabledText]}>
+              <Text style={[styles.rowTitle, { color: masterPushEnabled ? colors.textPrimary : colors.textMuted }]}>
                 Manual Job Assignments
               </Text>
-              <Text style={styles.rowSubtitle}>Alert partners of booking allocations</Text>
+              <Text style={[styles.rowSubtitle, { color: colors.textSecondary }]}>Alert partners of booking allocations</Text>
             </View>
             <Switch
               disabled={!masterPushEnabled}
               value={jobAssignments}
               onValueChange={setJobAssignments}
-              trackColor={{ false: 'hsl(217, 32%, 17%)', true: 'hsl(150, 84%, 40%)' }}
+              trackColor={{ false: colors.inputBorder, true: colors.primary }}
               thumbColor="#ffffff"
             />
           </View>
@@ -136,34 +139,34 @@ export default function NotificationSettingsScreen({ navigation }: Props) {
           {/* Promotions & Offers */}
           <View style={styles.subRow}>
             <View style={styles.textContainer}>
-              <Text style={[styles.rowTitle, !masterPushEnabled && styles.disabledText]}>
+              <Text style={[styles.rowTitle, { color: masterPushEnabled ? colors.textPrimary : colors.textMuted }]}>
                 Promotions & Offers
               </Text>
-              <Text style={styles.rowSubtitle}>Marketing discount offer updates</Text>
+              <Text style={[styles.rowSubtitle, { color: colors.textSecondary }]}>Marketing discount offer updates</Text>
             </View>
             <Switch
               disabled={!masterPushEnabled}
               value={promotions}
               onValueChange={setPromotions}
-              trackColor={{ false: 'hsl(217, 32%, 17%)', true: 'hsl(150, 84%, 40%)' }}
+              trackColor={{ false: colors.inputBorder, true: colors.primary }}
               thumbColor="#ffffff"
             />
           </View>
 
           {validationError ? (
-            <Text style={styles.errorMsg}>{validationError}</Text>
+            <Text style={[styles.errorMsg, { color: colors.danger }]}>{validationError}</Text>
           ) : null}
         </View>
 
         <TouchableOpacity
-          style={styles.saveBtn}
+          style={[styles.saveBtn, { backgroundColor: colors.primary }]}
           onPress={handleSave}
           disabled={saving}
         >
           {saving ? (
-            <ActivityIndicator color="hsl(224, 71%, 4%)" />
+            <ActivityIndicator color={colors.primaryForeground} />
           ) : (
-            <Text style={styles.saveBtnText}>Save Preferences</Text>
+            <Text style={[styles.saveBtnText, { color: colors.primaryForeground }]}>Save Preferences</Text>
           )}
         </TouchableOpacity>
       </ScrollView>
@@ -174,7 +177,6 @@ export default function NotificationSettingsScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
   },
   header: {
     flexDirection: 'row',
@@ -183,7 +185,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'hsl(217, 32%, 15%)',
   },
   backBtn: {
     flexDirection: 'row',
@@ -191,25 +192,20 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 28,
-    color: 'hsl(210, 40%, 98%)',
     marginRight: 8,
     lineHeight: 28,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'hsl(210, 40%, 98%)',
   },
   onlineBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-    borderColor: 'rgba(16, 185, 129, 0.3)',
     borderWidth: 1,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
   onlineBadgeText: {
-    color: '#10b981',
     fontSize: 10,
     fontWeight: 'bold',
   },
@@ -217,29 +213,21 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   toastContainer: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
     padding: 12,
     borderRadius: 12,
     marginBottom: 16,
   },
   toastText: {
-    color: '#10b981',
     fontSize: 13,
     fontWeight: '600',
     textAlign: 'center',
   },
   card: {
-    backgroundColor: 'hsl(222, 47%, 11%)',
     borderRadius: 16,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 17%)',
     marginBottom: 24,
-  },
-  cardError: {
-    borderColor: 'hsl(350, 84%, 55%)',
   },
   row: {
     flexDirection: 'row',
@@ -255,7 +243,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: 'hsl(217, 32%, 17%)',
     marginBottom: 8,
   },
   textContainer: {
@@ -265,33 +252,26 @@ const styles = StyleSheet.create({
   rowTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: 'hsl(210, 40%, 98%)',
-  },
-  disabledText: {
-    color: 'hsl(215, 20%, 45%)',
   },
   rowSubtitle: {
     fontSize: 11,
-    color: 'hsl(215, 20%, 65%)',
     marginTop: 2,
   },
   errorMsg: {
-    color: 'hsl(350, 84%, 55%)',
     fontSize: 12,
     fontWeight: 'bold',
     marginTop: 12,
     textAlign: 'center',
   },
   saveBtn: {
-    backgroundColor: 'hsl(150, 84%, 40%)',
     height: 48,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
   saveBtnText: {
-    color: 'hsl(224, 71%, 4%)',
     fontSize: 15,
     fontWeight: 'bold',
   },
 });
+

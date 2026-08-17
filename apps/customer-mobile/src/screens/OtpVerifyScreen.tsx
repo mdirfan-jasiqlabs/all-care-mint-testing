@@ -15,6 +15,7 @@ import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/root.types';
 import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
+import { useTheme } from '../theme/ThemeContext';
 
 type OtpVerifyScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -28,6 +29,7 @@ interface Props {
 }
 
 export default function OtpVerifyScreen({ navigation, route }: Props) {
+  const { colors } = useTheme();
   const { mobileNumber } = route.params;
   const [digits, setDigits] = useState<string[]>(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
@@ -144,7 +146,7 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.container}
@@ -153,14 +155,14 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
           style={styles.backButton}
           onPress={() => navigation.navigate('PhoneInput')}
         >
-          <Text style={styles.backButtonText}>← Back to Number Entry</Text>
+          <Text style={[styles.backButtonText, { color: colors.textSecondary }]}>← Back to Number Entry</Text>
         </TouchableOpacity>
 
-        <View style={styles.card}>
-          <Text style={styles.title}>Verify SMS Code</Text>
-          <Text style={styles.subtitle}>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+          <Text style={[styles.title, { color: colors.textPrimary }]}>Verify SMS Code</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Verification code sent to{' '}
-            <Text style={styles.phoneHighlight}>{mobileNumber}</Text>
+            <Text style={[styles.phoneHighlight, { color: colors.primary }]}>{mobileNumber}</Text>
           </Text>
 
           <View style={styles.otpContainer}>
@@ -170,8 +172,15 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
                 ref={inputRefs[index]}
                 style={[
                   styles.otpBox,
-                  error ? styles.otpBoxError : null,
-                  digit ? styles.otpBoxFilled : null,
+                  {
+                    backgroundColor: colors.inputBackground,
+                    borderColor: error
+                      ? colors.danger
+                      : digit
+                      ? colors.primary
+                      : colors.inputBorder,
+                    color: colors.inputText,
+                  },
                 ]}
                 keyboardType="number-pad"
                 maxLength={index === 0 ? 6 : 1}
@@ -187,19 +196,23 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
             ))}
           </View>
 
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          {error ? <Text style={[styles.errorText, { color: colors.danger }]}>{error}</Text> : null}
 
           <TouchableOpacity
-            style={[styles.button, loading ? styles.buttonDisabled : null]}
+            style={[
+              styles.button,
+              { backgroundColor: colors.primary },
+              loading ? styles.buttonDisabled : null,
+            ]}
             onPress={handleVerify}
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="hsl(224, 71%, 4%)" />
+              <ActivityIndicator color={colors.primaryForeground} />
             ) : (
               <>
-                <Text style={styles.buttonText}>Verify OTP ➔</Text>
-                <Text style={{ position: 'absolute', opacity: 0.01, fontSize: 16, fontWeight: 'bold', color: 'hsl(150, 84%, 40%)' }}>
+                <Text style={[styles.buttonText, { color: colors.primaryForeground }]}>Verify OTP ➔</Text>
+                <Text style={{ position: 'absolute', opacity: 0.01, fontSize: 16, fontWeight: 'bold', color: colors.primary }}>
                   Submit Verification Code
                 </Text>
               </>
@@ -211,7 +224,7 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
             onPress={handleResend}
             disabled={cooldown > 0}
           >
-            <Text style={[styles.resendText, cooldown > 0 ? styles.resendMuted : null]}>
+            <Text style={[styles.resendText, { color: cooldown > 0 ? colors.textMuted : colors.primary }]}>
               {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend verification code'}
             </Text>
           </TouchableOpacity>
@@ -224,7 +237,6 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
   },
   container: {
     flex: 1,
@@ -236,37 +248,31 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   backButtonText: {
-    color: 'hsl(215, 20%, 65%)',
     fontSize: 13,
     fontWeight: '500',
   },
   card: {
-    backgroundColor: 'hsl(222, 47%, 11%)',
     borderRadius: 16,
     padding: 24,
     borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 17%)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 5,
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: 'hsl(210, 40%, 98%)',
     textAlign: 'center',
     marginBottom: 6,
   },
   subtitle: {
     fontSize: 13,
-    color: 'hsl(215, 20%, 65%)',
     textAlign: 'center',
     marginBottom: 24,
   },
   phoneHighlight: {
-    color: 'hsl(150, 84%, 40%)',
     fontWeight: '600',
   },
   otpContainer: {
@@ -277,29 +283,18 @@ const styles = StyleSheet.create({
   otpBox: {
     width: 44,
     height: 48,
-    backgroundColor: 'hsl(217, 32%, 12%)',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 20%)',
-    color: 'hsl(210, 40%, 98%)',
     fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
   },
-  otpBoxFilled: {
-    borderColor: 'hsl(150, 84%, 40%)',
-  },
-  otpBoxError: {
-    borderColor: 'hsl(350, 84%, 55%)',
-  },
   errorText: {
-    color: 'hsl(350, 84%, 55%)',
     fontSize: 13,
     marginBottom: 16,
     textAlign: 'center',
   },
   button: {
-    backgroundColor: 'hsl(150, 84%, 40%)',
     height: 50,
     borderRadius: 8,
     justifyContent: 'center',
@@ -310,7 +305,6 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: 'hsl(224, 71%, 4%)',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -320,11 +314,8 @@ const styles = StyleSheet.create({
   },
   resendText: {
     fontSize: 13,
-    color: 'hsl(150, 84%, 40%)',
     fontWeight: '600',
   },
-  resendMuted: {
-    color: 'hsl(215, 20%, 45%)',
-  },
 });
+
 

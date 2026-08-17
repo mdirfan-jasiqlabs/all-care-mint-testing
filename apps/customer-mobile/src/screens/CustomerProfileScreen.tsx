@@ -15,6 +15,7 @@ import { RootStackParamList } from '../navigation/root.types';
 import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
 import BottomNavBar from '../components/BottomNavBar';
+import { useTheme } from '../theme/ThemeContext';
 
 type CustomerProfileScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export default function CustomerProfileScreen({ navigation }: Props) {
+  const { colors } = useTheme();
   const [name, setName] = useState('');
   const [initialName, setInitialName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
@@ -133,36 +135,43 @@ export default function CustomerProfileScreen({ navigation }: Props) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="hsl(150, 84%, 40%)" />
-          <Text style={styles.loadingText}>Loading profile...</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading profile...</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.card}>
-          <View style={styles.headerRow}>
-            <Text style={styles.title}>My Profile</Text>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>CUSTOMER</Text>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+          <View style={[styles.headerRow, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>My Profile</Text>
+            <View style={[styles.badge, { backgroundColor: colors.badgeBg, borderColor: colors.border }]}>
+              <Text style={[styles.badgeText, { color: colors.primary }]}>CUSTOMER</Text>
             </View>
           </View>
 
-          <Text style={styles.label}>Display Name</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Display Name</Text>
           <TextInput
-            style={[styles.input, error === 'Name cannot be blank' ? styles.inputError : null]}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: error === 'Name cannot be blank' ? colors.danger : colors.inputBorder,
+                color: colors.inputText,
+              },
+            ]}
             placeholder="Enter your display name"
-            placeholderTextColor="hsl(215, 20%, 45%)"
+            placeholderTextColor={colors.placeholderText}
             value={name}
             onChangeText={(text) => {
               setName(text);
@@ -171,48 +180,49 @@ export default function CustomerProfileScreen({ navigation }: Props) {
             editable={!saving}
           />
           {error === 'Name cannot be blank' ? (
-            <Text style={styles.errorText}>{error}</Text>
+            <Text style={[styles.errorText, { color: colors.danger }]}>{error}</Text>
           ) : null}
 
           <View style={styles.labelRow}>
-            <Text style={styles.label}>Mobile Number</Text>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>Mobile Number</Text>
             <View style={styles.lockBadge}>
               <Text style={styles.lockIcon}>🔒</Text>
-              <Text style={styles.lockBadgeText}>LOCKED</Text>
+              <Text style={[styles.lockBadgeText, { color: colors.textMuted }]}>LOCKED</Text>
             </View>
           </View>
-          <View style={styles.readOnlyContainer}>
-            <Text style={styles.readOnlyText}>{mobileNumber}</Text>
+          <View style={[styles.readOnlyContainer, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+            <Text style={[styles.readOnlyText, { color: colors.textMuted }]}>{mobileNumber}</Text>
           </View>
 
-          <Text style={styles.label}>Account Created</Text>
-          <View style={styles.readOnlyContainer}>
-            <Text style={styles.readOnlyText}>{createdAt}</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Account Created</Text>
+          <View style={[styles.readOnlyContainer, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+            <Text style={[styles.readOnlyText, { color: colors.textMuted }]}>{createdAt}</Text>
           </View>
 
           {error && error !== 'Name cannot be blank' ? (
-            <Text style={styles.errorText}>{error}</Text>
+            <Text style={[styles.errorText, { color: colors.danger }]}>{error}</Text>
           ) : null}
 
-          {successMsg ? <Text style={styles.successText}>{successMsg}</Text> : null}
+          {successMsg ? <Text style={[styles.successText, { color: colors.primary }]}>{successMsg}</Text> : null}
 
           <TouchableOpacity
             style={[
               styles.button,
+              { backgroundColor: colors.primary },
               !isDirty || saving ? styles.buttonDisabled : null,
             ]}
             onPress={handleSave}
             disabled={!isDirty || saving}
           >
             {saving ? (
-              <ActivityIndicator color="hsl(224, 71%, 4%)" />
+              <ActivityIndicator color={colors.primaryForeground} />
             ) : (
-              <Text style={styles.buttonText}>Save Changes</Text>
+              <Text style={[styles.buttonText, { color: colors.primaryForeground }]}>Save Changes</Text>
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.signOutButton} onPress={handleLogout}>
-            <Text style={styles.signOutButtonText}>Sign Out</Text>
+          <TouchableOpacity style={[styles.signOutButton, { borderColor: colors.danger }]} onPress={handleLogout}>
+            <Text style={[styles.signOutButtonText, { color: colors.danger }]}>Sign Out</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -224,7 +234,6 @@ export default function CustomerProfileScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
   },
   loadingContainer: {
     flex: 1,
@@ -232,7 +241,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    color: 'hsl(215, 20%, 65%)',
     marginTop: 12,
   },
   scrollView: {
@@ -243,14 +251,12 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   card: {
-    backgroundColor: 'hsl(222, 47%, 11%)',
     borderRadius: 16,
     padding: 24,
     borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 17%)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 5,
   },
@@ -259,25 +265,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: 'hsl(217, 32%, 15%)',
     paddingBottom: 12,
     marginBottom: 20,
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: 'hsl(210, 40%, 98%)',
   },
   badge: {
-    backgroundColor: 'hsl(140, 84%, 10%)',
-    borderColor: 'hsl(140, 84%, 30%)',
     borderWidth: 1,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 12,
   },
   badgeText: {
-    color: 'hsl(150, 84%, 40%)',
     fontSize: 9,
     fontWeight: 'bold',
     letterSpacing: 0.5,
@@ -291,7 +292,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '600',
-    color: 'hsl(215, 20%, 65%)',
     marginBottom: 6,
   },
   lockBadge: {
@@ -305,25 +305,17 @@ const styles = StyleSheet.create({
   lockBadgeText: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: 'hsl(215, 20%, 50%)',
     letterSpacing: 0.5,
   },
   input: {
-    backgroundColor: 'hsl(217, 32%, 12%)',
     height: 46,
     borderRadius: 8,
     paddingHorizontal: 16,
-    color: 'hsl(210, 40%, 98%)',
     fontSize: 15,
     borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 17%)',
     marginBottom: 16,
   },
-  inputError: {
-    borderColor: 'hsl(350, 84%, 55%)',
-  },
   readOnlyContainer: {
-    backgroundColor: 'hsl(217, 32%, 8%)',
     height: 46,
     borderRadius: 8,
     paddingHorizontal: 16,
@@ -331,27 +323,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 12%)',
     marginBottom: 16,
   },
   readOnlyText: {
-    color: 'hsl(215, 20%, 50%)',
     fontSize: 15,
   },
   errorText: {
-    color: 'hsl(350, 84%, 55%)',
     fontSize: 13,
     marginBottom: 16,
     textAlign: 'center',
   },
   successText: {
-    color: 'hsl(140, 84%, 55%)',
     fontSize: 13,
     marginBottom: 16,
     textAlign: 'center',
   },
   button: {
-    backgroundColor: 'hsl(150, 84%, 40%)',
     height: 46,
     borderRadius: 8,
     justifyContent: 'center',
@@ -362,13 +349,11 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   buttonText: {
-    color: 'hsl(224, 71%, 4%)',
     fontSize: 15,
     fontWeight: 'bold',
   },
   signOutButton: {
     backgroundColor: 'rgba(239, 68, 68, 0.08)',
-    borderColor: 'rgba(239, 68, 68, 0.25)',
     borderWidth: 1,
     height: 44,
     borderRadius: 8,
@@ -377,8 +362,8 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   signOutButtonText: {
-    color: '#ef4444',
     fontSize: 14,
     fontWeight: 'bold',
   },
 });
+

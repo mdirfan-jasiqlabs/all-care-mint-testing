@@ -15,8 +15,10 @@ import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
 import NotificationBanner, { triggerInAppNotification } from '../components/NotificationBanner';
 import BottomNavBar from '../components/BottomNavBar';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function MyBookingsScreen({ navigation, route }: any) {
+  const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -163,21 +165,21 @@ export default function MyBookingsScreen({ navigation, route }: any) {
 
     return (
       <TouchableOpacity
-        style={styles.card}
+        style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}
         onPress={() => navigation.navigate('BookingDetail', { bookingId: item.id })}
       >
         <View style={styles.cardHeader}>
-          <Text style={styles.referenceText}>{item.bookingReference}</Text>
+          <Text style={[styles.referenceText, { color: colors.textPrimary }]}>{item.bookingReference}</Text>
           {renderBadge(item.status)}
         </View>
         
         <View style={styles.cardBody}>
-          <Text style={styles.serviceText}>{item.serviceNameSnapshot}</Text>
-          <Text style={styles.priceText}>₹{parseFloat(item.servicePriceSnapshot).toLocaleString('en-IN')}</Text>
+          <Text style={[styles.serviceText, { color: colors.textPrimary }]}>{item.serviceNameSnapshot}</Text>
+          <Text style={[styles.priceText, { color: colors.primary }]}>₹{parseFloat(item.servicePriceSnapshot).toLocaleString('en-IN')}</Text>
         </View>
 
         <View style={styles.cardFooter}>
-          <Text style={styles.dateText}>
+          <Text style={[styles.dateText, { color: colors.textSecondary }]}>
             📅 {formattedDate} • {item.slotLabelSnapshot}
           </Text>
         </View>
@@ -186,24 +188,44 @@ export default function MyBookingsScreen({ navigation, route }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <View style={styles.container}>
         {/* Tab Controls */}
-        <View style={styles.tabContainer}>
+        <View style={[styles.tabContainer, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
           <TouchableOpacity
-            style={[styles.tabButton, activeTab === 'current' && styles.activeTabButton]}
+            style={[
+              styles.tabButton,
+              activeTab === 'current'
+                ? { backgroundColor: colors.primary }
+                : { backgroundColor: 'transparent' },
+            ]}
             onPress={() => setActiveTab('current')}
           >
-            <Text style={[styles.tabText, activeTab === 'current' && styles.activeTabText]}>
+            <Text
+              style={[
+                styles.tabText,
+                { color: activeTab === 'current' ? colors.primaryForeground : colors.textSecondary },
+              ]}
+            >
               Current Bookings
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.tabButton, activeTab === 'history' && styles.activeTabButton]}
+            style={[
+              styles.tabButton,
+              activeTab === 'history'
+                ? { backgroundColor: colors.primary }
+                : { backgroundColor: 'transparent' },
+            ]}
             onPress={() => setActiveTab('history')}
           >
-            <Text style={[styles.tabText, activeTab === 'history' && styles.activeTabText]}>
+            <Text
+              style={[
+                styles.tabText,
+                { color: activeTab === 'history' ? colors.primaryForeground : colors.textSecondary },
+              ]}
+            >
               History
             </Text>
           </TouchableOpacity>
@@ -212,11 +234,11 @@ export default function MyBookingsScreen({ navigation, route }: any) {
         {/* List of Bookings */}
         {loading ? (
           <View style={styles.centerContainer}>
-            <ActivityIndicator size="large" color="hsl(150, 84%, 40%)" />
+            <ActivityIndicator size="large" color={colors.primary} />
           </View>
         ) : bookings.length === 0 ? (
           <View style={styles.centerContainer}>
-            <Text style={styles.emptyText}>No bookings found in this section.</Text>
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No bookings found in this section.</Text>
           </View>
         ) : (
           <FlatList
@@ -229,8 +251,8 @@ export default function MyBookingsScreen({ navigation, route }: any) {
 
         {/* Floating Toast Notification */}
         {toastMessage && (
-          <Animated.View style={[styles.toast, { opacity: toastOpacity }]}>
-            <Text style={styles.toastText}>{toastMessage}</Text>
+          <Animated.View style={[styles.toast, { backgroundColor: colors.card, borderLeftColor: colors.primary, opacity: toastOpacity }]}>
+            <Text style={[styles.toastText, { color: colors.textPrimary }]}>{toastMessage}</Text>
           </Animated.View>
         )}
       </View>
@@ -249,7 +271,6 @@ export default function MyBookingsScreen({ navigation, route }: any) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
   },
   container: {
     flex: 1,
@@ -258,12 +279,10 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: 'hsl(222, 47%, 8%)',
     borderRadius: 12,
     padding: 4,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 17%)',
   },
   tabButton: {
     flex: 1,
@@ -271,16 +290,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-  activeTabButton: {
-    backgroundColor: 'hsl(150, 84%, 40%)',
-  },
   tabText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: 'hsl(215, 20%, 65%)',
-  },
-  activeTabText: {
-    color: 'hsl(210, 40%, 98%)',
   },
   centerContainer: {
     flex: 1,
@@ -290,18 +302,15 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: 'hsl(215, 20%, 65%)',
   },
   listContainer: {
     paddingBottom: 24,
   },
   card: {
-    backgroundColor: 'hsl(222, 47%, 11%)',
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 17%)',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -312,7 +321,6 @@ const styles = StyleSheet.create({
   referenceText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: 'hsl(210, 40%, 98%)',
   },
   cardBody: {
     flexDirection: 'row',
@@ -323,13 +331,11 @@ const styles = StyleSheet.create({
   serviceText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: 'hsl(210, 40%, 98%)',
     flex: 1,
   },
   priceText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: 'hsl(150, 84%, 45%)',
   },
   cardFooter: {
     flexDirection: 'row',
@@ -337,7 +343,6 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 13,
-    color: 'hsl(215, 20%, 65%)',
   },
   badge: {
     paddingHorizontal: 8,
@@ -352,38 +357,37 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(251, 191, 36, 0.15)',
   },
   badgeTextPending: {
-    color: '#fbbf24',
+    color: '#d97706',
   },
   badgeAssigned: {
     backgroundColor: 'rgba(59, 130, 246, 0.15)',
   },
   badgeTextAssigned: {
-    color: '#60a5fa',
+    color: '#2563eb',
   },
   badgeCompleted: {
     backgroundColor: 'rgba(16, 185, 129, 0.15)',
   },
   badgeTextCompleted: {
-    color: '#34d399',
+    color: '#059669',
   },
   badgeCancelled: {
     backgroundColor: 'rgba(156, 163, 175, 0.15)',
   },
   badgeTextCancelled: {
-    color: '#9ca3af',
+    color: '#6b7280',
   },
   badgeProgress: {
     backgroundColor: 'rgba(139, 92, 246, 0.15)',
   },
   badgeTextProgress: {
-    color: '#a78bfa',
+    color: '#7c3aed',
   },
   toast: {
     position: 'absolute',
     bottom: 40,
     left: 20,
     right: 20,
-    backgroundColor: 'hsl(222, 47%, 18%)',
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 16,
@@ -394,7 +398,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     borderLeftWidth: 4,
-    borderLeftColor: 'hsl(150, 84%, 40%)',
     ...Platform.select({
       web: {
         position: 'fixed' as any,
@@ -402,8 +405,8 @@ const styles = StyleSheet.create({
     })
   },
   toastText: {
-    color: 'hsl(210, 40%, 98%)',
     fontSize: 14,
     fontWeight: 'bold',
   },
 });
+

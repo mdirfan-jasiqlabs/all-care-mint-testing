@@ -11,6 +11,7 @@ import {
   NativeScrollEvent,
   ImageSourcePropType,
 } from 'react-native';
+import { useTheme } from '../theme/ThemeContext';
 
 export interface HeroSlide {
   id: string;
@@ -71,6 +72,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
   slides = DEFAULT_SLIDES,
   onPressCTA,
 }) => {
+  const { colors } = useTheme();
   const [activeSlide, setActiveSlide] = useState(0);
   const [imageErrorMap, setImageErrorMap] = useState<Record<string, boolean>>({});
   const scrollViewRef = useRef<ScrollView>(null);
@@ -128,7 +130,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
           const imageSrc = slide.imageSource || (slide.imageUrl ? { uri: slide.imageUrl } : undefined);
 
           return (
-            <View key={slide.id} style={[styles.card, { width: cardWidth }]}>
+            <View key={slide.id} style={[styles.card, { width: cardWidth, borderColor: colors.cardBorder }]}>
               {/* Background image & overlay */}
               {imageSrc && !hasImageError ? (
                 <Image
@@ -176,7 +178,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
               key={`dot-${slide.id}`}
               style={[
                 styles.dot,
-                isActive ? styles.activeDot : styles.inactiveDot,
+                isActive ? styles.activeDot : { width: 6, backgroundColor: colors.border },
               ]}
             />
           );
@@ -199,7 +201,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#0c1322',
     borderWidth: 1,
-    borderColor: '#1e293b',
     position: 'relative',
     justifyContent: 'center',
   },
@@ -294,10 +295,7 @@ const styles = StyleSheet.create({
     width: 20,
     backgroundColor: '#10b981',
   },
-  inactiveDot: {
-    width: 6,
-    backgroundColor: '#334155',
-  },
 });
 
 export default HeroCarousel;
+
