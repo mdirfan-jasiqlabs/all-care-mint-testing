@@ -9,11 +9,14 @@ import {
   TextInput,
   Platform,
 } from 'react-native';
+import { CheckCircle, XCircle, MapPin } from 'lucide-react-native';
 import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
 import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
+import { useProviderTheme } from '../context/ProviderThemeContext';
 
 export default function ProviderJobDetailScreen({ navigation, route }: any) {
+  const { colors } = useProviderTheme();
   const { bookingId } = route.params;
 
   const [booking, setBooking] = useState<any>(null);
@@ -38,7 +41,6 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
       try {
         data = await apiClient.get(`/api/v1/providers/me/bookings/${bookingId}`);
       } catch (e) {
-        // Fallback: search active jobs list if reference code or invalid UUID format was passed
         try {
           const activeList = await apiClient.get('/api/v1/providers/me/bookings?page=1&limit=50');
           if (activeList.success && Array.isArray(activeList.data)) {
@@ -116,119 +118,132 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#10b981" />
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   if (!booking) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>Job not found or access denied.</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.danger }]}>Job not found or access denied.</Text>
       </View>
     );
   }
 
-  // Get status color
-  let statusColor = '#fff';
-  if (booking.status === 'ASSIGNED') statusColor = '#3b82f6';
-  else if (booking.status === 'ACCEPTED') statusColor = '#10b981';
-  else if (booking.status === 'ON_THE_WAY') statusColor = '#fbbf24';
-  else if (booking.status === 'STARTED') statusColor = '#a855f7';
-  else if (booking.status === 'COMPLETED') statusColor = '#10b981';
+  // Get status color from theme
+  let statusColor = colors.textPrimary;
+  if (booking.status === 'ASSIGNED') statusColor = colors.statusAssignedText;
+  else if (booking.status === 'ACCEPTED') statusColor = colors.statusAcceptedText;
+  else if (booking.status === 'ON_THE_WAY') statusColor = colors.statusOnTheWayText;
+  else if (booking.status === 'STARTED') statusColor = colors.statusStartedText;
+  else if (booking.status === 'COMPLETED') statusColor = colors.statusCompletedText;
 
   return (
-    <View style={styles.outerContainer}>
+    <View style={[styles.outerContainer, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Job Details</Text>
-        <Text style={styles.refText}>ACM-{booking.bookingReference}</Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>Job Details</Text>
+        <Text style={[styles.refText, { color: colors.textMuted }]}>ACM-{booking.bookingReference}</Text>
       </View>
 
       {/* Details Card */}
-      <View style={styles.card}>
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Service</Text>
-          <Text style={styles.value}>{booking.serviceNameSnapshot}</Text>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <View style={[styles.detailRow, { borderBottomColor: colors.borderSubtle }]}>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Service</Text>
+          <Text style={[styles.value, { color: colors.textPrimary }]}>{booking.serviceNameSnapshot}</Text>
         </View>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Scheduled Date</Text>
-          <Text style={styles.value}>
+        <View style={[styles.detailRow, { borderBottomColor: colors.borderSubtle }]}>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Scheduled Date</Text>
+          <Text style={[styles.value, { color: colors.textPrimary }]}>
             {new Date(booking.slotDate).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
           </Text>
         </View>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Time Slot</Text>
-          <Text style={styles.value}>{booking.slotLabelSnapshot}</Text>
+        <View style={[styles.detailRow, { borderBottomColor: colors.borderSubtle }]}>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Time Slot</Text>
+          <Text style={[styles.value, { color: colors.textPrimary }]}>{booking.slotLabelSnapshot}</Text>
         </View>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Status</Text>
+        <View style={[styles.detailRow, { borderBottomColor: colors.borderSubtle }]}>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Status</Text>
           <Text style={[styles.value, { color: statusColor, fontWeight: 'bold' }]}>{booking.status}</Text>
         </View>
       </View>
 
       {/* Address Card */}
-      <View style={styles.card}>
-        <Text style={styles.cardSectionTitle}>Customer Address</Text>
-        <Text style={styles.addressLabel}>{booking.addressSnapshot.label}</Text>
-        <Text style={styles.addressText}>{booking.addressSnapshot.addressLine1}</Text>
-        {booking.addressSnapshot.addressLine2 && <Text style={styles.addressText}>{booking.addressSnapshot.addressLine2}</Text>}
-        <Text style={styles.addressText}>{booking.addressSnapshot.city} - {booking.addressSnapshot.pincode}</Text>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <View style={styles.addressHeaderRow}>
+          <MapPin size={16} color={colors.textMuted} style={{ marginRight: 6 }} />
+          <Text style={[styles.cardSectionTitle, { color: colors.textMuted }]}>Customer Address</Text>
+        </View>
+        <Text style={[styles.addressLabel, { color: colors.textPrimary }]}>{booking.addressSnapshot?.label}</Text>
+        <Text style={[styles.addressText, { color: colors.textSecondary }]}>{booking.addressSnapshot?.addressLine1}</Text>
+        {booking.addressSnapshot?.addressLine2 && <Text style={[styles.addressText, { color: colors.textSecondary }]}>{booking.addressSnapshot.addressLine2}</Text>}
+        <Text style={[styles.addressText, { color: colors.textSecondary }]}>{booking.addressSnapshot?.city} - {booking.addressSnapshot?.pincode}</Text>
       </View>
 
       {/* Actions */}
       {booking.status === 'ASSIGNED' ? (
         <View style={styles.actionContainer}>
           <TouchableOpacity
-            style={[styles.actionBtn, styles.btnAccept]}
+            style={[styles.actionBtn, styles.btnAccept, { backgroundColor: colors.primary }]}
             onPress={handleAcceptJob}
             disabled={submitting}
           >
-            {submitting ? <ActivityIndicator size="small" color="#020617" /> : <Text style={styles.btnAcceptText}>Accept Job</Text>}
+            {submitting ? (
+              <ActivityIndicator size="small" color={colors.primaryForeground} />
+            ) : (
+              <View style={styles.btnRow}>
+                <CheckCircle size={18} color={colors.primaryForeground} style={{ marginRight: 6 }} />
+                <Text style={[styles.btnAcceptText, { color: colors.primaryForeground }]}>Accept Job</Text>
+              </View>
+            )}
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.actionBtn, styles.btnReject]}
+            style={[styles.actionBtn, styles.btnReject, { borderColor: colors.danger }]}
             onPress={() => setRejecting(true)}
             disabled={submitting}
           >
-            <Text style={styles.btnRejectText}>Reject Job</Text>
+            <View style={styles.btnRow}>
+              <XCircle size={18} color={colors.danger} style={{ marginRight: 6 }} />
+              <Text style={[styles.btnRejectText, { color: colors.danger }]}>Reject Job</Text>
+            </View>
           </TouchableOpacity>
         </View>
       ) : ['ACCEPTED', 'ON_THE_WAY', 'STARTED'].includes(booking.status) ? (
         <TouchableOpacity
-          style={[styles.actionBtn, styles.btnUpdateStatus]}
+          style={[styles.actionBtn, styles.btnUpdateStatus, { backgroundColor: colors.primary }]}
           onPress={() => navigation.navigate('JobStatusUpdate', { bookingId })}
         >
-          <Text style={styles.btnUpdateStatusText}>Update Job Status</Text>
+          <Text style={[styles.btnUpdateStatusText, { color: colors.primaryForeground }]}>Update Job Status</Text>
         </TouchableOpacity>
       ) : null}
 
       <TouchableOpacity
-        style={styles.backBtn}
+        style={[styles.backBtn, { borderColor: colors.border }]}
         onPress={() => navigation.goBack()}
       >
-        <Text style={styles.backBtnText}>Back to Dashboard</Text>
+        <Text style={[styles.backBtnText, { color: colors.textSecondary }]}>Back to Dashboard</Text>
       </TouchableOpacity>
       </ScrollView>
 
       {/* REJECTION CONFIRMATION MODAL */}
       {rejecting && (
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Reject this job? It will be reassigned.</Text>
-            <Text style={styles.modalSubTitle}>
+        <View style={[styles.modalOverlay, { backgroundColor: colors.backdrop }]}>
+          <View style={[styles.modalContainer, { backgroundColor: colors.modalSurface, borderColor: colors.border }]}>
+            <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Reject this job? It will be reassigned.</Text>
+            <Text style={[styles.modalSubTitle, { color: colors.textSecondary }]}>
               This action will unassign you from this job and return it to the dispatch queue for admin reassignment.
             </Text>
 
-            <Text style={styles.formLabel}>Rejection Reason (Optional)</Text>
+            <Text style={[styles.formLabel, { color: colors.textSecondary }]}>Rejection Reason (Optional)</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.inputText }]}
               placeholder="Provide a reason for rejection..."
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={colors.inputPlaceholder}
               value={rejectionReason}
               onChangeText={setRejectionReason}
               multiline
@@ -237,17 +252,17 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
 
             <View style={styles.buttonRow}>
               <TouchableOpacity
-                style={[styles.actionBtn, styles.btnCancel]}
+                style={[styles.actionBtn, styles.btnCancel, { borderColor: colors.border }]}
                 onPress={() => {
                   setRejecting(false);
                   setRejectionReason('');
                 }}
                 disabled={submitting}
               >
-                <Text style={styles.btnCancelText}>Cancel</Text>
+                <Text style={[styles.btnCancelText, { color: colors.textSecondary }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.actionBtn, styles.btnRejectSubmit]}
+                style={[styles.actionBtn, styles.btnRejectSubmit, { backgroundColor: colors.danger }]}
                 onPress={handleRejectJob}
                 disabled={submitting}
               >
@@ -270,7 +285,6 @@ export default function ProviderJobDetailScreen({ navigation, route }: any) {
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
     ...Platform.select({
       web: {
         position: 'absolute' as any,
@@ -294,7 +308,6 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -305,55 +318,59 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#ffffff',
   },
   refText: {
     fontSize: 14,
-    color: '#94a3b8',
     marginTop: 4,
     fontWeight: '600',
   },
   card: {
-    backgroundColor: 'hsl(222, 47%, 11%)',
     borderRadius: 16,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 17%)',
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.04)',
   },
   label: {
     fontSize: 14,
-    color: '#94a3b8',
   },
   value: {
     fontSize: 14,
-    color: '#ffffff',
     fontWeight: '500',
+  },
+  addressHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   cardSectionTitle: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#94a3b8',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    marginBottom: 12,
+  },
+  btnRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   addressLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#ffffff',
     marginBottom: 4,
   },
   addressText: {
     fontSize: 14,
-    color: '#cbd5e1',
     lineHeight: 20,
   },
   actionContainer: {
@@ -369,26 +386,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  btnAccept: {
-    backgroundColor: '#10b981',
-  },
+  btnAccept: {},
   btnAcceptText: {
-    color: '#020617',
     fontWeight: 'bold',
     fontSize: 15,
   },
   btnReject: {
     backgroundColor: 'transparent',
     borderWidth: 1.5,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
   },
   btnRejectText: {
-    color: '#f87171',
     fontWeight: 'bold',
     fontSize: 15,
   },
   btnUpdateStatus: {
-    backgroundColor: '#10b981',
     width: '100%',
     height: 56,
     borderRadius: 12,
@@ -397,7 +408,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   btnUpdateStatusText: {
-    color: '#020617',
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -406,43 +416,34 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.08)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 48,
   },
   backBtnText: {
-    color: '#94a3b8',
     fontSize: 15,
     fontWeight: 'bold',
   },
   errorText: {
-    color: '#f87171',
     fontSize: 16,
     textAlign: 'center',
     marginTop: 40,
   },
   rejectForm: {
-    backgroundColor: 'hsl(222, 47%, 11%)',
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 17%)',
     marginBottom: 16,
   },
   formLabel: {
     fontSize: 14,
-    color: '#94a3b8',
     marginBottom: 8,
     fontWeight: '500',
   },
   input: {
-    backgroundColor: 'rgba(30, 41, 59, 0.6)',
-    borderColor: 'rgba(255, 255, 255, 0.06)',
     borderWidth: 1,
     borderRadius: 10,
     padding: 12,
-    color: '#ffffff',
     fontSize: 14,
     minHeight: 80,
     textAlignVertical: 'top',
@@ -455,15 +456,11 @@ const styles = StyleSheet.create({
   btnCancel: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   btnCancelText: {
-    color: '#94a3b8',
     fontWeight: 'bold',
   },
-  btnRejectSubmit: {
-    backgroundColor: '#ef4444',
-  },
+  btnRejectSubmit: {},
   btnRejectSubmitText: {
     color: '#ffffff',
     fontWeight: 'bold',
@@ -474,31 +471,27 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
     zIndex: 999,
   },
   modalContainer: {
-    backgroundColor: '#0f172a',
     borderRadius: 16,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
     width: '100%',
     maxWidth: 400,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#ffffff',
     marginBottom: 6,
   },
   modalSubTitle: {
     fontSize: 13,
-    color: '#94a3b8',
     marginBottom: 16,
     lineHeight: 18,
   },
 });
+

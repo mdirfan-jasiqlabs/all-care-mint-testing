@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
-import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { RootStackParamList } from './src/navigation/root.types';
@@ -14,6 +14,8 @@ import ProviderEarningsScreen from './src/screens/ProviderEarningsScreen';
 import * as storage from './src/utils/storage';
 import { apiClient } from './src/services/api';
 import { setupNotificationListeners, registerProviderPushToken } from './src/services/notificationService';
+import { ProviderThemeProvider, useProviderTheme } from './src/context/ProviderThemeContext';
+import { ThemeHeaderButton } from './src/components/ThemeHeaderButton';
 
 const Stack = createStackNavigator<RootStackParamList>();
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
@@ -27,7 +29,8 @@ const linking = {
   },
 };
 
-export default function App() {
+function MainNavigator() {
+  const { resolvedTheme, colors } = useProviderTheme();
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
 
   useEffect(() => {
@@ -77,29 +80,45 @@ export default function App() {
 
   if (initialRoute === null) {
     return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="hsl(150, 84%, 40%)" />
+      <View style={[styles.loading, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
+  const navigationTheme = {
+    dark: resolvedTheme === 'dark',
+    colors: {
+      ...(resolvedTheme === 'dark' ? DarkTheme.colors : DefaultTheme.colors),
+      primary: colors.primary,
+      background: colors.background,
+      card: colors.headerBackground,
+      text: colors.textPrimary,
+      border: colors.border,
+      notification: colors.primary,
+    },
+  };
+
   return (
-    <NavigationContainer ref={navigationRef} linking={linking}>
-      <StatusBar style="light" />
+    <NavigationContainer ref={navigationRef} linking={linking} theme={navigationTheme}>
+      <StatusBar style={resolvedTheme === 'dark' ? 'light' : 'dark'} />
       <Stack.Navigator
         initialRouteName={initialRoute}
         screenOptions={{
           headerStyle: {
-            backgroundColor: 'hsl(222, 47%, 11%)',
+            backgroundColor: colors.headerBackground,
             borderBottomWidth: 1,
-            borderBottomColor: 'hsl(217, 32%, 17%)',
+            borderBottomColor: colors.border,
+            shadowColor: 'transparent',
+            elevation: 0,
           },
-          headerTintColor: 'hsl(210, 40%, 98%)',
+          headerTintColor: colors.textPrimary,
           headerTitleStyle: {
             fontWeight: 'bold',
           },
+          headerRight: () => <ThemeHeaderButton />,
           cardStyle: {
-            backgroundColor: 'hsl(224, 71%, 4%)',
+            backgroundColor: colors.background,
           },
         }}
       >
@@ -143,11 +162,19 @@ export default function App() {
   );
 }
 
+export default function App() {
+  return (
+    <ProviderThemeProvider>
+      <MainNavigator />
+    </ProviderThemeProvider>
+  );
+}
+
 const styles = StyleSheet.create({
   loading: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
     justifyContent: 'center',
     alignItems: 'center',
   },
 });
+

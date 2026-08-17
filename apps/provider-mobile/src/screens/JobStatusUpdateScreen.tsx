@@ -10,11 +10,14 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
+import { Clock, RefreshCw, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react-native';
 import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
 import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
+import { useProviderTheme } from '../context/ProviderThemeContext';
 
 export default function JobStatusUpdateScreen({ navigation, route }: any) {
+  const { colors } = useProviderTheme();
   const { bookingId } = route.params;
 
   const [booking, setBooking] = useState<any>(null);
@@ -118,16 +121,16 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#10b981" />
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   if (!booking) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>Job not found.</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.danger }]}>Job not found.</Text>
       </View>
     );
   }
@@ -150,58 +153,92 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
     statusExplanation = 'Confirm the service is fully completed and payment is due.';
   }
 
-  // Get status feedback text
-  let syncFeedback = '';
-  if (syncState === 'pending') syncFeedback = '🕒 Sync Pending (Offline)';
-  else if (syncState === 'syncing') syncFeedback = '🔄 Syncing with server...';
-  else if (syncState === 'synced') syncFeedback = '✅ Synced with server';
-  else if (syncState === 'failed') syncFeedback = '❌ Sync Failed';
+  // Get status feedback icon and text
+  const renderSyncFeedback = () => {
+    if (syncState === 'pending') {
+      return (
+        <View style={styles.feedbackRow}>
+          <Clock size={16} color={colors.warning} style={{ marginRight: 6 }} />
+          <Text style={[styles.feedbackText, { color: colors.textPrimary }]}>Sync Pending (Offline)</Text>
+        </View>
+      );
+    } else if (syncState === 'syncing') {
+      return (
+        <View style={styles.feedbackRow}>
+          <RefreshCw size={16} color={colors.info} style={{ marginRight: 6 }} />
+          <Text style={[styles.feedbackText, { color: colors.textPrimary }]}>Syncing with server...</Text>
+        </View>
+      );
+    } else if (syncState === 'synced') {
+      return (
+        <View style={styles.feedbackRow}>
+          <CheckCircle2 size={16} color={colors.primary} style={{ marginRight: 6 }} />
+          <Text style={[styles.feedbackText, { color: colors.textPrimary }]}>Synced with server</Text>
+        </View>
+      );
+    } else if (syncState === 'failed') {
+      return (
+        <View style={styles.feedbackRow}>
+          <AlertCircle size={16} color={colors.danger} style={{ marginRight: 6 }} />
+          <Text style={[styles.feedbackText, { color: colors.textPrimary }]}>Sync Failed</Text>
+        </View>
+      );
+    }
+    return null;
+  };
 
   const isActionsDisabled = submitting || syncState === 'syncing';
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Update Progress</Text>
-        <Text style={styles.subtitle}>Keep the customer updated on your service progress</Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>Update Progress</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Keep the customer updated on your service progress</Text>
       </View>
 
       {/* Sync State Feedback */}
-      {syncFeedback ? (
-        <View style={styles.feedbackContainer}>
-          <Text style={styles.feedbackText}>{syncFeedback}</Text>
+      {syncState !== 'idle' ? (
+        <View style={[styles.feedbackContainer, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+          {renderSyncFeedback()}
         </View>
       ) : null}
 
       {/* Progress Cards */}
-      <View style={styles.progressCard}>
-        <Text style={styles.progressLabel}>Current Status</Text>
-        <Text style={styles.statusBadge}>{booking.status}</Text>
+      <View style={[styles.progressCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.progressLabel, { color: colors.textMuted }]}>Current Status</Text>
+        <Text style={[styles.statusBadge, { color: colors.primary }]}>{booking.status}</Text>
       </View>
 
       {nextStatus ? (
-        <View style={styles.actionCard}>
-          <Text style={styles.explanationText}>{statusExplanation}</Text>
+        <View style={[styles.actionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.explanationText, { color: colors.textSecondary }]}>{statusExplanation}</Text>
           <TouchableOpacity
-            style={[styles.actionBtn, isActionsDisabled && styles.btnDisabled]}
+            style={[
+              styles.actionBtn,
+              { backgroundColor: colors.primary },
+              isActionsDisabled && { backgroundColor: colors.surfaceSecondary, opacity: 0.6 },
+            ]}
             onPress={() => handleUpdateStatus(nextStatus)}
             disabled={isActionsDisabled}
           >
-            {isActionsDisabled ? <ActivityIndicator size="small" color="#020617" /> : <Text style={styles.actionBtnText}>{buttonText}</Text>}
+            {isActionsDisabled ? <ActivityIndicator size="small" color={colors.primaryForeground} /> : <Text style={[styles.actionBtnText, { color: colors.primaryForeground }]}>{buttonText}</Text>}
           </TouchableOpacity>
         </View>
       ) : (
-        <View style={styles.completedCard}>
-          <Text style={styles.completedText}>🎉 This job has been successfully completed!</Text>
+        <View style={[styles.completedCard, { backgroundColor: colors.statusAcceptedBg, borderColor: colors.primary }]}>
+          <View style={styles.completedRow}>
+            <Sparkles size={20} color={colors.primary} style={{ marginRight: 8 }} />
+            <Text style={[styles.completedText, { color: colors.primary }]}>This job has been successfully completed!</Text>
+          </View>
         </View>
       )}
 
       <TouchableOpacity
-        style={styles.cancelBtn}
+        style={[styles.cancelBtn, { borderColor: colors.border }]}
         onPress={() => navigation.goBack()}
         disabled={isActionsDisabled}
       >
-        <Text style={styles.cancelBtnText}>Back to Details</Text>
+        <Text style={[styles.cancelBtnText, { color: colors.textSecondary }]}>Back to Details</Text>
       </TouchableOpacity>
       <ToastContainer toastQueue={toastQueue} onDismiss={dismissToast} />
     </View>
@@ -211,12 +248,10 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
     padding: 24,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -227,25 +262,25 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#ffffff',
   },
   subtitle: {
     fontSize: 14,
-    color: '#94a3b8',
     marginTop: 4,
   },
   progressCard: {
-    backgroundColor: 'hsl(222, 47%, 11%)',
     borderRadius: 16,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'hsl(217, 32%, 17%)',
     alignItems: 'center',
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   progressLabel: {
     fontSize: 12,
-    color: '#94a3b8',
     textTransform: 'uppercase',
     fontWeight: 'bold',
     letterSpacing: 0.5,
@@ -253,45 +288,38 @@ const styles = StyleSheet.create({
   statusBadge: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#10b981',
     marginTop: 6,
   },
   actionCard: {
-    backgroundColor: 'rgba(17, 24, 39, 0.45)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 20,
     padding: 20,
     alignItems: 'center',
     marginBottom: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   explanationText: {
-    color: '#cbd5e1',
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 20,
     lineHeight: 20,
   },
   actionBtn: {
-    backgroundColor: '#10b981',
     width: '100%',
     height: 56,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  btnDisabled: {
-    backgroundColor: '#334155',
-    opacity: 0.5,
-  },
   actionBtnText: {
-    color: '#020617',
     fontSize: 16,
     fontWeight: 'bold',
   },
   completedCard: {
-    backgroundColor: 'rgba(16, 185, 129, 0.08)',
-    borderColor: 'rgba(16, 185, 129, 0.2)',
     borderWidth: 1,
     borderRadius: 20,
     padding: 24,
@@ -299,7 +327,6 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   completedText: {
-    color: '#10b981',
     fontSize: 15,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -309,32 +336,37 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   cancelBtnText: {
-    color: '#94a3b8',
     fontSize: 15,
     fontWeight: 'bold',
   },
   errorText: {
-    color: '#f87171',
     fontSize: 16,
     textAlign: 'center',
   },
+  completedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  feedbackRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   feedbackContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 12,
     padding: 12,
     marginBottom: 20,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   feedbackText: {
-    color: '#e2e8f0',
     fontSize: 14,
     fontWeight: '600',
   },
 });
+

@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Animated } from 'react-native';
+import { Bell } from 'lucide-react-native';
+import { useProviderTheme } from '../context/ProviderThemeContext';
 
 export interface NotificationPayload {
   id: string;
@@ -43,6 +45,7 @@ interface NotificationBannerProps {
 }
 
 export default function NotificationBanner({ onPressBanner }: NotificationBannerProps) {
+  const { colors } = useProviderTheme();
   const [currentNotification, setCurrentNotification] = useState<NotificationPayload | null>(null);
   const slideAnim = useRef(new Animated.Value(-140)).current;
 
@@ -93,7 +96,7 @@ export default function NotificationBanner({ onPressBanner }: NotificationBanner
     >
       <TouchableOpacity
         activeOpacity={0.85}
-        style={styles.bannerContent}
+        style={[styles.bannerContent, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}
         onPress={() => {
           const bId = currentNotification.bookingId;
           if (onPressBanner) {
@@ -102,16 +105,16 @@ export default function NotificationBanner({ onPressBanner }: NotificationBanner
           dismissBanner();
         }}
       >
-        <View style={styles.iconContainer}>
-          <Text style={styles.iconText}>🔔</Text>
+        <View style={[styles.iconContainer, { backgroundColor: colors.statusAcceptedBg, borderColor: colors.primary }]}>
+          <Bell size={16} color={colors.primary} />
         </View>
 
         <View style={styles.textContainer}>
           <View style={styles.headerRow}>
-            <Text style={styles.appName}>{currentNotification.title || 'ALL CARE MINT'}</Text>
-            <Text style={styles.timeAgo}>{currentNotification.timeAgo || 'now'}</Text>
+            <Text style={[styles.appName, { color: colors.textPrimary }]}>{currentNotification.title || 'ALL CARE MINT'}</Text>
+            <Text style={[styles.timeAgo, { color: colors.textMuted }]}>{currentNotification.timeAgo || 'now'}</Text>
           </View>
-          <Text style={styles.bodyText} numberOfLines={2}>
+          <Text style={[styles.bodyText, { color: colors.textSecondary }]} numberOfLines={2}>
             {currentNotification.body}
           </Text>
         </View>
@@ -130,8 +133,6 @@ const styles = StyleSheet.create({
     elevation: 100,
   },
   bannerContent: {
-    backgroundColor: 'hsl(222, 47%, 12%)',
-    borderColor: 'hsl(217, 32%, 22%)',
     borderWidth: 1,
     borderRadius: 16,
     padding: 14,
@@ -139,15 +140,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.2,
     shadowRadius: 12,
   },
   iconContainer: {
     width: 34,
     height: 34,
     borderRadius: 10,
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderColor: 'rgba(16, 185, 129, 0.3)',
     borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -168,17 +167,15 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: 'hsl(210, 40%, 98%)',
     letterSpacing: 0.5,
   },
   timeAgo: {
     fontSize: 9,
-    color: 'hsl(215, 20%, 55%)',
   },
   bodyText: {
     fontSize: 12,
     fontWeight: '600',
-    color: 'hsl(210, 40%, 90%)',
     lineHeight: 16,
   },
 });
+

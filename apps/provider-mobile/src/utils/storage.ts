@@ -132,3 +132,34 @@ export const removeOfflineUpdate = (clientOpId: string): void => {
   saveOfflineQueue(filteredQueue);
 };
 
+const THEME_PREFERENCE_KEY = 'all-care-mint-provider-theme';
+
+export type ProviderThemePreference = 'light' | 'dark' | 'system';
+
+export const getThemePreference = (): ProviderThemePreference => {
+  try {
+    let val: string | undefined = storageInstance.getString(THEME_PREFERENCE_KEY);
+    if (!val && typeof window !== 'undefined' && window.localStorage) {
+      val = window.localStorage.getItem(THEME_PREFERENCE_KEY) || undefined;
+    }
+    if (val === 'light' || val === 'dark' || val === 'system') {
+      return val;
+    }
+  } catch (e) {
+    // fallback
+  }
+  return 'system';
+};
+
+export const setThemePreference = (pref: ProviderThemePreference): void => {
+  try {
+    storageInstance.set(THEME_PREFERENCE_KEY, pref);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(THEME_PREFERENCE_KEY, pref);
+    }
+  } catch (e) {
+    console.error('Failed to save theme preference:', e);
+  }
+};
+
+

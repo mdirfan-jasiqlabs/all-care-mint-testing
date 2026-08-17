@@ -10,13 +10,16 @@ import {
   BackHandler,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CreditCard, LogOut, ChevronRight, MapPin, ClipboardList } from 'lucide-react-native';
 import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
 import { ToastContainer, ToastItem, ToastType } from '../components/ToastContainer';
 import { registerProviderPushToken } from '../services/notificationService';
 import NotificationBanner, { triggerInAppNotification } from '../components/NotificationBanner';
+import { useProviderTheme } from '../context/ProviderThemeContext';
 
 export default function ProviderDashboardScreen({ navigation }: any) {
+  const { colors, resolvedTheme } = useProviderTheme();
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'active' | 'history'>('active');
@@ -42,9 +45,9 @@ export default function ProviderDashboardScreen({ navigation }: any) {
 
       if (data.success && Array.isArray(data.data)) {
         if (activeTab === 'active') {
-          const currentIds = new Set(data.data.map((j: any) => j.id));
+          const currentIds = new Set<string>(data.data.map((j: any) => String(j.id)));
           const newlyAssigned = data.data.filter(
-            (j: any) => !previousJobIds.current.has(j.id)
+            (j: any) => !previousJobIds.current.has(String(j.id))
           );
 
           if (isInitializedRef.current && newlyAssigned.length > 0) {
@@ -122,104 +125,118 @@ export default function ProviderDashboardScreen({ navigation }: any) {
   };
 
   const renderJobItem = ({ item }: { item: any }) => {
-    // Status colors
-    let statusBg = 'rgba(255,255,255,0.08)';
-    let statusColor = '#fff';
-    if (item.status === 'ASSIGNED') { statusBg = 'rgba(59, 130, 246, 0.15)'; statusColor = '#3b82f6'; }
-    else if (item.status === 'ACCEPTED') { statusBg = 'rgba(16, 185, 129, 0.15)'; statusColor = '#10b981'; }
-    else if (item.status === 'ON_THE_WAY') { statusBg = 'rgba(251, 191, 36, 0.15)'; statusColor = '#fbbf24'; }
-    else if (item.status === 'STARTED') { statusBg = 'rgba(168, 85, 247, 0.15)'; statusColor = '#a855f7'; }
-    else if (item.status === 'COMPLETED') { statusBg = 'rgba(16, 185, 129, 0.2)'; statusColor = '#10b981'; }
-    else if (item.status === 'CANCELLED') { statusBg = 'rgba(239, 68, 68, 0.15)'; statusColor = '#ef4444'; }
+    // Status colors from theme
+    let statusBg = colors.surfaceSecondary;
+    let statusColor = colors.textPrimary;
+    if (item.status === 'ASSIGNED') { statusBg = colors.statusAssignedBg; statusColor = colors.statusAssignedText; }
+    else if (item.status === 'ACCEPTED') { statusBg = colors.statusAcceptedBg; statusColor = colors.statusAcceptedText; }
+    else if (item.status === 'ON_THE_WAY') { statusBg = colors.statusOnTheWayBg; statusColor = colors.statusOnTheWayText; }
+    else if (item.status === 'STARTED') { statusBg = colors.statusStartedBg; statusColor = colors.statusStartedText; }
+    else if (item.status === 'COMPLETED') { statusBg = colors.statusCompletedBg; statusColor = colors.statusCompletedText; }
+    else if (item.status === 'CANCELLED') { statusBg = colors.statusCancelledBg; statusColor = colors.statusCancelledText; }
 
     return (
       <TouchableOpacity
-        style={styles.jobCard}
+        style={[styles.jobCard, { backgroundColor: colors.card, borderColor: colors.border }]}
         onPress={() => navigation.navigate('ProviderJobDetail', { bookingId: item.id })}
       >
-        <View style={{ flex: 1 }}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.refText}>{item.bookingReference?.startsWith('ACM-') ? item.bookingReference : `ACM-${item.bookingReference}`}</Text>
-            <View
-              style={[
-                styles.statusBadge,
-                { backgroundColor: statusBg }
-              ]}
-            >
-              <Text style={{ color: statusColor, fontSize: 10, fontWeight: 'bold' }}>
-                {item.status}
+        <View style={styles.cardHeader}>
+          <Text style={[styles.refText, { color: colors.textMuted }]}>
+            {item.bookingReference?.startsWith('ACM-') ? item.bookingReference : `ACM-${item.bookingReference}`}
+          </Text>
+          <View style={[styles.statusBadge, { backgroundColor: statusBg }]}>
+            <Text style={{ color: statusColor, fontSize: 10, fontWeight: 'bold' }}>
+              {item.status}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.cardBody}>
+          <View style={styles.cardBodyLeft}>
+            <Text style={[styles.serviceName, { color: colors.textPrimary }]}>{item.serviceNameSnapshot}</Text>
+            <Text style={[styles.dateTime, { color: colors.textSecondary }]}>
+              {new Date(item.slotDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+              {' • '}
+              {item.slotLabelSnapshot}
+            </Text>
+            <View style={styles.addressRow}>
+              <MapPin size={13} color={colors.textMuted} style={{ marginRight: 4 }} />
+              <Text style={[styles.address, { color: colors.textMuted }]}>
+                {item.addressSnapshot?.label || 'Address'} — {item.addressSnapshot?.city || ''}
               </Text>
             </View>
           </View>
 
-          <Text style={styles.serviceName}>{item.serviceNameSnapshot}</Text>
-          <Text style={styles.dateTime}>
-            {new Date(item.slotDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-            {' • '}
-            {item.slotLabelSnapshot}
-          </Text>
-          <Text style={styles.address}>
-            📍 {item.addressSnapshot.label} — {item.addressSnapshot.city}
-          </Text>
+          <View style={styles.viewRow}>
+            <Text style={[styles.viewText, { color: colors.primary }]}>Details</Text>
+            <ChevronRight size={16} color={colors.primary} />
+          </View>
         </View>
-        <Text style={styles.viewText}>Details →</Text>
       </TouchableOpacity>
     );
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['bottom', 'left', 'right']}>
       <View style={styles.container}>
 
         {/* Partner Console Header Card */}
-        <View style={styles.consoleCard}>
+        <View style={[styles.consoleCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.consoleCardTop}>
             <View style={styles.consoleTitleBlock}>
-              <Text style={styles.consoleTitle}>Partner Console</Text>
-              <Text style={styles.consoleSubtitle}>Manage your service jobs and schedule</Text>
+              <Text style={[styles.consoleTitle, { color: colors.textPrimary }]}>Partner Console</Text>
+              <Text style={[styles.consoleSubtitle, { color: colors.textSecondary }]}>Manage your service jobs and schedule</Text>
             </View>
-            <View style={styles.roleBadge}>
-              <Text style={styles.roleBadgeText}>PROVIDER PARTNER</Text>
+            <View style={[styles.roleBadge, { backgroundColor: colors.statusAssignedBg, borderColor: colors.info }]}>
+              <Text style={[styles.roleBadgeText, { color: colors.info }]}>PROVIDER PARTNER</Text>
             </View>
           </View>
 
-          <View style={styles.actionBox}>
-            <TouchableOpacity style={styles.earningsBtn} onPress={() => navigation.navigate('ProviderEarnings')}>
+          <View style={[styles.actionBox, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderSubtle }]}>
+            <TouchableOpacity style={[styles.earningsBtn, { backgroundColor: colors.statusAcceptedBg, borderColor: colors.primary }]} onPress={() => navigation.navigate('ProviderEarnings')}>
               <View style={styles.btnLeft}>
-                <Text style={styles.btnIcon}>💳</Text>
-                <Text style={styles.earningsBtnText}>Earnings Summary</Text>
+                <CreditCard size={15} color={colors.primary} />
+                <Text style={[styles.earningsBtnText, { color: colors.primary }]} numberOfLines={1} ellipsizeMode="tail">
+                  Earnings
+                </Text>
               </View>
-              <Text style={styles.earningsArrow}>›</Text>
+              <ChevronRight size={15} color={colors.primary} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
               <View style={styles.btnLeft}>
-                <Text style={styles.btnIcon}>🚪</Text>
-                <Text style={styles.logoutText}>Sign Out</Text>
+                <LogOut size={15} color="#ef4444" />
+                <Text style={styles.logoutText} numberOfLines={1} ellipsizeMode="tail">
+                  Sign Out
+                </Text>
               </View>
-              <Text style={styles.logoutArrow}>›</Text>
+              <ChevronRight size={15} color="#ef4444" />
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Tab Selector */}
-        <View style={styles.tabContainer}>
+        <View style={[styles.tabContainer, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'active' && styles.tabActive]}
+            style={[styles.tab, activeTab === 'active' && { backgroundColor: colors.card }]}
             onPress={() => setActiveTab('active')}
           >
-            <Text style={[styles.tabText, activeTab === 'active' && styles.tabTextActive]}>Active Jobs</Text>
+            <Text style={[styles.tabText, { color: activeTab === 'active' ? colors.textPrimary : colors.textMuted }]}>
+              Active Jobs
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'history' && styles.tabActive]}
+            style={[styles.tab, activeTab === 'history' && { backgroundColor: colors.card }]}
             onPress={() => setActiveTab('history')}
           >
-            <Text style={[styles.tabText, activeTab === 'history' && styles.tabTextActive]}>Job History</Text>
+            <Text style={[styles.tabText, { color: activeTab === 'history' ? colors.textPrimary : colors.textMuted }]}>
+              Job History
+            </Text>
           </TouchableOpacity>
         </View>
 
         {loading ? (
-          <ActivityIndicator size="large" color="#10b981" style={{ marginTop: 48 }} />
+          <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 48 }} />
         ) : (
           <FlatList
             style={styles.scrollContainer}
@@ -229,9 +246,11 @@ export default function ProviderDashboardScreen({ navigation }: any) {
             contentContainerStyle={styles.listContent}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Text style={{ fontSize: 28, marginBottom: 8 }}>📋</Text>
-                <Text style={styles.emptyTitle}>All Jobs Dispatched</Text>
-                <Text style={styles.emptyText}>No pending jobs assigned in this section. Keep app active to receive new bookings.</Text>
+                <ClipboardList size={32} color={colors.textMuted} style={{ marginBottom: 8 }} />
+                <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>All Jobs Dispatched</Text>
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                  No pending jobs assigned in this section. Keep app active to receive new bookings.
+                </Text>
               </View>
             }
           />
@@ -253,7 +272,6 @@ export default function ProviderDashboardScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: 'hsl(224, 71%, 4%)',
   },
   container: {
     flex: 1,
@@ -281,13 +299,16 @@ const styles = StyleSheet.create({
     })
   },
   consoleCard: {
-    backgroundColor: '#0a0f1d',
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
     marginBottom: 20,
     marginTop: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   consoleCardTop: {
     flexDirection: 'row',
@@ -302,47 +323,42 @@ const styles = StyleSheet.create({
   consoleTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#ffffff',
   },
   consoleSubtitle: {
     fontSize: 13,
-    color: '#94a3b8',
     marginTop: 4,
   },
   actionBox: {
-    backgroundColor: 'rgba(2, 6, 23, 0.6)',
     borderRadius: 12,
     padding: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.04)',
     flexDirection: 'row',
     gap: 10,
   },
   btnLeft: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    marginRight: 4,
   },
   btnIcon: {
     fontSize: 14,
   },
   earningsArrow: {
-    color: '#10b981',
     fontSize: 16,
     fontWeight: 'bold',
   },
   logoutArrow: {
-    color: '#f87171',
+    color: '#ef4444',
     fontSize: 16,
     fontWeight: 'bold',
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#0f172a',
     borderRadius: 12,
     padding: 4,
     borderWidth: 1,
-    borderColor: '#1e293b',
     marginBottom: 20,
   },
   tab: {
@@ -351,30 +367,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 8,
   },
-  tabActive: {
-    backgroundColor: '#1e293b',
-  },
   tabText: {
     fontSize: 14,
-    color: '#94a3b8',
     fontWeight: '600',
-  },
-  tabTextActive: {
-    color: '#ffffff',
   },
   listContent: {
     paddingBottom: 24,
   },
   jobCard: {
-    backgroundColor: 'rgba(17, 24, 39, 0.45)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -383,10 +392,19 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     width: '100%',
   },
+  cardBody: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  cardBodyLeft: {
+    flex: 1,
+    marginRight: 8,
+  },
   refText: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#94a3b8',
   },
   statusBadge: {
     paddingHorizontal: 8,
@@ -398,23 +416,28 @@ const styles = StyleSheet.create({
   serviceName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#ffffff',
   },
   dateTime: {
     fontSize: 13,
-    color: '#cbd5e1',
     marginTop: 4,
+  },
+  addressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
   },
   address: {
     fontSize: 12,
-    color: '#94a3b8',
-    marginTop: 6,
+  },
+  viewRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 8,
   },
   viewText: {
-    color: '#10b981',
     fontWeight: 'bold',
     fontSize: 13,
-    marginLeft: 8,
+    marginRight: 2,
   },
   emptyContainer: {
     alignItems: 'center',
@@ -422,27 +445,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   emptyTitle: {
-    color: 'hsl(210, 40%, 98%)',
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 6,
   },
   emptyText: {
-    color: '#94a3b8',
     textAlign: 'center',
     fontSize: 13,
     lineHeight: 18,
   },
   roleBadge: {
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
   roleBadgeText: {
-    color: '#60a5fa',
     fontSize: 10,
     fontWeight: 'bold',
     letterSpacing: 0.5,
@@ -452,17 +470,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(16, 185, 129, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.25)',
     borderRadius: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 10,
   },
   earningsBtnText: {
-    color: '#10b981',
     fontWeight: 'bold',
     fontSize: 13,
+    flexShrink: 1,
   },
   logoutBtn: {
     flex: 1,
@@ -473,13 +489,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(239, 68, 68, 0.25)',
     borderRadius: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 10,
   },
   logoutText: {
-    color: '#f87171',
+    color: '#ef4444',
     fontWeight: 'bold',
     fontSize: 13,
+    flexShrink: 1,
   },
 });
+
 

@@ -15,7 +15,10 @@ config.resolver.nodeModulesPaths = [
   path.resolve(workspaceRoot, 'node_modules'),
 ];
 
-// 3. Exclude frontend build artifacts from Metro file watcher
+// 3. Add mjs and cjs to sourceExts for packages like lucide-react-native
+config.resolver.sourceExts = [...config.resolver.sourceExts, 'mjs', 'cjs'];
+
+// 4. Exclude frontend build artifacts from Metro file watcher
 config.resolver.blockList = [
   /.*\/apps\/frontend\/\.next\/.*/,
   /.*\/dist\/.*/,

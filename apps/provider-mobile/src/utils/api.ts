@@ -1,5 +1,9 @@
 import { Platform } from 'react-native';
-import Constants from 'expo-constants';
+
+let Constants: any = null;
+try {
+  Constants = require('expo-constants').default || require('expo-constants');
+} catch (e) {}
 
 export const getBaseUrl = (): string => {
   const envUrl = process.env.EXPO_PUBLIC_API_URL;

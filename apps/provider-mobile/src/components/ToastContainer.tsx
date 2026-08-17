@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
+import { CheckCircle2, AlertTriangle, Info, AlertCircle } from 'lucide-react-native';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -72,17 +73,31 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({ toastQueue, onDi
 
   if (!activeToast) return null;
 
+  const renderIcon = (type: ToastType) => {
+    switch (type) {
+      case 'success':
+        return <CheckCircle2 size={18} color="#ffffff" style={{ marginRight: 10 }} />;
+      case 'warning':
+        return <AlertTriangle size={18} color="#ffffff" style={{ marginRight: 10 }} />;
+      case 'info':
+        return <Info size={18} color="#ffffff" style={{ marginRight: 10 }} />;
+      case 'error':
+      default:
+        return <AlertCircle size={18} color="#ffffff" style={{ marginRight: 10 }} />;
+    }
+  };
+
   const getVariantStyles = (type: ToastType) => {
     switch (type) {
       case 'success':
-        return { bg: '#064e3b', border: '#059669', icon: '✓' };
+        return { bg: '#064e3b', border: '#059669' };
       case 'warning':
-        return { bg: '#78350f', border: '#d97706', icon: '⚠️' };
+        return { bg: '#78350f', border: '#d97706' };
       case 'info':
-        return { bg: '#1e3a8a', border: '#2563eb', icon: 'ℹ️' };
+        return { bg: '#1e3a8a', border: '#2563eb' };
       case 'error':
       default:
-        return { bg: '#7f1d1d', border: '#dc2626', icon: '✕' };
+        return { bg: '#7f1d1d', border: '#dc2626' };
     }
   };
 
@@ -103,7 +118,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({ toastQueue, onDi
           },
         ]}
       >
-        <Text style={styles.iconText}>{variant.icon}</Text>
+        {renderIcon(activeToast.type)}
         <Text style={styles.messageText}>{activeToast.message}</Text>
       </Animated.View>
     </View>
@@ -134,12 +149,6 @@ const styles = StyleSheet.create({
     elevation: 8,
     maxWidth: '90%',
   },
-  iconText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginRight: 10,
-  },
   messageText: {
     color: '#ffffff',
     fontSize: 14,
@@ -147,3 +156,4 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
 });
+

@@ -1,8 +1,12 @@
 import { Platform, Linking } from 'react-native';
-import Constants from 'expo-constants';
 import apiClient from './api';
 import useProviderJobStore from '../store/providerJobStore';
 import { triggerInAppNotification } from '../components/NotificationBanner';
+
+let Constants: any = null;
+try {
+  Constants = require('expo-constants').default || require('expo-constants');
+} catch (e) {}
 
 let Notifications: any = null;
 try {
