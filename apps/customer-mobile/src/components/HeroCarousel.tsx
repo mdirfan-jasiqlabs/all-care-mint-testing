@@ -72,7 +72,8 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
   slides = DEFAULT_SLIDES,
   onPressCTA,
 }) => {
-  const { colors } = useTheme();
+  const { colors, resolvedTheme } = useTheme();
+  const isLight = resolvedTheme === 'light';
   const [activeSlide, setActiveSlide] = useState(0);
   const [imageErrorMap, setImageErrorMap] = useState<Record<string, boolean>>({});
   const scrollViewRef = useRef<ScrollView>(null);
@@ -130,7 +131,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
           const imageSrc = slide.imageSource || (slide.imageUrl ? { uri: slide.imageUrl } : undefined);
 
           return (
-            <View key={slide.id} style={[styles.card, { width: cardWidth, borderColor: colors.cardBorder }]}>
+            <View key={slide.id} style={[styles.card, { width: cardWidth, backgroundColor: isLight ? '#e2e8f0' : '#0c1322', borderColor: colors.cardBorder }]}>
               {/* Background image & overlay */}
               {imageSrc && !hasImageError ? (
                 <Image
@@ -140,18 +141,18 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                   onError={() => handleImageError(slide.id)}
                 />
               ) : (
-                <View style={styles.fallbackBackground} />
+                <View style={[styles.fallbackBackground, { backgroundColor: isLight ? '#cbd5e1' : '#0f172a' }]} />
               )}
 
-              {/* Left-heavy Dark Gradient Reading Overlay */}
-              <View style={styles.overlay} />
+              {/* Left-heavy Gradient Reading Overlay - Lighter in Light Mode */}
+              <View style={[styles.overlay, { backgroundColor: isLight ? 'rgba(15, 23, 42, 0.32)' : 'rgba(6, 11, 21, 0.70)' }]} />
 
               {/* Content Container */}
               <View style={styles.contentContainer}>
                 <View style={styles.textBlock}>
                   <Text style={styles.headlineLine1}>{slide.titleLine1}</Text>
                   <Text style={styles.headlineLine2}>{slide.titleLine2}</Text>
-                  <Text style={styles.subtitle}>{slide.subtitle}</Text>
+                  <Text style={[styles.subtitle, { color: isLight ? '#f8fafc' : '#94a3b8' }]}>{slide.subtitle}</Text>
                 </View>
 
                 <TouchableOpacity
