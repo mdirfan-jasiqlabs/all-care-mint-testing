@@ -291,235 +291,274 @@ export class PaymentService {
     // 4. Process Successful Payment Event (Atomic Transaction with Concurrency Guard DEF-003, DEF-004)
     if (event === 'payment.captured' || payload?.status === 'captured') {
       try {
-        return await this.prisma.$transaction(async (tx) => {
-          // Re-check order status inside transaction for concurrency protection
-          const currentOrder = await tx.paymentOrder.findUnique({
-            where: { id: paymentOrder.id },
-          });
+        const txResult = await this.prisma.$transaction(
+          async (tx) => {
+            // Re-check order status inside transaction for concurrency protection
+            const currentOrder = await tx.paymentOrder.findUnique({
+              where: { id: paymentOrder.id },
+            });
 
-          if (!currentOrder) {
-            throw new NotFoundException('Payment order not found');
-          }
-
-          if (currentOrder.status === 'PAYMENT_SUCCESS' || currentOrder.status === 'CASH_SETTLED') {
-            return { status: 'ok', message: 'Webhook already processed (idempotent)' };
-          }
-
-          let bookingId = currentOrder.bookingId;
-
-          // If no booking exists yet for this payment, check if booking intent is already fulfilled or create new booking (DEF-006-003)
-          if (!bookingId) {
-            // Guard: Check if an active booking already exists for this booking intent (customerId + slotId + slotDate)
-            let existingIntentBooking: any = null;
-
-            if (currentOrder.customerId && currentOrder.slotId && currentOrder.slotDate) {
-              existingIntentBooking = await tx.booking.findFirst({
-                where: {
-                  customerId: currentOrder.customerId,
-                  slotId: currentOrder.slotId,
-                  slotDate: currentOrder.slotDate,
-                  status: { not: 'CANCELLED' },
-                },
-              });
+            if (!currentOrder) {
+              throw new NotFoundException('Payment order not found');
             }
 
-            // Fallback Check: Check if slot lock for this slotId & slotDate is already linked to a booking
-            if (!existingIntentBooking && currentOrder.slotId && currentOrder.slotDate) {
-              const lock = await tx.bookingSlotLock.findFirst({
-                where: {
-                  slotId: currentOrder.slotId,
-                  slotDate: currentOrder.slotDate,
-                  bookingId: { not: null },
-                },
-              });
-              if (lock?.bookingId) {
-                existingIntentBooking = await tx.booking.findUnique({
-                  where: { id: lock.bookingId },
+            if (currentOrder.status === 'PAYMENT_SUCCESS' || currentOrder.status === 'CASH_SETTLED') {
+              return { status: 'ok', message: 'Webhook already processed (idempotent)' };
+            }
+
+            let bookingId = currentOrder.bookingId;
+
+            // If no booking exists yet for this payment, check if booking intent is already fulfilled or create new booking (DEF-006-003)
+            if (!bookingId) {
+              // Guard: Check if an active booking already exists for this booking intent (customerId + slotId + slotDate)
+              let existingIntentBooking: any = null;
+
+              if (currentOrder.slotId && currentOrder.slotDate) {
+                existingIntentBooking = await tx.booking.findFirst({
+                  where: {
+                    slotId: currentOrder.slotId,
+                    slotDate: currentOrder.slotDate,
+                    status: { notIn: ['CANCELLED', 'REJECTED'] },
+                  },
                 });
+              }
+
+              // Fallback Check: Check if slot lock for this slotId & slotDate is already linked to a booking
+              if (!existingIntentBooking && currentOrder.slotId && currentOrder.slotDate) {
+                const lock = await tx.bookingSlotLock.findFirst({
+                  where: {
+                    slotId: currentOrder.slotId,
+                    slotDate: currentOrder.slotDate,
+                    bookingId: { not: null },
+                  },
+                });
+                if (lock?.bookingId) {
+                  existingIntentBooking = await tx.booking.findUnique({
+                    where: { id: lock.bookingId },
+                  });
+                }
+              }
+
+              if (existingIntentBooking) {
+                console.log(
+                  JSON.stringify({
+                    event: 'payment.webhook.intent_already_fulfilled',
+                    reason: 'Booking intent already fulfilled by existing booking',
+                    existing_booking_id: existingIntentBooking.id,
+                    existing_payment_method: existingIntentBooking.paymentMethod,
+                    razorpay_order_id: razorpayOrderId,
+                  }),
+                );
+                bookingId = existingIntentBooking.id;
+              } else {
+                const draftMeta = this.draftStore.get(currentOrder.bookingDraftId || '') || this.draftStore.get(razorpayOrderId);
+
+                // Resolve service, address, slot directly from persistent DB columns (DEF-002)
+                const service = currentOrder.serviceId
+                  ? await tx.service.findUnique({ where: { id: currentOrder.serviceId } })
+                  : draftMeta?.serviceId
+                  ? await tx.service.findUnique({ where: { id: draftMeta.serviceId } })
+                  : await tx.service.findFirst({ where: { isActive: true } });
+
+                const address = currentOrder.addressId
+                  ? await tx.customerAddress.findUnique({ where: { id: currentOrder.addressId } })
+                  : draftMeta?.addressId
+                  ? await tx.customerAddress.findUnique({ where: { id: draftMeta.addressId } })
+                  : await tx.customerAddress.findFirst({ where: { customerId: currentOrder.customerId } });
+
+                const slot = currentOrder.slotId
+                  ? await tx.bookingTimeSlot.findUnique({ where: { id: currentOrder.slotId } })
+                  : draftMeta?.slotId
+                  ? await tx.bookingTimeSlot.findUnique({ where: { id: draftMeta.slotId } })
+                  : null;
+
+                const slotDate = currentOrder.slotDate
+                  ? new Date(currentOrder.slotDate)
+                  : draftMeta?.slotDate
+                  ? new Date(draftMeta.slotDate)
+                  : new Date();
+
+                let targetSlotId: string | null = slot?.id || null;
+                if (targetSlotId) {
+                  const isSlotTaken = await tx.booking.findFirst({
+                    where: {
+                      slotId: targetSlotId,
+                      slotDate,
+                      status: { notIn: ['CANCELLED', 'REJECTED'] },
+                    },
+                  });
+                  if (isSlotTaken) {
+                    targetSlotId = null;
+                  }
+                }
+
+                const dateStr = slotDate.toISOString().split('T')[0].replace(/-/g, '');
+                const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+                const bookingReference = `ACM-${dateStr}-${randomSuffix}`;
+
+                const addressSnapshot = address
+                  ? {
+                      label: address.label,
+                      addressLine1: address.addressLine1,
+                      addressLine2: address.addressLine2,
+                      city: address.city,
+                      pincode: address.pincode,
+                    }
+                  : {
+                      label: 'Home',
+                      addressLine1: '123 Main Street',
+                      city: 'Bengaluru',
+                      pincode: '560001',
+                    };
+
+                const newBooking = await tx.booking.create({
+                  data: {
+                    bookingReference,
+                    customerId: currentOrder.customerId,
+                    serviceId: service?.id || '00000000-0000-0000-0000-000000000000',
+                    serviceNameSnapshot: service?.name || 'Home Cleaning',
+                    servicePriceSnapshot: service?.fixedPrice || (currentOrder.amountPaise / 100),
+                    addressId: address?.id || null,
+                    addressSnapshot,
+                    slotDate,
+                    slotId: targetSlotId,
+                    slotLabelSnapshot: slot?.label || '09:00 AM - 10:00 AM',
+                    paymentMethod: 'ONLINE',
+                    status: 'PENDING',
+                    idempotencyKey: currentOrder.idempotencyKey || crypto.randomUUID(),
+                  },
+                });
+
+                // Create status history record
+                await tx.bookingStatusHistory.create({
+                  data: {
+                    bookingId: newBooking.id,
+                    status: 'PENDING',
+                    actorId: currentOrder.customerId,
+                    actorRole: 'CUSTOMER',
+                    note: 'Booking created via Razorpay payment capture',
+                  },
+                });
+
+                bookingId = newBooking.id;
+
+                console.log(
+                  JSON.stringify({
+                    event: 'payment.booking.created',
+                    booking_id: bookingId,
+                    customer_id: currentOrder.customerId,
+                    booking_reference: bookingReference,
+                  }),
+                );
               }
             }
 
-            if (existingIntentBooking) {
-              console.log(
-                JSON.stringify({
-                  event: 'payment.webhook.intent_already_fulfilled',
-                  reason: 'Booking intent already fulfilled by existing booking',
-                  existing_booking_id: existingIntentBooking.id,
-                  existing_payment_method: existingIntentBooking.paymentMethod,
-                  razorpay_order_id: razorpayOrderId,
-                }),
-              );
-              bookingId = existingIntentBooking.id;
-            } else {
-              const draftMeta = this.draftStore.get(currentOrder.bookingDraftId || '') || this.draftStore.get(razorpayOrderId);
-
-              // Resolve service, address, slot directly from persistent DB columns (DEF-002)
-              const service = currentOrder.serviceId
-                ? await tx.service.findUnique({ where: { id: currentOrder.serviceId } })
-                : draftMeta?.serviceId
-                ? await tx.service.findUnique({ where: { id: draftMeta.serviceId } })
-                : await tx.service.findFirst({ where: { isActive: true } });
-
-              const address = currentOrder.addressId
-                ? await tx.customerAddress.findUnique({ where: { id: currentOrder.addressId } })
-                : draftMeta?.addressId
-                ? await tx.customerAddress.findUnique({ where: { id: draftMeta.addressId } })
-                : await tx.customerAddress.findFirst({ where: { customerId: currentOrder.customerId } });
-
-              const slot = currentOrder.slotId
-                ? await tx.bookingTimeSlot.findUnique({ where: { id: currentOrder.slotId } })
-                : draftMeta?.slotId
-                ? await tx.bookingTimeSlot.findUnique({ where: { id: draftMeta.slotId } })
-                : await tx.bookingTimeSlot.findFirst({ where: { isActive: true } });
-
-              const slotDate = currentOrder.slotDate
-                ? new Date(currentOrder.slotDate)
-                : draftMeta?.slotDate
-                ? new Date(draftMeta.slotDate)
-                : new Date();
-
-              const dateStr = slotDate.toISOString().split('T')[0].replace(/-/g, '');
-              const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-              const bookingReference = `ACM-${dateStr}-${randomSuffix}`;
-
-              const addressSnapshot = address
-                ? {
-                    label: address.label,
-                    addressLine1: address.addressLine1,
-                    addressLine2: address.addressLine2,
-                    city: address.city,
-                    pincode: address.pincode,
-                  }
-                : {
-                    label: 'Home',
-                    addressLine1: '123 Main Street',
-                    city: 'Bengaluru',
-                    pincode: '560001',
-                  };
-
-              const newBooking = await tx.booking.create({
-                data: {
-                  bookingReference,
-                  customerId: currentOrder.customerId,
-                  serviceId: service?.id || '00000000-0000-0000-0000-000000000000',
-                  serviceNameSnapshot: service?.name || 'Home Cleaning',
-                  servicePriceSnapshot: service?.fixedPrice || (currentOrder.amountPaise / 100),
-                  addressId: address?.id || null,
-                  addressSnapshot,
-                  slotDate,
-                  slotId: slot?.id || null,
-                  slotLabelSnapshot: slot?.label || '09:00 AM - 10:00 AM',
-                  paymentMethod: 'ONLINE',
-                  status: 'PENDING',
-                  idempotencyKey: currentOrder.idempotencyKey || crypto.randomUUID(),
-                },
-              });
-
-              // Create status history record
-              await tx.bookingStatusHistory.create({
-                data: {
-                  bookingId: newBooking.id,
-                  status: 'PENDING',
-                  actorId: currentOrder.customerId,
-                  actorRole: 'CUSTOMER',
-                  note: 'Booking created via Razorpay payment capture',
-                },
-              });
-
-              bookingId = newBooking.id;
-
-              console.log(
-                JSON.stringify({
-                  event: 'payment.booking.created',
-                  booking_id: bookingId,
-                  customer_id: currentOrder.customerId,
-                  booking_reference: bookingReference,
-                }),
-              );
-            }
-          }
-
-          // Atomically update payment order
-          await tx.paymentOrder.update({
-            where: { id: currentOrder.id },
-            data: {
-              status: 'PAYMENT_SUCCESS',
-              razorpayPaymentId: razorpayPaymentId || `pay_mock_${Date.now()}`,
-              razorpaySignature: signature,
-              bookingId,
-            },
-          });
-
-          // Financial Reconciliation (DEF-006-003): If a CASH_PENDING payment order exists for this booking, transition it to CANCELLED (superseded by online success)
-          if (bookingId) {
-            const cashPaymentOrdersToCancel = await tx.paymentOrder.findMany({
-              where: {
+            // Atomically update payment order
+            await tx.paymentOrder.update({
+              where: { id: currentOrder.id },
+              data: {
+                status: 'PAYMENT_SUCCESS',
+                razorpayPaymentId: razorpayPaymentId || `pay_mock_${Date.now()}`,
+                razorpaySignature: signature,
                 bookingId,
-                status: 'CASH_PENDING',
               },
             });
 
-            if (cashPaymentOrdersToCancel.length > 0) {
-              await tx.paymentOrder.updateMany({
+            // Financial Reconciliation (DEF-006-003): If a CASH_PENDING payment order exists for this booking, transition it to CANCELLED (superseded by online success)
+            if (bookingId) {
+              const cashPaymentOrdersToCancel = await tx.paymentOrder.findMany({
                 where: {
                   bookingId,
                   status: 'CASH_PENDING',
                 },
-                data: {
-                  status: 'CANCELLED',
-                  failureReason: 'Superseded by delayed online payment success',
-                },
               });
 
-              // Also update booking paymentMethod to ONLINE so provider & APIs see online payment
-              await tx.booking.update({
-                where: { id: bookingId },
-                data: { paymentMethod: 'ONLINE' },
-              });
+              if (cashPaymentOrdersToCancel.length > 0) {
+                await tx.paymentOrder.updateMany({
+                  where: {
+                    bookingId,
+                    status: 'CASH_PENDING',
+                  },
+                  data: {
+                    status: 'CANCELLED',
+                    failureReason: 'Superseded by delayed online payment success',
+                  },
+                });
 
-              console.log(
-                JSON.stringify({
-                  event: 'payment.reconciliation.cash_superseded',
-                  booking_id: bookingId,
-                  online_payment_order_id: currentOrder.id,
-                  cancelled_cash_order_count: cashPaymentOrdersToCancel.length,
-                }),
-              );
+                // Also update booking paymentMethod to ONLINE so provider & APIs see online payment
+                await tx.booking.update({
+                  where: { id: bookingId },
+                  data: { paymentMethod: 'ONLINE' },
+                });
+
+                console.log(
+                  JSON.stringify({
+                    event: 'payment.reconciliation.cash_superseded',
+                    booking_id: bookingId,
+                    online_payment_order_id: currentOrder.id,
+                    cancelled_cash_order_count: cashPaymentOrdersToCancel.length,
+                  }),
+                );
+              }
             }
-          }
 
-          console.log(
-            JSON.stringify({
-              event: 'payment.captured.processed',
-              payment_order_id: currentOrder.id,
-              razorpay_order_id: razorpayOrderId,
-              razorpay_payment_id: razorpayPaymentId,
-              booking_id: bookingId,
-            }),
-          );
+            console.log(
+              JSON.stringify({
+                event: 'payment.captured.processed',
+                payment_order_id: currentOrder.id,
+                razorpay_order_id: razorpayOrderId,
+                razorpay_payment_id: razorpayPaymentId,
+                booking_id: bookingId,
+              }),
+            );
 
-          if (this.analyticsProjectionService) {
-            this.analyticsProjectionService.recomputeDailyBucket(new Date()).catch((err) => {
-              this.logger.warn(`[Analytics Projection Trigger Error] ${err.message}`);
-            });
-          }
+            return { status: 'ok', message: 'Payment marked as success' };
+          },
+          { timeout: 20000 },
+        );
 
-          return { status: 'ok', message: 'Payment marked as success' };
-        });
+        if (this.analyticsProjectionService) {
+          this.analyticsProjectionService.recomputeDailyBucket(new Date()).catch((err) => {
+            this.logger.warn(`[Analytics Projection Trigger Error] ${err.message}`);
+          });
+        }
+
+        return txResult;
       } catch (error: any) {
-        if (
-          error?.code === 'P2002' &&
-          Array.isArray(error?.meta?.target) &&
-          error.meta.target.includes('razorpay_payment_id')
-        ) {
+        if (error?.code === 'P2002') {
           console.log(
             JSON.stringify({
               event: 'payment.webhook.idempotent',
-              reason: 'Concurrent transaction P2002 razorpay_payment_id constraint absorbed',
+              reason: 'P2002 unique constraint absorbed',
+              target: error?.meta?.target,
               razorpay_order_id: razorpayOrderId,
               razorpay_payment_id: razorpayPaymentId,
             }),
           );
+
+          const existingBooking = await this.prisma.booking.findFirst({
+            where: {
+              OR: [
+                { paymentOrders: { some: { razorpayOrderId } } },
+                ...(paymentOrder.slotDate ? [{
+                  customerId: paymentOrder.customerId,
+                  slotDate: paymentOrder.slotDate,
+                  status: { notIn: ['CANCELLED' as const, 'REJECTED' as const] },
+                }] : []),
+              ],
+            },
+          });
+
+          await this.prisma.paymentOrder.update({
+            where: { id: paymentOrder.id },
+            data: {
+              status: 'PAYMENT_SUCCESS',
+              razorpayPaymentId: razorpayPaymentId || `pay_mock_${Date.now()}`,
+              razorpaySignature: signature,
+              bookingId: existingBooking?.id || paymentOrder.bookingId || null,
+            },
+          });
+
           return { status: 'ok', message: 'Webhook already processed (idempotent)' };
         }
         throw error;

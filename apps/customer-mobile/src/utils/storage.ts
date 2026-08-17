@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 let storageInstance: {
@@ -7,32 +8,62 @@ let storageInstance: {
   clearAll: () => void;
 };
 
-try {
-  const { MMKV } = require('react-native-mmkv');
-  const tempInstance = new MMKV({ id: 'customer-auth-storage' });
-  // Verify that MMKV actually works and the JSI bindings are loaded.
-  // In Expo Go or testing environments, JSI bindings are missing and
-  // calling any method on the instance will throw a TypeError.
-  tempInstance.set('__test__', '1');
-  tempInstance.delete('__test__');
-  storageInstance = tempInstance;
-} catch (e) {
-  // Web fallback memory storage for responsive manual browser QA testing
+if (Platform.OS === 'web') {
+  const hasLocalStorage = typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
   const memStore: Record<string, string> = {};
   storageInstance = {
-    getString: (key: string) => memStore[key],
+    getString: (key: string) => {
+      if (hasLocalStorage) {
+        const item = window.localStorage.getItem(key);
+        return item === null ? undefined : item;
+      }
+      return memStore[key];
+    },
     set: (key: string, value: string) => {
+      if (hasLocalStorage) {
+        window.localStorage.setItem(key, value);
+      }
       memStore[key] = value;
     },
     delete: (key: string) => {
+      if (hasLocalStorage) {
+        window.localStorage.removeItem(key);
+      }
       delete memStore[key];
     },
     clearAll: () => {
+      if (hasLocalStorage) {
+        window.localStorage.clear();
+      }
       for (const k in memStore) {
         delete memStore[k];
       }
     },
   };
+} else {
+  try {
+    const { MMKV } = require('react-native-mmkv');
+    const tempInstance = new MMKV({ id: 'customer-auth-storage' });
+    tempInstance.set('__test__', '1');
+    tempInstance.delete('__test__');
+    storageInstance = tempInstance;
+  } catch (e) {
+    const memStore: Record<string, string> = {};
+    storageInstance = {
+      getString: (key: string) => memStore[key],
+      set: (key: string, value: string) => {
+        memStore[key] = value;
+      },
+      delete: (key: string) => {
+        delete memStore[key];
+      },
+      clearAll: () => {
+        for (const k in memStore) {
+          delete memStore[k];
+        }
+      },
+    };
+  }
 }
 
 export const initStorageFallback = async () => {
@@ -86,7 +117,7 @@ export const setRefreshToken = async (token: string) => {
   try {
     await SecureStore.setItemAsync('auth.refreshToken', token);
   } catch (e) {
-    // Memory/MMKV fallback already updated
+    // Fallback already updated
   }
 };
 
@@ -95,7 +126,7 @@ export const clearRefreshToken = async () => {
   try {
     await SecureStore.deleteItemAsync('auth.refreshToken');
   } catch (e) {
-    // Memory/MMKV fallback already updated
+    // Fallback already updated
   }
 };
 
@@ -113,7 +144,6 @@ export const clearUserName = () => {
   SecureStore.deleteItemAsync('auth.user_name').catch(() => {});
 };
 
-// General storage access for reuse (MMKV / web fallback)
 export const getItem = (key: string): string | undefined => {
   return storageInstance.getString(key);
 };
@@ -125,4 +155,3 @@ export const setItem = (key: string, value: string) => {
 export const deleteItem = (key: string) => {
   storageInstance.delete(key);
 };
-

@@ -31,21 +31,28 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
     setToastQueue((prev) => prev.filter((t) => t.id !== id));
   };
 
+  const formatLocalDate = (d: Date): string => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Generate next 7 days for the date picker slider
   useEffect(() => {
-    const datesList = [];
+    const datesList: string[] = [];
     const today = new Date();
     for (let i = 0; i < 7; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
-      const dateString = d.toISOString().split('T')[0]; // YYYY-MM-DD
-      datesList.push(dateString);
+      datesList.push(formatLocalDate(d));
     }
     setDates(datesList);
     setSelectedDate(datesList[0]);
   }, []);
 
   const fetchSlots = async (date: string) => {
+    if (!serviceId || !date) return;
     try {
       setLoading(true);
       const data = await apiClient.get(
@@ -54,8 +61,8 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
       if (data.success) {
         setSlots(data.data);
       }
-    } catch (err) {
-      showToast('Failed to load time slots.', 'error');
+    } catch (err: any) {
+      showToast(err?.message || 'Failed to load time slots.', 'error');
     } finally {
       setLoading(false);
     }

@@ -263,6 +263,13 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
     };
   }, []);
 
+  const formatLocalDate = (d: Date): string => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // 1. Generate next 7 days for horizontal date carousel
   useEffect(() => {
     setIdempotencyKey(generateUUID());
@@ -271,8 +278,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
     for (let i = 0; i < 7; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
-      const dateString = d.toISOString().split('T')[0];
-      datesList.push(dateString);
+      datesList.push(formatLocalDate(d));
     }
     setDates(datesList);
     if (!selectedDate) {

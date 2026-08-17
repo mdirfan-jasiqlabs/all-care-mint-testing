@@ -57,7 +57,14 @@ function isAccessTokenExpired(token: string): boolean {
     while (base64.length % 4) {
       base64 += '=';
     }
-    const decoded = decodeBase64(base64);
+    let decoded = '';
+    if (typeof atob === 'function') {
+      decoded = atob(base64);
+    } else if (typeof (globalThis as any).Buffer !== 'undefined') {
+      decoded = (globalThis as any).Buffer.from(base64, 'base64').toString('utf-8');
+    } else {
+      decoded = decodeBase64(base64);
+    }
     const payload = JSON.parse(decoded);
     if (typeof payload.exp !== 'number') return false;
     return Date.now() / 1000 >= payload.exp - 10;
@@ -102,24 +109,35 @@ function MainAppContent() {
       const token = storage.getAccessToken();
       const refreshToken = await storage.getRefreshToken();
 
+      let targetRoute: 'Home' | 'PhoneInput' = 'PhoneInput';
+
       if (token && !isAccessTokenExpired(token)) {
-        setInitialRoute('Home');
+        targetRoute = 'Home';
       } else if (refreshToken) {
         // Access token missing or expired: attempt silent refresh on startup
         const refreshed = await refreshSession();
         if (refreshed) {
-          setInitialRoute('Home');
+          targetRoute = 'Home';
         } else {
           storage.clearAccessToken();
           await storage.clearRefreshToken();
           storage.clearUserName();
-          setInitialRoute('PhoneInput');
+          targetRoute = 'PhoneInput';
         }
       } else {
         storage.clearAccessToken();
         await storage.clearRefreshToken();
         storage.clearUserName();
-        setInitialRoute('PhoneInput');
+        targetRoute = 'PhoneInput';
+      }
+
+      setInitialRoute(targetRoute);
+      console.log('📱 App.tsx checkAuth -> token present:', !!token, 'targetRoute:', targetRoute);
+      if (navigationRef.isReady() && targetRoute === 'Home') {
+        navigationRef.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        });
       }
     };
     checkAuth();
@@ -187,19 +205,7 @@ function MainAppContent() {
           <Stack.Screen
             name="ServiceDetail"
             component={ServiceDetailScreen}
-            options={({ navigation }) => ({
-              title: 'Service Details',
-              headerLeft: () => (
-                <TouchableOpacity
-                  onPress={() => navigation.goBack()}
-                  style={{ paddingLeft: 16, paddingRight: 8, paddingVertical: 8 }}
-                  accessibilityLabel="Back to Catalog"
-                  testID="btn-back-to-catalog"
-                >
-                  <Text style={{ color: colors.primary, fontSize: 16, fontWeight: 'bold' }}>← Back</Text>
-                </TouchableOpacity>
-              ),
-            })}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="AddressSelection"
