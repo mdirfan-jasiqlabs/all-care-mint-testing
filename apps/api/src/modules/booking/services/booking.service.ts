@@ -218,19 +218,24 @@ export class BookingService implements OnApplicationShutdown {
       throw new SlotLockExpiredException();
     }
 
-    // 4. Fetch service snapshot from catalog
-    const service = await this.prisma.service.findUnique({
-      where: { id: dto.serviceId },
-    });
-    if (!service || !service.isActive) {
+    // 4. Fetch service snapshots from catalog
+    const rawTargetIds = dto.serviceIds && dto.serviceIds.length > 0 ? dto.serviceIds : [dto.serviceId];
+    const targetServiceIds = Array.from(new Set(rawTargetIds));
+    const services = await Promise.all(
+      targetServiceIds.map((id) => this.prisma.service.findUnique({ where: { id } }))
+    );
+
+    if (services.some((s) => !s || !s.isActive)) {
       throw new BadRequestException({
         success: false,
         error: {
           code: 'ERR_SERVICE_NOT_FOUND',
-          message: 'Service not found or inactive.',
+          message: 'One or more requested services were not found or are inactive.',
         },
       });
     }
+
+    const primaryService = services[0]!;
 
     // 5. Fetch address snapshot
     const address = await this.addressRepo.findAddressById(dto.addressId);
@@ -279,14 +284,6 @@ export class BookingService implements OnApplicationShutdown {
       });
     }
 
-    // 8. Generate booking reference: ACM-YYYYMMDD-XXXX
-    const dateStr = dto.slotDate.replace(/-/g, '');
-    const randomSuffix = Math.random()
-      .toString(36)
-      .substring(2, 6)
-      .toUpperCase();
-    const bookingReference = `ACM-${dateStr}-${randomSuffix}`;
-
     const addressSnapshot: AddressSnapshot = {
       label: address.label,
       addressLine1: address.addressLine1,
@@ -295,64 +292,113 @@ export class BookingService implements OnApplicationShutdown {
       pincode: address.pincode,
     };
 
-    // 9. Create booking
-    const booking = await this.bookingRepo.createBooking({
-      bookingReference,
-      customerId,
-      serviceId: dto.serviceId,
-      serviceNameSnapshot: service.name,
-      servicePriceSnapshot: service.fixedPrice.toString(),
-      addressId: dto.addressId,
-      addressSnapshot,
-      slotDate,
-      slotId: dto.slotId,
-      slotLabelSnapshot: slot.label,
-      paymentMethod: dto.paymentMethod,
-      idempotencyKey,
-    });
+    // 8. Execute atomic multi-service creation inside DB transaction
+    const primaryBooking = await this.prisma.$transaction(async (tx) => {
+      let firstBooking: BookingEntity | null = null;
 
-    // 9b. If CASH_ON_SERVICE, create CASH_PENDING payment order for audit trail & ledger
-    if (dto.paymentMethod === PaymentMethodEnum.CASH_ON_SERVICE) {
-      const amountPaise = Math.round(
-        parseFloat(service.fixedPrice.toString()) * 100,
-      );
-      await this.prisma.paymentOrder.create({
+      for (let i = 0; i < services.length; i++) {
+        const currentSvc = services[i]!;
+        const dateStr = dto.slotDate.replace(/-/g, '');
+        const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+        const bookingReference = i === 0 ? `ACM-${dateStr}-${randomSuffix}` : `ACM-${dateStr}-${randomSuffix}-${i + 1}`;
+        const currentIdempotencyKey = i === 0 ? idempotencyKey : crypto.randomUUID();
+
+        const created = await tx.booking.create({
+          data: {
+            bookingReference,
+            customerId,
+            serviceId: currentSvc.id,
+            serviceNameSnapshot: currentSvc.name,
+            servicePriceSnapshot: currentSvc.fixedPrice,
+            addressId: dto.addressId,
+            addressSnapshot: addressSnapshot as any,
+            slotDate,
+            slotId: dto.slotId,
+            slotLabelSnapshot: slot.label,
+            paymentMethod: dto.paymentMethod,
+            status: BookingStatusEnum.PENDING,
+            idempotencyKey: currentIdempotencyKey,
+          },
+        });
+
+        const entity: BookingEntity = {
+          id: created.id,
+          bookingReference: created.bookingReference,
+          customerId: created.customerId,
+          providerId: created.providerId,
+          serviceId: created.serviceId,
+          serviceNameSnapshot: created.serviceNameSnapshot,
+          servicePriceSnapshot: created.servicePriceSnapshot.toString(),
+          addressId: created.addressId,
+          addressSnapshot: created.addressSnapshot as any,
+          slotDate: created.slotDate,
+          slotId: created.slotId,
+          slotLabelSnapshot: created.slotLabelSnapshot,
+          paymentMethod: created.paymentMethod as any,
+          status: created.status as any,
+          idempotencyKey: created.idempotencyKey,
+          rejectionReason: created.rejectionReason,
+          cancelledAt: created.cancelledAt,
+          completedAt: created.completedAt,
+          createdAt: created.createdAt,
+          updatedAt: created.updatedAt,
+        };
+
+        if (i === 0) {
+          firstBooking = entity;
+        }
+
+        // If CASH_ON_SERVICE, create CASH_PENDING payment order
+        if (dto.paymentMethod === PaymentMethodEnum.CASH_ON_SERVICE) {
+          const amountPaise = Math.round(parseFloat(currentSvc.fixedPrice.toString()) * 100);
+          await tx.paymentOrder.create({
+            data: {
+              customerId,
+              bookingId: created.id,
+              serviceId: currentSvc.id,
+              slotId: dto.slotId,
+              slotDate,
+              addressId: dto.addressId,
+              amountPaise,
+              paymentMethod: 'CASH_ON_SERVICE',
+              status: 'CASH_PENDING',
+            },
+          });
+        }
+
+        // Create initial status history
+        await tx.bookingStatusHistory.create({
+          data: {
+            bookingId: created.id,
+            status: BookingStatusEnum.PENDING,
+            actorId: customerId,
+            actorRole: ActorRoleEnum.CUSTOMER,
+            note: 'Booking created',
+          },
+        });
+      }
+
+      // Link slot lock to primary booking
+      await tx.bookingSlotLock.update({
+        where: { id: lock.id },
+        data: { bookingId: firstBooking!.id },
+      });
+
+      // Save idempotency record
+      await tx.idempotencyKey.create({
         data: {
           customerId,
-          bookingId: booking.id,
-          serviceId: dto.serviceId,
-          slotId: dto.slotId,
-          slotDate,
-          addressId: dto.addressId,
-          amountPaise,
-          paymentMethod: 'CASH_ON_SERVICE',
-          status: 'CASH_PENDING',
+          idempotencyKey,
+          requestHash,
+          responseCode: 201,
+          responseBody: { bookingId: firstBooking!.id } as any,
         },
       });
-    }
 
-    // 10. Link slot lock to booking
-    await this.bookingRepo.updateSlotLockBookingId(lock.id, booking.id);
-
-    // 11. Create initial status history
-    await this.bookingRepo.createStatusHistory({
-      bookingId: booking.id,
-      status: BookingStatusEnum.PENDING,
-      actorId: customerId,
-      actorRole: ActorRoleEnum.CUSTOMER,
-      note: 'Booking created',
+      return firstBooking!;
     });
 
-    // 12. Save idempotency record
-    await this.bookingRepo.saveIdempotencyRecord({
-      customerId,
-      idempotencyKey,
-      requestHash,
-      responseCode: 201,
-      responseBody: { bookingId: booking.id },
-    });
-
-    return booking;
+    return primaryBooking;
   }
 
   // ─── Customer Booking Queries ───

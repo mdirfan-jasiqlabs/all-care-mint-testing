@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNumber, Min, Max, IsEnum, IsInt, IsObject } from 'class-validator';
+import { IsString, IsOptional, IsNumber, Min, Max, IsEnum, IsInt, IsObject, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class InitiatePaymentDto {
@@ -9,6 +9,11 @@ export class InitiatePaymentDto {
   @IsOptional()
   @IsString()
   serviceId?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  serviceIds?: string[];
 
   @IsOptional()
   @IsString()

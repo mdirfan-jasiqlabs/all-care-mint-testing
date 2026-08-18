@@ -7,7 +7,7 @@ export type RootStackParamList = {
   ServiceDetail: { serviceId: string };
   AddressSelection: { serviceId: string };
   SlotSelection: { serviceId: string; addressId: string };
-  BookingSummary: { serviceId: string; addressId: string; slotId: string; date: string };
+  BookingSummary: { serviceId?: string; serviceIds?: string[]; addressId?: string; slotId?: string; date?: string };
   BookingConfirmation: { bookingId: string; status: string };
   MyBookings: { toastMessage?: string } | undefined;
   BookingDetail: { bookingId: string };

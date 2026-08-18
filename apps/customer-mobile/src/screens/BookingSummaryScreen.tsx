@@ -194,7 +194,16 @@ async function computeHmacSha256(secret: string, message: string): Promise<strin
 
 export default function BookingSummaryScreen({ navigation, route }: any) {
   const { colors } = useTheme();
-  const { serviceId, addressId: initialAddressId, slotId: initialSlotId, date: initialDate } = route.params || {};
+  const { serviceId, serviceIds: rawServiceIds, addressId: initialAddressId, slotId: initialSlotId, date: initialDate } = route.params || {};
+
+  const effectiveServiceIds: string[] = React.useMemo(() => {
+    if (Array.isArray(rawServiceIds) && rawServiceIds.length > 0) {
+      return rawServiceIds;
+    }
+    return serviceId ? [serviceId] : [];
+  }, [rawServiceIds, serviceId]);
+
+  const primaryServiceId = effectiveServiceIds[0] || serviceId || '';
 
   // Toast Queue state
   const [toastQueue, setToastQueue] = useState<ToastItem[]>([]);
@@ -206,7 +215,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
   };
 
   // Data states
-  const [service, setService] = useState<any>(null);
+  const [services, setServices] = useState<any[]>([]);
   const [addresses, setAddresses] = useState<any[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string>(initialAddressId || '');
   
@@ -300,10 +309,16 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
           }
         }
 
-        // Fetch Service details directly
-        const svcData = await apiClient.get(`/api/v1/catalog/services/${serviceId}`);
-        if (svcData.success) {
-          setService(svcData.data);
+        // Fetch all selected services details directly
+        if (effectiveServiceIds.length > 0) {
+          const svcPromises = effectiveServiceIds.map((id: string) =>
+            apiClient.get(`/api/v1/catalog/services/${id}`).catch(() => null)
+          );
+          const svcResults = await Promise.all(svcPromises);
+          const validServices = svcResults
+            .filter((res: any) => res && res.success && res.data)
+            .map((res: any) => res.data);
+          setServices(validServices);
         }
       } catch (err) {
         console.error('Error loading checkout initial data:', err);
@@ -312,18 +327,16 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
       }
     };
 
-    if (serviceId) {
-      loadInitialData();
-    }
-  }, [serviceId]);
+    loadInitialData();
+  }, [effectiveServiceIds.join(',')]);
 
   // 3. Fetch Time Slots whenever selected date changes
   const fetchSlotsForDate = async (dateStr: string) => {
-    if (!serviceId || !dateStr) return;
+    if (!primaryServiceId || !dateStr) return;
     try {
       setLoadingSlots(true);
       const slotData = await apiClient.get(
-        `/api/v1/bookings/slots?service_id=${serviceId}&date=${dateStr}`
+        `/api/v1/bookings/slots?service_id=${primaryServiceId}&date=${dateStr}`
       );
       if (slotData.success) {
         setSlots(slotData.data);
@@ -347,10 +360,10 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
   };
 
   useEffect(() => {
-    if (selectedDate) {
+    if (selectedDate && primaryServiceId) {
       fetchSlotsForDate(selectedDate);
     }
-  }, [selectedDate]);
+  }, [selectedDate, primaryServiceId]);
 
   // 4. Lock Slot Action
   const handleSelectSlot = async (slot: any) => {
@@ -493,7 +506,8 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
       const data = await apiClient.post(
         '/api/v1/bookings',
         {
-          serviceId,
+          serviceId: primaryServiceId,
+          serviceIds: effectiveServiceIds,
           slotId: selectedSlotId,
           slotDate: selectedDate,
           addressId: selectedAddressId,
@@ -543,7 +557,8 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
         const draftId = `draft_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
         const data = await apiClient.post('/api/v1/payments/initiate', {
           bookingDraftId: draftId,
-          serviceId,
+          serviceId: primaryServiceId,
+          serviceIds: effectiveServiceIds,
           slotId: selectedSlotId,
           slotDate: selectedDate,
           addressId: selectedAddressId,
@@ -570,7 +585,8 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
       const data = await apiClient.post(
         '/api/v1/bookings',
         {
-          serviceId,
+          serviceId: primaryServiceId,
+          serviceIds: effectiveServiceIds,
           slotId: selectedSlotId,
           slotDate: selectedDate,
           addressId: selectedAddressId,
@@ -600,7 +616,10 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
   };
 
   const selectedAddressObj = addresses.find((a) => a.id === selectedAddressId);
-  const totalPrice = service ? parseFloat(service.fixedPrice || '0') : 0;
+  const totalPrice = services.reduce(
+    (sum, s) => sum + (s ? parseFloat(s.fixedPrice || '0') : 0),
+    0
+  );
 
   // Skeleton Loader Component
   if (loading) {
@@ -673,16 +692,35 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
             <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>1. REVIEW SELECTED ITEMS</Text>
             <Text style={[styles.sectionHeaderPrice, { color: colors.primary }]}>₹{totalPrice.toFixed(2)}</Text>
           </View>
-          <View style={styles.itemDetailRow}>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.serviceNameText, { color: colors.textPrimary }]}>{service?.name || 'Selected Service'}</Text>
-              {service?.description && <Text style={[styles.serviceDescText, { color: colors.textSecondary }]}>{service.description}</Text>}
-              {service?.estimatedDuration && (
-                <Text style={[styles.serviceDurationText, { color: colors.textMuted }]}>Duration: {service.estimatedDuration}</Text>
-              )}
+          {services.length === 0 ? (
+            <View style={styles.itemDetailRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.serviceNameText, { color: colors.textPrimary }]}>Selected Service</Text>
+              </View>
+              <Text style={[styles.itemPriceText, { color: colors.primary }]}>₹{totalPrice.toFixed(2)}</Text>
             </View>
-            <Text style={[styles.itemPriceText, { color: colors.primary }]}>₹{totalPrice.toFixed(2)}</Text>
-          </View>
+          ) : (
+            services.map((svc: any, idx: number) => (
+              <View
+                key={svc.id || idx}
+                style={[
+                  styles.itemDetailRow,
+                  idx > 0 && { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.border },
+                ]}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.serviceNameText, { color: colors.textPrimary }]}>{svc.name}</Text>
+                  {svc.description && <Text style={[styles.serviceDescText, { color: colors.textSecondary }]}>{svc.description}</Text>}
+                  {svc.estimatedDuration && (
+                    <Text style={[styles.serviceDurationText, { color: colors.textMuted }]}>Duration: {svc.estimatedDuration}</Text>
+                  )}
+                </View>
+                <Text style={[styles.itemPriceText, { color: colors.primary }]}>
+                  ₹{parseFloat(svc.fixedPrice || '0').toFixed(2)}
+                </Text>
+              </View>
+            ))
+          )}
         </View>
 
         {/* 2. LOCATION ADDRESS (DROPDOWN + ADD NEW) */}

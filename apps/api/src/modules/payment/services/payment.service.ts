@@ -17,6 +17,7 @@ interface DraftMeta {
   bookingDraftId: string;
   customerId: string;
   serviceId?: string;
+  serviceIds?: string[];
   slotId?: string;
   slotDate?: string;
   addressId?: string;
@@ -57,34 +58,45 @@ export class PaymentService {
       throw new NotFoundException(`Booking draft not found: ${draftId}`);
     }
 
-    // Attempt to resolve service
-    let service = null;
-    if (dto.serviceId) {
-      service = await this.prisma.service.findUnique({ where: { id: dto.serviceId } });
-    }
-    if (!service) {
-      service = await this.prisma.service.findFirst({ where: { isActive: true } });
+    // Attempt to resolve services
+    const rawServiceIds = dto.serviceIds && dto.serviceIds.length > 0 ? dto.serviceIds : (dto.serviceId ? [dto.serviceId] : []);
+    const uniqueServiceIds = Array.from(new Set(rawServiceIds));
+
+    let services: any[] = [];
+    if (uniqueServiceIds.length > 0) {
+      const fetched = await Promise.all(
+        uniqueServiceIds.map((id) => this.prisma.service.findUnique({ where: { id } }))
+      );
+      services = fetched.filter((s) => s && s.isActive);
     }
 
-    if (!service) {
+    if (services.length === 0) {
+      const defaultService = await this.prisma.service.findFirst({ where: { isActive: true } });
+      if (defaultService) {
+        services = [defaultService];
+      }
+    }
+
+    if (services.length === 0) {
       throw new NotFoundException('Service not found for payment calculation');
     }
 
-    // Recalculate payable amount on server from service price
-    const expectedPriceInr = Number(service.fixedPrice);
+    const primaryService = services[0];
+    const targetServiceIds = services.map((s) => s.id);
+
+    // Recalculate payable amount on server from service prices (Authoritative server calculation)
+    const expectedPriceInr = services.reduce((sum, s) => sum + Number(s.fixedPrice), 0);
     const expectedPricePaise = Math.round(expectedPriceInr * 100);
 
     // Validate client-supplied amount against server calculated price
     if (dto.amountInr !== undefined && dto.amountInr !== expectedPriceInr) {
-      if (dto.amountInr <= 0 || dto.amountInr < expectedPriceInr) {
-        throw new BadRequestException({
-          success: false,
-          error: {
-            code: 'ERR_AMOUNT_MISMATCH',
-            message: `Amount mismatch: provided ₹${dto.amountInr} does not match required ₹${expectedPriceInr}`,
-          },
-        });
-      }
+      throw new BadRequestException({
+        success: false,
+        error: {
+          code: 'ERR_AMOUNT_MISMATCH',
+          message: `Amount mismatch: provided ₹${dto.amountInr} does not match required ₹${expectedPriceInr}`,
+        },
+      });
     }
 
     // Verify address if addressId provided
@@ -99,7 +111,8 @@ export class PaymentService {
     const draftMeta: DraftMeta = {
       bookingDraftId: draftId,
       customerId,
-      serviceId: service.id,
+      serviceId: primaryService.id,
+      serviceIds: targetServiceIds,
       slotId: dto.slotId,
       slotDate: dto.slotDate,
       addressId: dto.addressId,
@@ -158,7 +171,7 @@ export class PaymentService {
       data: {
         customerId,
         bookingDraftId: draftId,
-        serviceId: service.id,
+        serviceId: primaryService.id,
         slotId: dto.slotId || null,
         slotDate: dto.slotDate ? new Date(dto.slotDate) : defaultFutureDate,
         addressId: dto.addressId || null,
@@ -352,13 +365,23 @@ export class PaymentService {
                 bookingId = existingIntentBooking.id;
               } else {
                 const draftMeta = this.draftStore.get(currentOrder.bookingDraftId || '') || this.draftStore.get(razorpayOrderId);
+                const rawServiceIds = draftMeta?.serviceIds && draftMeta.serviceIds.length > 0
+                  ? draftMeta.serviceIds
+                  : (currentOrder.serviceId ? [currentOrder.serviceId] : (draftMeta?.serviceId ? [draftMeta.serviceId] : []));
+                const uniqueServiceIds = Array.from(new Set(rawServiceIds));
 
-                // Resolve service, address, slot directly from persistent DB columns (DEF-002)
-                const service = currentOrder.serviceId
-                  ? await tx.service.findUnique({ where: { id: currentOrder.serviceId } })
-                  : draftMeta?.serviceId
-                  ? await tx.service.findUnique({ where: { id: draftMeta.serviceId } })
-                  : await tx.service.findFirst({ where: { isActive: true } });
+                let services: any[] = [];
+                if (uniqueServiceIds.length > 0) {
+                  const fetched = await Promise.all(
+                    uniqueServiceIds.map((id) => tx.service.findUnique({ where: { id } }))
+                  );
+                  services = fetched.filter(Boolean);
+                }
+
+                if (services.length === 0) {
+                  const fallback = await tx.service.findFirst({ where: { isActive: true } });
+                  if (fallback) services = [fallback];
+                }
 
                 const address = currentOrder.addressId
                   ? await tx.customerAddress.findUnique({ where: { id: currentOrder.addressId } })
@@ -392,10 +415,6 @@ export class PaymentService {
                   }
                 }
 
-                const dateStr = slotDate.toISOString().split('T')[0].replace(/-/g, '');
-                const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-                const bookingReference = `ACM-${dateStr}-${randomSuffix}`;
-
                 const addressSnapshot = address
                   ? {
                       label: address.label,
@@ -411,43 +430,60 @@ export class PaymentService {
                       pincode: '560001',
                     };
 
-                const newBooking = await tx.booking.create({
-                  data: {
-                    bookingReference,
-                    customerId: currentOrder.customerId,
-                    serviceId: service?.id || '00000000-0000-0000-0000-000000000000',
-                    serviceNameSnapshot: service?.name || 'Home Cleaning',
-                    servicePriceSnapshot: service?.fixedPrice || (currentOrder.amountPaise / 100),
-                    addressId: address?.id || null,
-                    addressSnapshot,
-                    slotDate,
-                    slotId: targetSlotId,
-                    slotLabelSnapshot: slot?.label || '09:00 AM - 10:00 AM',
-                    paymentMethod: 'ONLINE',
-                    status: 'PENDING',
-                    idempotencyKey: currentOrder.idempotencyKey || crypto.randomUUID(),
-                  },
-                });
+                let firstBookingId: string | null = null;
+                let primaryReference: string = '';
 
-                // Create status history record
-                await tx.bookingStatusHistory.create({
-                  data: {
-                    bookingId: newBooking.id,
-                    status: 'PENDING',
-                    actorId: currentOrder.customerId,
-                    actorRole: 'CUSTOMER',
-                    note: 'Booking created via Razorpay payment capture',
-                  },
-                });
+                for (let i = 0; i < services.length; i++) {
+                  const currentSvc = services[i];
+                  const dateStr = slotDate.toISOString().split('T')[0].replace(/-/g, '');
+                  const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+                  const bookingReference = i === 0 ? `ACM-${dateStr}-${randomSuffix}` : `ACM-${dateStr}-${randomSuffix}-${i + 1}`;
+                  const currentIdempotencyKey = i === 0
+                    ? (currentOrder.idempotencyKey || crypto.randomUUID())
+                    : crypto.randomUUID();
 
-                bookingId = newBooking.id;
+                  const newBooking = await tx.booking.create({
+                    data: {
+                      bookingReference,
+                      customerId: currentOrder.customerId,
+                      serviceId: currentSvc?.id || '00000000-0000-0000-0000-000000000000',
+                      serviceNameSnapshot: currentSvc?.name || 'Home Cleaning',
+                      servicePriceSnapshot: currentSvc?.fixedPrice || (currentOrder.amountPaise / 100),
+                      addressId: address?.id || null,
+                      addressSnapshot,
+                      slotDate,
+                      slotId: targetSlotId,
+                      slotLabelSnapshot: slot?.label || '09:00 AM - 10:00 AM',
+                      paymentMethod: 'ONLINE',
+                      status: 'PENDING',
+                      idempotencyKey: currentIdempotencyKey,
+                    },
+                  });
+
+                  await tx.bookingStatusHistory.create({
+                    data: {
+                      bookingId: newBooking.id,
+                      status: 'PENDING',
+                      actorId: currentOrder.customerId,
+                      actorRole: 'CUSTOMER',
+                      note: 'Booking created via Razorpay payment capture',
+                    },
+                  });
+
+                  if (i === 0) {
+                    firstBookingId = newBooking.id;
+                    primaryReference = bookingReference;
+                  }
+                }
+
+                bookingId = firstBookingId;
 
                 console.log(
                   JSON.stringify({
                     event: 'payment.booking.created',
                     booking_id: bookingId,
                     customer_id: currentOrder.customerId,
-                    booking_reference: bookingReference,
+                    booking_reference: primaryReference,
                   }),
                 );
               }

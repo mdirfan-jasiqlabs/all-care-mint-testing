@@ -123,7 +123,11 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
 
   const handleCheckout = () => {
     if (cart.length === 0 || isOffline) return;
-    navigation.navigate('BookingSummary', { serviceId: cart[0].id });
+    const serviceIds = cart.map((item: Service) => item.id);
+    navigation.navigate('BookingSummary', {
+      serviceId: cart[0].id,
+      serviceIds,
+    });
   };
 
   const handleRetry = () => {

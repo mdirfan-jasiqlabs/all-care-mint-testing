@@ -13,6 +13,7 @@ import {
   IsInt,
   Min,
   Max,
+  IsArray,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { BookingStatusEnum, PaymentMethodEnum } from '../types/booking.types';
@@ -87,6 +88,11 @@ export class CreateBookingDto {
   @IsUUID()
   @IsNotEmpty()
   serviceId: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  serviceIds?: string[];
 
   @IsUUID()
   @IsNotEmpty()
