@@ -520,6 +520,26 @@ async function seed100kBookings() {
   console.log(`\n🎉 Bulk Seeding Completed Successfully!`);
   console.log(`⏱️ Duration: ${durationSec}s`);
   console.log(`📊 Final Total Bookings in Local Database: ${finalCount.toLocaleString()}`);
+
+  console.log('🔄 Rebuilding DailyAnalytics read-model projection for seeded dataset...');
+  const { AnalyticsProjectionService } = require('../src/modules/analytics/services/analytics-projection.service');
+  const { AnalyticsBackfillService } = require('../src/modules/analytics/services/analytics-backfill.service');
+  const projectionService = new AnalyticsProjectionService(prisma);
+  const backfillService = new AnalyticsBackfillService(prisma, projectionService);
+  const backfillResult = await backfillService.runBackfill();
+  console.log(`✅ DailyAnalytics backfilled for ${backfillResult.processedDays} days (${backfillResult.startDate} to ${backfillResult.endDate})`);
+
+  try {
+    const Redis = require('ioredis');
+    const redis = new Redis({ host: '127.0.0.1', port: 6379, lazyConnect: true });
+    await redis.connect();
+    const keys = await redis.keys('admin:dashboard:metrics:*');
+    if (keys.length > 0) {
+      await redis.del(...keys);
+      console.log(`✅ Invalidated ${keys.length} Redis dashboard cache keys.`);
+    }
+    redis.disconnect();
+  } catch (e) {}
 }
 
 seed100kBookings()
