@@ -15,6 +15,7 @@ import { useCatalogStore, Category, Service } from '../stores/catalogStore';
 import * as storage from '../utils/storage';
 import BottomNavBar from '../components/BottomNavBar';
 import { useTheme } from '../theme/ThemeContext';
+import { getServiceFallbackImage } from '../utils/serviceFallbackImage';
 
 // Premium Magnifier Icon made from native Views (No emojis or dependencies)
 const SearchIcon = () => (
@@ -131,6 +132,9 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
 
   const renderServiceCard = ({ item }: { item: Service }) => {
     const inCart = cart.some((cartItem: Service) => cartItem.id === item.id);
+    const category = categories.find((c: Category) => c.id === item.categoryId);
+    const serviceImageSource = getServiceFallbackImage(item, category?.name);
+
     return (
       <TouchableOpacity
         onPress={() => navigation.push('ServiceDetail', { serviceId: item.id })}
@@ -144,10 +148,16 @@ export const CatalogBrowseScreen = ({ navigation, route }: any) => {
         testID={`service-card-${item.id}`}
         accessibilityLabel={`View details for ${item.name}`}
       >
+        <Image
+          source={serviceImageSource}
+          style={styles.serviceThumbnail}
+          resizeMode="cover"
+        />
+
         <View style={styles.serviceInfo}>
           <Text style={[styles.serviceName, { color: colors.textPrimary }]}>{item.name}</Text>
           {item.description && (
-            <Text style={[styles.serviceDesc, { color: colors.textSecondary }]}>{item.description}</Text>
+            <Text style={[styles.serviceDesc, { color: colors.textSecondary }]} numberOfLines={2}>{item.description}</Text>
           )}
           {item.estimatedDuration && (
             <Text style={[styles.serviceDuration, { color: colors.textMuted }]}>Duration: {item.estimatedDuration}</Text>
@@ -512,13 +522,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderRadius: 16,
-    padding: 16,
+    padding: 12,
     marginHorizontal: 16,
     marginBottom: 12,
   },
+  serviceThumbnail: {
+    width: 64,
+    height: 64,
+    borderRadius: 12,
+    marginRight: 12,
+  },
   serviceInfo: {
     flex: 1,
-    marginRight: 16,
+    marginRight: 12,
   },
   serviceName: {
     fontSize: 15,

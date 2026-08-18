@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   StatusBar,
   Platform,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -21,6 +22,7 @@ import HeroCarousel from '../components/HeroCarousel';
 import BottomNavBar from '../components/BottomNavBar';
 import ThemeSwitcherModal from '../components/ThemeSwitcherModal';
 import { useTheme } from '../theme/ThemeContext';
+import { getServiceFallbackImage } from '../utils/serviceFallbackImage';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -208,6 +210,7 @@ export default function HomeScreen({ navigation }: Props) {
                 }
 
                 const desc = cat.description || getCategoryFallbackDesc(cat.name);
+                const categoryImageSource = getServiceFallbackImage(null, cat.name);
 
                 return (
                   <TouchableOpacity
@@ -225,9 +228,16 @@ export default function HomeScreen({ navigation }: Props) {
                     accessibilityLabel={`Category ${cat.name}`}
                     testID={`category-card-${cat.id}`}
                   >
-                    {/* Icon container */}
-                    <View style={styles.categoryIconBox}>
-                      <Ionicons name={iconName} size={22} color={colors.primary} />
+                    {/* Category Image Header */}
+                    <View style={styles.categoryImageWrapper}>
+                      <Image
+                        source={categoryImageSource}
+                        style={styles.categoryCardImage}
+                        resizeMode="cover"
+                      />
+                      <View style={styles.categoryIconOverlay}>
+                        <Ionicons name={iconName} size={16} color="#ffffff" />
+                      </View>
                     </View>
 
                     {/* Category Title */}
@@ -423,18 +433,33 @@ const styles = StyleSheet.create({
   categoryCard: {
     borderRadius: 16,
     borderWidth: 1,
-    padding: 14,
+    padding: 12,
     justifyContent: 'space-between',
-    minHeight: 155,
+    minHeight: 185,
+    overflow: 'hidden',
   },
-  categoryIconBox: {
-    width: 38,
-    height: 38,
+  categoryImageWrapper: {
+    width: '100%',
+    height: 84,
     borderRadius: 12,
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    overflow: 'hidden',
+    marginBottom: 10,
+    position: 'relative',
+  },
+  categoryCardImage: {
+    width: '100%',
+    height: '100%',
+  },
+  categoryIconOverlay: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(16, 185, 129, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
   },
   categoryTitle: {
     fontSize: 14,

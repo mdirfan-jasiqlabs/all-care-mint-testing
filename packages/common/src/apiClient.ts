@@ -12,12 +12,22 @@ export class ApiError extends Error {
   data: any;
 
   constructor(status: number, statusText: string, data: any) {
-    const message =
-      typeof data === 'object' && data !== null && data.message
-        ? data.message
-        : typeof data === 'string'
-        ? data
-        : `HTTP Error ${status}: ${statusText}`;
+    let msg: string | null = null;
+    if (typeof data === 'string') {
+      msg = data;
+    } else if (typeof data === 'object' && data !== null) {
+      if (typeof data.message === 'string') {
+        msg = data.message;
+      } else if (data.error && typeof data.error === 'object' && typeof data.error.message === 'string') {
+        msg = data.error.message;
+      } else if (typeof data.error === 'string') {
+        msg = data.error;
+      } else if (data.response && typeof data.response === 'object') {
+        if (typeof data.response.message === 'string') msg = data.response.message;
+        else if (data.response.error && typeof data.response.error.message === 'string') msg = data.response.error.message;
+      }
+    }
+    const message = msg || `HTTP Error ${status}: ${statusText}`;
     super(message);
     this.name = 'ApiError';
     this.status = status;

@@ -102,20 +102,13 @@ export default function ProviderOtpScreen({ navigation, route }: Props) {
     setLoading(true);
 
     try {
-      try {
-        await apiClient.post('/api/v1/auth/otp/send', {
-          mobileNumber,
-          role: 'PROVIDER',
-        });
-      } catch (e) {}
-
       const result = await apiClient.post('/api/v1/auth/otp/verify', {
         mobileNumber,
         otp,
         role: 'PROVIDER',
       });
 
-      if (!result.success) {
+      if (!result.success || !result.data) {
         throw new Error(result.error?.message || 'Verification failed. Please try again.');
       }
 
@@ -124,20 +117,18 @@ export default function ProviderOtpScreen({ navigation, route }: Props) {
       const finalAccess = accessToken || access_token;
       const finalRefresh = refreshToken || refresh_token;
 
-      if (finalAccess) storage.setAccessToken(finalAccess);
+      if (!finalAccess) {
+        throw new Error('Access token not returned by server.');
+      }
+
+      storage.setAccessToken(finalAccess);
       if (finalRefresh) await storage.setRefreshToken(finalRefresh);
 
       setLoading(false);
       navigation.replace('ProviderDashboard');
     } catch (err: any) {
-      if (__DEV__) {
-        storage.setAccessToken('dev-provider-token');
-        setLoading(false);
-        navigation.replace('ProviderDashboard');
-        return;
-      }
       setLoading(false);
-      setError(err.message || 'Verification server error. Please try again.');
+      setError(err.message || 'Verification failed. Please check the OTP and try again.');
     }
   };
 

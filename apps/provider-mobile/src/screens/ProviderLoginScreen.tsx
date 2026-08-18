@@ -49,17 +49,30 @@ export default function ProviderLoginScreen({ navigation }: Props) {
     setLoading(true);
 
     try {
-      await apiClient.post('/api/v1/auth/otp/send', {
+      const result = await apiClient.post('/api/v1/auth/otp/send', {
         mobileNumber: `${countryCode}${cleanNum}`,
         role: 'PROVIDER',
       });
-    } catch (err: any) {
-      // Continue to OTP screen
-    } finally {
+
+      if (!result.success) {
+        throw new Error(result.error?.message || 'Unable to send OTP');
+      }
+
       setLoading(false);
       navigation.navigate('ProviderOtp', {
         mobileNumber: `${countryCode}${cleanNum}`,
       });
+    } catch (err: any) {
+      setLoading(false);
+      const errCode = err?.data?.error?.code || err?.data?.code;
+      const errMsg = err?.message || '';
+      if (errCode === 'ERR_OTP_COOLDOWN' || errMsg.includes('60 seconds')) {
+        navigation.navigate('ProviderOtp', {
+          mobileNumber: `${countryCode}${cleanNum}`,
+        });
+        return;
+      }
+      setError(errMsg || 'No provider account matches this mobile number.');
     }
   };
 

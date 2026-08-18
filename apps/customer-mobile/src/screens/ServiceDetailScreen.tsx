@@ -118,7 +118,7 @@ export const ServiceDetailScreen = ({ navigation, route }: any) => {
   const category = categories.find((c: Category) => c.id === service.categoryId);
   const categoryName = category?.name || null;
   const heroImageSource = imageFailed
-    ? require('../../assets/logo.png')
+    ? getServiceFallbackImage(null, null)
     : getServiceFallbackImage(service, categoryName);
 
   const iconName = getServiceCategoryIcon(service, categoryName);

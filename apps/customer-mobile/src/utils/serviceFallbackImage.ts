@@ -11,19 +11,23 @@ export interface ServiceLike {
   } | null;
 }
 
-const FALLBACK_PAINTING = require('../../assets/hero_painting.png');
-const FALLBACK_CLEANING = require('../../assets/hero_cleaning.png');
-const FALLBACK_PLUMBING = require('../../assets/hero_plumbing.png');
-const FALLBACK_AC_REPAIR = require('../../assets/hero_ac_repair.png');
-const FALLBACK_CAREGIVER = require('../../assets/hero_caregiver.png');
-const FALLBACK_GENERIC = require('../../assets/logo.png');
+const ASSET_REGULAR_CLEANING = require('../../assets/hero_regular_cleaning.png');
+const ASSET_DEEP_CLEANING = require('../../assets/hero_deep_cleaning.png');
+const ASSET_SOFA_CLEANING = require('../../assets/hero_sofa_cleaning.png');
+const ASSET_KITCHEN_CLEANING = require('../../assets/hero_kitchen_cleaning.png');
+const ASSET_AC_REPAIR = require('../../assets/hero_ac_repair.png');
+const ASSET_PLUMBING = require('../../assets/hero_plumbing.png');
+const ASSET_PAINTING = require('../../assets/hero_painting.png');
+const ASSET_CAREGIVER = require('../../assets/hero_caregiver.png');
+const ASSET_GENERIC_CLEANING = require('../../assets/hero_cleaning.png');
+const ASSET_GENERIC_SERVICE = require('../../assets/hero_generic_service.png');
 
 /**
  * Resolves appropriate hero image for a service based on available image URL or service/category keywords.
  */
 export function getServiceFallbackImage(service?: ServiceLike | null, categoryName?: string | null): ImageSourcePropType {
   if (!service && !categoryName) {
-    return FALLBACK_GENERIC;
+    return ASSET_GENERIC_SERVICE;
   }
 
   // 1. Future-compatibility check: If backend provides a valid real image URL
@@ -36,25 +40,39 @@ export function getServiceFallbackImage(service?: ServiceLike | null, categoryNa
   const catLower = (categoryName || service?.categoryName || service?.category?.name || '').toLowerCase();
   const combinedText = `${nameLower} ${descLower} ${catLower}`;
 
-  // 2. Keyword matching for known catalog categories & services
-  if (combinedText.includes('paint') || combinedText.includes('wall') || combinedText.includes('whitewash')) {
-    return FALLBACK_PAINTING;
+  // 2. Specific Service Name matching for actual catalog services
+  if (nameLower.includes('sofa cleaning')) {
+    return ASSET_SOFA_CLEANING;
   }
-  if (combinedText.includes('clean') || combinedText.includes('sofa') || combinedText.includes('kitchen') || combinedText.includes('maid') || combinedText.includes('broom')) {
-    return FALLBACK_CLEANING;
+  if (nameLower.includes('kitchen cleaning')) {
+    return ASSET_KITCHEN_CLEANING;
   }
-  if (combinedText.includes('plumb') || combinedText.includes('leak') || combinedText.includes('pipe') || combinedText.includes('tap') || combinedText.includes('drain')) {
-    return FALLBACK_PLUMBING;
+  if (nameLower.includes('deep cleaning')) {
+    return ASSET_DEEP_CLEANING;
   }
-  if (combinedText.includes('ac') || combinedText.includes('air condition') || combinedText.includes('cooling') || combinedText.includes('compressor')) {
-    return FALLBACK_AC_REPAIR;
-  }
-  if (combinedText.includes('care') || combinedText.includes('elder') || combinedText.includes('nurse') || combinedText.includes('baby')) {
-    return FALLBACK_CAREGIVER;
+  if (nameLower.includes('regular cleaning') || nameLower.includes('standard cleaning')) {
+    return ASSET_REGULAR_CLEANING;
   }
 
-  // 3. Default generic fallback
-  return FALLBACK_GENERIC;
+  // 3. Category & general keyword matching
+  if (combinedText.includes('paint') || combinedText.includes('wall') || combinedText.includes('whitewash')) {
+    return ASSET_PAINTING;
+  }
+  if (combinedText.includes('ac') || combinedText.includes('air condition') || combinedText.includes('cooling') || combinedText.includes('compressor')) {
+    return ASSET_AC_REPAIR;
+  }
+  if (combinedText.includes('plumb') || combinedText.includes('leak') || combinedText.includes('pipe') || combinedText.includes('tap') || combinedText.includes('drain')) {
+    return ASSET_PLUMBING;
+  }
+  if (combinedText.includes('care') || combinedText.includes('elder') || combinedText.includes('nurse') || combinedText.includes('baby')) {
+    return ASSET_CAREGIVER;
+  }
+  if (combinedText.includes('clean') || combinedText.includes('maid') || combinedText.includes('broom')) {
+    return ASSET_GENERIC_CLEANING;
+  }
+
+  // 4. Default generic All-Care-Mint service fallback
+  return ASSET_GENERIC_SERVICE;
 }
 
 /**
