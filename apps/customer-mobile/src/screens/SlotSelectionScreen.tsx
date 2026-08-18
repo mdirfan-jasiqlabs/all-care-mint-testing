@@ -154,7 +154,7 @@ export default function SlotSelectionScreen({ navigation, route }: any) {
           { color: item.isAvailable ? colors.primary : colors.textMuted },
         ]}
       >
-        {item.isAvailable ? 'Available →' : 'Booked/Locked'}
+        {item.isAvailable ? 'Available →' : 'Full / Booked'}
       </Text>
     </TouchableOpacity>
   );

@@ -327,11 +327,16 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
       );
       if (slotData.success) {
         setSlots(slotData.data);
-        // Auto-select first available slot if none selected or if date changed
-        const avail = slotData.data.find((s: any) => s.isAvailable);
-        if (avail && !selectedSlotId) {
-          setSelectedSlotId(avail.id);
-          setSelectedSlotLabel(avail.label);
+        const currentSelectedSlot = slotData.data.find((s: any) => s.id === selectedSlotId);
+        if (!currentSelectedSlot || !currentSelectedSlot.isAvailable) {
+          const avail = slotData.data.find((s: any) => s.isAvailable);
+          if (avail) {
+            setSelectedSlotId(avail.id);
+            setSelectedSlotLabel(avail.label);
+          } else {
+            setSelectedSlotId('');
+            setSelectedSlotLabel('');
+          }
         }
       }
     } catch (err) {
@@ -842,7 +847,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
                         isSelected && { color: colors.primary, fontWeight: 'bold' },
                       ]}
                     >
-                      {slot.label} {!isAvail ? '(Locked)' : ''}
+                      {slot.label} {!isAvail ? '(Full / Booked)' : ''}
                     </Text>
                   </TouchableOpacity>
                 );

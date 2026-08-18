@@ -84,6 +84,38 @@ export default function BookingConfirmationScreen({ navigation, route }: any) {
     );
   }
 
+  if (!booking) {
+    return (
+      <View style={[styles.outerContainer, { backgroundColor: colors.background }]}>
+        <ScrollView contentContainerStyle={styles.container} style={styles.scrollContainer}>
+          <View style={styles.successIconContainer}>
+            <View style={[styles.circle, styles.circleCancelled]}>
+              <Text style={[styles.checkmark, { color: colors.danger }]}>✕</Text>
+            </View>
+          </View>
+          <Text style={[styles.title, { color: colors.textPrimary }]}>Booking Status Unavailable</Text>
+          <Text style={{ color: colors.textSecondary, textAlign: 'center', marginBottom: 24, paddingHorizontal: 16 }}>
+            Unable to retrieve booking details. Please check your network connection or view your bookings history.
+          </Text>
+
+          <TouchableOpacity
+            style={[styles.homeBtn, { backgroundColor: colors.primary }]}
+            onPress={fetchBookingDetails}
+          >
+            <Text style={[styles.homeBtnText, { color: colors.primaryForeground }]}>Try Again</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.cancelBtn, { borderColor: colors.border }, { marginTop: 8 }]}
+            onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
+          >
+            <Text style={[styles.cancelBtnText, { color: colors.textPrimary }]}>Go to Dashboard</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+    );
+  }
+
   const isCancellable = booking && ['PENDING', 'ASSIGNED'].includes(booking.status);
 
   return (
@@ -105,33 +137,31 @@ export default function BookingConfirmationScreen({ navigation, route }: any) {
         {booking?.status === 'CANCELLED' ? 'Booking Cancelled' : 'Booking Placed Successfully!'}
       </Text>
       
-      {booking && (
-        <View style={[styles.detailsBox, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-          <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Booking Reference</Text>
-          <Text style={[styles.refText, { color: colors.textPrimary }]}>{booking.bookingReference}</Text>
-          
-          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+      <View style={[styles.detailsBox, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+        <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Booking Reference</Text>
+        <Text style={[styles.refText, { color: colors.textPrimary }]}>{booking.bookingReference}</Text>
+        
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-          <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Status</Text>
-          <Text style={[styles.statusText, booking.status === 'CANCELLED' ? styles.textRed : styles.textYellow]}>
-            {booking.status}
-          </Text>
+        <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Status</Text>
+        <Text style={[styles.statusText, booking.status === 'CANCELLED' ? styles.textRed : styles.textYellow]}>
+          {booking.status}
+        </Text>
 
-          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-          <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Service</Text>
-          <Text style={[styles.valText, { color: colors.textPrimary }]}>{booking.serviceNameSnapshot}</Text>
+        <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Service</Text>
+        <Text style={[styles.valText, { color: colors.textPrimary }]}>{booking.serviceNameSnapshot}</Text>
 
-          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-          <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Scheduled For</Text>
-          <Text style={[styles.valText, { color: colors.textPrimary }]}>
-            {new Date(booking.slotDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-            {' • '}
-            {booking.slotLabelSnapshot}
-          </Text>
-        </View>
-      )}
+        <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Scheduled For</Text>
+        <Text style={[styles.valText, { color: colors.textPrimary }]}>
+          {new Date(booking.slotDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+          {' • '}
+          {booking.slotLabelSnapshot}
+        </Text>
+      </View>
 
       <TouchableOpacity
         style={[styles.homeBtn, { backgroundColor: colors.primary }]}

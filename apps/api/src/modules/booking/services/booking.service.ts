@@ -80,6 +80,17 @@ export class BookingService implements OnApplicationShutdown {
           lock !== null &&
           (lock.expiresAt > new Date() || lock.bookingId !== null);
 
+        const existingBooking = await this.prisma.booking.findFirst({
+          where: {
+            slotId: slot.id,
+            slotDate,
+            status: {
+              notIn: [BookingStatusEnum.CANCELLED, BookingStatusEnum.REJECTED],
+            },
+          },
+        });
+        const isBooked = existingBooking !== null;
+
         let isPastSameDay = false;
         try {
           this.validateSameDaySlot(date, slot);
@@ -90,7 +101,7 @@ export class BookingService implements OnApplicationShutdown {
         return {
           id: slot.id,
           label: slot.label,
-          isAvailable: !isLocked && !isPastSameDay,
+          isAvailable: !isLocked && !isBooked && !isPastSameDay,
         };
       }),
     );
@@ -116,12 +127,26 @@ export class BookingService implements OnApplicationShutdown {
     // Validate same-day slot timing (2-hour buffer)
     this.validateSameDaySlot(dto.date, slot);
 
-    // Check if slot is already locked or booked
+    // Check if slot is already booked in booking table
+    const existingBooking = await this.prisma.booking.findFirst({
+      where: {
+        slotId: dto.slotId,
+        slotDate,
+        status: {
+          notIn: [BookingStatusEnum.CANCELLED, BookingStatusEnum.REJECTED],
+        },
+      },
+    });
+    if (existingBooking) {
+      throw new SlotUnavailableException();
+    }
+
+    // Check if slot is locked by another user
     const existingLock = await this.bookingRepo.findSlotLock(
       dto.slotId,
       slotDate,
     );
-    if (existingLock && existingLock.expiresAt > new Date()) {
+    if (existingLock && existingLock.expiresAt > new Date() && existingLock.customerId !== customerId) {
       throw new SlotUnavailableException();
     }
 
@@ -234,13 +259,14 @@ export class BookingService implements OnApplicationShutdown {
       });
     }
 
-    // 7.5 Check if booking intent is already fulfilled for this customer, slot, and slotDate (DEF-006-003)
+    // 7.5 Check if booking intent is already fulfilled for this slot and slotDate (DEF-006-003)
     const existingActiveBooking = await this.prisma.booking.findFirst({
       where: {
-        customerId,
         slotId: dto.slotId,
         slotDate,
-        status: { not: 'CANCELLED' },
+        status: {
+          notIn: [BookingStatusEnum.CANCELLED, BookingStatusEnum.REJECTED],
+        },
       },
     });
     if (existingActiveBooking) {
@@ -248,7 +274,7 @@ export class BookingService implements OnApplicationShutdown {
         success: false,
         error: {
           code: 'ERR_BOOKING_INTENT_ALREADY_FULFILLED',
-          message: 'A booking has already been placed for this time slot.',
+          message: 'This time slot is full or already booked.',
         },
       });
     }
