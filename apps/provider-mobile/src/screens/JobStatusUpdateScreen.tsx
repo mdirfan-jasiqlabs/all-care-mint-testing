@@ -92,12 +92,49 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
 
       setSyncState('synced');
       showToast(`Job status updated to ${targetStatus}.`, 'success');
-      setTimeout(() => navigation.goBack(), 1000);
+      if (targetStatus === 'COMPLETED') {
+        setTimeout(() => {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'ProviderDashboard' }],
+          });
+        }, 1000);
+      } else {
+        setTimeout(() => navigation.goBack(), 1000);
+      }
     } catch (err: any) {
       if (err.status === 409) {
         setSyncState('synced');
         showToast(`Job status is already ${targetStatus}.`, 'info');
-        setTimeout(() => navigation.goBack(), 1000);
+
+        let isAlreadyCompleted = false;
+        if (
+          err.data?.data?.status === 'COMPLETED' ||
+          err.data?.status === 'COMPLETED' ||
+          err.data?.bookingStatus === 'COMPLETED'
+        ) {
+          isAlreadyCompleted = true;
+        } else {
+          try {
+            const checkData = await apiClient.get(`/api/v1/providers/me/bookings/${bookingId}`);
+            if (checkData?.success && checkData?.data?.status === 'COMPLETED') {
+              isAlreadyCompleted = true;
+            }
+          } catch (checkErr) {
+            // ignore fetch check error
+          }
+        }
+
+        if (isAlreadyCompleted) {
+          setTimeout(() => {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'ProviderDashboard' }],
+            });
+          }, 1000);
+        } else {
+          setTimeout(() => navigation.goBack(), 1000);
+        }
         return;
       }
 
@@ -235,10 +272,21 @@ export default function JobStatusUpdateScreen({ navigation, route }: any) {
 
       <TouchableOpacity
         style={[styles.cancelBtn, { borderColor: colors.border }]}
-        onPress={() => navigation.goBack()}
+        onPress={() => {
+          if (booking?.status === 'COMPLETED') {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'ProviderDashboard' }],
+            });
+          } else {
+            navigation.goBack();
+          }
+        }}
         disabled={isActionsDisabled}
       >
-        <Text style={[styles.cancelBtnText, { color: colors.textSecondary }]}>Back to Details</Text>
+        <Text style={[styles.cancelBtnText, { color: colors.textSecondary }]}>
+          {booking?.status === 'COMPLETED' ? 'Back to Dashboard' : 'Back to Details'}
+        </Text>
       </TouchableOpacity>
       <ToastContainer toastQueue={toastQueue} onDismiss={dismissToast} />
     </View>
