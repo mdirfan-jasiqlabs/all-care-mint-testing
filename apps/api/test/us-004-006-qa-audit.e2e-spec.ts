@@ -391,6 +391,7 @@ describe('US-004-006 QA Audit E2E: Payment Failure Handling & Retry UI', () => {
   });
 
   it('5. Late Webhook Audit: Late payment.captured arriving after Cash Fallback', async () => {
+    const lateDateStr = '2026-08-27';
     // Initiate online payment
     const draftId = `draft_late_${Date.now()}`;
     const initRes = await request(app.getHttpServer())
@@ -400,7 +401,7 @@ describe('US-004-006 QA Audit E2E: Payment Failure Handling & Retry UI', () => {
         bookingDraftId: draftId,
         serviceId,
         slotId,
-        slotDate: targetDateStr,
+        slotDate: lateDateStr,
         addressId,
         amountInr: 499,
       })
@@ -424,7 +425,7 @@ describe('US-004-006 QA Audit E2E: Payment Failure Handling & Retry UI', () => {
     const lockRes = await request(app.getHttpServer())
       .post('/api/v1/bookings/slots/lock')
       .set('Authorization', 'Bearer customer_token')
-      .send({ slotId, date: targetDateStr });
+      .send({ slotId, date: lateDateStr });
 
     const cashRes = await request(app.getHttpServer())
       .post('/api/v1/bookings')
@@ -433,7 +434,7 @@ describe('US-004-006 QA Audit E2E: Payment Failure Handling & Retry UI', () => {
       .send({
         serviceId,
         slotId,
-        slotDate: targetDateStr,
+        slotDate: lateDateStr,
         addressId,
         paymentMethod: 'CASH_ON_SERVICE',
       })

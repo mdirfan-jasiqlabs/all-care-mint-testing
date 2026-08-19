@@ -86,6 +86,16 @@ describe('Multi-Service Booking & Payment Verification Suite', () => {
       },
       booking: {
         findFirst: jest.fn().mockResolvedValue(null),
+        findUnique: jest.fn().mockImplementation(({ where }) =>
+          Promise.resolve({
+            id: where.id,
+            bookingReference: `ACM-20260825-${where.id}`,
+            customerId: mockCustomerId,
+            status: 'PENDING',
+            serviceNameSnapshot: 'Test Service',
+            slotDate: new Date('2026-08-25'),
+          })
+        ),
         create: jest.fn().mockImplementation(({ data }) =>
           Promise.resolve({
             id: `b-${Math.random()}`,
@@ -94,9 +104,18 @@ describe('Multi-Service Booking & Payment Verification Suite', () => {
             updatedAt: new Date(),
           })
         ),
+        update: jest.fn().mockImplementation(({ where, data }) =>
+          Promise.resolve({
+            id: where.id,
+            status: data.status,
+            cancelledAt: data.cancelledAt,
+          })
+        ),
       },
       bookingSlotLock: {
         update: jest.fn().mockResolvedValue(mockLock),
+        deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
+        findMany: jest.fn().mockResolvedValue([]),
       },
       idempotencyKey: {
         create: jest.fn().mockResolvedValue({}),
@@ -111,6 +130,7 @@ describe('Multi-Service Booking & Payment Verification Suite', () => {
           })
         ),
         findUnique: jest.fn(),
+        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
       },
       bookingStatusHistory: {
         create: jest.fn().mockResolvedValue({}),
@@ -126,6 +146,26 @@ describe('Multi-Service Booking & Payment Verification Suite', () => {
       createBooking: jest.fn(),
       createStatusHistory: jest.fn(),
       saveIdempotencyRecord: jest.fn(),
+      findBookingById: jest.fn().mockImplementation((id) => {
+        if (id === 'other-user-booking') {
+          return Promise.resolve({
+            id,
+            bookingReference: 'ACM-OTHER',
+            customerId: '99999999-9999-9999-9999-999999999999',
+            status: 'PENDING',
+            serviceNameSnapshot: 'Other Service',
+            slotDate: new Date('2026-08-25'),
+          });
+        }
+        return Promise.resolve({
+          id,
+          bookingReference: `ACM-20260825-${id}`,
+          customerId: mockCustomerId,
+          status: 'PENDING',
+          serviceNameSnapshot: 'Test Service',
+          slotDate: new Date('2026-08-25'),
+        });
+      }),
     };
 
     const mockAddressRepo = {
@@ -139,10 +179,10 @@ describe('Multi-Service Booking & Payment Verification Suite', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: 'IBookingRepository', useValue: mockBookingRepo },
         { provide: 'IAddressRepository', useValue: mockAddressRepo },
-        { provide: StateEngineService, useValue: {} },
+        { provide: StateEngineService, useValue: { validateTransition: jest.fn(), canCancel: jest.fn().mockReturnValue(true) } },
         { provide: EligibilityService, useValue: {} },
-        { provide: NotificationService, useValue: {} },
-        { provide: BookingDomainEventEmitter, useValue: {} },
+        { provide: NotificationService, useValue: { sendCancelledNotification: jest.fn().mockResolvedValue({}) } },
+        { provide: BookingDomainEventEmitter, useValue: { emitBookingStatusChanged: jest.fn() } },
         { provide: 'REDIS_CLIENT', useValue: {} },
       ],
     }).compile();
@@ -236,6 +276,30 @@ describe('Multi-Service Booking & Payment Verification Suite', () => {
           amountInr: 100, // Client tries to pay ₹100 instead of ₹5700
         })
       ).rejects.toThrow(BadRequestException);
+    });
+
+    it('6. Group Cancellation: Cancels multiple bookings atomically', async () => {
+      const res = await bookingService.cancelGroupBookings(
+        ['b-1', 'b-2'],
+        mockCustomerId,
+        'CUSTOMER' as any,
+        'Group cancellation test'
+      );
+
+      expect(res).toBeDefined();
+      expect(res.length).toBe(2);
+      expect(prisma.booking.update).toHaveBeenCalledTimes(2);
+    });
+
+    it('7. BOLA Safeguard: Throws ForbiddenException if any booking in group belongs to another customer', async () => {
+      await expect(
+        bookingService.cancelGroupBookings(
+          ['b-1', 'other-user-booking'],
+          mockCustomerId,
+          'CUSTOMER' as any,
+          'Unauthorized cancellation attempt'
+        )
+      ).rejects.toThrow();
     });
   });
 });

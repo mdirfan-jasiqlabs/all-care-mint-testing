@@ -118,6 +118,17 @@ export class CancelBookingDto {
   reason?: string;
 }
 
+export class CancelGroupBookingDto {
+  @IsArray()
+  @IsUUID('4', { each: true })
+  bookingIds: string[];
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(255)
+  reason?: string;
+}
+
 export class UpdateBookingStatusDto {
   @IsEnum(BookingStatusEnum)
   @IsNotEmpty()

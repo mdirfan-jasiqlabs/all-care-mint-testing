@@ -22,6 +22,7 @@ import {
   CreateBookingDto,
   LockSlotDto,
   CancelBookingDto,
+  CancelGroupBookingDto,
 } from '../dto/booking.dto';
 import { ActorRoleEnum } from '../types/booking.types';
 
@@ -73,15 +74,29 @@ export class CustomerBookingController {
         },
       });
     }
-    const data = await this.bookingService.createBooking(
+    const data: any = await this.bookingService.createBooking(
       req.user.id,
       dto,
       idempotencyKey,
     );
+    const createdBookings: any[] = data.createdBookings || [data];
+    const bookingIds = createdBookings.map((b) => b.id);
+
     return {
       success: true,
       data: {
         bookingId: data.id,
+        bookingIds,
+        bookings: createdBookings.map((b) => ({
+          id: b.id,
+          bookingReference: b.bookingReference,
+          status: b.status,
+          serviceName: b.serviceNameSnapshot,
+          servicePrice: b.servicePriceSnapshot,
+          slotDate: b.slotDate,
+          slotLabel: b.slotLabelSnapshot,
+          paymentMethod: b.paymentMethod,
+        })),
         bookingReference: data.bookingReference,
         status: data.status,
         serviceName: data.serviceNameSnapshot,
@@ -121,6 +136,21 @@ export class CustomerBookingController {
   @Get(':id/history')
   async getBookingHistory(@Req() req: any, @Param('id') id: string) {
     const data = await this.bookingService.getBookingHistory(id, req.user.id);
+    return { success: true, data };
+  }
+
+  /** POST /api/v1/bookings/me/cancel-group */
+  @Post('me/cancel-group')
+  async cancelGroupMe(
+    @Req() req: any,
+    @Body() dto: CancelGroupBookingDto,
+  ) {
+    const data = await this.bookingService.cancelGroupBookings(
+      dto.bookingIds,
+      req.user.id,
+      ActorRoleEnum.CUSTOMER,
+      dto.reason,
+    );
     return { success: true, data };
   }
 

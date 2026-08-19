@@ -1,7 +1,7 @@
 // ─── apps/customer-mobile/src/screens/BookingConfirmationScreen.tsx ───
 // Source: DLD Section 8.1 & 6.2.7 — Booking Confirmation & Cancellation Screen
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,27 +12,41 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import * as storage from '../utils/storage';
 import { apiClient } from '../services/api';
 import { useTheme } from '../theme/ThemeContext';
 
 export default function BookingConfirmationScreen({ navigation, route }: any) {
   const { colors } = useTheme();
-  const { bookingId } = route.params;
+  const { bookingId, bookingIds: rawBookingIds } = route.params || {};
 
-  const [booking, setBooking] = useState<any>(null);
+  const targetBookingIds: string[] = useMemo(() => {
+    if (Array.isArray(rawBookingIds) && rawBookingIds.length > 0) {
+      return Array.from(new Set(rawBookingIds));
+    }
+    return bookingId ? [bookingId] : [];
+  }, [rawBookingIds, bookingId]);
+
+  const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   const fetchBookingDetails = async () => {
+    if (targetBookingIds.length === 0) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
-      const data = await apiClient.get(`/api/v1/bookings/${bookingId}`);
-      if (data.success) {
-        setBooking(data.data);
-      }
+      const promises = targetBookingIds.map((id) =>
+        apiClient.get(`/api/v1/bookings/${id}`).catch(() => null)
+      );
+      const results = await Promise.all(promises);
+      const valid = results
+        .filter((res: any) => res && res.success && res.data)
+        .map((res: any) => res.data);
+      setBookings(valid);
     } catch (err) {
-      Alert.alert('Error', 'Failed to retrieve booking status.');
+      Alert.alert('Error', 'Failed to retrieve booking details.');
     } finally {
       setLoading(false);
     }
@@ -40,30 +54,34 @@ export default function BookingConfirmationScreen({ navigation, route }: any) {
 
   useEffect(() => {
     fetchBookingDetails();
-  }, []);
+  }, [targetBookingIds.join(',')]);
 
   const performCancellation = async () => {
     try {
       setSubmitting(true);
-      const data = await apiClient.patch(`/api/v1/bookings/me/${bookingId}/cancel`, {
+      const data = await apiClient.post('/api/v1/bookings/me/cancel-group', {
+        bookingIds: targetBookingIds,
         reason: 'Cancelled by customer from mobile app',
       });
 
       if (!data.success) {
-        throw new Error(data.error?.message || 'Failed to cancel booking.');
+        throw new Error(data.error?.message || 'Failed to cancel bookings.');
       }
 
-      Alert.alert('Cancelled', 'Your booking has been cancelled successfully.');
+      Alert.alert('Cancelled', 'Your booking(s) have been cancelled successfully.');
       fetchBookingDetails();
     } catch (err: any) {
-      Alert.alert('Error', err.message);
+      Alert.alert('Error', err.message || 'Failed to cancel bookings.');
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleCancelBooking = () => {
-    const confirmMessage = 'Are you sure you want to cancel this booking?';
+    const confirmMessage = targetBookingIds.length > 1
+      ? `Are you sure you want to cancel all ${targetBookingIds.length} bookings?`
+      : 'Are you sure you want to cancel this booking?';
+
     if (Platform.OS === 'web' && typeof window !== 'undefined' && typeof (window as any).confirm === 'function') {
       if ((window as any).confirm(confirmMessage)) {
         performCancellation();
@@ -84,7 +102,7 @@ export default function BookingConfirmationScreen({ navigation, route }: any) {
     );
   }
 
-  if (!booking) {
+  if (bookings.length === 0) {
     return (
       <View style={[styles.outerContainer, { backgroundColor: colors.background }]}>
         <ScrollView contentContainerStyle={styles.container} style={styles.scrollContainer}>
@@ -116,69 +134,99 @@ export default function BookingConfirmationScreen({ navigation, route }: any) {
     );
   }
 
-  const isCancellable = booking && ['PENDING', 'ASSIGNED'].includes(booking.status);
+  const allCancelled = bookings.length > 0 && bookings.every((b) => b.status === 'CANCELLED');
+  const isCancellable = bookings.some((b) => ['PENDING', 'ASSIGNED'].includes(b.status));
 
   return (
     <View style={[styles.outerContainer, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.container} style={styles.scrollContainer}>
-      <View style={styles.successIconContainer}>
-        {booking?.status === 'CANCELLED' ? (
-          <View style={[styles.circle, styles.circleCancelled]}>
-            <Text style={[styles.checkmark, { color: colors.textPrimary }]}>✕</Text>
-          </View>
-        ) : (
-          <View style={[styles.circle, styles.circleSuccess, { borderColor: colors.primary }]}>
-            <Text style={[styles.checkmark, { color: colors.primary }]}>✓</Text>
-          </View>
-        )}
-      </View>
+        <View style={styles.successIconContainer}>
+          {allCancelled ? (
+            <View style={[styles.circle, styles.circleCancelled]}>
+              <Text style={[styles.checkmark, { color: colors.textPrimary }]}>✕</Text>
+            </View>
+          ) : (
+            <View style={[styles.circle, styles.circleSuccess, { borderColor: colors.primary }]}>
+              <Text style={[styles.checkmark, { color: colors.primary }]}>✓</Text>
+            </View>
+          )}
+        </View>
 
-      <Text style={[styles.title, { color: colors.textPrimary }]}>
-        {booking?.status === 'CANCELLED' ? 'Booking Cancelled' : 'Booking Placed Successfully!'}
-      </Text>
-      
-      <View style={[styles.detailsBox, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-        <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Booking Reference</Text>
-        <Text style={[styles.refText, { color: colors.textPrimary }]}>{booking.bookingReference}</Text>
-        
-        <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-        <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Status</Text>
-        <Text style={[styles.statusText, booking.status === 'CANCELLED' ? styles.textRed : styles.textYellow]}>
-          {booking.status}
+        <Text style={[styles.title, { color: colors.textPrimary }]}>
+          {allCancelled
+            ? bookings.length > 1
+              ? 'Bookings Cancelled'
+              : 'Booking Cancelled'
+            : 'Booking Placed Successfully!'}
         </Text>
 
-        <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-        <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Service</Text>
-        <Text style={[styles.valText, { color: colors.textPrimary }]}>{booking.serviceNameSnapshot}</Text>
-
-        <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-        <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Scheduled For</Text>
-        <Text style={[styles.valText, { color: colors.textPrimary }]}>
-          {new Date(booking.slotDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-          {' • '}
-          {booking.slotLabelSnapshot}
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+          {bookings.length} {bookings.length === 1 ? 'Service Booked' : 'Services Booked'}
         </Text>
-      </View>
 
-      <TouchableOpacity
-        style={[styles.homeBtn, { backgroundColor: colors.primary }]}
-        onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
-      >
-        <Text style={[styles.homeBtnText, { color: colors.primaryForeground }]}>Go to Dashboard</Text>
-      </TouchableOpacity>
+        <View style={[styles.detailsBox, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+          {bookings.map((booking, idx) => (
+            <View key={booking.id || idx}>
+              {idx > 0 && <View style={[styles.bookingCardDivider, { backgroundColor: colors.border }]} />}
 
-      {isCancellable && (
+              <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Booking Reference</Text>
+              <Text style={[styles.refText, { color: colors.textPrimary }]}>{booking.bookingReference}</Text>
+
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+              <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Status</Text>
+              <Text
+                style={[
+                  styles.statusText,
+                  booking.status === 'CANCELLED' ? styles.textRed : styles.textYellow,
+                ]}
+              >
+                {booking.status}
+              </Text>
+
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+              <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Service</Text>
+              <Text style={[styles.valText, { color: colors.textPrimary }]}>{booking.serviceNameSnapshot}</Text>
+
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+              <Text style={[styles.refLabel, { color: colors.textSecondary }]}>Scheduled For</Text>
+              <Text style={[styles.valText, { color: colors.textPrimary }]}>
+                {new Date(booking.slotDate).toLocaleDateString('en-IN', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                })}
+                {' • '}
+                {booking.slotLabelSnapshot}
+              </Text>
+            </View>
+          ))}
+        </View>
+
         <TouchableOpacity
-          style={[styles.cancelBtn, { borderColor: colors.danger }, submitting && styles.cancelBtnDisabled]}
-          onPress={handleCancelBooking}
-          disabled={submitting}
+          style={[styles.homeBtn, { backgroundColor: colors.primary }]}
+          onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
         >
-          {submitting ? <ActivityIndicator size="small" color={colors.danger} /> : <Text style={[styles.cancelBtnText, { color: colors.danger }]}>Cancel Booking</Text>}
+          <Text style={[styles.homeBtnText, { color: colors.primaryForeground }]}>Go to Dashboard</Text>
         </TouchableOpacity>
-      )}
+
+        {isCancellable && (
+          <TouchableOpacity
+            style={[styles.cancelBtn, { borderColor: colors.danger }, submitting && styles.cancelBtnDisabled]}
+            onPress={handleCancelBooking}
+            disabled={submitting}
+          >
+            {submitting ? (
+              <ActivityIndicator size="small" color={colors.danger} />
+            ) : (
+              <Text style={[styles.cancelBtnText, { color: colors.danger }]}>
+                {bookings.length > 1 ? 'Cancel All Bookings' : 'Cancel Booking'}
+              </Text>
+            )}
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </View>
   );
@@ -202,7 +250,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   successIconContainer: {
-    marginBottom: 24,
+    marginBottom: 20,
   },
   circle: {
     width: 80,
@@ -228,7 +276,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 24,
   },
   detailsBox: {
     width: '100%',
@@ -236,6 +290,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     marginBottom: 32,
+  },
+  bookingCardDivider: {
+    height: 2,
+    marginVertical: 20,
   },
   refLabel: {
     fontSize: 11,
@@ -297,4 +355,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-

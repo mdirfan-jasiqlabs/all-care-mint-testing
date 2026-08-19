@@ -666,10 +666,35 @@ export class PaymentService {
       throw new ForbiddenException('You do not have permission to view this payment status');
     }
 
+    let bookingIds: string[] = paymentOrder.bookingId ? [paymentOrder.bookingId] : [];
+    if (paymentOrder.bookingId) {
+      const primaryBooking = await this.prisma.booking.findUnique({
+        where: { id: paymentOrder.bookingId },
+        select: { bookingReference: true, slotId: true, slotDate: true, customerId: true },
+      });
+      if (primaryBooking && primaryBooking.bookingReference) {
+        const baseRefParts = primaryBooking.bookingReference.split('-');
+        if (baseRefParts.length >= 3) {
+          const baseRef = baseRefParts.slice(0, 3).join('-');
+          const siblingBookings = await this.prisma.booking.findMany({
+            where: {
+              customerId: primaryBooking.customerId,
+              bookingReference: { startsWith: baseRef },
+            },
+            select: { id: true },
+          });
+          if (siblingBookings.length > 0) {
+            bookingIds = siblingBookings.map((b) => b.id);
+          }
+        }
+      }
+    }
+
     return {
       order_id: paymentOrder.razorpayOrderId || paymentOrder.id,
       status: paymentOrder.status,
       booking_id: paymentOrder.bookingId,
+      booking_ids: bookingIds,
       amount_inr: paymentOrder.amountPaise / 100,
     };
   }

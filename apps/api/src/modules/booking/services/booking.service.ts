@@ -8,6 +8,7 @@ import {
   ForbiddenException,
   ConflictException,
   OnApplicationShutdown,
+  Logger,
 } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { IBookingRepository } from '../ports/booking.repository.port';
@@ -293,15 +294,17 @@ export class BookingService implements OnApplicationShutdown {
     };
 
     // 8. Execute atomic multi-service creation inside DB transaction
-    const primaryBooking = await this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       let firstBooking: BookingEntity | null = null;
+      const createdBookings: BookingEntity[] = [];
 
       for (let i = 0; i < services.length; i++) {
         const currentSvc = services[i]!;
         const dateStr = dto.slotDate.replace(/-/g, '');
         const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
         const bookingReference = i === 0 ? `ACM-${dateStr}-${randomSuffix}` : `ACM-${dateStr}-${randomSuffix}-${i + 1}`;
-        const currentIdempotencyKey = i === 0 ? idempotencyKey : crypto.randomUUID();
+        const isUuid = (val: string) => /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(val);
+        const currentIdempotencyKey = (i === 0 && idempotencyKey && isUuid(idempotencyKey)) ? idempotencyKey : crypto.randomUUID();
 
         const created = await tx.booking.create({
           data: {
@@ -344,6 +347,7 @@ export class BookingService implements OnApplicationShutdown {
           updatedAt: created.updatedAt,
         };
 
+        createdBookings.push(entity);
         if (i === 0) {
           firstBooking = entity;
         }
@@ -391,14 +395,17 @@ export class BookingService implements OnApplicationShutdown {
           idempotencyKey,
           requestHash,
           responseCode: 201,
-          responseBody: { bookingId: firstBooking!.id } as any,
+          responseBody: { bookingId: firstBooking!.id, bookingIds: createdBookings.map((b) => b.id) } as any,
         },
       });
 
-      return firstBooking!;
+      return { primaryBooking: firstBooking!, createdBookings };
     });
 
-    return primaryBooking;
+    return Object.assign(result.primaryBooking, {
+      primaryBooking: result.primaryBooking,
+      createdBookings: result.createdBookings,
+    });
   }
 
   // ─── Customer Booking Queries ───
@@ -537,6 +544,137 @@ export class BookingService implements OnApplicationShutdown {
     });
 
     return updatedBooking;
+  }
+
+  async cancelGroupBookings(
+    bookingIds: string[],
+    actorId: string,
+    actorRole: ActorRoleEnum,
+    reason?: string,
+  ): Promise<BookingEntity[]> {
+    if (!bookingIds || bookingIds.length === 0) {
+      return [];
+    }
+
+    const uniqueIds = Array.from(new Set(bookingIds));
+    const bookings = await Promise.all(
+      uniqueIds.map((id) => this.bookingRepo.findBookingById(id))
+    );
+
+    // 1. Ownership check (BOLA/IDOR protection for EVERY requested booking ID)
+    for (const b of bookings) {
+      if (!b) continue;
+      if (actorRole === ActorRoleEnum.CUSTOMER && b.customerId !== actorId) {
+        throw new ForbiddenException({
+          success: false,
+          error: {
+            code: 'ERR_BOOKING_FORBIDDEN',
+            message: 'You do not have permission to cancel one or more requested bookings.',
+          },
+        });
+      }
+    }
+
+    // 2. Identify eligible bookings using canonical state machine rules
+    const eligibleBookings = bookings.filter(
+      (b): b is BookingEntity =>
+        b !== null &&
+        (b.status === BookingStatusEnum.PENDING || b.status === BookingStatusEnum.ASSIGNED)
+    );
+
+    if (eligibleBookings.length === 0) {
+      return bookings.filter((b): b is BookingEntity => b !== null);
+    }
+
+    const now = new Date();
+
+    // 3. Atomic DB mutations inside transaction
+    await this.prisma.$transaction(async (tx) => {
+      for (const booking of eligibleBookings) {
+        this.stateEngine.validateTransition(
+          booking.status,
+          BookingStatusEnum.CANCELLED,
+          actorRole,
+        );
+
+        await tx.booking.update({
+          where: { id: booking.id },
+          data: {
+            status: BookingStatusEnum.CANCELLED,
+            cancelledAt: now,
+          },
+        });
+
+        await tx.bookingSlotLock.deleteMany({
+          where: { bookingId: booking.id },
+        });
+
+        await tx.bookingStatusHistory.create({
+          data: {
+            bookingId: booking.id,
+            status: BookingStatusEnum.CANCELLED,
+            actorId,
+            actorRole,
+            note: reason || 'Booking cancelled (group cancellation)',
+          },
+        });
+
+        await tx.paymentOrder.updateMany({
+          where: {
+            bookingId: booking.id,
+            status: 'CASH_PENDING',
+          },
+          data: {
+            status: 'CANCELLED',
+            failureReason: reason || 'Booking cancelled by customer',
+          },
+        });
+      }
+    });
+
+    // 4. Safe external side-effects OUTSIDE transaction
+    for (const booking of eligibleBookings) {
+      try {
+        const locks = await this.prisma.bookingSlotLock.findMany({
+          where: { bookingId: booking.id },
+        });
+        for (const lock of locks) {
+          const dateStr = lock.slotDate.toISOString().split('T')[0];
+          const redisKey = `lock:slot:${lock.slotId}:date:${dateStr}`;
+          await this.redisClient.del(redisKey).catch(() => null);
+        }
+      } catch (err) {
+        // Redis lock deletion fallback warning ignored
+      }
+
+      this.notificationService
+        .sendCancelledNotification(
+          booking.id,
+          booking.customerId,
+          booking.providerId || undefined,
+        )
+        .catch((err) =>
+          Logger.error(
+            `Failed sending cancelled notification for ${booking.id}: ${err.message}`,
+            'BookingService',
+          ),
+        );
+
+      this.domainEventEmitter.emitBookingStatusChanged({
+        bookingId: booking.id,
+        status: 'CANCELLED',
+        customerId: booking.customerId,
+        providerId: booking.providerId ?? undefined,
+        serviceName: booking.serviceNameSnapshot,
+        timestamp: Date.now(),
+      });
+    }
+
+    // 5. Fetch fresh updated states
+    const updatedBookings = await Promise.all(
+      uniqueIds.map((id) => this.bookingRepo.findBookingById(id))
+    );
+    return updatedBookings.filter((b): b is BookingEntity => b !== null);
   }
 
   // ─── Admin Operations ───

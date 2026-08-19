@@ -461,6 +461,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
               showToast('Payment Successful! Booking confirmed.', 'success');
               navigation.replace('BookingConfirmation', {
                 bookingId: data.data.booking_id,
+                bookingIds: data.data.booking_ids || (data.data.booking_id ? [data.data.booking_id] : []),
                 status: 'PENDING',
               });
             }
@@ -528,6 +529,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
       showToast('Cash booking placed successfully!', 'success');
       navigation.replace('BookingConfirmation', {
         bookingId: data.data.bookingId,
+        bookingIds: data.data.bookingIds || (data.data.bookingId ? [data.data.bookingId] : []),
         status: data.data.status,
       });
     } catch (err: any) {
@@ -605,6 +607,7 @@ export default function BookingSummaryScreen({ navigation, route }: any) {
 
       navigation.replace('BookingConfirmation', {
         bookingId: data.data.bookingId,
+        bookingIds: data.data.bookingIds || (data.data.bookingId ? [data.data.bookingId] : []),
         status: data.data.status,
       });
     } catch (err: any) {
