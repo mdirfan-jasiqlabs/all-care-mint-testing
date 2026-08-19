@@ -97,6 +97,10 @@ const getInitials = (name: string) => {
   return name.substring(0, 2).toUpperCase();
 };
 
+function canCancelBooking(status: string): boolean {
+  return status !== 'COMPLETED' && status !== 'CANCELLED';
+}
+
 // Helper badge renderer
 const renderStatusBadge = (status: string) => {
   switch (status) {
@@ -450,7 +454,7 @@ const BookingTableRow = memo(function BookingTableRow({
               >
                 <span>{booking.status === 'PENDING' ? 'Assign Partner' : 'Reassign Partner'}</span>
               </button>
-              {booking.status !== 'CANCELLED' && (
+              {canCancelBooking(booking.status) && (
                 <button
                   type="button"
                   disabled={booking.status === 'ACCEPTED'}
@@ -1341,46 +1345,49 @@ export default function AdminBookingsPage() {
             </div>
 
             {/* Action Footer */}
-            <div className="border-t pt-4 flex flex-col gap-2 mt-6" style={{ borderColor: 'var(--admin-border)' }}>
-              {drawerBooking.status === 'ACCEPTED' && (
-                <div
-                  style={{
-                    backgroundColor: 'var(--admin-badge-inactive-bg)',
-                    border: '1px solid var(--admin-badge-inactive-border)',
-                    color: 'var(--admin-badge-inactive-text)',
-                  }}
-                  className="p-2.5 rounded-xl text-xs text-center font-bold flex items-center justify-center gap-1.5"
+            {canCancelBooking(drawerBooking.status) && (
+              <div className="border-t pt-4 flex flex-col gap-2 mt-6" style={{ borderColor: 'var(--admin-border)' }}>
+                {drawerBooking.status === 'ACCEPTED' && (
+                  <div
+                    style={{
+                      backgroundColor: 'var(--admin-badge-inactive-bg)',
+                      border: '1px solid var(--admin-badge-inactive-border)',
+                      color: 'var(--admin-badge-inactive-text)',
+                    }}
+                    className="p-2.5 rounded-xl text-xs text-center font-bold flex items-center justify-center gap-1.5"
+                  >
+                    <ShieldAlert className="w-4 h-4 flex-shrink-0" />
+                    <span>Cannot cancel accepted booking (BR-002-001 restriction).</span>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  disabled={actionSubmitting || drawerBooking.status === 'ACCEPTED'}
+                  onClick={handleCancelBookingInDrawer}
+                  style={
+                    drawerBooking.status === 'ACCEPTED'
+                      ? {
+                          backgroundColor: 'var(--admin-btn-secondary-bg)',
+                          color: 'var(--admin-text-muted)',
+                          border: '1px solid var(--admin-border)',
+                        }
+                      : {
+                          backgroundColor: 'var(--admin-badge-inactive-bg)',
+                          border: '1px solid var(--admin-badge-inactive-border)',
+                          color: 'var(--admin-badge-inactive-text)',
+                        }
+                  }
+                  className={`w-full py-2.5 rounded-xl font-bold text-xs transition-colors ${
+                    drawerBooking.status === 'ACCEPTED'
+                      ? 'cursor-not-allowed'
+                      : 'hover:opacity-85 cursor-pointer'
+                  }`}
                 >
-                  <ShieldAlert className="w-4 h-4 flex-shrink-0" />
-                  <span>Cannot cancel accepted booking (BR-002-001 restriction).</span>
-                </div>
-              )}
-              <button
-                type="button"
-                disabled={actionSubmitting || drawerBooking.status === 'ACCEPTED'}
-                onClick={handleCancelBookingInDrawer}
-                style={
-                  drawerBooking.status === 'ACCEPTED'
-                    ? {
-                        backgroundColor: 'var(--admin-btn-secondary-bg)',
-                        color: 'var(--admin-text-muted)',
-                        border: '1px solid var(--admin-border)',
-                      }
-                    : {
-                        backgroundColor: 'var(--admin-badge-inactive-bg)',
-                        border: '1px solid var(--admin-badge-inactive-border)',
-                        color: 'var(--admin-badge-inactive-text)',
-                      }
-                }
-                className={`w-full py-2.5 rounded-xl font-bold text-xs transition-colors ${
-                  drawerBooking.status === 'ACCEPTED'
-                    ? 'cursor-not-allowed'
-                    : 'hover:opacity-85 cursor-pointer'
-                }`}
-              >
-                Cancel Booking (Customer/Admin override)
-              </button>
-            </div>
+                  Cancel Booking (Customer/Admin override)
+                </button>
+              </div>
+            )}
+
           </aside>
         </>
       )}
