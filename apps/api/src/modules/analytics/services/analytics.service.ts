@@ -8,6 +8,7 @@ import {
   getPreviousPeriod,
   getISTDateParts,
   BUSINESS_TZ_OFFSET,
+  formatCsvDate,
 } from '../../../common/utils/date.util';
 import Redis from 'ioredis';
 
@@ -799,7 +800,7 @@ export class AnalyticsService {
             ? payment.amountPaise / 100
             : Number(b.servicePriceSnapshot || 0);
 
-          const dateStr = b.createdAt.toISOString().split('T')[0];
+          const dateStr = formatCsvDate(b.createdAt);
           const refStr = b.bookingReference || b.id;
           const custStr = b.customer?.displayName || b.customer?.mobileNumber || 'Customer';
           const svcStr = b.serviceNameSnapshot || b.service?.name || 'Service';
@@ -910,7 +911,7 @@ export class AnalyticsService {
       const rows = reportItems
         .map(
           (item) =>
-            `${sanitizeCsvCell(item.date)},${sanitizeCsvCell(item.booking_reference || item.booking_id)},${sanitizeCsvCell(item.customer_name)},${sanitizeCsvCell(item.service_name)},${item.amount_inr},${sanitizeCsvCell(item.payment_method)},${sanitizeCsvCell(item.status)}`,
+            `${sanitizeCsvCell(formatCsvDate(item.date))},${sanitizeCsvCell(item.booking_reference || item.booking_id)},${sanitizeCsvCell(item.customer_name)},${sanitizeCsvCell(item.service_name)},${item.amount_inr},${sanitizeCsvCell(item.payment_method)},${sanitizeCsvCell(item.status)}`,
         )
         .join('\n');
 
@@ -923,3 +924,4 @@ export class AnalyticsService {
     return { data: reportItems };
   }
 }
+

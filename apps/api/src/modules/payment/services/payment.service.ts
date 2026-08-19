@@ -9,6 +9,7 @@ import {
 import { PrismaService } from '../../../prisma/prisma.service';
 import * as crypto from 'crypto';
 import { InitiatePaymentDto, AdminPaymentsQueryDto } from '../dto/payment.dto';
+import { formatCsvDate } from '../../../common/utils/date.util';
 
 import { Inject, Optional, forwardRef } from '@nestjs/common';
 import { AnalyticsProjectionService } from '../../analytics/services/analytics-projection.service';
@@ -879,7 +880,7 @@ export class PaymentService {
       const rows = formattedItems
         .map(
           (i) =>
-            `"${i.id}","${i.date}","${i.booking_id}","${i.customer_name}","${i.service_name}","${i.provider_name}",${i.amount_inr},"${i.payment_method}","${i.status}"`,
+            `"${i.id}","${formatCsvDate(i.date)}","${i.booking_id}","${i.customer_name}","${i.service_name}","${i.provider_name}",${i.amount_inr},"${i.payment_method}","${i.status}"`,
         )
         .join('\n');
       return header + rows;

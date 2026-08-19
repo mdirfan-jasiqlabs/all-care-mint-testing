@@ -18,6 +18,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
+import { formatCsvDate } from '@/lib/csv';
 import { useToast } from '../../_components/Toast';
 
 interface PaymentRecord {
@@ -149,26 +150,9 @@ export default function AdminPaymentsPage() {
         const csvRows = [headers.join(',')];
 
         for (const p of payments) {
-          let dateStr = '';
-          if (p.date) {
-            const rawDate = String(p.date).trim();
-            if (rawDate.includes('T')) {
-              dateStr = rawDate.split('T')[0];
-            } else if (rawDate.includes(' ')) {
-              dateStr = rawDate.split(' ')[0];
-            } else {
-              const d = new Date(p.date);
-              if (!isNaN(d.getTime())) {
-                const yyyy = d.getFullYear();
-                const mm = String(d.getMonth() + 1).padStart(2, '0');
-                const dd = String(d.getDate()).padStart(2, '0');
-                dateStr = `${yyyy}-${mm}-${dd}`;
-              } else {
-                dateStr = rawDate;
-              }
-            }
-          }
+          const dateStr = formatCsvDate(p.date);
           const bId = `"${(p.booking_id || '').replace(/"/g, '""')}"`;
+
           const custStr = `"${(p.customer_name || 'Customer').replace(/"/g, '""')}"`;
           const svcStr = `"${(p.service_name || 'Service').replace(/"/g, '""')}"`;
           const provStr = `"${(p.provider_name || 'Provider').replace(/"/g, '""')}"`;

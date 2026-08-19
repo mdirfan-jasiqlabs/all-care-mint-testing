@@ -91,3 +91,34 @@ export function getPreviousPeriod(startDate: Date, endDate: Date): { prevStartDa
   const prevStartDate = new Date(startDate.getTime() - durationDays * 24 * 60 * 60 * 1000);
   return { prevStartDate, prevEndDate };
 }
+
+/**
+ * Formats a date value into DD-MM-YYYY format in Asia/Kolkata (IST) for CSV exports.
+ * Returns an empty string for null, undefined, or invalid date values.
+ */
+export function formatCsvDate(value: string | Date | null | undefined): string {
+  if (!value) return '';
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      const [yyyy, mm, dd] = trimmed.split('-');
+      return `${dd}-${mm}-${yyyy}`;
+    }
+
+    if (/^\d{2}-\d{2}-\d{4}$/.test(trimmed)) {
+      return trimmed;
+    }
+  }
+
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+
+  const { year, month, day } = getISTDateParts(d);
+  const dd = String(day).padStart(2, '0');
+  const mm = String(month).padStart(2, '0');
+  return `${dd}-${mm}-${year}`;
+}
+
