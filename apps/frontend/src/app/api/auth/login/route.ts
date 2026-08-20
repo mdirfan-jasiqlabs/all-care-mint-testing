@@ -7,10 +7,14 @@ export async function POST(request: Request) {
   try {
     // 1. Origin/Referer Validation (BFF security check)
     const origin = request.headers.get('origin') || '';
-    const referer = request.headers.get('referer') || '';
-    const appUrl = process.env.APP_URL || 'http://localhost:3001';
+    const host = request.headers.get('host') || '';
+    const appUrl = process.env.APP_URL;
 
-    if (origin && !origin.startsWith(appUrl)) {
+    // Allow same-origin requests (where origin matches current host) or configured APP_URL
+    const isSameOrigin = host && (origin === `http://${host}` || origin === `https://${host}`);
+    const isAppUrlMatch = appUrl ? origin.startsWith(appUrl) : false;
+
+    if (origin && !isSameOrigin && (!appUrl || !isAppUrlMatch)) {
       return NextResponse.json(
         { success: false, error: { code: 'ERR_CSRF', message: 'Forbidden origin' } },
         { status: 403 },
