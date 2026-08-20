@@ -29,8 +29,8 @@
   },
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "node src/utils/__tests__/api.test.js && node src/screens/rating/__tests__/RatingSubmissionModal.test.js && node src/services/__tests__/authRefresh.test.js"
   },
