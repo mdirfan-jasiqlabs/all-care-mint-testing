@@ -32,6 +32,7 @@ lerna-debug.log*
 .DS_Store
 Thumbs.db
 *.rdb
+*.zip
 
 # IDE and editors config
 .idea/
