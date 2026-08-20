@@ -6,7 +6,7 @@ import { apiClient } from '@/lib/api';
 import { useToast } from './Toast';
 import ConfirmModal from './ConfirmModal';
 import TableSkeleton from './TableSkeleton';
-import { useCatalogETag } from '../catalog/CatalogETagContext';
+import { useCatalogETag } from './CatalogETagContext';
 import {
   CheckCircle2,
   Plus,

@@ -5,7 +5,7 @@ import { ToastProvider } from '../_components/Toast';
 import AdminHeader from '../_components/AdminHeader';
 import AdminSidebar from '../_components/AdminSidebar';
 import AdminFooter from '../_components/AdminFooter';
-import { CatalogETagProvider } from '../catalog/CatalogETagContext';
+import { CatalogETagProvider } from '../_components/CatalogETagContext';
 import { AdminThemeProvider } from '../_components/AdminThemeContext';
 
 export default function ProtectedAdminLayout({ children }: { children: React.ReactNode }) {
