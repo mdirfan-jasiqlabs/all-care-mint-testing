@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { apiClient } from '@/lib/api';
@@ -70,8 +70,6 @@ function ProviderLeadsPageContent() {
   const [page, setPage] = useState(1);
   const [onboardingId, setOnboardingId] = useState<string | null>(null);
   const limit = 20;
-
-  const hasMarkedReadRef = useRef(false);
 
   const handleOnboardLead = async (lead: ProviderLead) => {
     try {
@@ -149,19 +147,6 @@ function ProviderLeadsPageContent() {
       if (data.success) {
         setLeads(data.data || []);
         setTotal(data.total || 0);
-
-        // Mark leads as read ONLY after successful data load, and exactly once per page mount session
-        if (!hasMarkedReadRef.current) {
-          hasMarkedReadRef.current = true;
-          try {
-            const markRes = await apiClient.patch('/api/v1/admin/notifications/provider-leads/read');
-            if (markRes.success) {
-              window.dispatchEvent(new Event('provider-leads-read'));
-            }
-          } catch (patchErr) {
-            console.error('Failed to mark provider leads read:', patchErr);
-          }
-        }
       }
     } catch (err: any) {
       if (err.status === 401 || err.status === 403) {
